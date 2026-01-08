@@ -759,6 +759,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "vaya-auth"
+version = "0.1.0"
+dependencies = [
+ "ring",
+ "time",
+ "tokio",
+ "tracing",
+ "vaya-cache",
+ "vaya-common",
+ "vaya-crypto",
+]
+
+[[package]]
 name = "vaya-cache"
 version = "0.1.0"
 dependencies = [

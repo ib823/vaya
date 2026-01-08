@@ -6,7 +6,7 @@ members = [
     "crates/vaya-db",
     "crates/vaya-cache",
     "crates/vaya-store",
-    # "crates/vaya-auth",
+    "crates/vaya-auth",
     "crates/vaya-ml",
     # "crates/vaya-oracle",
     # "crates/vaya-pool",

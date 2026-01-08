@@ -1,0 +1,18 @@
+[package]
+name = "vaya-auth"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Authentication, authorization, and session management"
+
+[dependencies]
+vaya-common = { workspace = true }
+vaya-crypto = { workspace = true }
+vaya-cache = { workspace = true }
+ring = { workspace = true }
+time = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
