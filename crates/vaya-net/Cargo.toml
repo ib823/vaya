@@ -1,0 +1,20 @@
+[package]
+name = "vaya-net"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Zero-dependency HTTP server with TLS and WebSocket support"
+
+[dependencies]
+vaya-common = { workspace = true }
+tokio = { workspace = true }
+rustls = { workspace = true }
+ring = { workspace = true }
+tracing = { workspace = true }
+
+# TLS certificate handling
+rustls-pemfile = "2.0"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
