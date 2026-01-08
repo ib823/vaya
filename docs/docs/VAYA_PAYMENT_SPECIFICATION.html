@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Payment Specification v1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0; --mint-dim: rgba(0,245,160,0.12);
+            --cyan: #00D9FF; --cyan-dim: rgba(0,217,255,0.12);
+            --white: #FFFFFF;
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n200: #1A1A1D; --n300: #232326;
+            --n600: #5C5C63; --n700: #7A7A82; --n800: #9999A1;
+            --error: #FF4757; --warning: #FFB800; --purple: #A855F7; --blue: #3B82F6;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--white); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--mint); margin-bottom: 48px; background: linear-gradient(180deg, rgba(0,245,160,0.1) 0%, transparent 100%); }
+        .logo { font-family: var(--font-display); font-size: 56px; font-weight: 800; }
+        .logo span:first-child { color: var(--mint); }
+        .logo span:last-child { color: var(--cyan); }
+        .title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--mint); margin-top: 16px; }
+        .section { margin-bottom: 48px; }
+        .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--n100); border-left: 4px solid var(--mint); margin-bottom: 20px; }
+        .section-id { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 4px 8px; border-radius: 4px; color: var(--n600); }
+        .section-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+        .subsection { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .subsection h4 { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--cyan); margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+        th { background: var(--n100); padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--n600); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--n200); vertical-align: top; }
+        .code { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 2px 6px; border-radius: 4px; }
+        .code-block { background: var(--n100); border-radius: 8px; padding: 16px; font-family: var(--font-mono); font-size: 11px; overflow-x: auto; margin: 12px 0; white-space: pre; line-height: 1.5; }
+        .payment-card { background: var(--n100); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; align-items: center; gap: 16px; }
+        .payment-icon { font-size: 32px; }
+        .payment-info { flex: 1; }
+        .payment-name { font-weight: 700; font-size: 14px; }
+        .payment-desc { font-size: 11px; color: var(--n700); margin-top: 4px; }
+        .payment-stats { text-align: right; }
+        .flow-diagram { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 16px; background: var(--n100); border-radius: 8px; margin: 12px 0; }
+        .flow-step { background: var(--n200); border-radius: 8px; padding: 10px 14px; text-align: center; min-width: 100px; }
+        .flow-step-num { font-family: var(--font-display); font-size: 16px; font-weight: 800; color: var(--mint); }
+        .flow-step-text { font-size: 9px; color: var(--n700); margin-top: 2px; }
+        .flow-arrow { color: var(--n600); font-size: 16px; }
+        .critical-box { background: rgba(255,71,87,0.1); border: 1px solid var(--error); border-radius: 8px; padding: 16px; margin: 16px 0; }
+        .critical-box h5 { color: var(--error); font-size: 12px; margin-bottom: 8px; }
+        .compliance-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; margin: 4px; }
+        .badge-pci { background: var(--mint); color: black; }
+        .badge-bnm { background: var(--cyan); color: black; }
+        .badge-pdpa { background: var(--purple); color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span>VA</span><span>YA</span></div>
+            <h1 class="title">ðŸ’³ Payment Specification â€” VayaPay</h1>
+            <p style="color: var(--n600); margin-top: 12px;">Malaysian Payment Landscape & PCI Compliance</p>
+            <div style="margin-top: 16px;">
+                <span class="compliance-badge badge-pci">PCI DSS Level 3</span>
+                <span class="compliance-badge badge-bnm">BNM Compliant</span>
+                <span class="compliance-badge badge-pdpa">PDPA Compliant</span>
+            </div>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- PAY-01: PAYMENT FLOW ARCHITECTURE -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">PAY-01</span>
+                <span class="section-title">Payment Flow Architecture</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Payment Lifecycle</h4>
+                <div class="flow-diagram">
+                    <div class="flow-step"><div class="flow-step-num">1</div><div class="flow-step-text">Booking<br>Created</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">2</div><div class="flow-step-text">Payment<br>Initiated</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">3</div><div class="flow-step-text">Method<br>Selected</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">4</div><div class="flow-step-text">Auth/3DS<br>Challenge</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">5</div><div class="flow-step-text">Processing<br>(Gateway)</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">6</div><div class="flow-step-text">Confirmation<br>& Receipt</div></div>
+                </div>
+
+                <table>
+                    <tr><th>State</th><th>Description</th><th>Timeout</th><th>Next States</th></tr>
+                    <tr><td><span class="code">pending</span></td><td>Booking created, awaiting payment</td><td>30 min</td><td>processing, expired</td></tr>
+                    <tr><td><span class="code">processing</span></td><td>Payment initiated with gateway</td><td>5 min</td><td>requires_action, completed, failed</td></tr>
+                    <tr><td><span class="code">requires_action</span></td><td>3DS/OTP/Bank redirect needed</td><td>10 min</td><td>completed, failed, expired</td></tr>
+                    <tr><td><span class="code">completed</span></td><td>Payment successful</td><td>â€”</td><td>refunded</td></tr>
+                    <tr><td><span class="code">failed</span></td><td>Payment declined/error</td><td>â€”</td><td>pending (retry)</td></tr>
+                    <tr><td><span class="code">refunded</span></td><td>Full refund processed</td><td>â€”</td><td>â€”</td></tr>
+                    <tr><td><span class="code">partial_refund</span></td><td>Partial refund processed</td><td>â€”</td><td>refunded</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ—ï¸ Payment Architecture</h4>
+                <div class="code-block">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                           VAYA Payment Flow                              â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                          â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚  Client  â”‚â”€â”€â”€â–¶â”‚  VayaPay API  â”‚â”€â”€â”€â–¶â”‚     Payment Orchestrator     â”‚  â”‚
+â”‚  â”‚  (App)   â”‚    â”‚  (REST/WSS)   â”‚    â”‚        (Rust Service)        â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚       â”‚                                            â”‚                     â”‚
+â”‚       â”‚         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚       â”‚         â”‚                                  â–¼                  â”‚  â”‚
+â”‚       â”‚    â”Œâ”€â”€â”€â”€â”´â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚  â”‚
+â”‚       â”‚    â”‚ VayaPay â”‚  â”‚  Stripe  â”‚  â”‚    iPay88    â”‚  â”‚ Billplz  â”‚ â”‚  â”‚
+â”‚       â”‚    â”‚   .js   â”‚  â”‚  (Cards) â”‚  â”‚(FPX/eWallet) â”‚  â”‚  (FPX)   â”‚ â”‚  â”‚
+â”‚       â”‚    â”‚(Client) â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚  â”‚
+â”‚       â”‚    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜         â”‚              â”‚              â”‚        â”‚  â”‚
+â”‚       â”‚         â”‚              â–¼              â–¼              â–¼        â”‚  â”‚
+â”‚       â”‚         â”‚    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚  â”‚
+â”‚       â”‚         â”‚    â”‚             Malaysian Banks                  â”‚ â”‚  â”‚
+â”‚       â”‚         â”‚    â”‚  (Maybank, CIMB, Public Bank, RHB, etc.)    â”‚ â”‚  â”‚
+â”‚       â”‚         â”‚    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚  â”‚
+â”‚       â”‚         â”‚              â”‚              â”‚              â”‚        â”‚  â”‚
+â”‚       â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â”‚  â”‚
+â”‚                                                                          â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚                      eWallet Providers                            â”‚   â”‚
+â”‚  â”‚    GrabPay    â”‚    Touch'n Go    â”‚    Boost    â”‚    ShopeePay    â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                                          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- PAY-02: MALAYSIAN PAYMENT METHODS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">PAY-02</span>
+                <span class="section-title">Malaysian Payment Methods</span>
+            </div>
+
+            <!-- Credit/Debit Cards -->
+            <div class="subsection">
+                <h4>ðŸ’³ Credit/Debit Cards</h4>
+                <div class="payment-card">
+                    <div class="payment-icon">ðŸ’³</div>
+                    <div class="payment-info">
+                        <div class="payment-name">Visa / Mastercard / AMEX</div>
+                        <div class="payment-desc">Local and international cards. 3D Secure 2.0 mandatory for all transactions.</div>
+                    </div>
+                    <div class="payment-stats">
+                        <div style="font-size: 10px; color: var(--n600);">Est. Usage</div>
+                        <div style="font-family: var(--font-display); font-weight: 700; color: var(--mint);">35%</div>
+                    </div>
+                </div>
+                
+                <table>
+                    <tr><th>Parameter</th><th>Specification</th></tr>
+                    <tr><td>Gateway</td><td>Stripe (primary), iPay88 (fallback)</td></tr>
+                    <tr><td>3DS Version</td><td>3D Secure 2.0 (mandatory)</td></tr>
+                    <tr><td>Card Brands</td><td>Visa, Mastercard, American Express</td></tr>
+                    <tr><td>Tokenization</td><td>Stripe card tokens (never store PAN)</td></tr>
+                    <tr><td>Processing Fee</td><td>2.9% + RM 1.00 (Visa/MC), 3.5% (AMEX)</td></tr>
+                    <tr><td>Settlement</td><td>T+2 business days</td></tr>
+                    <tr><td>Chargebacks</td><td>Standard Visa/MC dispute process</td></tr>
+                </table>
+            </div>
+
+            <!-- FPX -->
+            <div class="subsection">
+                <h4>ðŸ¦ FPX (Financial Process Exchange)</h4>
+                <div class="payment-card">
+                    <div class="payment-icon">ðŸ¦</div>
+                    <div class="payment-info">
+                        <div class="payment-name">FPX Online Banking</div>
+                        <div class="payment-desc">Direct bank debit. Most popular payment method in Malaysia for large transactions.</div>
+                    </div>
+                    <div class="payment-stats">
+                        <div style="font-size: 10px; color: var(--n600);">Est. Usage</div>
+                        <div style="font-family: var(--font-display); font-weight: 700; color: var(--cyan);">40%</div>
+                    </div>
+                </div>
+
+                <table>
+                    <tr><th>Bank Code</th><th>Bank Name</th><th>B2C Limit</th><th>Status</th></tr>
+                    <tr><td><span class="code">MBB0227</span></td><td>Maybank2u</td><td>RM 30,000/day</td><td>âœ… Active</td></tr>
+                    <tr><td><span class="code">CIMB0226</span></td><td>CIMB Clicks</td><td>RM 25,000/day</td><td>âœ… Active</td></tr>
+                    <tr><td><span class="code">PBB0233</span></td><td>Public Bank</td><td>RM 25,000/day</td><td>âœ… Active</td></tr>
+                    <tr><td><span class="code">RHB0218</span></td><td>RHB Now</td><td>RM 25,000/day</td><td>âœ… Active</td></tr>
+                    <tr><td><span class="code">HLB0224</span></td><td>Hong Leong Connect</td><td>RM 20,000/day</td><td>âœ… Active</td></tr>
+                    <tr><td><span class="code">BCBB0235</span></td><td>OCBC Bank</td><td>RM 25,000/day</td><td>âœ… Active</td></tr>
+                    <tr><td><span class="code">BIMB0340</span></td><td>Bank Islam</td><td>RM 20,000/day</td><td>âœ… Active</td></tr>
+                    <tr><td><span class="code">ABB0233</span></td><td>Ambank</td><td>RM 20,000/day</td><td>âœ… Active</td></tr>
+                    <tr><td><span class="code">BMMB0341</span></td><td>Bank Muamalat</td><td>RM 15,000/day</td><td>âœ… Active</td></tr>
+                    <tr><td><span class="code">UOB0226</span></td><td>UOB</td><td>RM 25,000/day</td><td>âœ… Active</td></tr>
+                </table>
+
+                <table>
+                    <tr><th>Parameter</th><th>Specification</th></tr>
+                    <tr><td>Gateway</td><td>iPay88 (primary), Billplz (fallback)</td></tr>
+                    <tr><td>Processing Fee</td><td>1.5% (capped at RM 5.00)</td></tr>
+                    <tr><td>Settlement</td><td>T+1 business day</td></tr>
+                    <tr><td>Transaction Limit</td><td>RM 30,000/transaction (B2C)</td></tr>
+                    <tr><td>Refund Support</td><td>Manual refund only (no auto-reversal)</td></tr>
+                </table>
+            </div>
+
+            <!-- eWallets -->
+            <div class="subsection">
+                <h4>ðŸ“± eWallets</h4>
+                
+                <div class="payment-card">
+                    <div class="payment-icon" style="color: #00B14F;">G</div>
+                    <div class="payment-info">
+                        <div class="payment-name">GrabPay</div>
+                        <div class="payment-desc">Leading eWallet in Malaysia. OAuth flow for authentication.</div>
+                    </div>
+                    <div class="payment-stats">
+                        <div style="font-size: 10px; color: var(--n600);">Est. Usage</div>
+                        <div style="font-family: var(--font-display); font-weight: 700;">10%</div>
+                    </div>
+                </div>
+
+                <div class="payment-card">
+                    <div class="payment-icon" style="color: #0057FF;">T</div>
+                    <div class="payment-info">
+                        <div class="payment-name">Touch 'n Go eWallet</div>
+                        <div class="payment-desc">Most downloaded eWallet in Malaysia. Deep link integration.</div>
+                    </div>
+                    <div class="payment-stats">
+                        <div style="font-size: 10px; color: var(--n600);">Est. Usage</div>
+                        <div style="font-family: var(--font-display); font-weight: 700;">8%</div>
+                    </div>
+                </div>
+
+                <div class="payment-card">
+                    <div class="payment-icon" style="color: #FF5722;">B</div>
+                    <div class="payment-info">
+                        <div class="payment-name">Boost</div>
+                        <div class="payment-desc">Axiata-backed eWallet. QR-based payments.</div>
+                    </div>
+                    <div class="payment-stats">
+                        <div style="font-size: 10px; color: var(--n600);">Est. Usage</div>
+                        <div style="font-family: var(--font-display); font-weight: 700;">4%</div>
+                    </div>
+                </div>
+
+                <div class="payment-card">
+                    <div class="payment-icon" style="color: #EE4D2D;">S</div>
+                    <div class="payment-info">
+                        <div class="payment-name">ShopeePay</div>
+                        <div class="payment-desc">Shopee ecosystem eWallet. Growing rapidly.</div>
+                    </div>
+                    <div class="payment-stats">
+                        <div style="font-size: 10px; color: var(--n600);">Est. Usage</div>
+                        <div style="font-family: var(--font-display); font-weight: 700;">3%</div>
+                    </div>
+                </div>
+
+                <table>
+                    <tr><th>eWallet</th><th>Integration</th><th>Limit</th><th>Fee</th><th>Settlement</th></tr>
+                    <tr><td>GrabPay</td><td>iPay88 / Direct API</td><td>RM 20,000/tx</td><td>1.5%</td><td>T+1</td></tr>
+                    <tr><td>Touch 'n Go</td><td>iPay88</td><td>RM 10,000/tx</td><td>1.5%</td><td>T+1</td></tr>
+                    <tr><td>Boost</td><td>iPay88</td><td>RM 5,000/tx</td><td>1.5%</td><td>T+1</td></tr>
+                    <tr><td>ShopeePay</td><td>iPay88</td><td>RM 5,000/tx</td><td>1.5%</td><td>T+2</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- PAY-03: CURRENCY HANDLING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">PAY-03</span>
+                <span class="section-title">Currency Handling</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’± Multi-Currency Strategy</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Specification</th></tr>
+                    <tr><td>Base Currency</td><td><span class="code">MYR</span> (Malaysian Ringgit)</td></tr>
+                    <tr><td>Display Currencies</td><td>MYR, USD, SGD, THB, IDR, PHP, AUD, GBP, EUR, JPY, CNY</td></tr>
+                    <tr><td>Settlement Currency</td><td>MYR only (all payments settle in MYR)</td></tr>
+                    <tr><td>Exchange Rate Source</td><td>Open Exchange Rates API (primary), XE (fallback)</td></tr>
+                    <tr><td>Rate Refresh</td><td>Every 15 minutes</td></tr>
+                    <tr><td>Rate Cache TTL</td><td>1 hour</td></tr>
+                    <tr><td>Markup</td><td>0% (display actual mid-market rate)</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”¢ Price Calculation</h4>
+                <div class="code-block"># Currency Conversion (Rust)
+struct CurrencyService {
+    rates_cache: Arc&lt;RwLock&lt;HashMap&lt;String, f64&gt;&gt;&gt;,
+    base_currency: "MYR",
+}
+
+impl CurrencyService {
+    fn convert(&self, amount_sen: i64, from: &str, to: &str) -> Result&lt;i64&gt; {
+        let rates = self.rates_cache.read();
+        
+        // Convert to base (MYR) first
+        let myr_amount = if from == "MYR" {
+            amount_sen as f64
+        } else {
+            let from_rate = rates.get(from)?;  // e.g., USD/MYR = 4.50
+            amount_sen as f64 * from_rate
+        };
+        
+        // Convert to target currency
+        let target_amount = if to == "MYR" {
+            myr_amount
+        } else {
+            let to_rate = rates.get(to)?;
+            myr_amount / to_rate
+        };
+        
+        // Round to nearest sen (integer)
+        Ok(target_amount.round() as i64)
+    }
+    
+    fn format_display(&self, amount_sen: i64, currency: &str) -> String {
+        let amount = amount_sen as f64 / 100.0;
+        match currency {
+            "MYR" => format!("RM {:.2}", amount),
+            "USD" => format!("${:.2}", amount),
+            "SGD" => format!("S${:.2}", amount),
+            "JPY" => format!("Â¥{:.0}", amount * 100.0),  // JPY has no decimal
+            _ => format!("{} {:.2}", currency, amount),
+        }
+    }
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Price Rounding Rules</h4>
+                <table>
+                    <tr><th>Currency</th><th>Smallest Unit</th><th>Rounding</th><th>Example</th></tr>
+                    <tr><td>MYR</td><td>Sen (1/100)</td><td>Nearest sen</td><td>RM 1,234.56</td></tr>
+                    <tr><td>USD</td><td>Cent (1/100)</td><td>Nearest cent</td><td>$274.13</td></tr>
+                    <tr><td>SGD</td><td>Cent (1/100)</td><td>Nearest cent</td><td>S$369.50</td></tr>
+                    <tr><td>JPY</td><td>Yen (1)</td><td>Nearest yen</td><td>Â¥41,023</td></tr>
+                    <tr><td>IDR</td><td>Rupiah (1)</td><td>Nearest 100</td><td>Rp 4,123,400</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- PAY-04: REFUND PROCESSING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">PAY-04</span>
+                <span class="section-title">Refund Processing</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Refund Eligibility</h4>
+                <table>
+                    <tr><th>Scenario</th><th>Eligibility</th><th>Refund Amount</th><th>Timeline</th></tr>
+                    <tr><td>Flight cancelled by airline</td><td>âœ… Full refund</td><td>100%</td><td>5-10 business days</td></tr>
+                    <tr><td>Schedule change &gt;3 hours</td><td>âœ… Full refund</td><td>100%</td><td>5-10 business days</td></tr>
+                    <tr><td>User cancellation (refundable fare)</td><td>âœ… Per fare rules</td><td>Fare rules apply</td><td>5-10 business days</td></tr>
+                    <tr><td>User cancellation (non-refundable)</td><td>âš ï¸ Partial (taxes only)</td><td>Taxes + VAYA fee</td><td>5-10 business days</td></tr>
+                    <tr><td>Duplicate booking</td><td>âœ… Full refund</td><td>100%</td><td>3-5 business days</td></tr>
+                    <tr><td>Payment error (double charge)</td><td>âœ… Full refund</td><td>100%</td><td>24-48 hours</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’° Refund Methods</h4>
+                <table>
+                    <tr><th>Original Payment</th><th>Refund Method</th><th>Timeline</th><th>Notes</th></tr>
+                    <tr><td>Credit/Debit Card</td><td>Original card</td><td>5-10 business days</td><td>Automatic via Stripe</td></tr>
+                    <tr><td>FPX</td><td>Bank transfer</td><td>5-10 business days</td><td>Manual processing required</td></tr>
+                    <tr><td>GrabPay</td><td>GrabPay wallet</td><td>1-3 business days</td><td>Auto-reversal</td></tr>
+                    <tr><td>Touch 'n Go</td><td>TNG wallet</td><td>3-5 business days</td><td>Manual processing</td></tr>
+                    <tr><td>Boost</td><td>Boost wallet</td><td>3-5 business days</td><td>Manual processing</td></tr>
+                    <tr><td>ShopeePay</td><td>ShopeePay wallet</td><td>3-5 business days</td><td>Manual processing</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Store Credit Option</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Specification</th></tr>
+                    <tr><td>Validity</td><td>12 months from issue date</td></tr>
+                    <tr><td>Transferable</td><td>No (tied to user account)</td></tr>
+                    <tr><td>Combinable</td><td>Yes (with other payment methods)</td></tr>
+                    <tr><td>Minimum Use</td><td>RM 1.00</td></tr>
+                    <tr><td>Refundable</td><td>No (convert to cash not allowed)</td></tr>
+                    <tr><td>Bonus</td><td>+5% bonus if choosing credit over cash refund</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ Refund Flow</h4>
+                <div class="code-block"># Refund Processing (Rust)
+async fn process_refund(request: RefundRequest) -> Result&lt;Refund&gt; {
+    // 1. Validate eligibility
+    let booking = get_booking(&request.booking_id)?;
+    let policy = booking.cancellation_policy;
+    
+    if !policy.is_eligible_for_refund() {
+        return Err(Error::NotEligible);
+    }
+    
+    // 2. Calculate refund amount
+    let (refund_amount, fee) = calculate_refund_amount(
+        booking.total_price,
+        policy,
+        request.reason
+    );
+    
+    // 3. Process based on original payment method
+    let original_payment = get_payment(&booking.payment_id)?;
+    
+    let refund_result = match original_payment.method {
+        PaymentMethod::Card => {
+            stripe_client.refund(original_payment.processor_id, refund_amount).await?
+        },
+        PaymentMethod::FPX => {
+            // FPX requires manual bank transfer
+            create_manual_refund_task(booking, refund_amount).await?
+        },
+        PaymentMethod::GrabPay | PaymentMethod::TNG | PaymentMethod::Boost => {
+            ipay88_client.refund(original_payment.processor_id, refund_amount).await?
+        },
+    };
+    
+    // 4. Update booking status
+    update_booking_status(&booking.id, BookingStatus::Refunded)?;
+    
+    // 5. Send notification
+    send_refund_notification(&booking.user_id, &refund_result)?;
+    
+    // 6. Create refund record
+    Ok(Refund {
+        id: uuid::new_v4(),
+        booking_id: booking.id,
+        amount: refund_amount,
+        fee: fee,
+        net_amount: refund_amount - fee,
+        status: RefundStatus::Processing,
+        estimated_arrival: calculate_arrival_date(original_payment.method),
+    })
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- PAY-05: PCI DSS COMPLIANCE -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">PAY-05</span>
+                <span class="section-title">PCI DSS Compliance</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Compliance Level</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Specification</th></tr>
+                    <tr><td>PCI DSS Level</td><td><strong>Level 3</strong> (SAQ A-EP)</td></tr>
+                    <tr><td>Annual Transactions</td><td>&lt; 1 million (projected Year 1)</td></tr>
+                    <tr><td>SAQ Type</td><td>SAQ A-EP (e-commerce, partially outsourced)</td></tr>
+                    <tr><td>Validation</td><td>Self-Assessment Questionnaire + ASV scan</td></tr>
+                    <tr><td>ASV Provider</td><td>Qualys (quarterly scans)</td></tr>
+                </table>
+
+                <div class="critical-box">
+                    <h5>ðŸš¨ PCI DSS CORE REQUIREMENTS</h5>
+                    <ol style="font-size: 12px; margin-left: 20px; color: var(--n800);">
+                        <li><strong>Never store PAN:</strong> Card numbers never touch VAYA servers</li>
+                        <li><strong>Never store CVV:</strong> CVV never logged or stored anywhere</li>
+                        <li><strong>Tokenization:</strong> Use Stripe tokens for all card operations</li>
+                        <li><strong>TLS everywhere:</strong> TLS 1.3 for all cardholder data transmission</li>
+                        <li><strong>Stripe.js:</strong> Card details entered directly into Stripe iframe</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Tokenization Flow</h4>
+                <div class="code-block">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                     Card Tokenization Flow                           â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                      â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚   â”‚   Browser    â”‚        â”‚  Stripe.js   â”‚        â”‚   Stripe     â”‚  â”‚
+â”‚   â”‚   (User)     â”‚   1.   â”‚   (iframe)   â”‚   2.   â”‚   Servers    â”‚  â”‚
+â”‚   â”‚              â”‚â”€â”€â”€â”€â”€â”€â”€â–¶â”‚              â”‚â”€â”€â”€â”€â”€â”€â”€â–¶â”‚              â”‚  â”‚
+â”‚   â”‚  Card Entry  â”‚        â”‚  Encrypted   â”‚        â”‚  Tokenize    â”‚  â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                                                          â”‚           â”‚
+â”‚                                                    3.    â”‚           â”‚
+â”‚                                                   Token  â–¼           â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚   â”‚    VAYA      â”‚   5.   â”‚    VAYA      â”‚   4.   â”‚   Browser    â”‚  â”‚
+â”‚   â”‚   Backend    â”‚â—€â”€â”€â”€â”€â”€â”€â”€â”‚   Backend    â”‚â—€â”€â”€â”€â”€â”€â”€â”€â”‚   (Client)   â”‚  â”‚
+â”‚   â”‚              â”‚        â”‚              â”‚        â”‚              â”‚  â”‚
+â”‚   â”‚  Store token â”‚        â”‚  Receive tok â”‚        â”‚  Pass token  â”‚  â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚         â”‚                                                            â”‚
+â”‚    6.   â”‚  Charge request with token                                â”‚
+â”‚         â–¼                                                            â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                                  â”‚
+â”‚   â”‚    Stripe    â”‚  âœ“ PAN never touches VAYA servers               â”‚
+â”‚   â”‚    API       â”‚  âœ“ CVV never stored anywhere                    â”‚
+â”‚   â”‚              â”‚  âœ“ PCI scope minimized                          â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                                                  â”‚
+â”‚                                                                      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ›¡ï¸ Security Controls</h4>
+                <table>
+                    <tr><th>Control</th><th>Implementation</th><th>Frequency</th></tr>
+                    <tr><td>Vulnerability Scanning</td><td>Qualys ASV</td><td>Quarterly</td></tr>
+                    <tr><td>Penetration Testing</td><td>External firm</td><td>Annual</td></tr>
+                    <tr><td>Code Review</td><td>Automated + manual</td><td>Every release</td></tr>
+                    <tr><td>Access Control</td><td>RBAC, MFA for admin</td><td>Continuous</td></tr>
+                    <tr><td>Logging</td><td>All payment events logged</td><td>Continuous</td></tr>
+                    <tr><td>Encryption</td><td>TLS 1.3, AES-256 at rest</td><td>Continuous</td></tr>
+                    <tr><td>Network Segmentation</td><td>Payment services isolated</td><td>Continuous</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Data Handling Matrix</h4>
+                <table>
+                    <tr><th>Data Element</th><th>Stored?</th><th>Encrypted?</th><th>Logged?</th><th>Displayed?</th></tr>
+                    <tr><td>Full PAN (card number)</td><td style="color: var(--error);">âŒ Never</td><td>N/A</td><td style="color: var(--error);">âŒ Never</td><td style="color: var(--error);">âŒ Never</td></tr>
+                    <tr><td>CVV/CVC</td><td style="color: var(--error);">âŒ Never</td><td>N/A</td><td style="color: var(--error);">âŒ Never</td><td style="color: var(--error);">âŒ Never</td></tr>
+                    <tr><td>Expiry Date</td><td style="color: var(--mint);">âœ“ Yes</td><td>No (not PCI)</td><td>No</td><td>âœ“ Masked (MM/YY)</td></tr>
+                    <tr><td>Last 4 digits</td><td style="color: var(--mint);">âœ“ Yes</td><td>No (not PCI)</td><td>âœ“ Yes</td><td>âœ“ Yes (****1234)</td></tr>
+                    <tr><td>Cardholder Name</td><td style="color: var(--mint);">âœ“ Yes</td><td>No (not PCI)</td><td>No</td><td>âœ“ Yes</td></tr>
+                    <tr><td>Stripe Token</td><td style="color: var(--mint);">âœ“ Yes</td><td>Yes (AES-256)</td><td>âœ“ Yes</td><td>âŒ No</td></tr>
+                    <tr><td>Transaction ID</td><td style="color: var(--mint);">âœ“ Yes</td><td>No</td><td>âœ“ Yes</td><td>âœ“ Yes</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- PAY-06: FRAUD PREVENTION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">PAY-06</span>
+                <span class="section-title">Fraud Prevention</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ›¡ï¸ Fraud Detection Rules</h4>
+                <table>
+                    <tr><th>Rule</th><th>Trigger</th><th>Action</th></tr>
+                    <tr><td>Velocity check</td><td>&gt; 3 failed payments in 1 hour</td><td>Block for 24h, flag account</td></tr>
+                    <tr><td>Amount threshold</td><td>Single transaction &gt; RM 10,000</td><td>Manual review required</td></tr>
+                    <tr><td>New account + high value</td><td>Account &lt; 24h old + tx &gt; RM 2,000</td><td>Additional verification</td></tr>
+                    <tr><td>Mismatched billing</td><td>Billing country â‰  IP country</td><td>Flag for review</td></tr>
+                    <tr><td>Multiple cards</td><td>&gt; 3 different cards in 24h</td><td>Block, require verification</td></tr>
+                    <tr><td>Chargeback history</td><td>Previous chargeback on account</td><td>FPX/eWallet only</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Stripe Radar Integration</h4>
+                <div class="code-block"># Stripe Radar Rules (configured in Stripe Dashboard)
+rules:
+  - name: "Block high-risk countries"
+    condition: ":ip_country: in ('NG', 'RU', 'UA')"
+    action: block
+    
+  - name: "Review large transactions"
+    condition: ":amount_in_myr: > 5000"
+    action: review
+    
+  - name: "Allow trusted customers"
+    condition: ":customer_lifetime_value: > 10000"
+    action: allow
+    
+  - name: "Block card testing"
+    condition: ":card_country: != :ip_country: and :risk_level: = 'elevated'"
+    action: block
+    
+  - name: "3DS for elevated risk"
+    condition: ":risk_level: = 'elevated'"
+    action: request_3ds</div>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <div style="background: linear-gradient(135deg, var(--n100), var(--n200)); border: 2px solid var(--mint); border-radius: 20px; padding: 40px; margin-top: 48px; text-align: center;">
+            <h2 style="font-family: var(--font-display); font-size: 28px; font-weight: 800; margin-bottom: 16px;">ðŸ’³ PAYMENT SPECIFICATION COMPLETE</h2>
+            <p style="color: var(--n700); margin-bottom: 24px;">Domain 8 (Payment Design) â€” PAY-01 through PAY-06 âœ“</p>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 700px; margin: 0 auto;">
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--mint);">6</div>
+                    <div style="font-size: 10px; color: var(--n600);">Payment Methods</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--cyan);">10+</div>
+                    <div style="font-size: 10px; color: var(--n600);">FPX Banks</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple);">4</div>
+                    <div style="font-size: 10px; color: var(--n600);">eWallets</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--warning);">L3</div>
+                    <div style="font-size: 10px; color: var(--n600);">PCI DSS</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

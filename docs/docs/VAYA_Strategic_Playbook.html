@@ -1,0 +1,1941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Strategic Playbook: The Extinction Protocol</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #050507;
+            --bg-primary: #0a0a0d;
+            --bg-secondary: #0f0f14;
+            --bg-card: #12121a;
+            --bg-elevated: #18182a;
+            --border-subtle: #1f1f2e;
+            --border-accent: #2a2a44;
+            --text-primary: #f5f5f7;
+            --text-secondary: #9898a8;
+            --text-muted: #5c5c6e;
+            --accent-primary: #00d4aa;
+            --accent-secondary: #00f0c0;
+            --accent-glow: rgba(0, 212, 170, 0.12);
+            --danger: #ff4757;
+            --danger-glow: rgba(255, 71, 87, 0.12);
+            --warning: #ffa502;
+            --warning-glow: rgba(255, 165, 2, 0.12);
+            --gold: #f0c674;
+            --purple: #9b59b6;
+            --blue: #3498db;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg-void);
+            color: var(--text-primary);
+            line-height: 1.75;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        ::selection {
+            background: var(--accent-primary);
+            color: var(--bg-void);
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-accent); border-radius: 3px; }
+
+        /* Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+        .container-wide { max-width: 1400px; margin: 0 auto; padding: 0 32px; }
+
+        /* Header */
+        .header {
+            padding: 80px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 140%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 50%);
+            pointer-events: none;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-accent);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 50%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-subtitle {
+            font-size: 1.35rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 48px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Section */
+        section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-accent), transparent);
+        }
+
+        .section-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 24px;
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        h4 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .section-intro {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin-bottom: 56px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .card:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-4px);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--accent-glow);
+            border: 1px solid var(--border-accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Grid */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+        @media (max-width: 1024px) {
+            .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        /* Competitor Card */
+        .competitor-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .competitor-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .competitor-logo {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .competitor-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .competitor-type {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .competitor-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 20px 0;
+            padding: 20px;
+            background: var(--bg-card);
+            border-radius: 12px;
+        }
+
+        .competitor-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .competitor-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .competitor-weakness {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .competitor-weakness h5 {
+            font-size: 0.8rem;
+            color: var(--danger);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+
+        .competitor-weakness p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Pain Point */
+        .pain-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+
+        @media (max-width: 900px) {
+            .pain-grid { grid-template-columns: 1fr; }
+        }
+
+        .pain-card {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 36px;
+            position: relative;
+        }
+
+        .pain-severity {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .pain-severity.critical {
+            background: var(--danger-glow);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .pain-severity.high {
+            background: var(--warning-glow);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .pain-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--bg-elevated);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 24px;
+        }
+
+        .pain-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .pain-quote {
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            padding-left: 16px;
+            border-left: 3px solid var(--accent-primary);
+        }
+
+        .pain-solution {
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .pain-solution h5 {
+            color: var(--accent-primary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+
+        .pain-solution p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Strategy Block */
+        .strategy-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 48px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .strategy-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--gold), var(--purple));
+        }
+
+        .strategy-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 6rem;
+            font-weight: 900;
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: var(--border-subtle);
+            line-height: 1;
+        }
+
+        .strategy-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .strategy-subtitle {
+            color: var(--accent-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 24px;
+        }
+
+        .strategy-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .strategy-content p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 24px;
+            max-width: 800px;
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 32px 0;
+            border-radius: 16px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+        }
+
+        th, td {
+            padding: 18px 24px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--bg-elevated);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        td {
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--bg-elevated); }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 2px;
+        }
+
+        .tag-kill { background: var(--danger-glow); color: var(--danger); border: 1px solid var(--danger); }
+        .tag-dominate { background: var(--accent-glow); color: var(--accent-primary); border: 1px solid var(--accent-primary); }
+        .tag-disrupt { background: var(--warning-glow); color: var(--warning); border: 1px solid var(--warning); }
+
+        /* Code Block */
+        .code-block {
+            background: #0d0d12;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 28px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            line-height: 1.7;
+            margin: 24px 0;
+        }
+
+        .code-comment { color: var(--text-muted); }
+        .code-keyword { color: var(--purple); }
+        .code-string { color: var(--accent-primary); }
+        .code-function { color: var(--gold); }
+        .code-highlight { color: var(--danger); font-weight: 600; }
+
+        /* Metrics */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin: 48px 0;
+        }
+
+        @media (max-width: 900px) {
+            .metrics-row { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .metric-card {
+            text-align: center;
+            padding: 32px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+        }
+
+        .metric-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 48px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent-primary), var(--gold), var(--purple));
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 48px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -40px;
+            top: 8px;
+            width: 16px;
+            height: 16px;
+            background: var(--bg-void);
+            border: 3px solid var(--accent-primary);
+            border-radius: 50%;
+        }
+
+        .timeline-phase {
+            color: var(--accent-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .timeline-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .timeline-content {
+            color: var(--text-secondary);
+        }
+
+        /* Alert */
+        .alert {
+            padding: 28px;
+            border-radius: 16px;
+            margin: 32px 0;
+        }
+
+        .alert-critical {
+            background: var(--danger-glow);
+            border: 1px solid var(--danger);
+        }
+
+        .alert-critical .alert-title { color: var(--danger); }
+
+        .alert-insight {
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .alert-insight .alert-title { color: var(--accent-primary); }
+
+        .alert-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-content {
+            color: var(--text-secondary);
+        }
+
+        .alert-content ul {
+            margin-top: 12px;
+            padding-left: 20px;
+        }
+
+        .alert-content li { margin-bottom: 8px; }
+
+        /* Kill List */
+        .kill-list {
+            background: linear-gradient(135deg, rgba(255, 71, 87, 0.05), rgba(0, 212, 170, 0.05));
+            border: 1px solid var(--border-accent);
+            border-radius: 24px;
+            padding: 48px;
+            margin: 48px 0;
+        }
+
+        .kill-list h3 {
+            color: var(--danger);
+            margin-bottom: 32px;
+        }
+
+        .kill-item {
+            display: grid;
+            grid-template-columns: 200px 1fr 1fr;
+            gap: 24px;
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border-subtle);
+            align-items: start;
+        }
+
+        .kill-item:last-child { border-bottom: none; }
+
+        @media (max-width: 900px) {
+            .kill-item { grid-template-columns: 1fr; gap: 16px; }
+        }
+
+        .kill-target {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .kill-how h5 {
+            color: var(--accent-primary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .kill-how p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .kill-result h5 {
+            color: var(--gold);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .kill-result p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Moat Diagram */
+        .moat-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 48px;
+            margin: 48px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .moat-center {
+            width: 160px;
+            height: 160px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 48px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .moat-center span {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--bg-void);
+        }
+
+        .moat-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px dashed var(--border-accent);
+            border-radius: 50%;
+            animation: rotate 60s linear infinite;
+        }
+
+        .moat-ring-1 { width: 300px; height: 300px; animation-duration: 40s; }
+        .moat-ring-2 { width: 450px; height: 450px; animation-duration: 60s; animation-direction: reverse; }
+        .moat-ring-3 { width: 600px; height: 600px; animation-duration: 80s; }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .moat-items {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 1100px) {
+            .moat-items { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 700px) {
+            .moat-items { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .moat-item {
+            text-align: center;
+            padding: 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+        }
+
+        .moat-item-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .moat-item-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .moat-item-desc {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-accent), transparent);
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+
+        .footer-tagline {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        .footer-meta {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Executive Summary Box */
+        .exec-summary {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            border: 2px solid var(--accent-primary);
+            border-radius: 24px;
+            padding: 48px;
+            margin: 48px 0;
+            position: relative;
+        }
+
+        .exec-summary::before {
+            content: 'EXECUTIVE SUMMARY';
+            position: absolute;
+            top: -12px;
+            left: 32px;
+            background: var(--bg-void);
+            padding: 0 16px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            letter-spacing: 0.15em;
+        }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: var(--bg-elevated);
+            border-left: 4px solid var(--accent-primary);
+            padding: 24px 28px;
+            margin: 24px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .highlight-box p {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-badge">Strategic Playbook v1.0</div>
+            <h1><span>VAYA</span><br>The Extinction Protocol</h1>
+            <p class="header-subtitle">McKinsey-Grade Strategic Analysis: How to Obliterate Every Travel Platform on Earth and Create a New Market Category</p>
+        </div>
+    </header>
+
+    <main>
+        <!-- Executive Summary -->
+        <section>
+            <div class="container">
+                <div class="exec-summary">
+                    <h2 style="margin-bottom: 24px;">The Strategic Thesis</h2>
+                    <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 32px;">
+                        Every travel platform since the 1990s operates on the same fundamental assumption: 
+                        <strong style="color: var(--text-primary);">Airlines set prices. Platforms search prices. Users compare prices.</strong>
+                    </p>
+                    <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 32px;">
+                        Google Flights, Skyscanner, Kayak, Expedia, Booking.com â€” $600B+ in collective market cap â€” all play this same game.
+                        They compete on UI, coverage, and affiliate margins. <strong style="color: var(--text-primary);">None have changed the underlying power structure.</strong>
+                    </p>
+                    <div class="highlight-box">
+                        <p><strong>VAYA's Strategic Position:</strong> Don't compete in the existing market. Create a new one where searching for flights is as obsolete as searching for phone numbers.</p>
+                    </div>
+                    <div class="metrics-row" style="margin-top: 40px; margin-bottom: 0;">
+                        <div class="metric-card">
+                            <div class="metric-value">$1.9T</div>
+                            <div class="metric-label">Global Travel Market</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">68%</div>
+                            <div class="metric-label">Users Frustrated</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">True Innovators</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">âˆž</div>
+                            <div class="metric-label">VAYA's Opportunity</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Competitor Analysis -->
+        <section id="competitors">
+            <div class="container-wide">
+                <div class="section-number">Section 01</div>
+                <h2>Competitive Landscape: Know Your Enemies</h2>
+                <p class="section-intro">
+                    Before we destroy them, we must understand them. Here's the global competitive analysis 
+                    of every platform with credibility and market presence â€” and their fatal weaknesses.
+                </p>
+
+                <h3 style="margin-bottom: 32px;">Tier 1: The Giants (Must Destroy)</h3>
+                
+                <div class="grid-3" style="margin-bottom: 48px;">
+                    <div class="competitor-card">
+                        <div class="competitor-header">
+                            <div class="competitor-logo">G</div>
+                            <div>
+                                <div class="competitor-name">Google Flights</div>
+                                <div class="competitor-type">Meta-Search â€¢ Google LLC</div>
+                            </div>
+                        </div>
+                        <div class="competitor-stats">
+                            <div>
+                                <div class="competitor-stat-value">1B+</div>
+                                <div class="competitor-stat-label">Monthly Users</div>
+                            </div>
+                            <div>
+                                <div class="competitor-stat-value">$0</div>
+                                <div class="competitor-stat-label">Direct Revenue</div>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
+                            <strong>Strengths:</strong> Best UX in industry. Unlimited engineering resources. 
+                            ITA Matrix backend. Price tracking. Calendar view innovation.
+                        </p>
+                        <div class="competitor-weakness">
+                            <h5>Fatal Weakness</h5>
+                            <p>No booking revenue. Just an ad/traffic driver. Can't innovate on pricing 
+                            because they don't transact. Will NEVER predict prices (conflicts with advertiser interests).</p>
+                        </div>
+                    </div>
+
+                    <div class="competitor-card">
+                        <div class="competitor-header">
+                            <div class="competitor-logo" style="background: #0770e3;">S</div>
+                            <div>
+                                <div class="competitor-name">Skyscanner</div>
+                                <div class="competitor-type">Meta-Search â€¢ Trip.com Group</div>
+                            </div>
+                        </div>
+                        <div class="competitor-stats">
+                            <div>
+                                <div class="competitor-stat-value">100M</div>
+                                <div class="competitor-stat-label">Monthly Users</div>
+                            </div>
+                            <div>
+                                <div class="competitor-stat-value">$400M</div>
+                                <div class="competitor-stat-label">Revenue</div>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
+                            <strong>Strengths:</strong> "Everywhere" search. Multi-city. Strong brand in Europe/Asia. 
+                            Good mobile apps. Affiliate network.
+                        </p>
+                        <div class="competitor-weakness">
+                            <h5>Fatal Weakness</h5>
+                            <p>Owned by Trip.com â€” conflict of interest in routing traffic. 
+                            Stuck in comparison paradigm. No predictive capabilities. Zero innovation since 2018.</p>
+                        </div>
+                    </div>
+
+                    <div class="competitor-card">
+                        <div class="competitor-header">
+                            <div class="competitor-logo" style="background: #ff690f;">K</div>
+                            <div>
+                                <div class="competitor-name">Kayak</div>
+                                <div class="competitor-type">Meta-Search â€¢ Booking Holdings</div>
+                            </div>
+                        </div>
+                        <div class="competitor-stats">
+                            <div>
+                                <div class="competitor-stat-value">80M</div>
+                                <div class="competitor-stat-label">Monthly Users</div>
+                            </div>
+                            <div>
+                                <div class="competitor-stat-value">$350M</div>
+                                <div class="competitor-stat-label">Revenue</div>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
+                            <strong>Strengths:</strong> "Hacker Fares" (split tickets). Price forecast. 
+                            Good filters. Strong in US market.
+                        </p>
+                        <div class="competitor-weakness">
+                            <h5>Fatal Weakness</h5>
+                            <p>Owned by Booking Holdings â€” massive parent company conflict. 
+                            Price forecast is basic ML, easily beaten. US-centric, weak globally.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 32px;">Tier 2: The OTAs (Already Dying)</h3>
+
+                <div class="grid-4" style="margin-bottom: 48px;">
+                    <div class="competitor-card" style="padding: 24px;">
+                        <div class="competitor-name" style="font-size: 1.1rem; margin-bottom: 8px;">Expedia Group</div>
+                        <div class="competitor-type" style="margin-bottom: 16px;">$120B GMV â€¢ $12B Revenue</div>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">
+                            Hotels.com, Vrbo, Orbitz, Travelocity
+                        </p>
+                        <div class="competitor-weakness" style="padding-top: 12px; margin-top: 12px;">
+                            <h5 style="font-size: 0.7rem;">Weakness</h5>
+                            <p style="font-size: 0.8rem;">Legacy tech. Bloated org. Flight margins crushed. Hotel-dependent.</p>
+                        </div>
+                    </div>
+
+                    <div class="competitor-card" style="padding: 24px;">
+                        <div class="competitor-name" style="font-size: 1.1rem; margin-bottom: 8px;">Booking Holdings</div>
+                        <div class="competitor-type" style="margin-bottom: 16px;">$150B GMV â€¢ $21B Revenue</div>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">
+                            Booking.com, Priceline, Agoda, Kayak
+                        </p>
+                        <div class="competitor-weakness" style="padding-top: 12px; margin-top: 12px;">
+                            <h5 style="font-size: 0.7rem;">Weakness</h5>
+                            <p style="font-size: 0.8rem;">Flights are afterthought. Hotel-first DNA. Can't pivot fast.</p>
+                        </div>
+                    </div>
+
+                    <div class="competitor-card" style="padding: 24px;">
+                        <div class="competitor-name" style="font-size: 1.1rem; margin-bottom: 8px;">Trip.com Group</div>
+                        <div class="competitor-type" style="margin-bottom: 16px;">$35B GMV â€¢ $7B Revenue</div>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">
+                            Ctrip, Skyscanner, Trip.com
+                        </p>
+                        <div class="competitor-weakness" style="padding-top: 12px; margin-top: 12px;">
+                            <h5 style="font-size: 0.7rem;">Weakness</h5>
+                            <p style="font-size: 0.8rem;">China-dependent. Trust issues outside Asia. Fragmented brands.</p>
+                        </div>
+                    </div>
+
+                    <div class="competitor-card" style="padding: 24px;">
+                        <div class="competitor-name" style="font-size: 1.1rem; margin-bottom: 8px;">Traveloka</div>
+                        <div class="competitor-type" style="margin-bottom: 16px;">SEA Leader â€¢ $3B Valuation</div>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 12px;">
+                            Indonesia, SEA dominant
+                        </p>
+                        <div class="competitor-weakness" style="padding-top: 12px; margin-top: 12px;">
+                            <h5 style="font-size: 0.7rem;">Weakness</h5>
+                            <p style="font-size: 0.8rem;">Super-app bloat. Feature overload. No pricing innovation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 32px;">Tier 3: The Disruptors (Closest Threats)</h3>
+
+                <div class="grid-2">
+                    <div class="competitor-card">
+                        <div class="competitor-header">
+                            <div class="competitor-logo" style="background: #00d4aa;">H</div>
+                            <div>
+                                <div class="competitor-name">Hopper</div>
+                                <div class="competitor-type">Predictive OTA â€¢ $5B Valuation</div>
+                            </div>
+                        </div>
+                        <div class="competitor-stats">
+                            <div>
+                                <div class="competitor-stat-value">90M</div>
+                                <div class="competitor-stat-label">App Downloads</div>
+                            </div>
+                            <div>
+                                <div class="competitor-stat-value">$3.5B</div>
+                                <div class="competitor-stat-label">GMV 2023</div>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
+                            <strong>What They Do Right:</strong> Price prediction. "Watch" feature. 
+                            Price freeze. Fintech integration (BNPL). Best-in-class mobile UX.
+                        </p>
+                        <div class="competitor-weakness">
+                            <h5>How VAYA Beats Them</h5>
+                            <p>Hopper still SEARCHES. Their prediction tells you WHEN to buy â€” not HOW to buy cheaper. 
+                            They don't construct fares, aggregate demand, or own inventory. They're 10% of VAYA's vision.</p>
+                        </div>
+                    </div>
+
+                    <div class="competitor-card">
+                        <div class="competitor-header">
+                            <div class="competitor-logo" style="background: #7c3aed;">K</div>
+                            <div>
+                                <div class="competitor-name">Kiwi.com</div>
+                                <div class="competitor-type">Virtual Interlining â€¢ Prague</div>
+                            </div>
+                        </div>
+                        <div class="competitor-stats">
+                            <div>
+                                <div class="competitor-stat-value">20M</div>
+                                <div class="competitor-stat-label">Tickets/Year</div>
+                            </div>
+                            <div>
+                                <div class="competitor-stat-value">$1B+</div>
+                                <div class="competitor-stat-label">GMV</div>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 16px;">
+                            <strong>What They Do Right:</strong> "Virtual interlining" â€” connects flights that airlines don't. 
+                            Nomad search. "Guarantee" protection. Algorithm-first.
+                        </p>
+                        <div class="competitor-weakness">
+                            <h5>How VAYA Beats Them</h5>
+                            <p>Their guarantee has fine print nightmares. Still search-based. No demand aggregation. 
+                            No price prediction. Good engineers but no vision beyond "combine flights."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-insight" style="margin-top: 48px;">
+                    <div class="alert-title">ðŸŽ¯ Strategic Insight</div>
+                    <div class="alert-content">
+                        <p><strong>The entire competitive landscape plays the same game.</strong> 
+                        Some play it better (Google, Hopper) and some play it worse (Expedia). 
+                        But they ALL accept the fundamental premise that airlines have pricing power and platforms just compare.</p>
+                        <p style="margin-top: 16px;"><strong>VAYA's strategy: Don't play better. Change the game entirely.</strong></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pain Points -->
+        <section id="pain-points" style="background: var(--bg-secondary);">
+            <div class="container">
+                <div class="section-number">Section 02</div>
+                <h2>The Unsolved Pain Points</h2>
+                <p class="section-intro">
+                    68% of travelers report frustration with flight booking. Not because platforms are bad â€” 
+                    but because the fundamental experience is broken. Here's what keeps people up at night.
+                </p>
+
+                <div class="pain-grid">
+                    <div class="pain-card">
+                        <span class="pain-severity critical">Critical</span>
+                        <div class="pain-icon">ðŸ˜°</div>
+                        <div class="pain-title">The Anxiety of "Did I Get The Best Price?"</div>
+                        <div class="pain-quote">
+                            "I spent 6 hours across 4 sites and I still don't know if I overpaid. 
+                            There's always another tab I could have opened."
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                            Users check an average of <strong>38 sites</strong> before booking a flight. 
+                            The paradox of choice creates decision paralysis and post-purchase regret.
+                        </p>
+                        <div class="pain-solution">
+                            <h5>VAYA's Revolutionary Answer</h5>
+                            <p>No searching. VAYA already found the best price before you asked. 
+                            The Oracle Engine continuously monitors and tells you: "This is the lowest it will go. Book now."</p>
+                        </div>
+                    </div>
+
+                    <div class="pain-card">
+                        <span class="pain-severity critical">Critical</span>
+                        <div class="pain-icon">ðŸ“ˆ</div>
+                        <div class="pain-title">The Price Changed While I Was Booking</div>
+                        <div class="pain-quote">
+                            "I found a $400 fare. By the time I entered my credit card, it was $650. 
+                            Did they know I was about to buy?"
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                            Dynamic pricing algorithms respond to demand signals in real-time. 
+                            <strong>Your search IS the price increase.</strong>
+                        </p>
+                        <div class="pain-solution">
+                            <h5>VAYA's Revolutionary Answer</h5>
+                            <p>Dark Pool Exchange. Your searches never reach airlines. We match internally first. 
+                            When we DO query, it's anonymized through partner agencies. Your demand stays invisible.</p>
+                        </div>
+                    </div>
+
+                    <div class="pain-card">
+                        <span class="pain-severity critical">Critical</span>
+                        <div class="pain-icon">ðŸŽ²</div>
+                        <div class="pain-title">Should I Book Now or Wait?</div>
+                        <div class="pain-quote">
+                            "Prices are $800 now. Will they drop? Will they go up? I feel like I'm gambling."
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                            <strong>87% of travelers</strong> have experienced regret from booking too early or too late. 
+                            The "best time to book" advice is generic and often wrong.
+                        </p>
+                        <div class="pain-solution">
+                            <h5>VAYA's Revolutionary Answer</h5>
+                            <p>The Oracle doesn't give generic advice. It says: "SQ will drop prices to $650 in 4 days 
+                            because they just lost a corporate contract with Accenture. Wait." 
+                            Specific. Actionable. 85%+ accurate.</p>
+                        </div>
+                    </div>
+
+                    <div class="pain-card">
+                        <span class="pain-severity high">High</span>
+                        <div class="pain-icon">ðŸŒ</div>
+                        <div class="pain-title">Routes That Should Exist But Don't</div>
+                        <div class="pain-quote">
+                            "To get from Kuching to Iceland, I found 4 connections with a 14-hour layover. 
+                            There has to be a better way."
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                            Airlines only show THEIR routes. No one combines flights across carriers intelligently. 
+                            Multi-modal (train + flight) options are invisible.
+                        </p>
+                        <div class="pain-solution">
+                            <h5>VAYA's Revolutionary Answer</h5>
+                            <p>Synthetic Route Construction. We build routes that don't "exist" by combining 
+                            flights, trains, ferries, even charter empty legs. One booking. One price. 
+                            User sees: "Kuching â†’ Reykjavik, $530, 16h."</p>
+                        </div>
+                    </div>
+
+                    <div class="pain-card">
+                        <span class="pain-severity high">High</span>
+                        <div class="pain-icon">ðŸ·ï¸</div>
+                        <div class="pain-title">I Missed The Error Fare By 2 Hours</div>
+                        <div class="pain-quote">
+                            "My friend flew business class to Japan for $400. I heard about it the next day. Gone."
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                            Error fares and flash sales are fleeting. By the time deal sites post them, 
+                            they're often already corrected or sold out.
+                        </p>
+                        <div class="pain-solution">
+                            <h5>VAYA's Revolutionary Answer</h5>
+                            <p>Real-time ML anomaly detection across all affiliate feeds. Alert in &lt;60 seconds. 
+                            Auto-hold option: "Error fare detected. We're holding 2 seats for 10 minutes. Book now?"</p>
+                        </div>
+                    </div>
+
+                    <div class="pain-card">
+                        <span class="pain-severity high">High</span>
+                        <div class="pain-icon">ðŸ¤–</div>
+                        <div class="pain-title">I Just Want Someone To Handle This</div>
+                        <div class="pain-quote">
+                            "I don't want to SEARCH. I don't want to COMPARE. I just want to GO PLACES. 
+                            Why is this my problem?"
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                            Travel agents solved this but cost too much. Platforms give tools but not solutions. 
+                            Users want outcomes, not interfaces.
+                        </p>
+                        <div class="pain-solution">
+                            <h5>VAYA's Revolutionary Answer</h5>
+                            <p>Autonomous Travel Agent. "Here's my budget, preferences, and calendar. Handle it." 
+                            VAYA books without asking. User just shows up at airports with tickets in their phone.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Strategic Framework -->
+        <section id="strategy">
+            <div class="container">
+                <div class="section-number">Section 03</div>
+                <h2>The Strategic Framework: Creating Category Extinction</h2>
+                <p class="section-intro">
+                    VAYA doesn't compete. VAYA renders the existing category obsolete. 
+                    Here's the five-pillar strategy to achieve market dominance.
+                </p>
+
+                <div class="strategy-block">
+                    <div class="strategy-number">01</div>
+                    <div class="strategy-subtitle">Paradigm Shift</div>
+                    <div class="strategy-title">From Search to Intelligence</div>
+                    <div class="strategy-content">
+                        <p>
+                            Every competitor asks: "What flight do you want?" and then searches for it.
+                            VAYA flips this: "Here's what you should book, when, and why."
+                        </p>
+                        <p>
+                            <strong>The shift is cognitive.</strong> Users stop thinking about HOW to find cheap flights 
+                            and start trusting VAYA to handle it. This is the transition from tool to agent.
+                        </p>
+                        
+                        <div class="grid-3" style="margin-top: 32px;">
+                            <div class="card" style="padding: 24px;">
+                                <div class="card-icon">ðŸ”</div>
+                                <h4>Old Paradigm</h4>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                    User searches â†’ Platform shows options â†’ User compares â†’ User decides â†’ User books
+                                </p>
+                            </div>
+                            <div class="card" style="padding: 24px;">
+                                <div class="card-icon">ðŸŽ¯</div>
+                                <h4>VAYA Paradigm</h4>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                    User declares intent â†’ VAYA already knows best option â†’ VAYA recommends â†’ User confirms â†’ Done
+                                </p>
+                            </div>
+                            <div class="card" style="padding: 24px;">
+                                <div class="card-icon">ðŸš€</div>
+                                <h4>End State</h4>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                    User sets preferences once â†’ VAYA handles everything â†’ User just travels
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="strategy-block">
+                    <div class="strategy-number">02</div>
+                    <div class="strategy-subtitle">Information Asymmetry</div>
+                    <div class="strategy-title">Know More Than Airlines Know About Themselves</div>
+                    <div class="strategy-content">
+                        <p>
+                            Airlines use Revenue Management Systems built on 1980s yield management theory. 
+                            They optimize their slice. VAYA sees the entire market.
+                        </p>
+                        
+                        <div class="code-block">
+<span class="code-comment">// What VAYA monitors (24/7, real-time)</span>
+
+<span class="code-keyword">PRICE SIGNALS:</span>
+â”œâ”€â”€ Every fare change on every route (all GDS + direct)
+â”œâ”€â”€ Fare rule filings (ATPCO feeds)
+â”œâ”€â”€ Inventory levels (booking class availability)
+â””â”€â”€ Competitor pricing movements
+
+<span class="code-keyword">DEMAND SIGNALS:</span>
+â”œâ”€â”€ Search volume by route (our own + partnerships)
+â”œâ”€â”€ Event calendars (conferences, sports, holidays)
+â”œâ”€â”€ Corporate travel RFP announcements
+â”œâ”€â”€ Social signals (Instagram check-ins, TikTok trends)
+â””â”€â”€ Visa policy changes
+
+<span class="code-keyword">SUPPLY SIGNALS:</span>
+â”œâ”€â”€ Schedule changes and aircraft swaps
+â”œâ”€â”€ Route announcements
+â”œâ”€â”€ Union negotiations
+â”œâ”€â”€ Fuel price movements
+â””â”€â”€ Airport construction/capacity changes
+
+<span class="code-keyword">EXTERNAL SIGNALS:</span>
+â”œâ”€â”€ Currency movements
+â”œâ”€â”€ GDP/employment data
+â”œâ”€â”€ Tourism board campaigns
+â”œâ”€â”€ Weather patterns (seasonal demand)
+â””â”€â”€ Geopolitical events
+
+<span class="code-highlight">â†’ We correlate what they can't. Different airlines see their data.</span>
+<span class="code-highlight">â†’ We see EVERYONE's data. We predict their moves before they make them.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="strategy-block">
+                    <div class="strategy-number">03</div>
+                    <div class="strategy-subtitle">Power Inversion</div>
+                    <div class="strategy-title">Make Airlines Bid For Users</div>
+                    <div class="strategy-content">
+                        <p>
+                            Current reality: Airlines set prices. Users accept or reject.
+                            VAYA reality: Users declare demand. Airlines compete for the business.
+                        </p>
+                        
+                        <div class="highlight-box">
+                            <p><strong>Demand Aggregation Protocol:</strong> When VAYA has 3,847 confirmed buyers for KULâ†’Tokyo in March, 
+                            we don't search for flights. We tell airlines: "Make us an offer for this volume." 
+                            They bid. Users get prices that don't exist anywhere else.</p>
+                        </div>
+
+                        <h4 style="margin-top: 32px; margin-bottom: 16px;">Why Airlines Will Participate:</h4>
+                        <div class="grid-2">
+                            <ul style="color: var(--text-secondary); padding-left: 20px;">
+                                <li><strong>Guaranteed volume</strong> â€” No demand uncertainty</li>
+                                <li><strong>Reduced marketing spend</strong> â€” We bring qualified buyers</li>
+                                <li><strong>Better yield management</strong> â€” See demand before pricing</li>
+                            </ul>
+                            <ul style="color: var(--text-secondary); padding-left: 20px;">
+                                <li><strong>Competitive intelligence</strong> â€” Real willingness-to-pay data</li>
+                                <li><strong>Fill distressed inventory</strong> â€” Move seats they'd discount anyway</li>
+                                <li><strong>Access new markets</strong> â€” Reach demand they can't see</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="strategy-block">
+                    <div class="strategy-number">04</div>
+                    <div class="strategy-subtitle">Inventory Control</div>
+                    <div class="strategy-title">Own The Flights Before Users Search</div>
+                    <div class="strategy-content">
+                        <p>
+                            Hopper tells you when to buy. VAYA already bought.
+                        </p>
+                        <p>
+                            Pre-Emptive Inventory Acquisition: When VAYA predicts demand spike in 47 days, 
+                            we acquire OPTIONS on seats at today's low prices. User searches â†’ VAYA already has it â†’ Instant booking.
+                        </p>
+
+                        <div class="table-wrapper" style="margin-top: 32px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Acquisition Method</th>
+                                        <th>How It Works</th>
+                                        <th>Risk Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Refundable Fare Arbitrage</td>
+                                        <td>Buy fully refundable business fares (often same as non-ref economy), hold and convert</td>
+                                        <td style="color: var(--accent-primary);">Low</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bulk Airline Partnerships</td>
+                                        <td>Negotiate committed inventory at wholesale rates (Costco for flights)</td>
+                                        <td style="color: var(--accent-primary);">Low</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Consolidator Aggregation</td>
+                                        <td>Corporate unused allocations, tour operator distressed inventory</td>
+                                        <td style="color: var(--warning);">Medium</td>
+                                    </tr>
+                                    <tr>
+                                        <td>24-Hour Hold Exploitation</td>
+                                        <td>Legal 24-hour holds on predicted high-demand routes</td>
+                                        <td style="color: var(--accent-primary);">Low</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="strategy-block">
+                    <div class="strategy-number">05</div>
+                    <div class="strategy-subtitle">Category Creation</div>
+                    <div class="strategy-title">Autonomous Travel â€” The End State</div>
+                    <div class="strategy-content">
+                        <p>
+                            VAYA's ultimate form isn't a booking platform. It's an autonomous agent that handles all travel 
+                            without user involvement. You don't search. You don't compare. You don't book. You just travel.
+                        </p>
+
+                        <div class="code-block">
+<span class="code-comment">// Autonomous Travel Agent â€” What It Looks Like</span>
+
+<span class="code-keyword">USER SETUP (once):</span>
+"I need to be in Tokyo for work Q1 next year.
+Beach vacation somewhere warm in February.
+Budget: $5,000 for flights this year.
+Preferences: Window seat, morning flights, max 3hr connections.
+Calendar: [synced]
+Handle it."
+
+<span class="code-keyword">VAYA (continuously):</span>
+â”œâ”€â”€ Monitors all relevant routes 24/7
+â”œâ”€â”€ Books when prices hit optimal points (no asking)
+â”œâ”€â”€ Reschedules automatically if better options appear
+â”œâ”€â”€ Coordinates with calendar
+â”œâ”€â”€ Handles disruptions without bothering user
+â”œâ”€â”€ Sends tickets when it's time to travel
+
+<span class="code-keyword">USER DOES:</span>
+<span class="code-string">Nothing. Shows up at airports with tickets in phone.</span>
+
+<span class="code-highlight">This is the end of flight search. Not better search. NO search.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Kill List -->
+        <section id="kill-list" style="background: var(--bg-secondary);">
+            <div class="container">
+                <div class="section-number">Section 04</div>
+                <h2>The Kill List: How Each Competitor Dies</h2>
+                <p class="section-intro">
+                    Specific tactical moves to neutralize every major player. 
+                    Not "compete with" â€” eliminate as relevant options.
+                </p>
+
+                <div class="kill-list">
+                    <h3>ðŸŽ¯ Competitor Elimination Protocol</h3>
+
+                    <div class="kill-item">
+                        <div class="kill-target">Google Flights</div>
+                        <div class="kill-how">
+                            <h5>How We Kill Them</h5>
+                            <p>"Why search when VAYA already found better options?" â€” Our predictions make their comparison obsolete. 
+                            They can't predict prices (advertiser conflict). We say "wait 4 days" with 85% accuracy. They show today's prices.</p>
+                        </div>
+                        <div class="kill-result">
+                            <h5>End State</h5>
+                            <p>Users stop opening Google Flights. They check VAYA first. Google becomes a fallback for "second opinions" that users don't need.</p>
+                        </div>
+                    </div>
+
+                    <div class="kill-item">
+                        <div class="kill-target">Skyscanner</div>
+                        <div class="kill-how">
+                            <h5>How We Kill Them</h5>
+                            <p>"Why compare when VAYA creates routes that don't appear anywhere?" â€” Synthetic routes, demand pools, owned inventory. 
+                            We have options they literally cannot show.</p>
+                        </div>
+                        <div class="kill-result">
+                            <h5>End State</h5>
+                            <p>Skyscanner becomes a feature inside VAYA, not a competitor. We use their affiliate API as one of many data sources.</p>
+                        </div>
+                    </div>
+
+                    <div class="kill-item">
+                        <div class="kill-target">Hopper</div>
+                        <div class="kill-how">
+                            <h5>How We Kill Them</h5>
+                            <p>They predict WHEN. We predict WHEN + HOW + create options that don't exist. 
+                            Their prediction = "buy now or wait." Our prediction = "wait 4 days, then book via India POS for extra 15% off."</p>
+                        </div>
+                        <div class="kill-result">
+                            <h5>End State</h5>
+                            <p>Hopper's "Watch" feature becomes irrelevant. Users realize VAYA's predictions are deeper and more actionable.</p>
+                        </div>
+                    </div>
+
+                    <div class="kill-item">
+                        <div class="kill-target">Kiwi.com</div>
+                        <div class="kill-how">
+                            <h5>How We Kill Them</h5>
+                            <p>Their virtual interlining is good but limited to flights. Our Synthetic Routes include trains, ferries, charter legs. 
+                            Our "guarantee" is real, theirs has fine print.</p>
+                        </div>
+                        <div class="kill-result">
+                            <h5>End State</h5>
+                            <p>Kiwi becomes known as "VAYA but worse." Engineers leave for us.</p>
+                        </div>
+                    </div>
+
+                    <div class="kill-item">
+                        <div class="kill-target">Expedia/Booking</div>
+                        <div class="kill-how">
+                            <h5>How We Kill Them</h5>
+                            <p>They're hotel companies that also do flights. Flight margins are crushed. 
+                            We own the flight relationship and partner with them for hotels where they're strong.</p>
+                        </div>
+                        <div class="kill-result">
+                            <h5>End State</h5>
+                            <p>They become hotel suppliers to VAYA's platform. They pay us for flight traffic, not the other way around.</p>
+                        </div>
+                    </div>
+
+                    <div class="kill-item">
+                        <div class="kill-target">Traditional Travel Agents</div>
+                        <div class="kill-how">
+                            <h5>How We Kill Them</h5>
+                            <p>Our Autonomous Agent does what they do â€” 1000x faster, 100x cheaper, 24/7 availability. 
+                            No markup for "service" when the service is automated.</p>
+                        </div>
+                        <div class="kill-result">
+                            <h5>End State</h5>
+                            <p>Extinction event. Only luxury/corporate agents survive (different segment).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Moat -->
+        <section id="moat">
+            <div class="container">
+                <div class="section-number">Section 05</div>
+                <h2>The Unbreakable Moat</h2>
+                <p class="section-intro">
+                    Once built, VAYA cannot be replicated. Here's why.
+                </p>
+
+                <div class="moat-diagram">
+                    <div class="moat-ring moat-ring-3"></div>
+                    <div class="moat-ring moat-ring-2"></div>
+                    <div class="moat-ring moat-ring-1"></div>
+                    <div class="moat-center"><span>V</span></div>
+                    
+                    <div class="moat-items">
+                        <div class="moat-item">
+                            <div class="moat-item-icon">ðŸ“Š</div>
+                            <div class="moat-item-name">Data Moat</div>
+                            <div class="moat-item-desc">Years of proprietary price/demand data. Models trained on data no one else has.</div>
+                        </div>
+                        <div class="moat-item">
+                            <div class="moat-item-icon">âœˆï¸</div>
+                            <div class="moat-item-name">Inventory Moat</div>
+                            <div class="moat-item-desc">Pre-acquired options on millions of seats. New entrants can't get same inventory.</div>
+                        </div>
+                        <div class="moat-item">
+                            <div class="moat-item-icon">ðŸ‘¥</div>
+                            <div class="moat-item-name">Demand Moat</div>
+                            <div class="moat-item-desc">Users in demand pools = assets. Network effects: more users = better prices.</div>
+                        </div>
+                        <div class="moat-item">
+                            <div class="moat-item-icon">ðŸ¤</div>
+                            <div class="moat-item-name">Relationship Moat</div>
+                            <div class="moat-item-desc">Airline partnerships take years to build. Contracts prevent easy replacement.</div>
+                        </div>
+                        <div class="moat-item">
+                            <div class="moat-item-icon">ðŸ§ </div>
+                            <div class="moat-item-name">Talent Moat</div>
+                            <div class="moat-item-desc">Top-tier engineers who understand both travel AND ML. Rare combination.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-critical">
+                    <div class="alert-title">âš ï¸ Why Competitors Can't Just Copy This</div>
+                    <div class="alert-content">
+                        <ul>
+                            <li><strong>Google</strong> â€” Can't predict prices (conflicts with advertiser model). Won't own inventory (not their business).</li>
+                            <li><strong>Skyscanner/Kayak</strong> â€” Owned by companies with conflicting priorities. No internal mandate to disrupt themselves.</li>
+                            <li><strong>Hopper</strong> â€” Closest but stuck on prediction-only model. Would need to rebuild from scratch.</li>
+                            <li><strong>Airlines</strong> â€” Can't aggregate competitor data. Antitrust issues prevent cooperation.</li>
+                            <li><strong>New Startups</strong> â€” Need 3-5 years of data + airline relationships + engineering talent. We have first-mover advantage.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Implementation Timeline -->
+        <section id="timeline" style="background: var(--bg-secondary);">
+            <div class="container">
+                <div class="section-number">Section 06</div>
+                <h2>Implementation: The 10-Year Extinction Timeline</h2>
+                <p class="section-intro">
+                    This isn't a sprint. It's a systematic campaign to become the default way humans book travel.
+                </p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-phase">Year 1</div>
+                        <div class="timeline-title">Oracle Engine + Prediction Launch</div>
+                        <div class="timeline-content">
+                            <p style="color: var(--text-secondary);">
+                                Build data infrastructure. Train prediction models. Launch price prediction as user-facing feature.
+                            </p>
+                            <p style="margin-top: 12px;"><strong>User Value:</strong> "VAYA told me to wait 3 days. Saved $400."</p>
+                            <p><strong>Business Value:</strong> Organic growth via word-of-mouth. Data flywheel begins.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-phase">Year 2</div>
+                        <div class="timeline-title">Demand Aggregation + Airline Partnerships</div>
+                        <div class="timeline-content">
+                            <p style="color: var(--text-secondary);">
+                                Launch Demand Pools. Begin airline partnership negotiations. First bulk inventory deals.
+                            </p>
+                            <p style="margin-top: 12px;"><strong>User Value:</strong> "VAYA got me a price that doesn't exist anywhere else."</p>
+                            <p><strong>Business Value:</strong> Lock-in begins. Users can't leave without losing pool benefits.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-phase">Year 3</div>
+                        <div class="timeline-title">Pre-Emptive Inventory Acquisition</div>
+                        <div class="timeline-content">
+                            <p style="color: var(--text-secondary);">
+                                Start buying/holding inventory on predicted high-demand routes. Instant booking on owned seats.
+                            </p>
+                            <p style="margin-top: 12px;"><strong>User Value:</strong> "VAYA had the flight ready before I searched."</p>
+                            <p><strong>Business Value:</strong> Arbitrage revenue begins. Moat deepens.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-phase">Year 4</div>
+                        <div class="timeline-title">Synthetic Route Construction</div>
+                        <div class="timeline-content">
+                            <p style="color: var(--text-secondary);">
+                                Multi-modal booking (flight + train + ferry). Create routes that don't exist. Charter integration.
+                            </p>
+                            <p style="margin-top: 12px;"><strong>User Value:</strong> "VAYA showed me a way to get there I never imagined."</p>
+                            <p><strong>Business Value:</strong> Routes competitors can't replicate. True differentiation.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-phase">Year 5</div>
+                        <div class="timeline-title">Autonomous Travel Agent Launch</div>
+                        <div class="timeline-content">
+                            <p style="color: var(--text-secondary);">
+                                Full autonomous booking for subscribed users. Calendar integration. Proactive travel management.
+                            </p>
+                            <p style="margin-top: 12px;"><strong>User Value:</strong> "I haven't searched for a flight in 2 years. VAYA handles it."</p>
+                            <p><strong>Business Value:</strong> $29/month subscription. High LTV. Evangelism.</p>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-phase">Years 6-10</div>
+                        <div class="timeline-title">Global Domination</div>
+                        <div class="timeline-content">
+                            <p style="color: var(--text-secondary);">
+                                Expand to all transport modes. Enter every market. Become the default way humans travel.
+                            </p>
+                            <p style="margin-top: 12px;"><strong>End State:</strong> "Going somewhere? Just tell VAYA."</p>
+                            <p><strong>Business Value:</strong> $100B+ valuation. IPO or strategic acquisition.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Revenue Model -->
+        <section id="revenue">
+            <div class="container">
+                <div class="section-number">Section 07</div>
+                <h2>Revenue Model: The Money Machine</h2>
+                <p class="section-intro">
+                    Five distinct revenue streams, each with compounding economics.
+                </p>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Revenue Stream</th>
+                                <th>Mechanism</th>
+                                <th>Target Margin</th>
+                                <th>Year 5 Projection</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Arbitrage Spread</strong></td>
+                                <td>Buy inventory at X, sell at X + margin</td>
+                                <td>8-15%</td>
+                                <td>$50M ARR</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Demand Pool Fees</strong></td>
+                                <td>3-5% of savings created for users</td>
+                                <td>Variable</td>
+                                <td>$30M ARR</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ATA Subscription</strong></td>
+                                <td>$29/month for autonomous agent</td>
+                                <td>80%+ gross</td>
+                                <td>$18M ARR (50K subs)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>B2B API</strong></td>
+                                <td>Prediction API for corporates/agencies</td>
+                                <td>$0.10-1.00/call</td>
+                                <td>$15M ARR</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Data Licensing</strong></td>
+                                <td>Anonymized demand data to tourism/airlines</td>
+                                <td>$50K-500K/year</td>
+                                <td>$10M ARR</td>
+                            </tr>
+                            <tr style="background: var(--accent-glow);">
+                                <td><strong>TOTAL</strong></td>
+                                <td></td>
+                                <td></td>
+                                <td><strong>$123M ARR</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="highlight-box" style="margin-top: 32px;">
+                    <p><strong>Unit Economics Example:</strong> User saves $400 on flight (would have paid $1000, pays $600 via VAYA demand pool). 
+                    VAYA takes 3% = $18 per booking. At 500K bookings/year = $9M from this stream alone. 
+                    User is happy (saved $382). Airline is happy (guaranteed volume). VAYA is happy.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Strategic Imperatives -->
+        <section id="imperatives" style="background: linear-gradient(135deg, var(--bg-secondary), var(--bg-void));">
+            <div class="container">
+                <div class="section-number">Section 08</div>
+                <h2>Final Strategic Imperatives</h2>
+                <p class="section-intro">
+                    Non-negotiable principles for execution.
+                </p>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-icon">âš¡</div>
+                        <h4>Speed Over Perfection</h4>
+                        <p style="color: var(--text-secondary);">
+                            Launch Oracle predictions in Year 1 even if 75% accurate. Iterate in public. 
+                            Data compounds â€” delay costs more than imperfection.
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">ðŸ”’</div>
+                        <h4>Legal Cleanliness</h4>
+                        <p style="color: var(--text-secondary);">
+                            Zero gray-area tactics. No hidden city schemes, no ToS violations. 
+                            Build on rock, not sand. Competitors can't sue what's legitimate.
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">ðŸŽ¯</div>
+                        <h4>User Value First</h4>
+                        <p style="color: var(--text-secondary);">
+                            Every feature must answer: "Does this make users trust VAYA more?" 
+                            Trust is the ultimate moat. Monetization follows trust.
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">ðŸ§ </div>
+                        <h4>Talent Concentration</h4>
+                        <p style="color: var(--text-secondary);">
+                            Hire 10 extraordinary engineers, not 50 average ones. 
+                            This requires elite ML + travel domain expertise. Pay accordingly.
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">ðŸ“ˆ</div>
+                        <h4>Network Effects ASAP</h4>
+                        <p style="color: var(--text-secondary);">
+                            Demand pools only work with volume. Focus growth on routes where 
+                            you can hit critical mass. Depth over breadth initially.
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">ðŸŒ</div>
+                        <h4>Start Regional, Go Global</h4>
+                        <p style="color: var(--text-secondary);">
+                            Dominate Malaysia/SEA first. Prove model works. 
+                            Then expand with playbook. Don't boil the ocean.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="exec-summary" style="margin-top: 64px;">
+                    <h2 style="text-align: center; margin-bottom: 24px;">The Bottom Line</h2>
+                    <p style="font-size: 1.3rem; text-align: center; color: var(--text-secondary);">
+                        VAYA doesn't compete with Google Flights, Skyscanner, or Hopper.
+                    </p>
+                    <p style="font-size: 1.3rem; text-align: center; color: var(--text-secondary); margin-top: 16px;">
+                        <strong style="color: var(--text-primary);">VAYA makes them irrelevant.</strong>
+                    </p>
+                    <p style="font-size: 1.3rem; text-align: center; color: var(--text-secondary); margin-top: 16px;">
+                        When searching for flights feels as antiquated as looking up phone numbers in a book, 
+                        VAYA wins. Not by being a better search engine â€” by eliminating the need to search at all.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">VAYA</div>
+            <p class="footer-tagline">The End of Flight Search</p>
+            <p class="footer-meta">Strategic Playbook v1.0 â€¢ Confidential â€¢ McKinsey-Grade Analysis</p>
+        </div>
+    </footer>
+</body>
+</html>

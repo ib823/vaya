@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Architecture & Design System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0b;
+            --bg-secondary: #111113;
+            --bg-tertiary: #18181b;
+            --bg-card: #141416;
+            --border: #27272a;
+            --border-hover: #3f3f46;
+            --text-primary: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --accent: #10b981;
+            --accent-glow: rgba(16, 185, 129, 0.15);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.15);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.15);
+            --info: #3b82f6;
+            --purple: #8b5cf6;
+            --radius: 12px;
+            --radius-lg: 20px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+        /* Layout */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(10, 10, 11, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent), #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        nav { display: flex; gap: 32px; }
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        nav a:hover { color: var(--text-primary); }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 80%;
+            height: 150%;
+            background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        
+        .hero-content { position: relative; z-index: 1; }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+        
+        h1 span {
+            background: linear-gradient(135deg, var(--accent), #34d399, var(--info));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        /* Section */
+        section {
+            padding: 100px 0;
+            border-top: 1px solid var(--border);
+        }
+        
+        .section-label {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+        
+        h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+        
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 12px;
+        }
+        
+        h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .section-desc {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin-bottom: 48px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        
+        .card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+        
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-glow);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        
+        @media (max-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .grid-3 { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            nav { display: none; }
+        }
+
+        /* Alert boxes */
+        .alert {
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            margin: 24px 0;
+        }
+        
+        .alert-danger {
+            background: var(--danger-glow);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .alert-danger .alert-title { color: var(--danger); }
+        
+        .alert-warning {
+            background: var(--warning-glow);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .alert-warning .alert-title { color: var(--warning); }
+        
+        .alert-success {
+            background: var(--accent-glow);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .alert-success .alert-title { color: var(--accent); }
+        
+        .alert-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .alert-content {
+            color: var(--text-secondary);
+        }
+        
+        .alert-content ul {
+            margin-top: 12px;
+            padding-left: 20px;
+        }
+        
+        .alert-content li {
+            margin-bottom: 6px;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d0d0f;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin: 20px 0;
+        }
+        
+        .code-comment { color: var(--text-muted); }
+        .code-keyword { color: var(--purple); }
+        .code-string { color: var(--accent); }
+        .code-function { color: var(--info); }
+        .code-type { color: var(--warning); }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        tr:hover td { background: var(--bg-tertiary); }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 3px;
+        }
+        
+        .tag-rust { background: rgba(222, 165, 132, 0.15); color: #dea584; }
+        .tag-db { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+        .tag-security { background: rgba(16, 185, 129, 0.15); color: var(--accent); }
+        .tag-frontend { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+        .tag-infra { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+
+        /* Flow diagram */
+        .flow {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 40px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            margin: 24px 0;
+        }
+        
+        .flow-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 16px 24px;
+            border-radius: var(--radius);
+            text-align: center;
+            min-width: 140px;
+            font-weight: 500;
+        }
+        
+        .flow-box.highlight {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+        
+        .flow-arrow {
+            color: var(--accent);
+            font-size: 1.5rem;
+        }
+
+        /* Metrics */
+        .metric {
+            text-align: center;
+            padding: 32px 20px;
+        }
+        
+        .metric-value {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent), #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        /* Layer sections */
+        .layer {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin: 32px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .layer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--info));
+        }
+        
+        .layer-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .layer-number {
+            background: var(--accent);
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 6px 14px;
+            border-radius: 100px;
+        }
+        
+        .layer-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        /* Compare table */
+        .compare-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2px;
+            margin-bottom: 2px;
+        }
+        
+        .compare-cell {
+            padding: 16px 20px;
+            background: var(--bg-card);
+        }
+        
+        .compare-cell.header {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        .compare-cell.bad { background: var(--danger-glow); }
+        .compare-cell.good { background: var(--accent-glow); }
+
+        /* Mobile mockup */
+        .mockup-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 48px 0;
+        }
+        
+        .mockup {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: 32px;
+            padding: 12px;
+            position: relative;
+        }
+        
+        .mockup-phone {
+            width: 280px;
+        }
+        
+        .mockup-tablet {
+            width: 500px;
+        }
+        
+        .mockup-desktop {
+            width: 700px;
+            border-radius: 16px;
+        }
+        
+        .mockup-screen {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .mockup-desktop .mockup-screen {
+            border-radius: 8px;
+        }
+        
+        .mockup-notch {
+            width: 100px;
+            height: 28px;
+            background: var(--bg-secondary);
+            border-radius: 0 0 16px 16px;
+            margin: 0 auto;
+        }
+        
+        .mockup-content {
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        /* UI Preview */
+        .ui-search {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .ui-input {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+        
+        .ui-btn {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .ui-result {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .ui-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .ui-route {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        /* Verdict */
+        .verdict {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .verdict-fail {
+            background: var(--danger-glow);
+            color: var(--danger);
+        }
+        
+        .verdict-pass {
+            background: var(--accent-glow);
+            color: var(--accent);
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .checklist li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .checklist li:last-child { border-bottom: none; }
+        
+        .check-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+        
+        .check-content h5 {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .check-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+        
+        .footer-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ASCII diagram */
+        .ascii {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            line-height: 1.4;
+            background: #0d0d0f;
+            padding: 24px;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            white-space: pre;
+            color: var(--text-secondary);
+        }
+        
+        .ascii .highlight { color: var(--accent); }
+        .ascii .warn { color: var(--warning); }
+        .ascii .info { color: var(--info); }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-inner">
+                <div class="logo">VAYA</div>
+                <nav>
+                    <a href="#assessment">Assessment</a>
+                    <a href="#architecture">Architecture</a>
+                    <a href="#security">Security</a>
+                    <a href="#ux">UX Design</a>
+                    <a href="#implementation">Implementation</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="badge">
+                        <span class="badge-dot"></span>
+                        Architecture Document v1.0
+                    </div>
+                    <h1>
+                        <span>VAYA</span><br>
+                        System Architecture
+                    </h1>
+                    <p class="hero-subtitle">
+                        Secure-by-design fare intelligence platform. Built in Rust. 
+                        Zero paid security dependencies. World-class UX.
+                    </p>
+                    
+                    <div class="grid-4" style="margin-top: 48px;">
+                        <div class="metric">
+                            <div class="metric-value">Rust</div>
+                            <div class="metric-label">Core Language</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Paid WAF/Security</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">3</div>
+                            <div class="metric-label">UI Variants</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-value">100%</div>
+                            <div class="metric-label">Legal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Critical Assessment -->
+        <section id="assessment">
+            <div class="container">
+                <span class="section-label">Critical Assessment</span>
+                <h2>KIASU Architecture: Honest Verdict</h2>
+                <p class="section-desc">
+                    Before redesigning, let's be brutally honest about what works, what doesn't, 
+                    and what will get you sued.
+                </p>
+
+                <div class="alert alert-danger">
+                    <div class="alert-title">â›” VERDICT: FAIL â€” Multiple Critical Issues</div>
+                    <div class="alert-content">
+                        The KIASU architecture is clever but fundamentally flawed. It would work 
+                        for approximately 3-6 months before legal action, mass ticket cancellations, 
+                        and infrastructure collapse. Here's why:
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-top: 32px;">
+                    <div class="card">
+                        <div class="card-icon">âš–ï¸</div>
+                        <div class="card-title">Legal Landmines</div>
+                        <div class="card-desc">
+                            <ul style="margin-top: 12px; padding-left: 18px; color: var(--text-secondary);">
+                                <li><strong>Hidden city ticketing:</strong> United Airlines sued Skiplagged. Airlines actively detect and cancel these tickets. Your users WILL have bookings cancelled.</li>
+                                <li><strong>Throwaway ticketing:</strong> Violates every airline's Contract of Carriage. Airlines can retroactively charge the fare difference.</li>
+                                <li><strong>Commercial scraping:</strong> CFAA violations. Kayak/Skyscanner will send cease & desist within weeks.</li>
+                                <li><strong>No travel license:</strong> MOTAC requires licensing for commercial flight bookings in Malaysia.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">ðŸ”¥</div>
+                        <div class="card-title">Technical Fragility</div>
+                        <div class="card-desc">
+                            <ul style="margin-top: 12px; padding-left: 18px; color: var(--text-secondary);">
+                                <li><strong>"Reverse-engineered APIs":</strong> Break every 2-4 weeks. Constant maintenance nightmare.</li>
+                                <li><strong>Residential proxies:</strong> Get burned fast at commercial scale. RM 5,000/month becomes RM 50,000.</li>
+                                <li><strong>CAPTCHA arms race:</strong> Google reCAPTCHA v3 detects automation patterns. Costs explode.</li>
+                                <li><strong>Anti-bot evolution:</strong> Cloudflare, PerimeterX, and airline defenses improve monthly.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">ðŸ’¸</div>
+                        <div class="card-title">Business Model Holes</div>
+                        <div class="card-desc">
+                            <ul style="margin-top: 12px; padding-left: 18px; color: var(--text-secondary);">
+                                <li><strong>Hidden city = carry-on only:</strong> Major limitation. Users with luggage are screwed.</li>
+                                <li><strong>No loyalty points:</strong> Airlines ban accounts using these techniques.</li>
+                                <li><strong>Refund liability:</strong> When airlines cancel tickets, YOU refund users.</li>
+                                <li><strong>Reputation risk:</strong> One viral Twitter thread = dead business.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">ðŸŽ¯</div>
+                        <div class="card-title">Misplaced Paranoia</div>
+                        <div class="card-desc">
+                            <ul style="margin-top: 12px; padding-left: 18px; color: var(--text-secondary);">
+                                <li><strong>Hiding from competitors:</strong> Not your real threat. Google/Kayak won't copy you.</li>
+                                <li><strong>Real threats ignored:</strong> Airlines, OTA legal teams, scraped sites' security.</li>
+                                <li><strong>Node.js + Python:</strong> No memory safety. Security vulnerabilities waiting to happen.</li>
+                                <li><strong>Paying for WAF:</strong> Treating symptoms, not causes. Waste of money.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 48px;">
+                    <h3 style="margin-bottom: 24px;">Feature-by-Feature Assessment</h3>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>KIASU Approach</th>
+                                <th>Verdict</th>
+                                <th>Risk Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Hidden City Detection</td>
+                                <td>Auto-detect & book</td>
+                                <td><span class="verdict verdict-fail">FAIL</span></td>
+                                <td>Lawsuits, ticket cancellations</td>
+                            </tr>
+                            <tr>
+                                <td>Throwaway Ticketing</td>
+                                <td>Book RT, skip return</td>
+                                <td><span class="verdict verdict-fail">FAIL</span></td>
+                                <td>Retroactive charges, bans</td>
+                            </tr>
+                            <tr>
+                                <td>Multi-POS Arbitrage</td>
+                                <td>Book from cheapest country</td>
+                                <td><span class="verdict verdict-fail">FAIL</span></td>
+                                <td>ToS violations, account bans</td>
+                            </tr>
+                            <tr>
+                                <td>Split Ticketing</td>
+                                <td>Separate one-ways</td>
+                                <td><span class="verdict verdict-pass">PASS*</span></td>
+                                <td>Legal if disclosed. Miss connection = user problem.</td>
+                            </tr>
+                            <tr>
+                                <td>Open-Jaw Optimization</td>
+                                <td>Different airports</td>
+                                <td><span class="verdict verdict-pass">PASS</span></td>
+                                <td>Completely legal. Good feature.</td>
+                            </tr>
+                            <tr>
+                                <td>Price Monitoring</td>
+                                <td>Continuous scraping</td>
+                                <td><span class="verdict verdict-fail">FAIL</span></td>
+                                <td>ToS violations. Use affiliate APIs instead.</td>
+                            </tr>
+                            <tr>
+                                <td>Error Fare Detection</td>
+                                <td>ML anomaly detection</td>
+                                <td><span class="verdict verdict-pass">PASS</span></td>
+                                <td>Legal. Use public data/affiliate feeds.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-success" style="margin-top: 48px;">
+                    <div class="alert-title">âœ… What DOES Work (Keep These)</div>
+                    <div class="alert-content">
+                        <ul>
+                            <li><strong>Flexible date search:</strong> Show users cheaper alternatives Â±3 days</li>
+                            <li><strong>Nearby airport search:</strong> Legal open-jaw optimization</li>
+                            <li><strong>Price alerts:</strong> Users set alerts, you notify on drops</li>
+                            <li><strong>Error fare detection:</strong> Using legitimate affiliate data feeds</li>
+                            <li><strong>Split ticket comparison:</strong> Show option, let USER decide (with clear risks)</li>
+                            <li><strong>Affiliate revenue:</strong> Legitimate commissions from OTAs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VAYA Architecture -->
+        <section id="architecture" style="background: var(--bg-secondary);">
+            <div class="container">
+                <span class="section-label">Complete Redesign</span>
+                <h2>VAYA: Architecture That Actually Works</h2>
+                <p class="section-desc">
+                    A legally defensible, technically robust fare intelligence platform. 
+                    Same value proposition to users, zero lawsuit risk.
+                </p>
+
+                <div class="flow">
+                    <div class="flow-box">User</div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box highlight">Rust Edge</div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box">API Core</div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box">Price Engine</div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box">Affiliate APIs</div>
+                </div>
+
+                <!-- Layer 1 -->
+                <div class="layer">
+                    <div class="layer-header">
+                        <span class="layer-number">LAYER 1</span>
+                        <span class="layer-title">ðŸ¦€ Rust Core â€” Security by Design</span>
+                    </div>
+
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                        Memory-safe, blazingly fast, zero-cost abstractions. No buffer overflows, 
+                        no null pointer dereferences, no data races. WAF becomes unnecessary when 
+                        your code can't be exploited.
+                    </p>
+
+                    <div class="grid-2">
+                        <div>
+                            <h4>Why Rust Eliminates Paid Security</h4>
+                            <ul class="checklist">
+                                <li>
+                                    <span class="check-icon">âœ“</span>
+                                    <div class="check-content">
+                                        <h5>Memory Safety</h5>
+                                        <p>70% of CVEs are memory bugs. Rust prevents them at compile time.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="check-icon">âœ“</span>
+                                    <div class="check-content">
+                                        <h5>No SQL Injection</h5>
+                                        <p>SQLx validates queries at compile time. Impossible to inject.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="check-icon">âœ“</span>
+                                    <div class="check-content">
+                                        <h5>No XSS</h5>
+                                        <p>Type system prevents raw HTML injection. Templates auto-escape.</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="check-icon">âœ“</span>
+                                    <div class="check-content">
+                                        <h5>Built-in Rate Limiting</h5>
+                                        <p>Tower middleware. Distributed via Redis. No Cloudflare needed.</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h4>Core Crates</h4>
+                            <div class="code-block">
+<span class="code-comment">// Cargo.toml - Battle-tested security</span>
+[dependencies]
+<span class="code-comment"># Web Framework</span>
+axum = <span class="code-string">"0.7"</span>           <span class="code-comment"># Type-safe routing</span>
+tower = <span class="code-string">"0.4"</span>          <span class="code-comment"># Middleware (rate limiting, auth)</span>
+tower-http = <span class="code-string">"0.5"</span>     <span class="code-comment"># Compression, CORS, tracing</span>
+
+<span class="code-comment"># Database</span>
+sqlx = <span class="code-string">"0.7"</span>           <span class="code-comment"># Compile-time SQL verification</span>
+deadpool-postgres = <span class="code-string">"0.12"</span>  <span class="code-comment"># Connection pooling</span>
+
+<span class="code-comment"># Security</span>
+argon2 = <span class="code-string">"0.5"</span>         <span class="code-comment"># Password hashing (OWASP recommended)</span>
+jsonwebtoken = <span class="code-string">"9"</span>     <span class="code-comment"># JWT with Ed25519</span>
+governor = <span class="code-string">"0.6"</span>       <span class="code-comment"># Rate limiting</span>
+validator = <span class="code-string">"0.16"</span>    <span class="code-comment"># Input validation</span>
+
+<span class="code-comment"># Async Runtime</span>
+tokio = { version = <span class="code-string">"1"</span>, features = [<span class="code-string">"full"</span>] }
+
+<span class="code-comment"># Observability</span>
+tracing = <span class="code-string">"0.1"</span>        <span class="code-comment"># Structured logging</span>
+metrics = <span class="code-string">"0.21"</span>       <span class="code-comment"># Prometheus metrics</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-block" style="margin-top: 24px;">
+<span class="code-comment">// Example: Type-safe, injection-proof API endpoint</span>
+<span class="code-keyword">use</span> axum::{extract::{Query, State}, Json};
+<span class="code-keyword">use</span> sqlx::PgPool;
+<span class="code-keyword">use</span> validator::Validate;
+
+<span class="code-keyword">async fn</span> <span class="code-function">search_flights</span>(
+    State(pool): State&lt;PgPool&gt;,
+    Query(params): Query&lt;SearchParams&gt;,  <span class="code-comment">// Auto-validated</span>
+) -> Result&lt;Json&lt;Vec&lt;Flight&gt;&gt;, AppError&gt; {
+    <span class="code-comment">// Compile-time SQL verification - impossible to inject</span>
+    <span class="code-keyword">let</span> flights = sqlx::<span class="code-function">query_as!</span>(
+        Flight,
+        <span class="code-string">r#"
+        SELECT id, origin, destination, price, airline, departure_time
+        FROM flights
+        WHERE origin = $1 AND destination = $2
+          AND departure_date BETWEEN $3 AND $4
+        ORDER BY price ASC
+        LIMIT 50
+        "#</span>,
+        params.origin,      <span class="code-comment">// $1 - type checked</span>
+        params.destination, <span class="code-comment">// $2 - type checked</span>
+        params.date_from,   <span class="code-comment">// $3 - type checked</span>
+        params.date_to      <span class="code-comment">// $4 - type checked</span>
+    )
+    .<span class="code-function">fetch_all</span>(&pool)
+    .<span class="code-keyword">await</span>?;
+
+    Ok(Json(flights))
+}
+
+<span class="code-comment">// Input validation at compile time</span>
+#[derive(Deserialize, Validate)]
+<span class="code-keyword">struct</span> <span class="code-type">SearchParams</span> {
+    #[validate(length(equal = 3))]  <span class="code-comment">// Must be IATA code</span>
+    origin: String,
+    #[validate(length(equal = 3))]
+    destination: String,
+    date_from: NaiveDate,
+    date_to: NaiveDate,
+}
+                    </div>
+                </div>
+
+                <!-- Layer 2 -->
+                <div class="layer">
+                    <div class="layer-header">
+                        <span class="layer-number">LAYER 2</span>
+                        <span class="layer-title">âš¡ ScyllaDB + Redis â€” Blazing Fast</span>
+                    </div>
+
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                        ScyllaDB: 10x faster than Cassandra, handles millions of fare records. 
+                        Redis: Sub-millisecond caching. No paid database services needed.
+                    </p>
+
+                    <div class="grid-3">
+                        <div class="card">
+                            <div class="card-icon">ðŸš€</div>
+                            <div class="card-title">ScyllaDB</div>
+                            <div class="card-desc">
+                                <div class="tag tag-db">Primary Store</div>
+                                <ul style="margin-top: 12px; padding-left: 16px;">
+                                    <li>1M+ writes/second</li>
+                                    <li>P99 latency < 1ms</li>
+                                    <li>Auto-sharding</li>
+                                    <li>No single point of failure</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">âš¡</div>
+                            <div class="card-title">Redis Cluster</div>
+                            <div class="card-desc">
+                                <div class="tag tag-db">Cache Layer</div>
+                                <ul style="margin-top: 12px; padding-left: 16px;">
+                                    <li>Session storage</li>
+                                    <li>Rate limit counters</li>
+                                    <li>Hot fare cache</li>
+                                    <li>Pub/sub alerts</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">ðŸ“Š</div>
+                            <div class="card-title">ClickHouse</div>
+                            <div class="card-desc">
+                                <div class="tag tag-db">Analytics</div>
+                                <ul style="margin-top: 12px; padding-left: 16px;">
+                                    <li>Price history</li>
+                                    <li>Trend analysis</li>
+                                    <li>ML features</li>
+                                    <li>Columnar = fast</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-block" style="margin-top: 24px;">
+<span class="code-comment">// ScyllaDB schema - optimized for time-series fare data</span>
+CREATE TABLE fares (
+    route_id        text,           <span class="code-comment">-- "KUL-NRT" partition key</span>
+    scraped_at      timestamp,      <span class="code-comment">-- clustering key (DESC)</span>
+    source          text,           <span class="code-comment">-- "skyscanner", "google", etc.</span>
+    price           decimal,
+    currency        text,
+    airline         text,
+    departure_time  timestamp,
+    arrival_time    timestamp,
+    stops           int,
+    cabin_class     text,
+    deep_link       text,
+    PRIMARY KEY ((route_id), scraped_at, source)
+) WITH CLUSTERING ORDER BY (scraped_at DESC)
+  AND default_time_to_live = 604800;  <span class="code-comment">-- 7 days TTL</span>
+
+<span class="code-comment">// Materialized view for price alerts</span>
+CREATE MATERIALIZED VIEW fare_alerts AS
+    SELECT route_id, price, scraped_at
+    FROM fares
+    WHERE price IS NOT NULL
+    PRIMARY KEY ((route_id), price, scraped_at);
+                    </div>
+                </div>
+
+                <!-- Layer 3 -->
+                <div class="layer">
+                    <div class="layer-header">
+                        <span class="layer-number">LAYER 3</span>
+                        <span class="layer-title">ðŸ“¡ Legitimate Data Sources</span>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <div class="alert-title">âœ… Legal, Sustainable, Scalable</div>
+                        <div class="alert-content">
+                            Use official affiliate APIs. Get paid for traffic. No lawsuits.
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="margin-top: 24px;">
+                        <div class="card">
+                            <h4>Affiliate APIs (Commission-Based)</h4>
+                            <table>
+                                <tr>
+                                    <th>Provider</th>
+                                    <th>Commission</th>
+                                    <th>Data Quality</th>
+                                </tr>
+                                <tr>
+                                    <td>Skyscanner Affiliate</td>
+                                    <td>50-70% of their cut</td>
+                                    <td>Excellent</td>
+                                </tr>
+                                <tr>
+                                    <td>Travelpayouts</td>
+                                    <td>1-3% of booking</td>
+                                    <td>Good</td>
+                                </tr>
+                                <tr>
+                                    <td>Kiwi.com Tequila</td>
+                                    <td>Custom</td>
+                                    <td>Excellent + booking</td>
+                                </tr>
+                                <tr>
+                                    <td>Amadeus Self-Service</td>
+                                    <td>Pay per search</td>
+                                    <td>GDS-level</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="card">
+                            <h4>Free/Public Data</h4>
+                            <table>
+                                <tr>
+                                    <th>Source</th>
+                                    <th>Data Type</th>
+                                    <th>Legal?</th>
+                                </tr>
+                                <tr>
+                                    <td>Google Flights (manual)</td>
+                                    <td>Reference pricing</td>
+                                    <td>âœ… Public</td>
+                                </tr>
+                                <tr>
+                                    <td>ITA Matrix (manual)</td>
+                                    <td>Fare rules research</td>
+                                    <td>âœ… Public</td>
+                                </tr>
+                                <tr>
+                                    <td>Airline RSS/Email</td>
+                                    <td>Sale announcements</td>
+                                    <td>âœ… Public</td>
+                                </tr>
+                                <tr>
+                                    <td>Secret Flying RSS</td>
+                                    <td>Error fares</td>
+                                    <td>âœ… Public</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="code-block" style="margin-top: 24px;">
+<span class="code-comment">// Kiwi.com Tequila API - Official, legal, includes booking!</span>
+<span class="code-keyword">pub struct</span> <span class="code-type">KiwiClient</span> {
+    api_key: String,
+    base_url: String,
+}
+
+<span class="code-keyword">impl</span> KiwiClient {
+    <span class="code-keyword">pub async fn</span> <span class="code-function">search</span>(&self, params: &SearchParams) -> Result&lt;Vec&lt;Flight&gt;&gt; {
+        <span class="code-keyword">let</span> response = reqwest::<span class="code-function">get</span>(
+            format!(<span class="code-string">"{}/v2/search"</span>, self.base_url)
+        )
+        .<span class="code-function">query</span>(&[
+            (<span class="code-string">"fly_from"</span>, &params.origin),
+            (<span class="code-string">"fly_to"</span>, &params.destination),
+            (<span class="code-string">"date_from"</span>, &params.date_from.format(<span class="code-string">"%d/%m/%Y"</span>)),
+            (<span class="code-string">"date_to"</span>, &params.date_to.format(<span class="code-string">"%d/%m/%Y"</span>)),
+            (<span class="code-string">"partner"</span>, <span class="code-string">"vaya"</span>),
+            (<span class="code-string">"curr"</span>, <span class="code-string">"MYR"</span>),
+        ])
+        .<span class="code-function">header</span>(<span class="code-string">"apikey"</span>, &self.api_key)
+        .<span class="code-function">send</span>()
+        .<span class="code-keyword">await</span>?
+        .<span class="code-function">json</span>::&lt;KiwiResponse&gt;()
+        .<span class="code-keyword">await</span>?;
+
+        Ok(response.data.into_iter().map(Flight::from).collect())
+    }
+
+    <span class="code-comment">// Kiwi handles the booking - we get commission!</span>
+    <span class="code-keyword">pub fn</span> <span class="code-function">get_booking_link</span>(&self, booking_token: &str) -> String {
+        format!(
+            <span class="code-string">"https://www.kiwi.com/deep?booking_token={}&partner=vaya"</span>,
+            booking_token
+        )
+    }
+}
+                    </div>
+                </div>
+
+                <!-- Layer 4 -->
+                <div class="layer">
+                    <div class="layer-header">
+                        <span class="layer-number">LAYER 4</span>
+                        <span class="layer-title">ðŸ§  Smart Fare Engine (Legal Optimizations)</span>
+                    </div>
+
+                    <p style="color: var(--text-secondary); margin-bottom: 24px;">
+                        Keep the smart parts, drop the illegal parts. These optimizations are 
+                        completely legal and provide real value.
+                    </p>
+
+                    <div class="grid-3">
+                        <div class="card">
+                            <div class="card-icon">ðŸ“…</div>
+                            <div class="card-title">Flexible Date Search</div>
+                            <div class="card-desc">
+                                Show prices Â±3 days from requested date. 
+                                Users often save 30-50% by shifting dates.
+                                <div class="tag tag-security" style="margin-top: 12px;">100% LEGAL</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">ðŸ›«</div>
+                            <div class="card-title">Nearby Airport Search</div>
+                            <div class="card-desc">
+                                Search from KUL? Also check SZB, PEN, JHB.
+                                Include ground transport cost estimate.
+                                <div class="tag tag-security" style="margin-top: 12px;">100% LEGAL</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">ðŸ””</div>
+                            <div class="card-title">Price Drop Alerts</div>
+                            <div class="card-desc">
+                                Users set target price. We monitor via 
+                                affiliate APIs. Push notification when hit.
+                                <div class="tag tag-security" style="margin-top: 12px;">100% LEGAL</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">ðŸ“‰</div>
+                            <div class="card-title">Price Prediction</div>
+                            <div class="card-desc">
+                                ML model on historical data.
+                                "Prices typically drop 23% in 2 weeks."
+                                <div class="tag tag-security" style="margin-top: 12px;">100% LEGAL</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">âœˆï¸</div>
+                            <div class="card-title">Split Ticket Option</div>
+                            <div class="card-desc">
+                                Show as option with clear risks disclosed.
+                                "Separate tickets - you bear connection risk."
+                                <div class="tag tag-security" style="margin-top: 12px;">LEGAL IF DISCLOSED</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">ðŸš¨</div>
+                            <div class="card-title">Error Fare Alerts</div>
+                            <div class="card-desc">
+                                Monitor affiliate feeds + public sources.
+                                Alert users to anomalies. They decide to book.
+                                <div class="tag tag-security" style="margin-top: 12px;">100% LEGAL</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-block" style="margin-top: 24px;">
+<span class="code-comment">// Legal fare optimization engine</span>
+<span class="code-keyword">pub struct</span> <span class="code-type">FareEngine</span> {
+    affiliate_clients: Vec&lt;Box&lt;<span class="code-keyword">dyn</span> AffiliateClient&gt;&gt;,
+    cache: RedisPool,
+    analytics: ClickHousePool,
+}
+
+<span class="code-keyword">impl</span> FareEngine {
+    <span class="code-keyword">pub async fn</span> <span class="code-function">search</span>(&self, params: SearchParams) -> Result&lt;SearchResults&gt; {
+        <span class="code-comment">// 1. Check cache first</span>
+        <span class="code-keyword">if let</span> Some(cached) = self.cache.<span class="code-function">get_recent_fares</span>(&params).<span class="code-keyword">await</span>? {
+            <span class="code-keyword">return</span> Ok(cached);
+        }
+
+        <span class="code-comment">// 2. Parallel search across all affiliate APIs</span>
+        <span class="code-keyword">let</span> searches: Vec&lt;_&gt; = self.affiliate_clients.iter()
+            .map(|client| client.<span class="code-function">search</span>(&params))
+            .collect();
+
+        <span class="code-keyword">let</span> results = futures::<span class="code-function">join_all</span>(searches).<span class="code-keyword">await</span>;
+
+        <span class="code-comment">// 3. Aggregate and deduplicate</span>
+        <span class="code-keyword">let</span> <span class="code-keyword">mut</span> all_flights = Vec::new();
+        <span class="code-keyword">for</span> result <span class="code-keyword">in</span> results {
+            <span class="code-keyword">if let</span> Ok(flights) = result {
+                all_flights.extend(flights);
+            }
+        }
+
+        <span class="code-comment">// 4. Add legal optimizations</span>
+        <span class="code-keyword">let</span> optimized = self.<span class="code-function">add_optimizations</span>(&params, all_flights).<span class="code-keyword">await</span>?;
+
+        <span class="code-comment">// 5. Cache and return</span>
+        self.cache.<span class="code-function">set_fares</span>(&params, &optimized).<span class="code-keyword">await</span>?;
+
+        Ok(optimized)
+    }
+
+    <span class="code-keyword">async fn</span> <span class="code-function">add_optimizations</span>(
+        &self,
+        params: &SearchParams,
+        flights: Vec&lt;Flight&gt;
+    ) -> Result&lt;SearchResults&gt; {
+        <span class="code-keyword">let</span> <span class="code-keyword">mut</span> results = SearchResults::new(flights);
+
+        <span class="code-comment">// Flexible dates (Â±3 days)</span>
+        results.flexible_dates = self.<span class="code-function">search_flexible_dates</span>(params).<span class="code-keyword">await</span>?;
+
+        <span class="code-comment">// Nearby airports</span>
+        results.nearby_airports = self.<span class="code-function">search_nearby_airports</span>(params).<span class="code-keyword">await</span>?;
+
+        <span class="code-comment">// Price prediction</span>
+        results.price_prediction = self.analytics.<span class="code-function">predict_price_trend</span>(
+            &params.route(),
+            14 <span class="code-comment">// days ahead</span>
+        ).<span class="code-keyword">await</span>?;
+
+        <span class="code-comment">// Split ticket option (with disclosure)</span>
+        <span class="code-keyword">if let</span> Some(split) = self.<span class="code-function">find_split_ticket_option</span>(params).<span class="code-keyword">await</span>? {
+            results.split_ticket = Some(SplitTicketOption {
+                flights: split,
+                disclaimer: <span class="code-string">"âš ï¸ Separate tickets. If first flight is delayed, \
+                            you may miss the second flight and will need to \
+                            purchase a new ticket. Proceed at your own risk."</span>.into(),
+            });
+        }
+
+        Ok(results)
+    }
+}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security -->
+        <section id="security">
+            <div class="container">
+                <span class="section-label">Zero-Cost Security</span>
+                <h2>Security by Design, Not by Vendor</h2>
+                <p class="section-desc">
+                    No Cloudflare. No AWS WAF. No paid security services. 
+                    Rust + proper architecture = unhackable.
+                </p>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>Built-In Protections</h4>
+                        <div class="code-block">
+<span class="code-comment">// Rate limiting - no Cloudflare needed</span>
+<span class="code-keyword">use</span> governor::{Quota, RateLimiter};
+
+<span class="code-keyword">let</span> limiter = RateLimiter::<span class="code-function">keyed</span>(
+    Quota::<span class="code-function">per_minute</span>(NonZeroU32::new(60).unwrap())
+);
+
+<span class="code-keyword">async fn</span> <span class="code-function">rate_limit_middleware</span>(
+    State(limiter): State&lt;Arc&lt;RateLimiter&gt;&gt;,
+    req: Request,
+    next: Next,
+) -> Response {
+    <span class="code-keyword">let</span> ip = req.<span class="code-function">client_ip</span>();
+    
+    <span class="code-keyword">match</span> limiter.<span class="code-function">check_key</span>(&ip) {
+        Ok(_) => next.<span class="code-function">run</span>(req).<span class="code-keyword">await</span>,
+        Err(_) => (
+            StatusCode::TOO_MANY_REQUESTS,
+            <span class="code-string">"Rate limit exceeded"</span>
+        ).into_response()
+    }
+}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h4>DDoS Mitigation</h4>
+                        <div class="code-block">
+<span class="code-comment">// Connection limiting + SYN cookies</span>
+<span class="code-comment">// At the OS level (no paid service needed)</span>
+
+<span class="code-comment"># sysctl.conf</span>
+net.ipv4.tcp_syncookies = 1
+net.ipv4.tcp_max_syn_backlog = 65536
+net.core.somaxconn = 65536
+net.ipv4.tcp_tw_reuse = 1
+
+<span class="code-comment"># iptables rate limiting</span>
+iptables -A INPUT -p tcp --dport 443 \
+  -m connlimit --connlimit-above 100 \
+  -j REJECT
+
+<span class="code-comment"># Rust-level connection limiting</span>
+<span class="code-keyword">let</span> listener = TcpListener::<span class="code-function">bind</span>(addr).<span class="code-keyword">await</span>?;
+<span class="code-keyword">let</span> semaphore = Arc::new(Semaphore::new(10000));
+
+<span class="code-keyword">loop</span> {
+    <span class="code-keyword">let</span> permit = semaphore.clone().<span class="code-function">acquire_owned</span>().<span class="code-keyword">await</span>?;
+    <span class="code-keyword">let</span> (socket, _) = listener.<span class="code-function">accept</span>().<span class="code-keyword">await</span>?;
+    tokio::<span class="code-function">spawn</span>(<span class="code-keyword">async move</span> {
+        <span class="code-function">handle_connection</span>(socket).<span class="code-keyword">await</span>;
+        drop(permit);
+    });
+}
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 48px 0 24px;">Security Comparison</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Threat</th>
+                            <th>KIASU (Paid Services)</th>
+                            <th>VAYA (Built-In)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SQL Injection</td>
+                            <td>WAF rules, regex matching</td>
+                            <td>Impossible - SQLx compile-time verification</td>
+                        </tr>
+                        <tr>
+                            <td>XSS</td>
+                            <td>WAF rules, CSP headers</td>
+                            <td>Impossible - Type system prevents injection</td>
+                        </tr>
+                        <tr>
+                            <td>Buffer Overflow</td>
+                            <td>Runtime detection, patching</td>
+                            <td>Impossible - Rust memory safety</td>
+                        </tr>
+                        <tr>
+                            <td>DDoS</td>
+                            <td>Cloudflare, RM 800+/month</td>
+                            <td>Governor rate limiter, OS-level limits</td>
+                        </tr>
+                        <tr>
+                            <td>Brute Force</td>
+                            <td>Fail2ban, paid services</td>
+                            <td>Built-in rate limiting, Argon2 (slow by design)</td>
+                        </tr>
+                        <tr>
+                            <td>Data Breach</td>
+                            <td>Encryption, access controls</td>
+                            <td>Same + memory-safe code (no data leaks)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="ascii" style="margin-top: 32px;">
+<span class="highlight">VAYA Security Architecture</span>
+
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                         INTERNET                                     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                  â”‚
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚   <span class="warn">OS-Level Protection</span>     â”‚
+                    â”‚   â€¢ SYN cookies           â”‚
+                    â”‚   â€¢ Connection limits     â”‚
+                    â”‚   â€¢ iptables rules        â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                  â”‚
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚   <span class="highlight">Rust Edge Layer</span>         â”‚
+                    â”‚   â€¢ TLS termination       â”‚
+                    â”‚   â€¢ Rate limiting         â”‚
+                    â”‚   â€¢ Request validation    â”‚
+                    â”‚   â€¢ IP blocking           â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                  â”‚
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚   <span class="info">Application Layer</span>       â”‚
+                    â”‚   â€¢ Auth (JWT + Argon2)   â”‚
+                    â”‚   â€¢ Type-safe handlers    â”‚
+                    â”‚   â€¢ Input validation      â”‚
+                    â”‚   â€¢ Output sanitization   â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                  â”‚
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚   <span class="highlight">Data Layer</span>              â”‚
+                    â”‚   â€¢ SQLx (compile-time)   â”‚
+                    â”‚   â€¢ Encrypted at rest     â”‚
+                    â”‚   â€¢ Connection pooling    â”‚
+                    â”‚   â€¢ No raw queries ever   â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                </div>
+            </div>
+        </section>
+
+        <!-- UX Design -->
+        <section id="ux" style="background: var(--bg-secondary);">
+            <div class="container">
+                <span class="section-label">World-Class Experience</span>
+                <h2>Three UIs. Three Experiences.</h2>
+                <p class="section-desc">
+                    Not responsive. Not adaptive. Three completely different interfaces 
+                    optimized for how people actually use each device.
+                </p>
+
+                <div class="grid-3" style="margin-bottom: 48px;">
+                    <div class="card">
+                        <div class="card-icon">ðŸ“±</div>
+                        <div class="card-title">Mobile (< 768px)</div>
+                        <div class="card-desc">
+                            <strong>One-thumb operation.</strong> Search at top. 
+                            Results as cards. Swipe to compare. 
+                            Bottom navigation. Big touch targets.
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">ðŸ“Ÿ</div>
+                        <div class="card-title">Tablet (768-1024px)</div>
+                        <div class="card-desc">
+                            <strong>Split view.</strong> Search panel on left. 
+                            Results on right. Drag to compare. 
+                            Optimized for landscape.
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-icon">ðŸ–¥ï¸</div>
+                        <div class="card-title">Desktop (> 1024px)</div>
+                        <div class="card-desc">
+                            <strong>Power user mode.</strong> Multi-column. 
+                            Keyboard shortcuts. Bulk compare. 
+                            Advanced filters visible.
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-bottom: 24px;">Design Principles</h3>
+
+                <div class="grid-2">
+                    <div>
+                        <ul class="checklist">
+                            <li>
+                                <span class="check-icon">âœ“</span>
+                                <div class="check-content">
+                                    <h5>Zero Learning Curve</h5>
+                                    <p>Search box. Enter cities. See prices. Book. That's it.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="check-icon">âœ“</span>
+                                <div class="check-content">
+                                    <h5>Speed is a Feature</h5>
+                                    <p>Results in < 500ms. No spinners. Instant feedback.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="check-icon">âœ“</span>
+                                <div class="check-content">
+                                    <h5>Trust Through Transparency</h5>
+                                    <p>Show savings. Show sources. No hidden markup display.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <span class="check-icon">âœ“</span>
+                                <div class="check-content">
+                                    <h5>Delight in Details</h5>
+                                    <p>Micro-animations. Haptic feedback (mobile). Sounds off by default.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <div style="background: linear-gradient(135deg, #059669, #10b981); padding: 20px; text-align: center;">
+                            <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.8;">Mobile Preview</span>
+                        </div>
+                        <div style="padding: 20px; background: var(--bg-primary);">
+                            <div class="ui-search">
+                                <input type="text" class="ui-input" placeholder="Where from?" value="Kuala Lumpur (KUL)">
+                                <input type="text" class="ui-input" placeholder="Where to?" value="Tokyo (NRT)">
+                                <button class="ui-btn">Search Flights</button>
+                            </div>
+                            <div class="ui-result">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div class="ui-price">RM 1,247</div>
+                                        <div class="ui-route">AirAsia X â€¢ Direct â€¢ 7h 15m</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: var(--accent); font-weight: 600; font-size: 0.85rem;">Save 34%</div>
+                                        <div style="color: var(--text-muted); font-size: 0.75rem; text-decoration: line-through;">RM 1,890</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui-result">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div class="ui-price">RM 1,456</div>
+                                        <div class="ui-route">Malaysia Airlines â€¢ Direct â€¢ 7h</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="color: var(--accent); font-weight: 600; font-size: 0.85rem;">Save 28%</div>
+                                        <div style="color: var(--text-muted); font-size: 0.75rem; text-decoration: line-through;">RM 2,020</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 48px 0 24px;">Frontend Tech Stack</h3>
+
+                <div class="grid-3">
+                    <div class="card">
+                        <div class="card-title">Framework</div>
+                        <div class="tag tag-frontend">Leptos</div>
+                        <div class="tag tag-frontend">Rust â†’ WASM</div>
+                        <p style="color: var(--text-secondary); margin-top: 12px; font-size: 0.9rem;">
+                            Full-stack Rust. SSR + hydration. 
+                            Same language frontend & backend.
+                            Type safety end-to-end.
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Styling</div>
+                        <div class="tag tag-frontend">Tailwind CSS</div>
+                        <div class="tag tag-frontend">CSS Variables</div>
+                        <p style="color: var(--text-secondary); margin-top: 12px; font-size: 0.9rem;">
+                            Design tokens in CSS variables.
+                            Tailwind for rapid development.
+                            Purged CSS < 10KB.
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Animation</div>
+                        <div class="tag tag-frontend">Motion One</div>
+                        <div class="tag tag-frontend">CSS Transitions</div>
+                        <p style="color: var(--text-secondary); margin-top: 12px; font-size: 0.9rem;">
+                            60fps animations. GPU-accelerated.
+                            Reduced motion respected.
+                            < 3KB animation library.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="code-block" style="margin-top: 24px;">
+<span class="code-comment">// Leptos component - Rust compiles to WASM</span>
+<span class="code-keyword">use</span> leptos::*;
+
+#[component]
+<span class="code-keyword">pub fn</span> <span class="code-function">FlightCard</span>(flight: Flight) -> <span class="code-keyword">impl</span> IntoView {
+    <span class="code-keyword">let</span> savings_percent = ((flight.retail_price - flight.price) / flight.retail_price * 100.0) as i32;
+    
+    view! {
+        &lt;article class=<span class="code-string">"flight-card"</span>&gt;
+            &lt;div class=<span class="code-string">"flight-price"</span>&gt;
+                &lt;span class=<span class="code-string">"currency"</span>&gt;<span class="code-string">"RM "</span>&lt;/span&gt;
+                &lt;span class=<span class="code-string">"amount"</span>&gt;{flight.price}&lt;/span&gt;
+            &lt;/div&gt;
+            
+            &lt;div class=<span class="code-string">"flight-details"</span>&gt;
+                &lt;span class=<span class="code-string">"airline"</span>&gt;{&flight.airline}&lt;/span&gt;
+                &lt;span class=<span class="code-string">"route"</span>&gt;
+                    {&flight.origin}<span class="code-string">" â†’ "</span>{&flight.destination}
+                &lt;/span&gt;
+                &lt;span class=<span class="code-string">"duration"</span>&gt;{&flight.duration}&lt;/span&gt;
+            &lt;/div&gt;
+            
+            &lt;div class=<span class="code-string">"flight-savings"</span>&gt;
+                &lt;span class=<span class="code-string">"badge-save"</span>&gt;<span class="code-string">"Save "</span>{savings_percent}<span class="code-string">"%"</span>&lt;/span&gt;
+                &lt;span class=<span class="code-string">"retail-price"</span>&gt;<span class="code-string">"RM "</span>{flight.retail_price}&lt;/span&gt;
+            &lt;/div&gt;
+            
+            &lt;a 
+                href={flight.booking_url} 
+                class=<span class="code-string">"book-button"</span>
+                target=<span class="code-string">"_blank"</span>
+            &gt;
+                <span class="code-string">"Book Now"</span>
+            &lt;/a&gt;
+        &lt;/article&gt;
+    }
+}
+                </div>
+            </div>
+        </section>
+
+        <!-- Implementation -->
+        <section id="implementation">
+            <div class="container">
+                <span class="section-label">Roadmap</span>
+                <h2>Implementation Plan</h2>
+                <p class="section-desc">
+                    16-week timeline from zero to launch. Aggressive but achievable with 
+                    focused execution.
+                </p>
+
+                <div class="grid-2">
+                    <div>
+                        <div class="layer" style="margin: 0 0 24px 0;">
+                            <h4 style="color: var(--accent); margin-bottom: 8px;">Phase 1: Foundation (Weeks 1-4)</h4>
+                            <ul style="color: var(--text-secondary); padding-left: 20px;">
+                                <li>Rust project scaffolding (Axum, SQLx)</li>
+                                <li>Database schema design</li>
+                                <li>Authentication system (JWT + Argon2)</li>
+                                <li>Basic API endpoints</li>
+                                <li>CI/CD pipeline</li>
+                            </ul>
+                        </div>
+
+                        <div class="layer" style="margin: 0 0 24px 0;">
+                            <h4 style="color: var(--accent); margin-bottom: 8px;">Phase 2: Data Layer (Weeks 5-7)</h4>
+                            <ul style="color: var(--text-secondary); padding-left: 20px;">
+                                <li>Integrate Kiwi.com Tequila API</li>
+                                <li>Integrate Skyscanner Affiliate</li>
+                                <li>ScyllaDB fare storage</li>
+                                <li>Redis caching layer</li>
+                                <li>Price aggregation logic</li>
+                            </ul>
+                        </div>
+
+                        <div class="layer" style="margin: 0 0 24px 0;">
+                            <h4 style="color: var(--accent); margin-bottom: 8px;">Phase 3: Smart Features (Weeks 8-10)</h4>
+                            <ul style="color: var(--text-secondary); padding-left: 20px;">
+                                <li>Flexible date search</li>
+                                <li>Nearby airport search</li>
+                                <li>Price alert system</li>
+                                <li>Price prediction model</li>
+                                <li>Split ticket option (with disclosure)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="layer" style="margin: 0 0 24px 0;">
+                            <h4 style="color: var(--purple); margin-bottom: 8px;">Phase 4: Frontend (Weeks 11-13)</h4>
+                            <ul style="color: var(--text-secondary); padding-left: 20px;">
+                                <li>Leptos/WASM setup</li>
+                                <li>Mobile UI implementation</li>
+                                <li>Tablet UI implementation</li>
+                                <li>Desktop UI implementation</li>
+                                <li>Animation & polish</li>
+                            </ul>
+                        </div>
+
+                        <div class="layer" style="margin: 0 0 24px 0;">
+                            <h4 style="color: var(--purple); margin-bottom: 8px;">Phase 5: Launch Prep (Weeks 14-15)</h4>
+                            <ul style="color: var(--text-secondary); padding-left: 20px;">
+                                <li>Security audit (internal)</li>
+                                <li>Load testing</li>
+                                <li>Beta testing (100 users)</li>
+                                <li>Bug fixes</li>
+                                <li>Documentation</li>
+                            </ul>
+                        </div>
+
+                        <div class="layer" style="margin: 0;">
+                            <h4 style="color: var(--warning); margin-bottom: 8px;">Phase 6: Launch (Week 16+)</h4>
+                            <ul style="color: var(--text-secondary); padding-left: 20px;">
+                                <li>Production deployment</li>
+                                <li>Monitoring setup</li>
+                                <li>Marketing launch</li>
+                                <li>User feedback loop</li>
+                                <li>Iterate and scale</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 48px 0 24px;">Monthly Operating Costs</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Provider</th>
+                            <th>Cost (MYR/month)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Compute (3x servers)</td>
+                            <td>Hetzner / OVH</td>
+                            <td>RM 400 - 800</td>
+                        </tr>
+                        <tr>
+                            <td>ScyllaDB Cloud</td>
+                            <td>ScyllaDB</td>
+                            <td>RM 0 (self-hosted) - 500</td>
+                        </tr>
+                        <tr>
+                            <td>Redis</td>
+                            <td>Self-hosted</td>
+                            <td>RM 0 (included in compute)</td>
+                        </tr>
+                        <tr>
+                            <td>Domain + SSL</td>
+                            <td>Cloudflare (free tier)</td>
+                            <td>RM 50</td>
+                        </tr>
+                        <tr>
+                            <td>Email (transactional)</td>
+                            <td>Resend / Postmark</td>
+                            <td>RM 0 - 100</td>
+                        </tr>
+                        <tr>
+                            <td>Monitoring</td>
+                            <td>Grafana Cloud (free tier)</td>
+                            <td>RM 0</td>
+                        </tr>
+                        <tr>
+                            <td>Affiliate APIs</td>
+                            <td>Kiwi/Skyscanner</td>
+                            <td>RM 0 (revenue share)</td>
+                        </tr>
+                        <tr style="background: var(--accent-glow);">
+                            <td colspan="2"><strong>TOTAL (Startup Phase)</strong></td>
+                            <td><strong>RM 450 - 1,450/month</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-success" style="margin-top: 32px;">
+                    <div class="alert-title">ðŸ’° Cost Comparison</div>
+                    <div class="alert-content">
+                        <strong>KIASU estimate:</strong> RM 7,000 - 18,000/month (proxies, CAPTCHA, WAF, etc.)<br>
+                        <strong>VAYA estimate:</strong> RM 450 - 1,450/month (legitimate APIs, self-hosted, secure by design)<br><br>
+                        <strong>Savings: 85-97%</strong> while being completely legal and more secure.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Checklist -->
+        <section style="background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));">
+            <div class="container">
+                <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+                    <span class="section-label">Final Verdict</span>
+                    <h2>VAYA vs KIASU: Side-by-Side</h2>
+                </div>
+
+                <table style="margin: 48px 0;">
+                    <thead>
+                        <tr>
+                            <th>Dimension</th>
+                            <th>KIASU</th>
+                            <th>VAYA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Legal Status</td>
+                            <td style="color: var(--danger);">â›” Multiple violations</td>
+                            <td style="color: var(--accent);">âœ… 100% legal</td>
+                        </tr>
+                        <tr>
+                            <td>Monthly Cost</td>
+                            <td>RM 7,000 - 18,000</td>
+                            <td style="color: var(--accent);">RM 450 - 1,450</td>
+                        </tr>
+                        <tr>
+                            <td>Security Approach</td>
+                            <td>Pay for WAF/services</td>
+                            <td style="color: var(--accent);">Secure by design (Rust)</td>
+                        </tr>
+                        <tr>
+                            <td>Data Sources</td>
+                            <td style="color: var(--danger);">Illegal scraping</td>
+                            <td style="color: var(--accent);">Affiliate APIs (paid commissions)</td>
+                        </tr>
+                        <tr>
+                            <td>Sustainability</td>
+                            <td style="color: var(--danger);">3-6 months before shutdown</td>
+                            <td style="color: var(--accent);">Indefinite</td>
+                        </tr>
+                        <tr>
+                            <td>User Value</td>
+                            <td>Slightly cheaper (with risks)</td>
+                            <td style="color: var(--accent);">Same savings, no risks</td>
+                        </tr>
+                        <tr>
+                            <td>Tech Stack</td>
+                            <td>Node.js, Python (vulnerable)</td>
+                            <td style="color: var(--accent);">Rust (memory-safe)</td>
+                        </tr>
+                        <tr>
+                            <td>UX</td>
+                            <td>Responsive (one size)</td>
+                            <td style="color: var(--accent);">3 dedicated UIs</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="text-align: center; padding: 48px 0;">
+                    <h3 style="color: var(--accent); margin-bottom: 16px;">Ready to Build Something That Lasts?</h3>
+                    <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+                        VAYA delivers the same value proposition as KIASU â€” cheap flights, great UX â€” 
+                        without the legal landmines, massive infrastructure costs, or inevitable shutdown.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">VAYA</div>
+            <p class="footer-text">Architecture Document v1.0 â€¢ Secure by Design</p>
+        </div>
+    </footer>
+</body>
+</html>

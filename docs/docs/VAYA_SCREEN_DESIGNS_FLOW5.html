@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Screen Design Specification: Flow 5 - Pool Discovery & Join</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-500: #00F5A0;
+            --mint-600: #00CC85;
+            --mint-dim: rgba(0, 245, 160, 0.12);
+            --mint-muted: rgba(0, 245, 160, 0.24);
+            --cyan-500: #00D9FF;
+            --cyan-dim: rgba(0, 217, 255, 0.12);
+            --n0: #000000;
+            --n50: #0A0A0B;
+            --n100: #111113;
+            --n150: #161618;
+            --n200: #1A1A1D;
+            --n300: #232326;
+            --n400: #2D2D31;
+            --n500: #3D3D42;
+            --n600: #5C5C63;
+            --n700: #7A7A82;
+            --n800: #9999A1;
+            --n900: #CCCCCC;
+            --n1000: #FFFFFF;
+            --warning: #FFB800;
+            --warning-dim: rgba(255, 184, 0, 0.12);
+            --error: #FF4757;
+            --error-dim: rgba(255, 71, 87, 0.12);
+            --success: #00F5A0;
+            --purple: #A855F7;
+            --purple-dim: rgba(168, 85, 247, 0.12);
+            --blue: #3B82F6;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --glow-sm: 0 0 16px rgba(0, 245, 160, 0.3);
+            --glow-purple: 0 0 24px rgba(168, 85, 247, 0.4);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.5);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--n1000); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--purple); margin-bottom: 48px; background: linear-gradient(180deg, rgba(168,85,247,0.08) 0%, transparent 100%); }
+        .doc-logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .doc-logo span:first-child { color: var(--mint-500); }
+        .doc-logo span:last-child { color: var(--cyan-500); }
+        .doc-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-top: 16px; }
+        .doc-subtitle { font-size: 15px; color: var(--n700); margin-top: 8px; }
+        .doc-meta { display: flex; justify-content: center; gap: 32px; margin-top: 24px; }
+        .doc-meta-item { text-align: center; }
+        .doc-meta-label { font-size: 10px; color: var(--n600); text-transform: uppercase; }
+        .doc-meta-value { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--purple); }
+        .section { margin-bottom: 64px; }
+        .section-header { background: var(--n100); border: 1px solid var(--n200); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .section-num { font-family: var(--font-mono); font-size: 11px; color: var(--purple); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .section-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .section-desc { color: var(--n700); font-size: 14px; }
+        .spec-card { background: var(--n50); border: 1px solid var(--n200); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+        .spec-card-header { background: var(--n100); padding: 16px 20px; border-bottom: 1px solid var(--n200); display: flex; align-items: center; justify-content: space-between; }
+        .spec-id { font-family: var(--font-mono); font-size: 11px; color: var(--purple); background: var(--purple-dim); padding: 4px 10px; border-radius: 4px; }
+        .spec-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+        .spec-badge { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; }
+        .spec-badge-unique { background: var(--purple); color: #fff; }
+        .spec-badge-social { background: var(--cyan-500); color: #000; }
+        .spec-card-body { padding: 20px; }
+        .pixel-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+        .pixel-table th { background: var(--n150); padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--n300); }
+        .pixel-table td { padding: 10px 12px; border-bottom: 1px solid var(--n200); color: var(--n800); vertical-align: top; }
+        .pixel-table .property { font-family: var(--font-mono); color: var(--cyan-500); font-weight: 500; }
+        .state-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+        .state-card { background: var(--n150); border: 1px solid var(--n300); border-radius: 8px; padding: 12px; }
+        .state-name { font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; margin-bottom: 8px; }
+        .state-preview { background: var(--n0); border-radius: 6px; padding: 12px; min-height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+        .state-specs { font-size: 10px; color: var(--n700); }
+        .state-specs code { font-family: var(--font-mono); color: var(--cyan-500); font-size: 9px; }
+        .integration-box { background: linear-gradient(135deg, var(--n100), rgba(168,85,247,0.05)); border: 1px solid var(--purple); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .integration-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 12px; }
+        .integration-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .integration-item { background: var(--n150); border-radius: 6px; padding: 10px; }
+        .integration-crate { font-family: var(--font-mono); font-size: 11px; color: var(--cyan-500); margin-bottom: 2px; }
+        .integration-desc { font-size: 10px; color: var(--n600); }
+        .unique-box { background: linear-gradient(135deg, var(--n100), rgba(168,85,247,0.08)); border: 1px solid var(--purple); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .unique-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 8px; }
+        .unique-box p { color: var(--n800); font-size: 12px; }
+        .success-box { background: var(--mint-dim); border: 1px solid var(--mint-500); border-radius: 8px; padding: 12px; margin: 12px 0; }
+        .success-box p { color: var(--n800); font-size: 12px; }
+        .success-box strong { color: var(--mint-500); }
+        .warning-box { background: var(--warning-dim); border: 1px solid var(--warning); border-radius: 8px; padding: 12px; margin: 12px 0; }
+        .warning-box p { color: var(--n800); font-size: 12px; }
+        .warning-box strong { color: var(--warning); }
+        .summary-box { background: linear-gradient(135deg, var(--n100), rgba(168,85,247,0.08)); border: 2px solid var(--purple); border-radius: 20px; padding: 40px; text-align: center; margin-top: 48px; }
+        .pool-progress { width: 100%; height: 8px; background: var(--n300); border-radius: 4px; overflow: hidden; }
+        .pool-progress-fill { height: 100%; background: linear-gradient(90deg, var(--purple), var(--mint-500)); border-radius: 4px; transition: width 0.3s ease; }
+        @media (max-width: 1200px) { .state-grid { grid-template-columns: repeat(2, 1fr); } .integration-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="doc-header">
+            <div class="doc-logo"><span>VA</span><span>YA</span></div>
+            <h1 class="doc-title">Screen Design Specification</h1>
+            <p class="doc-subtitle">Flow 5: Pool Discovery & Join â€” VAYA's Revolutionary Differentiator</p>
+            <div class="doc-meta">
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Screens</div>
+                    <div class="doc-meta-value">8</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Pool States</div>
+                    <div class="doc-meta-value">6</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Max Savings</div>
+                    <div class="doc-meta-value">30%+</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Industry First</div>
+                    <div class="doc-meta-value">âœ“</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="unique-box">
+            <div class="unique-title">ðŸš€ WHAT MAKES POOLS REVOLUTIONARY</div>
+            <p>VAYA Pools is group buying for flights â€” an industry first. Multiple travelers combine purchasing power to unlock wholesale pricing. No competitor offers this. It's the killer feature that makes VAYA instantly differentiated.</p>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- S5.1: POOL DISCOVERY -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S5.1</div>
+                <h2 class="section-title">Pool Discovery</h2>
+                <p class="section-desc">Browse active pools. Filter by route, dates, savings. Sort by time remaining or savings. Show pool health indicators.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="spec-id">S5.1</span>
+                        <span class="spec-name">Pool Discovery</span>
+                    </div>
+                    <span class="spec-badge spec-badge-unique">UNIQUE</span>
+                </div>
+                <div class="spec-card-body">
+                    <!-- Desktop Layout -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin-bottom: 12px;">ðŸ–¥ï¸ Desktop Layout (1280px+)</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Typography</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Page Container</td><td>below header</td><td>W: 100%, max: 1400px</td><td>â€”</td><td>padding: 40px</td></tr>
+                            <tr><td class="property">â”œâ”€ Hero Section</td><td>top</td><td>W: 100%, H: 200px</td><td>â€”</td><td>bg: gradient purpleâ†’mint, explains Pools concept</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Title</td><td>center</td><td>W: auto</td><td>Space Grotesk 48px/800</td><td>"Join a Pool, Save Together"</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Subtitle</td><td>below title</td><td>W: 600px max</td><td>DM Sans 18px/400</td><td>"Combine with other travelers for group discounts up to 30%"</td></tr>
+                            <tr><td class="property">â”œâ”€ Filter Bar</td><td>below hero</td><td>W: 100%, H: 64px</td><td>â€”</td><td>bg: n100, border: n200, radius: 16px</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Route Filter</td><td>left</td><td>W: 200px, H: 44px</td><td>14px/500</td><td>Dropdown: "All routes" or specific</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Date Filter</td><td>â€”</td><td>W: 180px, H: 44px</td><td>14px/500</td><td>Date range picker</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Savings Filter</td><td>â€”</td><td>W: 150px, H: 44px</td><td>14px/500</td><td>"10%+" "20%+" "30%+"</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Sort</td><td>right</td><td>W: 160px, H: 44px</td><td>14px/500</td><td>"Ending soon" / "Most savings" / "Most popular"</td></tr>
+                            <tr><td class="property">â”œâ”€ Pool Grid</td><td>below filters</td><td>W: 100%, gap: 24px</td><td>â€”</td><td>grid: repeat(3, 1fr)</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Pool Card</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>See Pool Card specification below</td></tr>
+                            <tr><td class="property">â””â”€ Create Pool CTA</td><td>bottom right, fixed</td><td>W: auto, H: 56px</td><td>Space Grotesk 15px/700</td><td>bg: purple, "+ Create Pool"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Pool Card Component -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--purple); margin: 24px 0 12px;">ðŸ‘¥ Pool Card Component</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Typography</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Card Container</td><td>â€”</td><td>W: 100%, H: auto, padding: 24px</td><td>â€”</td><td>bg: n100, border: n200, radius: 20px, hover: border purple</td></tr>
+                            <tr><td class="property">â”œâ”€ Route Badge</td><td>top left</td><td>W: auto, H: 32px</td><td>JetBrains Mono 14px/700</td><td>bg: purple-dim, color: purple, "KUL â†’ TYO"</td></tr>
+                            <tr><td class="property">â”œâ”€ Time Remaining</td><td>top right</td><td>W: auto, H: 28px</td><td>JetBrains Mono 12px/600</td><td>Icon + "2d 14h left", color based on urgency</td></tr>
+                            <tr><td class="property">â”œâ”€ Date Range</td><td>below route</td><td>W: auto</td><td>DM Sans 14px/400</td><td>"Mar 15-22, 2025", color: n700</td></tr>
+                            <tr><td class="property">â”œâ”€ Progress Section</td><td>center</td><td>W: 100%, H: auto</td><td>â€”</td><td>margin: 20px 0</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Progress Bar</td><td>â€”</td><td>W: 100%, H: 8px</td><td>â€”</td><td>bg-track: n300, fill: gradient purpleâ†’mint</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Progress Label</td><td>below bar</td><td>W: 100%</td><td>DM Sans 13px/600</td><td>"87/100 joined" â€” flex between label and count</td></tr>
+                            <tr><td class="property">â”œâ”€ Savings Display</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>The key selling point</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Individual Price</td><td>left</td><td>W: auto</td><td>DM Sans 14px/400</td><td>Strikethrough, color: n600, "RM 1,450"</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Pool Price</td><td>center</td><td>W: auto</td><td>Space Grotesk 28px/800</td><td>color: purple, "RM 1,120"</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Savings Badge</td><td>right</td><td>W: auto, H: 28px</td><td>DM Sans 13px/700</td><td>bg: mint-dim, color: mint-500, "-23%"</td></tr>
+                            <tr><td class="property">â””â”€ Join CTA</td><td>bottom</td><td>W: 100%, H: 48px</td><td>DM Sans 15px/700</td><td>bg: purple, "Join Pool"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Pool Card States -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">Pool Card States</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Active (Healthy)</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px;">
+                                <div class="pool-progress" style="margin-bottom: 8px;"><div class="pool-progress-fill" style="width: 70%;"></div></div>
+                                <span style="font-size: 11px; color: var(--n700);">70/100 â€¢ 3d left</span>
+                            </div>
+                            <div class="state-specs"><code>border: n200</code><br><code>Normal state</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Almost Full</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px;">
+                                <div class="pool-progress" style="margin-bottom: 8px;"><div class="pool-progress-fill" style="width: 95%;"></div></div>
+                                <span style="font-size: 11px; color: var(--mint-500); font-weight: 600;">95/100 â€¢ ðŸ”¥ Almost full!</span>
+                            </div>
+                            <div class="state-specs"><code>border: mint-500</code><br><code>Urgency messaging</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Ending Soon</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px;">
+                                <div class="pool-progress" style="margin-bottom: 8px;"><div class="pool-progress-fill" style="width: 60%;"></div></div>
+                                <span style="font-size: 11px; color: var(--warning); font-weight: 600;">60/100 â€¢ â° 4h left!</span>
+                            </div>
+                            <div class="state-specs"><code>Time badge: warning</code><br><code>Pulsing animation</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">At Risk</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px;">
+                                <div class="pool-progress" style="margin-bottom: 8px;"><div class="pool-progress-fill" style="width: 30%;"></div></div>
+                                <span style="font-size: 11px; color: var(--error);">30/100 â€¢ May not activate</span>
+                            </div>
+                            <div class="state-specs"><code>Warning shown</code><br><code>"Risk" indicator</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S5.2: POOL DETAIL -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S5.2</div>
+                <h2 class="section-title">Pool Detail</h2>
+                <p class="section-desc">Full pool information. Progress visualization. Savings calculator. Flight details. Member activity. Terms.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S5.2</span>
+                    <span class="spec-name">Pool Detail View</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Header</td><td>top</td><td>W: 100%, H: 200px</td><td>bg: gradient, Route + Dates + Time remaining</td></tr>
+                            <tr><td class="property">â”œâ”€ Route Display</td><td>center</td><td>W: auto</td><td>Space Grotesk 36px/800, "KUL â†’ TYO"</td></tr>
+                            <tr><td class="property">â”œâ”€ Countdown Timer</td><td>below route</td><td>W: auto</td><td>JetBrains Mono 24px/700, "2d 14h 32m"</td></tr>
+                            <tr><td class="property">â””â”€ Status Badge</td><td>top right</td><td>W: auto, H: 32px</td><td>"Active" / "Almost Full" / "Ending Soon"</td></tr>
+                            <tr><td class="property">Progress Section</td><td>below header</td><td>W: 100%, H: auto</td><td>Large progress visualization</td></tr>
+                            <tr><td class="property">â”œâ”€ Progress Ring</td><td>center</td><td>W: 200px, H: 200px</td><td>SVG circular progress, percentage in center</td></tr>
+                            <tr><td class="property">â”œâ”€ Members Count</td><td>below ring</td><td>W: auto</td><td>"87 of 100 travelers joined"</td></tr>
+                            <tr><td class="property">â””â”€ Spots Left</td><td>â€”</td><td>W: auto</td><td>"13 spots remaining" â€” urgency color</td></tr>
+                            <tr><td class="property">Savings Calculator</td><td>â€”</td><td>W: 100%, H: auto</td><td>Interactive: adjust travelers to see savings</td></tr>
+                            <tr><td class="property">â”œâ”€ Traveler Selector</td><td>â€”</td><td>W: 200px, H: 56px</td><td>+/- buttons, "2 travelers"</td></tr>
+                            <tr><td class="property">â”œâ”€ Individual Price</td><td>â€”</td><td>W: auto</td><td>Strikethrough: "RM 2,900 total"</td></tr>
+                            <tr><td class="property">â”œâ”€ Pool Price</td><td>â€”</td><td>W: auto</td><td>Space Grotesk 40px/800, purple</td></tr>
+                            <tr><td class="property">â””â”€ Total Savings</td><td>â€”</td><td>W: auto</td><td>"You save RM 660!" â€” animated</td></tr>
+                            <tr><td class="property">Flight Details Card</td><td>â€”</td><td>W: 100%, H: auto</td><td>Airline, times, duration, included amenities</td></tr>
+                            <tr><td class="property">Pool Terms</td><td>â€”</td><td>W: 100%, H: auto</td><td>Collapsible: activation rules, refund policy</td></tr>
+                            <tr><td class="property">Join CTA (Fixed)</td><td>bottom</td><td>W: 100%, H: 72px</td><td>bg: purple, "Join Pool for RM X,XXX"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Savings Calculator -->
+                    <div class="success-box">
+                        <p><strong>âœ“ SAVINGS CALCULATOR:</strong> This is the "aha moment" â€” show real-time savings as user adjusts traveler count. Animation on price change. Make the value proposition crystal clear.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S5.3: JOIN POOL -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S5.3</div>
+                <h2 class="section-title">Join Pool</h2>
+                <p class="section-desc">Commitment form. Traveler count, date flexibility, max budget. Terms acceptance. Hold amount authorization.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S5.3</span>
+                    <span class="spec-name">Join Pool Form</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Field</th><th>Type</th><th>Validation</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Traveler Count</td><td>Stepper (1-9)</td><td>Required, affects pricing</td><td>Shows per-person and total</td></tr>
+                            <tr><td class="property">Preferred Dates</td><td>Date picker</td><td>Within pool's date range</td><td>Can select multiple options</td></tr>
+                            <tr><td class="property">Date Flexibility</td><td>Toggle + days</td><td>Optional</td><td>"Flexible Â±X days" for better matching</td></tr>
+                            <tr><td class="property">Max Budget</td><td>Currency input</td><td>Must be â‰¥ current pool price</td><td>"Don't charge me more than RM X,XXX"</td></tr>
+                            <tr><td class="property">Contact Email</td><td>Email input</td><td>Required, valid format</td><td>For pool updates</td></tr>
+                            <tr><td class="property">Contact Phone</td><td>Phone input</td><td>Required</td><td>For urgent notifications</td></tr>
+                            <tr><td class="property">Terms Checkbox</td><td>Checkbox</td><td>Required</td><td>"I understand pool terms"</td></tr>
+                            <tr><td class="property">Hold Authorization</td><td>Info + Checkbox</td><td>Required</td><td>Explains hold vs charge</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="warning-box">
+                        <p><strong>âš ï¸ HOLD EXPLANATION:</strong> Clearly explain: "A hold of RM {amount} will be placed on your card. You will NOT be charged unless the pool activates. If pool doesn't reach minimum members, hold is released automatically."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S5.4: POOL MEMBER VIEW -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S5.4</div>
+                <h2 class="section-title">Pool Member View</h2>
+                <p class="section-desc">After joining. Real-time progress updates. Notification preferences. Option to leave. Share to invite others.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S5.4</span>
+                    <span class="spec-name">Pool Member Dashboard</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Content</th><th>Real-time?</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Status Banner</td><td>"You're in! Pool is {X}% full"</td><td>âœ“ Yes</td><td>bg: purple-dim, prominent</td></tr>
+                            <tr><td class="property">Your Commitment Card</td><td>Travelers, dates, max budget</td><td>â€”</td><td>"Edit" option before activation</td></tr>
+                            <tr><td class="property">Live Progress</td><td>Animated progress bar + counter</td><td>âœ“ Yes (WebSocket)</td><td>Pulse animation on new joins</td></tr>
+                            <tr><td class="property">Activity Feed</td><td>"3 travelers just joined!"</td><td>âœ“ Yes</td><td>Social proof, no personal data</td></tr>
+                            <tr><td class="property">Estimated Activation</td><td>"At current rate, pool activates in ~6h"</td><td>âœ“ Yes</td><td>ML prediction</td></tr>
+                            <tr><td class="property">Share Section</td><td>Share link, social buttons</td><td>â€”</td><td>"Invite friends to fill faster"</td></tr>
+                            <tr><td class="property">Notification Settings</td><td>Push, Email, SMS toggles</td><td>â€”</td><td>Default: all on</td></tr>
+                            <tr><td class="property">Leave Pool Button</td><td>"Leave Pool" (secondary)</td><td>â€”</td><td>Requires confirmation</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Activity Feed Examples -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">ðŸ“¢ Activity Feed Messages</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Event</th><th>Message</th><th>Icon</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">New Member</td><td>"3 travelers just joined! 87% full"</td><td>ðŸ‘¥</td></tr>
+                            <tr><td class="property">Milestone 50%</td><td>"Halfway there! Pool is 50% full"</td><td>ðŸŽ¯</td></tr>
+                            <tr><td class="property">Milestone 75%</td><td>"Almost there! Just 25 spots left"</td><td>ðŸ”¥</td></tr>
+                            <tr><td class="property">Milestone 90%</td><td>"10 spots remaining â€” filling fast!"</td><td>âš¡</td></tr>
+                            <tr><td class="property">Price Drop</td><td>"Pool price dropped! Now RM X,XXX"</td><td>ðŸ’°</td></tr>
+                            <tr><td class="property">Time Warning</td><td>"Pool closes in 6 hours"</td><td>â°</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S5.5: POOL ACTIVATED -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S5.5</div>
+                <h2 class="section-title">Pool Activated ðŸŽ‰</h2>
+                <p class="section-desc">Success! Pool reached minimum. Celebration moment. Final price locked. Time-limited booking window (24h).</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="spec-id">S5.5</span>
+                        <span class="spec-name">Pool Activated â€” Celebration</span>
+                    </div>
+                    <span class="spec-badge spec-badge-social">CELEBRATION</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Specification</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Confetti Animation</td><td>full screen</td><td>3s burst, purple + mint + cyan</td><td>Lottie animation</td></tr>
+                            <tr><td class="property">Success Icon</td><td>top center</td><td>W: 120px, animated checkmark</td><td>Bounce in animation</td></tr>
+                            <tr><td class="property">Title</td><td>below icon</td><td>Space Grotesk 36px/800</td><td>"Pool Activated!" color: mint-500</td></tr>
+                            <tr><td class="property">Subtitle</td><td>below title</td><td>DM Sans 18px/400</td><td>"Your group discount is locked in"</td></tr>
+                            <tr><td class="property">Savings Summary Card</td><td>center</td><td>W: 400px, H: auto</td><td>bg: mint-dim, prominent display</td></tr>
+                            <tr><td class="property">â”œâ”€ Original Price</td><td>â€”</td><td>Strikethrough 18px</td><td>"RM 2,900"</td></tr>
+                            <tr><td class="property">â”œâ”€ Final Price</td><td>â€”</td><td>Space Grotesk 48px/800</td><td>"RM 2,240" â€” hero display</td></tr>
+                            <tr><td class="property">â””â”€ Total Saved</td><td>â€”</td><td>DM Sans 16px/700</td><td>"You saved RM 660!" â€” celebration</td></tr>
+                            <tr><td class="property">Booking Window Warning</td><td>below card</td><td>DM Sans 14px/600</td><td>bg: warning-dim, "Complete booking within 24h"</td></tr>
+                            <tr><td class="property">â”œâ”€ Countdown</td><td>â€”</td><td>JetBrains Mono 20px/700</td><td>"23:45:12 remaining"</td></tr>
+                            <tr><td class="property">Complete Booking CTA</td><td>bottom</td><td>W: 100%, H: 64px</td><td>bg: mint-500, "Complete Your Booking"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="success-box">
+                        <p><strong>âœ“ MAXIMUM CELEBRATION:</strong> This is the payoff moment! Use: (1) Confetti burst (2) Sound effect (optional) (3) Haptic feedback on mobile (4) Large animated savings number. Make users FEEL the win.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S5.6: CREATE POOL -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S5.6</div>
+                <h2 class="section-title">Create Pool</h2>
+                <p class="section-desc">Start a new pool. Set route, date range, minimum members, duration. Share link to invite others.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S5.6</span>
+                    <span class="spec-name">Create Pool Form</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Field</th><th>Type</th><th>Default</th><th>Validation</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Route</td><td>Origin â†’ Destination pickers</td><td>â€”</td><td>Required, valid airports</td></tr>
+                            <tr><td class="property">Date Range</td><td>Date range picker</td><td>â€”</td><td>Future dates, min 7 days out</td></tr>
+                            <tr><td class="property">Minimum Members</td><td>Slider or input</td><td>50</td><td>20-200, affects discount tier</td></tr>
+                            <tr><td class="property">Pool Duration</td><td>Dropdown</td><td>7 days</td><td>3, 7, 14, 30 days</td></tr>
+                            <tr><td class="property">Target Price</td><td>Optional input</td><td>Auto</td><td>"Alert when price drops to"</td></tr>
+                            <tr><td class="property">Auto-Join</td><td>Checkbox</td><td>Checked</td><td>Creator auto-joins as first member</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Discount Tiers -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--purple); margin: 24px 0 12px;">ðŸ’° Discount Tier Preview</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Members</th><th>Estimated Discount</th><th>Visual</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">20-49</td><td>5-10%</td><td style="background: linear-gradient(90deg, var(--purple) 10%, transparent 10%); border-radius: 4px;">Bronze tier</td></tr>
+                            <tr><td class="property">50-99</td><td>10-18%</td><td style="background: linear-gradient(90deg, var(--purple) 40%, transparent 40%); border-radius: 4px;">Silver tier</td></tr>
+                            <tr><td class="property">100-149</td><td>18-25%</td><td style="background: linear-gradient(90deg, var(--purple) 70%, transparent 70%); border-radius: 4px;">Gold tier</td></tr>
+                            <tr><td class="property">150+</td><td>25-30%+</td><td style="background: linear-gradient(90deg, var(--mint-500) 100%, transparent 100%); border-radius: 4px;">Platinum tier</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S5.7: POOL EXPIRED -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S5.7</div>
+                <h2 class="section-title">Pool Expired</h2>
+                <p class="section-desc">Pool didn't reach minimum. Hold released. Options: similar pools, search individually, create new pool.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S5.7</span>
+                    <span class="spec-name">Pool Expired â€” Recovery</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Content</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Status Message</td><td>"Pool didn't reach minimum members"</td><td>Sympathetic tone, not failure</td></tr>
+                            <tr><td class="property">Hold Release Confirmation</td><td>"Your hold of RM X,XXX has been released"</td><td>Reassurance</td></tr>
+                            <tr><td class="property">Similar Pools Section</td><td>Active pools for same/similar routes</td><td>If available</td></tr>
+                            <tr><td class="property">Individual Booking CTA</td><td>"Book Individually at RM X,XXX"</td><td>Show current price</td></tr>
+                            <tr><td class="property">Create New Pool CTA</td><td>"Start a New Pool"</td><td>Maybe with better parameters</td></tr>
+                            <tr><td class="property">Price Alert Option</td><td>"Set alert for price drop"</td><td>Keep user engaged</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S5.8: POOL BOOKING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S5.8</div>
+                <h2 class="section-title">Pool Booking</h2>
+                <p class="section-desc">Complete booking after pool activation. Pre-filled from pool commitment. Locked pool price. Standard booking flow.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S5.8</span>
+                    <span class="spec-name">Pool Booking Completion</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Difference from Standard Booking</th><th>Specification</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Price Display</td><td>Shows "Pool Price" badge, original price strikethrough, savings highlighted</td></tr>
+                            <tr><td class="property">Booking Window Timer</td><td>Prominent 24h countdown (more urgent than standard 15min lock)</td></tr>
+                            <tr><td class="property">Pre-filled Data</td><td>Traveler count, dates from pool commitment</td></tr>
+                            <tr><td class="property">Price Lock</td><td>Pool price guaranteed, no changes</td></tr>
+                            <tr><td class="property">Payment Flow</td><td>Standard Flow 4, but charge (not hold) since pool activated</td></tr>
+                            <tr><td class="property">Success Screen</td><td>Extra celebration: "You saved RM X with VAYA Pools!"</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- POOL STATES -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Reference</div>
+                <h2 class="section-title">Pool State Machine</h2>
+                <p class="section-desc">Complete lifecycle of a pool from creation to completion or expiry.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">STATES</span>
+                    <span class="spec-name">Pool Lifecycle States</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>State</th><th>Description</th><th>Visual</th><th>Actions Available</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">DRAFT</td><td>Being created, not visible</td><td>â€”</td><td>Edit, Publish</td></tr>
+                            <tr><td class="property">ACTIVE</td><td>Open for joining</td><td>Purple border, progress bar</td><td>Join, Share</td></tr>
+                            <tr><td class="property">FILLING</td><td>50%+ members, gaining momentum</td><td>Animated progress</td><td>Join, Share (urgent)</td></tr>
+                            <tr><td class="property">ALMOST_FULL</td><td>90%+ members</td><td>Mint border, fire emoji</td><td>Join (limited spots)</td></tr>
+                            <tr><td class="property">ACTIVATED</td><td>Minimum reached, booking open</td><td>Celebration, green</td><td>Complete Booking</td></tr>
+                            <tr><td class="property">EXPIRED</td><td>Didn't reach minimum</td><td>Gray, faded</td><td>View alternatives</td></tr>
+                            <tr><td class="property">COMPLETED</td><td>All bookings done</td><td>Archive state</td><td>View summary</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INTEGRATION -->
+        <!-- ================================================================ -->
+        <div class="integration-box">
+            <div class="integration-title">ðŸ”— VAYA Architecture Integration â€” Flow 5 (Pools)</div>
+            <div class="integration-grid">
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-pool</div>
+                    <div class="integration-desc">Pool state machine, member management, bidding logic, activation triggers</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-api</div>
+                    <div class="integration-desc">Pool CRUD endpoints, join/leave, real-time status</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-stream</div>
+                    <div class="integration-desc">WebSocket for live progress updates, activity feed</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-db</div>
+                    <div class="integration-desc">Pool storage, member commitments, activity logs</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-book</div>
+                    <div class="integration-desc">Hold management, conversion to booking on activation</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-notify</div>
+                    <div class="integration-desc">Push notifications, email updates, SMS alerts</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- SUMMARY -->
+        <!-- ================================================================ -->
+        <div class="summary-box">
+            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple); margin-bottom: 20px;">FLOW 5 COMPLETE: POOL DISCOVERY & JOIN</h3>
+            <p style="color: var(--n700); font-size: 14px; margin-bottom: 24px;">VAYA's Revolutionary Differentiator â€” Group Buying for Flights</p>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: 24px 0;">
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple);">8</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Screens</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--mint-500);">32</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Device Variants</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--cyan-500);">6</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Pool States</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--warning);">30%+</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Max Savings</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--error);">1st</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Industry First</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

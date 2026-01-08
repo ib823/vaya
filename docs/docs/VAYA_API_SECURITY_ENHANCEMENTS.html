@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” API & Security Enhancements</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0; --cyan: #00D9FF; --white: #FFFFFF;
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n200: #1A1A1D;
+            --n600: #5C5C63; --n700: #7A7A82;
+            --error: #FF4757; --warning: #FFB800; --purple: #A855F7; --blue: #3B82F6;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--white); line-height: 1.6; font-size: 13px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .header { text-align: center; padding: 48px 0; border-bottom: 2px solid var(--blue); margin-bottom: 48px; }
+        .logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .logo span:first-child { color: var(--mint); }
+        .logo span:last-child { color: var(--cyan); }
+        h1 { font-family: var(--font-display); font-size: 24px; color: var(--blue); margin-top: 16px; }
+        .section { margin-bottom: 48px; }
+        .section-header { background: var(--n100); padding: 16px 20px; border-left: 4px solid var(--blue); margin-bottom: 20px; }
+        .section-id { font-family: var(--font-mono); font-size: 10px; color: var(--n600); }
+        .section-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-top: 4px; }
+        .subsection { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .subsection h4 { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--cyan); margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 11px; }
+        th { background: var(--n100); padding: 8px 10px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--n600); }
+        td { padding: 8px 10px; border-bottom: 1px solid var(--n200); vertical-align: top; }
+        .code-block { background: var(--n100); border-radius: 8px; padding: 16px; font-family: var(--font-mono); font-size: 10px; overflow-x: auto; margin: 12px 0; white-space: pre; line-height: 1.4; }
+        .error-code { font-family: var(--font-mono); font-weight: 700; }
+        .http-4xx { color: var(--warning); }
+        .http-5xx { color: var(--error); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span>VA</span><span>YA</span></div>
+            <h1>ðŸ”Œ API & Security Enhancements</h1>
+            <p style="color: var(--n600); margin-top: 12px;">API-02, API-03, API-04, SEC-06, PD-04, PD-05</p>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- API-02: ERROR CODE CATALOG -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">API-02</span>
+                <div class="section-title">Complete Error Code Catalog</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Error Response Format</h4>
+                <div class="code-block">{
+  "error": {
+    "code": "BOOKING_PAYMENT_FAILED",
+    "message": "Payment was declined by your bank",
+    "details": "Card ending in 1234 was declined with reason: insufficient_funds",
+    "request_id": "req_abc123xyz",
+    "timestamp": "2026-01-08T14:30:00Z",
+    "recovery": {
+      "action": "retry_with_different_card",
+      "url": "/api/v1/bookings/bkg_xxx/pay"
+    }
+  }
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Authentication Errors (AUTH_*)</h4>
+                <table>
+                    <tr><th>Code</th><th>HTTP</th><th>Message</th><th>Recovery</th></tr>
+                    <tr>
+                        <td class="error-code http-4xx">AUTH_INVALID_CREDENTIALS</td>
+                        <td>401</td>
+                        <td>Invalid email or password</td>
+                        <td>Check credentials and retry</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">AUTH_TOKEN_EXPIRED</td>
+                        <td>401</td>
+                        <td>Your session has expired</td>
+                        <td>Refresh token or re-login</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">AUTH_TOKEN_INVALID</td>
+                        <td>401</td>
+                        <td>Invalid authentication token</td>
+                        <td>Re-login required</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">AUTH_MFA_REQUIRED</td>
+                        <td>401</td>
+                        <td>Two-factor authentication required</td>
+                        <td>Submit MFA code</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">AUTH_MFA_INVALID</td>
+                        <td>401</td>
+                        <td>Invalid MFA code</td>
+                        <td>Check code and retry</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">AUTH_ACCOUNT_LOCKED</td>
+                        <td>403</td>
+                        <td>Account temporarily locked</td>
+                        <td>Wait 30 minutes or reset password</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">AUTH_EMAIL_NOT_VERIFIED</td>
+                        <td>403</td>
+                        <td>Please verify your email first</td>
+                        <td>Check email for verification link</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">AUTH_PERMISSION_DENIED</td>
+                        <td>403</td>
+                        <td>You don't have permission for this action</td>
+                        <td>Contact support or upgrade tier</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>âœˆï¸ Search Errors (SEARCH_*)</h4>
+                <table>
+                    <tr><th>Code</th><th>HTTP</th><th>Message</th><th>Recovery</th></tr>
+                    <tr>
+                        <td class="error-code http-4xx">SEARCH_INVALID_ROUTE</td>
+                        <td>400</td>
+                        <td>Invalid origin or destination airport</td>
+                        <td>Check airport codes</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">SEARCH_SAME_ORIGIN_DEST</td>
+                        <td>400</td>
+                        <td>Origin and destination cannot be the same</td>
+                        <td>Select different airports</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">SEARCH_DATE_IN_PAST</td>
+                        <td>400</td>
+                        <td>Travel date cannot be in the past</td>
+                        <td>Select a future date</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">SEARCH_DATE_TOO_FAR</td>
+                        <td>400</td>
+                        <td>Searches limited to 365 days ahead</td>
+                        <td>Select a closer date</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">SEARCH_RETURN_BEFORE_DEPART</td>
+                        <td>400</td>
+                        <td>Return date must be after departure</td>
+                        <td>Fix date order</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">SEARCH_TOO_MANY_PASSENGERS</td>
+                        <td>400</td>
+                        <td>Maximum 9 passengers per booking</td>
+                        <td>Reduce passenger count</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-5xx">SEARCH_SUPPLIER_TIMEOUT</td>
+                        <td>504</td>
+                        <td>Search timed out, please try again</td>
+                        <td>Retry search</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">SEARCH_NO_RESULTS</td>
+                        <td>404</td>
+                        <td>No flights found for this route</td>
+                        <td>Try different dates or airports</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ Booking Errors (BOOKING_*)</h4>
+                <table>
+                    <tr><th>Code</th><th>HTTP</th><th>Message</th><th>Recovery</th></tr>
+                    <tr>
+                        <td class="error-code http-4xx">BOOKING_OFFER_EXPIRED</td>
+                        <td>410</td>
+                        <td>This offer has expired</td>
+                        <td>Search again for current prices</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">BOOKING_PRICE_CHANGED</td>
+                        <td>409</td>
+                        <td>Price has changed since your search</td>
+                        <td>Review new price and confirm</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">BOOKING_SOLD_OUT</td>
+                        <td>410</td>
+                        <td>This fare is no longer available</td>
+                        <td>Select a different flight</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">BOOKING_INVALID_PASSENGER</td>
+                        <td>400</td>
+                        <td>Invalid passenger details</td>
+                        <td>Check names match passport</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">BOOKING_INFANT_WITHOUT_ADULT</td>
+                        <td>400</td>
+                        <td>Infant must travel with adult</td>
+                        <td>Add adult passenger</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">BOOKING_DUPLICATE</td>
+                        <td>409</td>
+                        <td>Similar booking already exists</td>
+                        <td>Check existing bookings</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’³ Payment Errors (PAYMENT_*)</h4>
+                <table>
+                    <tr><th>Code</th><th>HTTP</th><th>Message</th><th>Recovery</th></tr>
+                    <tr>
+                        <td class="error-code http-4xx">PAYMENT_CARD_DECLINED</td>
+                        <td>402</td>
+                        <td>Card was declined</td>
+                        <td>Try different card or contact bank</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">PAYMENT_INSUFFICIENT_FUNDS</td>
+                        <td>402</td>
+                        <td>Insufficient funds</td>
+                        <td>Use different payment method</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">PAYMENT_CARD_EXPIRED</td>
+                        <td>400</td>
+                        <td>Card has expired</td>
+                        <td>Update card details</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">PAYMENT_INVALID_CVV</td>
+                        <td>400</td>
+                        <td>Invalid security code</td>
+                        <td>Check CVV and retry</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">PAYMENT_3DS_FAILED</td>
+                        <td>402</td>
+                        <td>3D Secure verification failed</td>
+                        <td>Complete verification or try different card</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">PAYMENT_FPX_FAILED</td>
+                        <td>402</td>
+                        <td>FPX transaction failed</td>
+                        <td>Check bank app and retry</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-5xx">PAYMENT_PROCESSOR_ERROR</td>
+                        <td>503</td>
+                        <td>Payment system temporarily unavailable</td>
+                        <td>Wait a few minutes and retry</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ‘¥ Pool Errors (POOL_*)</h4>
+                <table>
+                    <tr><th>Code</th><th>HTTP</th><th>Message</th><th>Recovery</th></tr>
+                    <tr>
+                        <td class="error-code http-4xx">POOL_NOT_FOUND</td>
+                        <td>404</td>
+                        <td>Pool not found or no longer active</td>
+                        <td>Search for active pools</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">POOL_FULL</td>
+                        <td>409</td>
+                        <td>Pool has reached maximum capacity</td>
+                        <td>Join a different pool</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">POOL_ALREADY_MEMBER</td>
+                        <td>409</td>
+                        <td>You're already in this pool</td>
+                        <td>Check your pool memberships</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">POOL_CLOSED</td>
+                        <td>410</td>
+                        <td>Pool is no longer accepting members</td>
+                        <td>Find another pool</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">POOL_WITHDRAWAL_LOCKED</td>
+                        <td>409</td>
+                        <td>Cannot withdraw after pool activation</td>
+                        <td>Contact support</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>âš¡ Rate Limit Errors (RATE_*)</h4>
+                <table>
+                    <tr><th>Code</th><th>HTTP</th><th>Message</th><th>Recovery</th></tr>
+                    <tr>
+                        <td class="error-code http-4xx">RATE_LIMIT_EXCEEDED</td>
+                        <td>429</td>
+                        <td>Too many requests</td>
+                        <td>Wait and retry (Retry-After header)</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-4xx">RATE_TIER_LIMIT</td>
+                        <td>429</td>
+                        <td>Daily limit reached for your tier</td>
+                        <td>Upgrade tier or wait until tomorrow</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”§ System Errors (SYSTEM_*)</h4>
+                <table>
+                    <tr><th>Code</th><th>HTTP</th><th>Message</th><th>Recovery</th></tr>
+                    <tr>
+                        <td class="error-code http-5xx">SYSTEM_INTERNAL_ERROR</td>
+                        <td>500</td>
+                        <td>An unexpected error occurred</td>
+                        <td>Report to support with request_id</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-5xx">SYSTEM_MAINTENANCE</td>
+                        <td>503</td>
+                        <td>System under maintenance</td>
+                        <td>Check status page for updates</td>
+                    </tr>
+                    <tr>
+                        <td class="error-code http-5xx">SYSTEM_OVERLOADED</td>
+                        <td>503</td>
+                        <td>System is experiencing high load</td>
+                        <td>Wait and retry</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- API-03: WEBSOCKET SPECIFICATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">API-03</span>
+                <div class="section-title">Complete WebSocket Specification</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”Œ Connection</h4>
+                <div class="code-block">// WebSocket endpoint
+wss://api.vaya.my/ws
+
+// Connection with authentication
+const ws = new WebSocket('wss://api.vaya.my/ws', {
+  headers: {
+    'Authorization': 'Bearer ' + accessToken
+  }
+});
+
+// Or authenticate after connection
+ws.send(JSON.stringify({
+  type: 'auth',
+  token: accessToken
+}));</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“¨ Message Format</h4>
+                <div class="code-block">// All messages follow this envelope
+{
+  "type": "event_type",
+  "id": "msg_unique_id",
+  "timestamp": "2026-01-08T14:30:00Z",
+  "payload": { ... }
+}
+
+// Client acknowledgment
+{
+  "type": "ack",
+  "id": "msg_id_to_acknowledge"
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Event Types (Server â†’ Client)</h4>
+                <table>
+                    <tr><th>Event</th><th>Description</th><th>Payload</th></tr>
+                    <tr>
+                        <td><code>search.progress</code></td>
+                        <td>Search progress update</td>
+                        <td><code>{ search_id, progress: 0-100, suppliers_completed: [] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>search.results</code></td>
+                        <td>New results available</td>
+                        <td><code>{ search_id, new_results: [], total_count }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>search.complete</code></td>
+                        <td>Search finished</td>
+                        <td><code>{ search_id, total_results, duration_ms }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>price.alert</code></td>
+                        <td>Price alert triggered</td>
+                        <td><code>{ alert_id, route, target_price, current_price }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>pool.update</code></td>
+                        <td>Pool status changed</td>
+                        <td><code>{ pool_id, status, member_count, threshold }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>pool.activated</code></td>
+                        <td>Pool reached threshold</td>
+                        <td><code>{ pool_id, member_count, bid_deadline }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>pool.bid_received</code></td>
+                        <td>New bid on pool</td>
+                        <td><code>{ pool_id, bid_id, airline, price }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>booking.status</code></td>
+                        <td>Booking status changed</td>
+                        <td><code>{ booking_id, old_status, new_status, reference }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>notification</code></td>
+                        <td>General notification</td>
+                        <td><code>{ title, body, action_url }</code></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“¤ Commands (Client â†’ Server)</h4>
+                <table>
+                    <tr><th>Command</th><th>Description</th><th>Payload</th></tr>
+                    <tr>
+                        <td><code>subscribe</code></td>
+                        <td>Subscribe to events</td>
+                        <td><code>{ channels: ['pool.123', 'search.456'] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>unsubscribe</code></td>
+                        <td>Unsubscribe from events</td>
+                        <td><code>{ channels: ['pool.123'] }</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>ping</code></td>
+                        <td>Keep-alive ping</td>
+                        <td><code>{}</code> (server responds with <code>pong</code>)</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Reconnection Strategy</h4>
+                <div class="code-block">// Exponential backoff with jitter
+const reconnect = {
+  maxRetries: 10,
+  baseDelay: 1000,      // 1 second
+  maxDelay: 30000,      // 30 seconds
+  jitterFactor: 0.3,    // Â±30% randomization
+  
+  getDelay(attempt) {
+    const delay = Math.min(
+      this.baseDelay * Math.pow(2, attempt),
+      this.maxDelay
+    );
+    const jitter = delay * this.jitterFactor * (Math.random() * 2 - 1);
+    return delay + jitter;
+  }
+};
+
+// Resume subscriptions after reconnect
+ws.onopen = () => {
+  ws.send(JSON.stringify({
+    type: 'subscribe',
+    channels: previousSubscriptions,
+    resume_from: lastMessageId  // Get missed events
+  }));
+};</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- API-04: VERSIONING POLICY -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">API-04</span>
+                <div class="section-title">API Versioning Policy</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Versioning Strategy</h4>
+                <table>
+                    <tr><th>Aspect</th><th>Policy</th></tr>
+                    <tr>
+                        <td>Versioning method</td>
+                        <td>URL path prefix: <code>/api/v1/</code>, <code>/api/v2/</code></td>
+                    </tr>
+                    <tr>
+                        <td>Current version</td>
+                        <td>v1 (launch)</td>
+                    </tr>
+                    <tr>
+                        <td>Version lifecycle</td>
+                        <td>Minimum 12 months support after deprecation</td>
+                    </tr>
+                    <tr>
+                        <td>Breaking changes</td>
+                        <td>New major version only</td>
+                    </tr>
+                    <tr>
+                        <td>Non-breaking additions</td>
+                        <td>Added to current version</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Version Lifecycle</h4>
+                <div class="code-block">ACTIVE (v1)          â†’ Current production version
+                        â†’ All new features added here
+                        â†’ Full support
+
+DEPRECATED (v0)       â†’ Announced 6 months before sunset
+                        â†’ Sunset-Warning header added
+                        â†’ No new features
+                        â†’ Bug fixes only
+
+SUNSET (v-1)          â†’ 12 months after deprecation
+                        â†’ Returns 410 Gone
+                        â†’ Migration guide available</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“¢ Deprecation Notice (Response Header)</h4>
+                <div class="code-block">// When using deprecated version
+HTTP/1.1 200 OK
+Sunset: Sat, 01 Jan 2028 00:00:00 GMT
+Deprecation: true
+Link: &lt;https://docs.vaya.my/migration/v1-to-v2&gt;; rel="successor-version"</div>
+            </div>
+
+            <div class="subsection">
+                <h4>âœ… What's NOT a Breaking Change</h4>
+                <ul style="margin: 12px 0 0 24px; color: var(--n700);">
+                    <li>Adding new optional fields to responses</li>
+                    <li>Adding new endpoints</li>
+                    <li>Adding new optional query parameters</li>
+                    <li>Adding new enum values (if client handles unknown)</li>
+                    <li>Relaxing validation (accepting more input)</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h4>âŒ What IS a Breaking Change (requires new version)</h4>
+                <ul style="margin: 12px 0 0 24px; color: var(--n700);">
+                    <li>Removing fields from responses</li>
+                    <li>Changing field types</li>
+                    <li>Renaming fields</li>
+                    <li>Removing endpoints</li>
+                    <li>Adding required parameters</li>
+                    <li>Changing error codes</li>
+                    <li>Changing authentication mechanism</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SEC-06: INPUT VALIDATION RULES -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SEC-06</span>
+                <div class="section-title">Input Validation Rules Catalog</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”¤ String Validation</h4>
+                <table>
+                    <tr><th>Field</th><th>Min</th><th>Max</th><th>Pattern</th><th>Sanitization</th></tr>
+                    <tr><td>Email</td><td>5</td><td>254</td><td>RFC 5322</td><td>Lowercase, trim</td></tr>
+                    <tr><td>Password</td><td>8</td><td>128</td><td>1 upper, 1 lower, 1 digit</td><td>None (preserve)</td></tr>
+                    <tr><td>Name (first/last)</td><td>1</td><td>50</td><td>Letters, spaces, hyphens</td><td>Trim, normalize spaces</td></tr>
+                    <tr><td>Phone</td><td>8</td><td>15</td><td>E.164 format</td><td>Strip non-digits, add +</td></tr>
+                    <tr><td>IATA code</td><td>3</td><td>3</td><td>[A-Z]{3}</td><td>Uppercase</td></tr>
+                    <tr><td>Passport number</td><td>5</td><td>20</td><td>Alphanumeric</td><td>Uppercase, strip spaces</td></tr>
+                    <tr><td>Booking reference</td><td>6</td><td>10</td><td>Alphanumeric</td><td>Uppercase</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“… Date Validation</h4>
+                <table>
+                    <tr><th>Field</th><th>Format</th><th>Constraints</th></tr>
+                    <tr><td>Departure date</td><td>YYYY-MM-DD</td><td>Today to +365 days</td></tr>
+                    <tr><td>Return date</td><td>YYYY-MM-DD</td><td>â‰¥ departure date, â‰¤ departure + 365</td></tr>
+                    <tr><td>Date of birth</td><td>YYYY-MM-DD</td><td>1900 to today</td></tr>
+                    <tr><td>Passport expiry</td><td>YYYY-MM-DD</td><td>â‰¥ travel date + 6 months</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”¢ Numeric Validation</h4>
+                <table>
+                    <tr><th>Field</th><th>Type</th><th>Min</th><th>Max</th></tr>
+                    <tr><td>Adults</td><td>Integer</td><td>1</td><td>9</td></tr>
+                    <tr><td>Children</td><td>Integer</td><td>0</td><td>8</td></tr>
+                    <tr><td>Infants</td><td>Integer</td><td>0</td><td>Adults count</td></tr>
+                    <tr><td>Total passengers</td><td>Integer</td><td>1</td><td>9</td></tr>
+                    <tr><td>Price (sen)</td><td>Integer</td><td>100</td><td>100,000,000</td></tr>
+                    <tr><td>Alert threshold</td><td>Integer</td><td>1</td><td>99,999,900</td></tr>
+                    <tr><td>Pool size</td><td>Integer</td><td>5</td><td>500</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ›¡ï¸ Sanitization Rules</h4>
+                <div class="code-block">// Input sanitization pipeline
+
+pub fn sanitize_input&lt;T: Validate&gt;(input: &str, field: &str) -> Result&lt;T, ValidationError&gt; {
+    // 1. Unicode normalization (NFC)
+    let normalized = input.nfc().collect::&lt;String&gt;();
+    
+    // 2. Trim whitespace
+    let trimmed = normalized.trim();
+    
+    // 3. Check length limits
+    if trimmed.len() > MAX_INPUT_LENGTH {
+        return Err(ValidationError::TooLong(field.to_string()));
+    }
+    
+    // 4. Remove control characters
+    let clean = trimmed
+        .chars()
+        .filter(|c| !c.is_control() || *c == '\n' || *c == '\t')
+        .collect::&lt;String&gt;();
+    
+    // 5. Field-specific validation
+    T::validate(&clean)?;
+    
+    // 6. Parse to target type
+    T::from_str(&clean)
+}
+
+// XSS prevention for output
+pub fn escape_html(input: &str) -> String {
+    input
+        .replace('&', "&amp;")
+        .replace('&lt;', "&lt;")
+        .replace('&gt;', "&gt;")
+        .replace('"', "&quot;")
+        .replace('\'', "&#x27;")
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- PD-04: ERROR MESSAGE CATALOG -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">PD-04</span>
+                <div class="section-title">Error Message Catalog (UI)</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ User-Facing Error Messages</h4>
+                <table>
+                    <tr><th>Context</th><th>Error</th><th>Message (EN)</th><th>Message (MS)</th></tr>
+                    <tr>
+                        <td>Network</td>
+                        <td>No connection</td>
+                        <td>No internet connection. Please check your network and try again.</td>
+                        <td>Tiada sambungan internet. Sila semak rangkaian anda dan cuba lagi.</td>
+                    </tr>
+                    <tr>
+                        <td>Network</td>
+                        <td>Timeout</td>
+                        <td>Request timed out. Please try again.</td>
+                        <td>Permintaan tamat masa. Sila cuba lagi.</td>
+                    </tr>
+                    <tr>
+                        <td>Form</td>
+                        <td>Required field</td>
+                        <td>This field is required</td>
+                        <td>Ruangan ini diperlukan</td>
+                    </tr>
+                    <tr>
+                        <td>Form</td>
+                        <td>Invalid email</td>
+                        <td>Please enter a valid email address</td>
+                        <td>Sila masukkan alamat e-mel yang sah</td>
+                    </tr>
+                    <tr>
+                        <td>Form</td>
+                        <td>Password weak</td>
+                        <td>Password must be at least 8 characters with uppercase, lowercase, and number</td>
+                        <td>Kata laluan mesti sekurang-kurangnya 8 aksara dengan huruf besar, huruf kecil, dan nombor</td>
+                    </tr>
+                    <tr>
+                        <td>Search</td>
+                        <td>No results</td>
+                        <td>No flights found. Try different dates or nearby airports.</td>
+                        <td>Tiada penerbangan dijumpai. Cuba tarikh lain atau lapangan terbang berdekatan.</td>
+                    </tr>
+                    <tr>
+                        <td>Payment</td>
+                        <td>Card declined</td>
+                        <td>Your card was declined. Please try a different payment method.</td>
+                        <td>Kad anda ditolak. Sila cuba kaedah pembayaran lain.</td>
+                    </tr>
+                    <tr>
+                        <td>Server</td>
+                        <td>500 error</td>
+                        <td>Something went wrong on our end. We're working on it!</td>
+                        <td>Sesuatu yang tidak kena berlaku. Kami sedang memperbaikinya!</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- PD-05: EMPTY STATE CATALOG -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">PD-05</span>
+                <div class="section-title">Empty State Catalog</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ—‚ï¸ Empty States by Screen</h4>
+                <table>
+                    <tr><th>Screen</th><th>Illustration</th><th>Headline</th><th>Body</th><th>CTA</th></tr>
+                    <tr>
+                        <td>My Bookings</td>
+                        <td>âœˆï¸ (airplane icon)</td>
+                        <td>No bookings yet</td>
+                        <td>Your flight bookings will appear here</td>
+                        <td>Search Flights</td>
+                    </tr>
+                    <tr>
+                        <td>My Alerts</td>
+                        <td>ðŸ”” (bell icon)</td>
+                        <td>No price alerts</td>
+                        <td>Get notified when prices drop on routes you care about</td>
+                        <td>Create Alert</td>
+                    </tr>
+                    <tr>
+                        <td>My Pools</td>
+                        <td>ðŸ‘¥ (group icon)</td>
+                        <td>Not in any pools</td>
+                        <td>Join a demand pool to save with group discounts</td>
+                        <td>Discover Pools</td>
+                    </tr>
+                    <tr>
+                        <td>Search Results</td>
+                        <td>ðŸ” (search icon)</td>
+                        <td>No flights found</td>
+                        <td>Try different dates or check nearby airports</td>
+                        <td>Modify Search</td>
+                    </tr>
+                    <tr>
+                        <td>Notifications</td>
+                        <td>ðŸ“¬ (inbox icon)</td>
+                        <td>All caught up!</td>
+                        <td>No new notifications</td>
+                        <td>â€”</td>
+                    </tr>
+                    <tr>
+                        <td>Travelers (Profile)</td>
+                        <td>ðŸ‘¤ (person icon)</td>
+                        <td>No saved travelers</td>
+                        <td>Save traveler details for faster booking</td>
+                        <td>Add Traveler</td>
+                    </tr>
+                    <tr>
+                        <td>Payment Methods</td>
+                        <td>ðŸ’³ (card icon)</td>
+                        <td>No saved cards</td>
+                        <td>Save a card for faster checkout</td>
+                        <td>Add Card</td>
+                    </tr>
+                    <tr>
+                        <td>ATA Rules</td>
+                        <td>ðŸ¤– (robot icon)</td>
+                        <td>ATA not configured</td>
+                        <td>Set up automated booking to never miss a deal</td>
+                        <td>Set Up ATA</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ†• First-Time User Empty States</h4>
+                <table>
+                    <tr><th>Screen</th><th>Approach</th><th>Special Treatment</th></tr>
+                    <tr>
+                        <td>Home (new user)</td>
+                        <td>Onboarding wizard</td>
+                        <td>Set home airport, preferences</td>
+                    </tr>
+                    <tr>
+                        <td>First search</td>
+                        <td>Guide overlay</td>
+                        <td>Explain Oracle predictions</td>
+                    </tr>
+                    <tr>
+                        <td>First pool view</td>
+                        <td>Info modal</td>
+                        <td>Explain how pools work</td>
+                    </tr>
+                    <tr>
+                        <td>First booking</td>
+                        <td>Prompt to save</td>
+                        <td>Suggest saving traveler details</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div style="background: linear-gradient(135deg, var(--n100), var(--n200)); border: 2px solid var(--mint); border-radius: 20px; padding: 40px; text-align: center; margin-top: 48px;">
+            <h2 style="font-family: var(--font-display); font-size: 24px; color: var(--mint); margin-bottom: 16px;">âœ“ API & SECURITY ENHANCEMENTS COMPLETE</h2>
+            <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                <span style="background: var(--blue); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">API-02 Error Codes</span>
+                <span style="background: var(--blue); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">API-03 WebSocket</span>
+                <span style="background: var(--blue); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">API-04 Versioning</span>
+                <span style="background: var(--error); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">SEC-06 Validation</span>
+                <span style="background: var(--purple); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">PD-04 Error UX</span>
+                <span style="background: var(--purple); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">PD-05 Empty States</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” PRE-BUILD REQUIREMENTS: Everything Before Code</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0;
+            --cyan: #00D9FF;
+            --white: #FFFFFF;
+            --bg-void: #020203;
+            --bg-dark: #0A0A0B;
+            --bg-card: #111113;
+            --bg-elevated: #1A1A1D;
+            --gray-300: #D1D5DB;
+            --gray-400: #9CA3AF;
+            --gray-500: #71717A;
+            --gray-600: #6B7280;
+            --error: #FF4757;
+            --warning: #FFBE0B;
+            --success: #00F5A0;
+            --purple: #A855F7;
+            --gold: #FFD700;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-void);
+            color: var(--white);
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Header */
+        .doc-header {
+            text-align: center;
+            padding: 80px 0;
+            border-bottom: 3px solid var(--error);
+            margin-bottom: 60px;
+            background: linear-gradient(180deg, rgba(255,71,87,0.1) 0%, transparent 100%);
+        }
+
+        .doc-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .doc-logo span:first-child { color: var(--mint); }
+        .doc-logo span:last-child { color: var(--cyan); }
+
+        .doc-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--error), var(--warning));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .doc-subtitle {
+            font-size: 18px;
+            color: var(--gray-400);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .mandate-box {
+            background: linear-gradient(135deg, rgba(255,71,87,0.2), rgba(255,190,11,0.1));
+            border: 2px solid var(--error);
+            border-radius: 16px;
+            padding: 32px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .mandate-box h3 {
+            color: var(--error);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .mandate-box p {
+            color: var(--gray-300);
+            font-size: 14px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            margin: 40px 0;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 24px 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Domain Section */
+        .domain-section {
+            margin-bottom: 64px;
+        }
+
+        .domain-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 24px 28px;
+            background: var(--bg-card);
+            border: 2px solid;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+
+        .domain-header.critical { border-color: var(--error); }
+        .domain-header.important { border-color: var(--warning); }
+        .domain-header.standard { border-color: var(--cyan); }
+
+        .domain-icon {
+            font-size: 40px;
+        }
+
+        .domain-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .domain-header.critical .domain-title { color: var(--error); }
+        .domain-header.important .domain-title { color: var(--warning); }
+        .domain-header.standard .domain-title { color: var(--cyan); }
+
+        .domain-subtitle {
+            color: var(--gray-400);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .domain-stats {
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .domain-stats .count {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--white);
+        }
+
+        .domain-stats .label {
+            font-size: 10px;
+            color: var(--gray-600);
+            text-transform: uppercase;
+        }
+
+        /* Requirement Cards */
+        .req-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+            gap: 20px;
+        }
+
+        .req-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .req-card-header {
+            background: var(--bg-elevated);
+            padding: 16px 20px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .req-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--bg-void);
+            color: var(--gray-500);
+        }
+
+        .req-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--white);
+            flex: 1;
+        }
+
+        .req-status {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .req-status.exists { background: var(--success); color: #000; }
+        .req-status.partial { background: var(--warning); color: #000; }
+        .req-status.missing { background: var(--error); color: #fff; }
+
+        .req-card-body {
+            padding: 16px 20px;
+        }
+
+        .req-description {
+            color: var(--gray-400);
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .req-items {
+            list-style: none;
+        }
+
+        .req-items li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 12px;
+            color: var(--gray-300);
+        }
+
+        .req-items li:last-child {
+            border-bottom: none;
+        }
+
+        .req-items .check {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            border: 2px solid var(--gray-600);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .req-items .check.done {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .req-items .check.partial {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+
+        /* Summary Table */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border: 1px solid #222;
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 32px 0;
+        }
+
+        .summary-table th {
+            background: var(--bg-elevated);
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #222;
+        }
+
+        .summary-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 13px;
+            color: var(--gray-300);
+        }
+
+        .summary-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .priority-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .priority-tag.p0 { background: var(--error); color: #fff; }
+        .priority-tag.p1 { background: var(--warning); color: #000; }
+        .priority-tag.p2 { background: var(--cyan); color: #000; }
+
+        /* Progress Section */
+        .progress-section {
+            background: var(--bg-card);
+            border: 2px solid var(--mint);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 48px 0;
+        }
+
+        .progress-section h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--mint);
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .progress-item {
+            text-align: center;
+        }
+
+        .progress-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid var(--bg-elevated);
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            position: relative;
+        }
+
+        .progress-item.complete .progress-circle {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .progress-item.partial .progress-circle {
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .progress-item.empty .progress-circle {
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Final CTA */
+        .final-cta {
+            text-align: center;
+            padding: 60px 40px;
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated));
+            border: 2px solid var(--gold);
+            border-radius: 24px;
+            margin-top: 64px;
+        }
+
+        .final-cta h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--gold);
+            margin-bottom: 24px;
+        }
+
+        .final-cta p {
+            color: var(--gray-400);
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .build-order {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .build-step {
+            background: var(--bg-void);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .build-step-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--mint);
+        }
+
+        .build-step-text {
+            font-size: 13px;
+            color: var(--gray-300);
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .progress-grid { grid-template-columns: repeat(2, 1fr); }
+            .req-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="doc-header">
+            <div class="doc-logo"><span>VA</span><span>YA</span></div>
+            <h1 class="doc-title">PRE-BUILD REQUIREMENTS</h1>
+            <p class="doc-subtitle">Every Design, Decision, and Document Required Before Writing Production Code.<br>Zero Third-Party. 100% Sovereign. Nothing Missed.</p>
+        </header>
+
+        <!-- Mandate -->
+        <div class="mandate-box">
+            <h3>âš¡ THE MANDATE</h3>
+            <p><strong>ZERO THIRD-PARTY.</strong> No PostgreSQL. No Redis. No Stripe. No GitHub Actions. No AWS. No Vercel. No Docker Hub. EVERYTHING is VAYA-built, VAYA-owned, VAYA-optimized. 1,000,000,000x better than any external solution because it's 100% tailored to VAYA's exact needs.</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--error);">12</div>
+                <div class="stat-label">Design Domains</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--warning);">89</div>
+                <div class="stat-label">Required Designs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--success);">~15</div>
+                <div class="stat-label">Already Exist</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--warning);">~12</div>
+                <div class="stat-label">Partial</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--error);">~62</div>
+                <div class="stat-label">Missing</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" style="color: var(--cyan);">~320h</div>
+                <div class="stat-label">Est. Design Hours</div>
+            </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 1: PRODUCT DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header critical">
+                <span class="domain-icon">ðŸŽ¨</span>
+                <div>
+                    <div class="domain-title">1. PRODUCT DESIGN</div>
+                    <div class="domain-subtitle">User flows, screens, components, interactions â€” everything the user sees and touches</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">18</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PD-01</span>
+                        <span class="req-title">Complete User Flow Diagrams</span>
+                        <span class="req-status partial">PARTIAL</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Every user journey mapped: decisions, screens, errors, edge cases</p>
+                        <ul class="req-items">
+                            <li><span class="check partial"></span>Search Flow (basic exists)</li>
+                            <li><span class="check partial"></span>Pool Flow (basic exists)</li>
+                            <li><span class="check"></span>Onboarding Flow (first-time user)</li>
+                            <li><span class="check"></span>Registration/Login Flow</li>
+                            <li><span class="check"></span>Booking Flow (complete with payment)</li>
+                            <li><span class="check"></span>Alert Setup Flow</li>
+                            <li><span class="check"></span>ATA Setup Flow</li>
+                            <li><span class="check"></span>Settings/Profile Flow</li>
+                            <li><span class="check"></span>Support/Help Flow</li>
+                            <li><span class="check"></span>Error Recovery Flows (all failure scenarios)</li>
+                            <li><span class="check"></span>Admin Panel Flows</li>
+                            <li><span class="check"></span>Refund/Cancellation Flow</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PD-02</span>
+                        <span class="req-title">Screen Designs â€” All Devices</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Every screen, every device, every state â€” pixel-perfect designs</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Home / Intent Declaration (Desktop, Tablet, Mobile, Watch)</li>
+                            <li><span class="check"></span>Search Results / Oracle Predictions</li>
+                            <li><span class="check"></span>Flight Detail / Price Graph</li>
+                            <li><span class="check"></span>Pool Discovery / Pool Detail</li>
+                            <li><span class="check"></span>Booking Flow (5+ screens)</li>
+                            <li><span class="check"></span>Payment Screen</li>
+                            <li><span class="check"></span>Confirmation / Ticket View</li>
+                            <li><span class="check"></span>Alert Management</li>
+                            <li><span class="check"></span>ATA Dashboard</li>
+                            <li><span class="check"></span>User Profile / Settings</li>
+                            <li><span class="check"></span>Admin Panel (5+ screens)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PD-03</span>
+                        <span class="req-title">Component States Specification</span>
+                        <span class="req-status partial">PARTIAL</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Every component in every state: default, hover, focus, active, disabled, loading, error, empty</p>
+                        <ul class="req-items">
+                            <li><span class="check partial"></span>Intent Declaration Bar (states partial)</li>
+                            <li><span class="check"></span>Date Intelligence Picker (all states)</li>
+                            <li><span class="check"></span>Prediction Card (all states)</li>
+                            <li><span class="check"></span>Pool Card (all states)</li>
+                            <li><span class="check"></span>Flight Card (all states)</li>
+                            <li><span class="check"></span>Button variants (all states)</li>
+                            <li><span class="check"></span>Input fields (all states)</li>
+                            <li><span class="check"></span>Navigation (all states)</li>
+                            <li><span class="check"></span>Modals/Dialogs (all states)</li>
+                            <li><span class="check"></span>Toast/Notifications (all types)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PD-04</span>
+                        <span class="req-title">Error States & Messages</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Complete error handling UX â€” what users see when things fail</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Network error states</li>
+                            <li><span class="check"></span>Server error states (500s)</li>
+                            <li><span class="check"></span>Validation error messages (all fields)</li>
+                            <li><span class="check"></span>Payment failure states</li>
+                            <li><span class="check"></span>Booking failure recovery</li>
+                            <li><span class="check"></span>Session expiry handling</li>
+                            <li><span class="check"></span>Rate limit messaging</li>
+                            <li><span class="check"></span>Maintenance mode</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PD-05</span>
+                        <span class="req-title">Empty States Design</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">What users see when there's no data</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>No search results</li>
+                            <li><span class="check"></span>No bookings yet</li>
+                            <li><span class="check"></span>No alerts set</li>
+                            <li><span class="check"></span>No pools available</li>
+                            <li><span class="check"></span>ATA not configured</li>
+                            <li><span class="check"></span>First-time user states</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PD-06</span>
+                        <span class="req-title">Loading States & Skeletons</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">What users see while waiting</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Search loading skeleton</li>
+                            <li><span class="check"></span>Prediction loading animation</li>
+                            <li><span class="check"></span>Payment processing state</li>
+                            <li><span class="check"></span>Pool joining progress</li>
+                            <li><span class="check"></span>Data refresh indicators</li>
+                            <li><span class="check"></span>Progressive loading patterns</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PD-07</span>
+                        <span class="req-title">Animation & Micro-interactions</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Motion design specifications</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Transition timing functions</li>
+                            <li><span class="check"></span>Page transition animations</li>
+                            <li><span class="check"></span>Component enter/exit animations</li>
+                            <li><span class="check"></span>Success celebration animations</li>
+                            <li><span class="check"></span>Error shake animations</li>
+                            <li><span class="check"></span>Loading spinners/pulses</li>
+                            <li><span class="check"></span>Scroll-triggered animations</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PD-08</span>
+                        <span class="req-title">Accessibility Specification</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">WCAG 2.1 AA compliance requirements</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Color contrast ratios (all combinations)</li>
+                            <li><span class="check"></span>Focus indicator styles</li>
+                            <li><span class="check"></span>ARIA labels (every component)</li>
+                            <li><span class="check"></span>Keyboard navigation patterns</li>
+                            <li><span class="check"></span>Screen reader announcements</li>
+                            <li><span class="check"></span>Reduced motion alternatives</li>
+                            <li><span class="check"></span>Touch target sizes (48px min)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PD-09</span>
+                        <span class="req-title">Multi-Language Content</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">All UI text in English, Malay, Chinese (Simplified)</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Translation key structure</li>
+                            <li><span class="check"></span>English strings (complete)</li>
+                            <li><span class="check"></span>Malay strings (complete)</li>
+                            <li><span class="check"></span>Chinese strings (complete)</li>
+                            <li><span class="check"></span>RTL considerations (future: Arabic)</li>
+                            <li><span class="check"></span>Date/time format by locale</li>
+                            <li><span class="check"></span>Currency format by locale</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 2: API DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header critical">
+                <span class="domain-icon">ðŸ”Œ</span>
+                <div>
+                    <div class="domain-title">2. API DESIGN</div>
+                    <div class="domain-subtitle">Complete REST API specification â€” endpoints, payloads, errors, versioning</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">8</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">API-01</span>
+                        <span class="req-title">OpenAPI 3.0 Specification</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Complete API contract document</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>All endpoints documented</li>
+                            <li><span class="check"></span>Request schemas (all fields, types, validation)</li>
+                            <li><span class="check"></span>Response schemas (success + error)</li>
+                            <li><span class="check"></span>Authentication requirements</li>
+                            <li><span class="check"></span>Rate limit headers</li>
+                            <li><span class="check"></span>Pagination patterns</li>
+                            <li><span class="check"></span>Example requests/responses</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">API-02</span>
+                        <span class="req-title">Error Response Specification</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Standardized error format and codes</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Error response structure</li>
+                            <li><span class="check"></span>Error code taxonomy</li>
+                            <li><span class="check"></span>Human-readable messages</li>
+                            <li><span class="check"></span>Field-level validation errors</li>
+                            <li><span class="check"></span>Retry guidance</li>
+                            <li><span class="check"></span>Error localization</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">API-03</span>
+                        <span class="req-title">WebSocket Event Specification</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Real-time event schemas</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Connection/authentication flow</li>
+                            <li><span class="check"></span>Price update events</li>
+                            <li><span class="check"></span>Pool status events</li>
+                            <li><span class="check"></span>Booking status events</li>
+                            <li><span class="check"></span>Alert trigger events</li>
+                            <li><span class="check"></span>Heartbeat/keepalive</li>
+                            <li><span class="check"></span>Reconnection strategy</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">API-04</span>
+                        <span class="req-title">API Versioning Strategy</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">How we version and deprecate APIs</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Versioning scheme (v1, v2...)</li>
+                            <li><span class="check"></span>URL structure (/api/v1/...)</li>
+                            <li><span class="check"></span>Deprecation policy</li>
+                            <li><span class="check"></span>Sunset timeline</li>
+                            <li><span class="check"></span>Migration guides</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 3: DATA DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header critical">
+                <span class="domain-icon">ðŸ—„ï¸</span>
+                <div>
+                    <div class="domain-title">3. DATA DESIGN</div>
+                    <div class="domain-subtitle">Database schemas, data models, storage patterns â€” foundation of VayaDB</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">10</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">DATA-01</span>
+                        <span class="req-title">Complete Database Schema</span>
+                        <span class="req-status partial">PARTIAL</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">All tables, columns, types, constraints for VayaDB</p>
+                        <ul class="req-items">
+                            <li><span class="check partial"></span>User tables (partial in Master Spec)</li>
+                            <li><span class="check partial"></span>Booking tables (partial)</li>
+                            <li><span class="check partial"></span>Pool tables (partial)</li>
+                            <li><span class="check"></span>Price observation tables (time-series)</li>
+                            <li><span class="check"></span>Alert tables</li>
+                            <li><span class="check"></span>ATA tables</li>
+                            <li><span class="check"></span>Audit/logging tables</li>
+                            <li><span class="check"></span>Analytics tables</li>
+                            <li><span class="check"></span>All foreign key relationships</li>
+                            <li><span class="check"></span>All indexes (primary, secondary, composite)</li>
+                            <li><span class="check"></span>All constraints (unique, check, not null)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">DATA-02</span>
+                        <span class="req-title">Data Migration Strategy</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">How we evolve the schema over time</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Migration file format</li>
+                            <li><span class="check"></span>Version tracking</li>
+                            <li><span class="check"></span>Rollback procedures</li>
+                            <li><span class="check"></span>Zero-downtime migration patterns</li>
+                            <li><span class="check"></span>Data backfill strategies</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">DATA-03</span>
+                        <span class="req-title">Cache Key Design</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">VayaCache key structure and TTL policies</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Key naming conventions</li>
+                            <li><span class="check"></span>TTL by data type</li>
+                            <li><span class="check"></span>Invalidation patterns</li>
+                            <li><span class="check"></span>Cache warming strategies</li>
+                            <li><span class="check"></span>Sharding rules</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">DATA-04</span>
+                        <span class="req-title">Time-Series Data Model</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Price observations storage (billions of rows)</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Column structure (optimized for queries)</li>
+                            <li><span class="check"></span>Partitioning strategy (by route? date?)</li>
+                            <li><span class="check"></span>Compression settings</li>
+                            <li><span class="check"></span>Retention policies</li>
+                            <li><span class="check"></span>Aggregation tables (hourly, daily, weekly)</li>
+                            <li><span class="check"></span>Query patterns supported</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">DATA-05</span>
+                        <span class="req-title">Event/Message Schemas</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Internal event structure for VayaStream</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Event envelope structure</li>
+                            <li><span class="check"></span>Event type taxonomy</li>
+                            <li><span class="check"></span>Payload schemas per event type</li>
+                            <li><span class="check"></span>Ordering guarantees</li>
+                            <li><span class="check"></span>Idempotency keys</li>
+                            <li><span class="check"></span>Dead letter handling</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">DATA-06</span>
+                        <span class="req-title">Data Retention & Privacy</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">PDPA compliance and data lifecycle</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>PII classification</li>
+                            <li><span class="check"></span>Retention periods by data type</li>
+                            <li><span class="check"></span>Deletion procedures (right to be forgotten)</li>
+                            <li><span class="check"></span>Anonymization strategies</li>
+                            <li><span class="check"></span>Export format (data portability)</li>
+                            <li><span class="check"></span>Audit trail requirements</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 4: ML DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header critical">
+                <span class="domain-icon">ðŸ¤–</span>
+                <div>
+                    <div class="domain-title">4. MACHINE LEARNING DESIGN</div>
+                    <div class="domain-subtitle">Models, features, training pipelines â€” the Oracle's brain</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">9</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">ML-01</span>
+                        <span class="req-title">Feature Engineering Specification</span>
+                        <span class="req-status partial">PARTIAL</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">All 47+ features for price prediction</p>
+                        <ul class="req-items">
+                            <li><span class="check partial"></span>Route features (6) - defined but not implemented</li>
+                            <li><span class="check partial"></span>Temporal features (6) - defined</li>
+                            <li><span class="check partial"></span>Historical price features (7) - defined</li>
+                            <li><span class="check partial"></span>Demand signals (5) - defined</li>
+                            <li><span class="check partial"></span>Competitor prices (4) - defined</li>
+                            <li><span class="check partial"></span>External factors (5) - defined</li>
+                            <li><span class="check"></span>Feature computation code</li>
+                            <li><span class="check"></span>Feature validation rules</li>
+                            <li><span class="check"></span>Missing value handling</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">ML-02</span>
+                        <span class="req-title">Model Architecture Specification</span>
+                        <span class="req-status partial">PARTIAL</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">XGBoost, LSTM, PPO architectures in pure Rust</p>
+                        <ul class="req-items">
+                            <li><span class="check partial"></span>XGBoost hyperparameters (defined in docs)</li>
+                            <li><span class="check"></span>XGBoost Rust implementation spec</li>
+                            <li><span class="check partial"></span>LSTM architecture (defined in docs)</li>
+                            <li><span class="check"></span>LSTM Rust implementation spec</li>
+                            <li><span class="check partial"></span>PPO architecture (defined in docs)</li>
+                            <li><span class="check"></span>PPO Rust implementation spec</li>
+                            <li><span class="check"></span>Model serialization format</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">ML-03</span>
+                        <span class="req-title">Training Data Requirements</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">What data is needed to train models</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Minimum data volume (rows)</li>
+                            <li><span class="check"></span>Minimum time span (months)</li>
+                            <li><span class="check"></span>Routes to cover</li>
+                            <li><span class="check"></span>Data quality thresholds</li>
+                            <li><span class="check"></span>Label generation (actual outcomes)</li>
+                            <li><span class="check"></span>Train/validation/test splits</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">ML-04</span>
+                        <span class="req-title">Training Pipeline Design</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">How models are trained (100% VAYA infrastructure)</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Data extraction queries</li>
+                            <li><span class="check"></span>Feature computation pipeline</li>
+                            <li><span class="check"></span>Training orchestration</li>
+                            <li><span class="check"></span>Hyperparameter tuning</li>
+                            <li><span class="check"></span>Cross-validation strategy</li>
+                            <li><span class="check"></span>Model registry (VayaML)</li>
+                            <li><span class="check"></span>A/B testing framework</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">ML-05</span>
+                        <span class="req-title">Inference Pipeline Design</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">How predictions are served in production</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Latency requirements (<50ms)</li>
+                            <li><span class="check"></span>Batch vs real-time inference</li>
+                            <li><span class="check"></span>Model loading strategy</li>
+                            <li><span class="check"></span>Feature store integration</li>
+                            <li><span class="check"></span>Confidence calibration</li>
+                            <li><span class="check"></span>Fallback strategies</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">ML-06</span>
+                        <span class="req-title">Model Monitoring & Drift Detection</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">How we know models are still accurate</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Performance metrics tracked</li>
+                            <li><span class="check"></span>Drift detection thresholds</li>
+                            <li><span class="check"></span>Retraining triggers</li>
+                            <li><span class="check"></span>Alerting rules</li>
+                            <li><span class="check"></span>Rollback procedures</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 5: SECURITY DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header critical">
+                <span class="domain-icon">ðŸ”’</span>
+                <div>
+                    <div class="domain-title">5. SECURITY DESIGN</div>
+                    <div class="domain-subtitle">Authentication, authorization, encryption â€” zero-trust architecture</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">10</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">SEC-01</span>
+                        <span class="req-title">Authentication Flow Design</span>
+                        <span class="req-status partial">PARTIAL</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">How users prove identity</p>
+                        <ul class="req-items">
+                            <li><span class="check partial"></span>Email/password flow (described)</li>
+                            <li><span class="check partial"></span>OAuth flow (described)</li>
+                            <li><span class="check"></span>Magic link flow</li>
+                            <li><span class="check"></span>MFA flow (TOTP)</li>
+                            <li><span class="check"></span>Password reset flow</li>
+                            <li><span class="check"></span>Account lockout rules</li>
+                            <li><span class="check"></span>Session management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">SEC-02</span>
+                        <span class="req-title">JWT Token Specification</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Token structure and lifecycle</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Access token structure (claims)</li>
+                            <li><span class="check"></span>Refresh token structure</li>
+                            <li><span class="check"></span>Expiration times</li>
+                            <li><span class="check"></span>Signing algorithm (RS256)</li>
+                            <li><span class="check"></span>Key rotation procedure</li>
+                            <li><span class="check"></span>Token revocation mechanism</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">SEC-03</span>
+                        <span class="req-title">Authorization Model</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Who can do what (RBAC/ABAC)</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Role definitions (user, admin, support)</li>
+                            <li><span class="check"></span>Permission taxonomy</li>
+                            <li><span class="check"></span>Resource ownership rules</li>
+                            <li><span class="check"></span>Permission checking logic</li>
+                            <li><span class="check"></span>Admin override capabilities</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">SEC-04</span>
+                        <span class="req-title">Rate Limiting Rules</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Protection against abuse</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Limits per endpoint</li>
+                            <li><span class="check"></span>Limits per user tier</li>
+                            <li><span class="check"></span>IP-based limits</li>
+                            <li><span class="check"></span>Burst handling</li>
+                            <li><span class="check"></span>Rate limit headers</li>
+                            <li><span class="check"></span>429 response format</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">SEC-05</span>
+                        <span class="req-title">Encryption Specification</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">What is encrypted, how</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Data at rest encryption (VayaDB)</li>
+                            <li><span class="check"></span>Data in transit (TLS 1.3)</li>
+                            <li><span class="check"></span>PII field encryption</li>
+                            <li><span class="check"></span>Key derivation (Argon2id params)</li>
+                            <li><span class="check"></span>Key storage (HSM vs software)</li>
+                            <li><span class="check"></span>Encryption algorithms</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">SEC-06</span>
+                        <span class="req-title">Input Validation Rules</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">All validation at API boundaries</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>String length limits</li>
+                            <li><span class="check"></span>Numeric ranges</li>
+                            <li><span class="check"></span>Date/time formats</li>
+                            <li><span class="check"></span>Email validation</li>
+                            <li><span class="check"></span>Phone validation</li>
+                            <li><span class="check"></span>IATA code validation</li>
+                            <li><span class="check"></span>Currency code validation</li>
+                            <li><span class="check"></span>XSS prevention</li>
+                            <li><span class="check"></span>SQL injection prevention</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 6: INFRASTRUCTURE DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header important">
+                <span class="domain-icon">â˜ï¸</span>
+                <div>
+                    <div class="domain-title">6. INFRASTRUCTURE DESIGN</div>
+                    <div class="domain-subtitle">VayaForge, VayaFleet, deployment, scaling â€” 100% sovereign</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">12</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">INFRA-01</span>
+                        <span class="req-title">VayaForge Build System Design</span>
+                        <span class="req-status partial">PARTIAL</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Custom CI/CD â€” no GitHub Actions, no Jenkins</p>
+                        <ul class="req-items">
+                            <li><span class="check partial"></span>Artifact format (.vaya) - described</li>
+                            <li><span class="check"></span>Build trigger mechanism</li>
+                            <li><span class="check"></span>Build environment isolation</li>
+                            <li><span class="check"></span>Dependency caching</li>
+                            <li><span class="check"></span>Test execution</li>
+                            <li><span class="check"></span>Artifact signing</li>
+                            <li><span class="check"></span>Registry storage</li>
+                            <li><span class="check"></span>Delta updates</li>
+                            <li><span class="check"></span>Build notifications</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">INFRA-02</span>
+                        <span class="req-title">VayaFleet Orchestration Design</span>
+                        <span class="req-status partial">PARTIAL</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Custom orchestration â€” no Kubernetes</p>
+                        <ul class="req-items">
+                            <li><span class="check partial"></span>Node management - described</li>
+                            <li><span class="check partial"></span>Service scheduling - described</li>
+                            <li><span class="check partial"></span>Raft consensus - described</li>
+                            <li><span class="check"></span>Service discovery mechanism</li>
+                            <li><span class="check"></span>Load balancing algorithm</li>
+                            <li><span class="check"></span>Zero-downtime deployment</li>
+                            <li><span class="check"></span>Rollback procedures</li>
+                            <li><span class="check"></span>Resource limits/quotas</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">INFRA-03</span>
+                        <span class="req-title">Server Provisioning</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">How we provision bare metal/VMs</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Server specification (CPU, RAM, disk)</li>
+                            <li><span class="check"></span>OS configuration</li>
+                            <li><span class="check"></span>Network configuration</li>
+                            <li><span class="check"></span>Security hardening</li>
+                            <li><span class="check"></span>VayaAgent installation</li>
+                            <li><span class="check"></span>Monitoring agent installation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">INFRA-04</span>
+                        <span class="req-title">Deployment Topology</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">How services are distributed</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Service placement strategy</li>
+                            <li><span class="check"></span>Geographic distribution</li>
+                            <li><span class="check"></span>Replication factors</li>
+                            <li><span class="check"></span>Data locality rules</li>
+                            <li><span class="check"></span>Edge node configuration</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">INFRA-05</span>
+                        <span class="req-title">Scaling Rules</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">When and how to scale</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>CPU threshold triggers</li>
+                            <li><span class="check"></span>Memory threshold triggers</li>
+                            <li><span class="check"></span>Request rate triggers</li>
+                            <li><span class="check"></span>Scale-up procedures</li>
+                            <li><span class="check"></span>Scale-down procedures</li>
+                            <li><span class="check"></span>Minimum/maximum instances</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">INFRA-06</span>
+                        <span class="req-title">Backup & Disaster Recovery</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Data protection and recovery</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Backup frequency</li>
+                            <li><span class="check"></span>Backup retention</li>
+                            <li><span class="check"></span>Backup verification</li>
+                            <li><span class="check"></span>Recovery procedures</li>
+                            <li><span class="check"></span>RTO/RPO targets</li>
+                            <li><span class="check"></span>Failover procedures</li>
+                            <li><span class="check"></span>DR site configuration</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 7: OPERATIONS DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header important">
+                <span class="domain-icon">ðŸ“Š</span>
+                <div>
+                    <div class="domain-title">7. OPERATIONS DESIGN</div>
+                    <div class="domain-subtitle">Monitoring, alerting, incident response â€” keeping VAYA alive</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">8</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">OPS-01</span>
+                        <span class="req-title">Metrics & Telemetry Design</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">What we measure (custom VayaMetrics)</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>System metrics (CPU, RAM, disk, network)</li>
+                            <li><span class="check"></span>Application metrics (request rate, latency, errors)</li>
+                            <li><span class="check"></span>Business metrics (searches, bookings, revenue)</li>
+                            <li><span class="check"></span>ML metrics (prediction accuracy, confidence)</li>
+                            <li><span class="check"></span>Metric aggregation levels</li>
+                            <li><span class="check"></span>Metric retention periods</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">OPS-02</span>
+                        <span class="req-title">Alerting Rules</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">When to wake someone up</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Alert thresholds per metric</li>
+                            <li><span class="check"></span>Severity levels (P1, P2, P3)</li>
+                            <li><span class="check"></span>Notification channels</li>
+                            <li><span class="check"></span>Escalation rules</li>
+                            <li><span class="check"></span>Alert deduplication</li>
+                            <li><span class="check"></span>Maintenance windows</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">OPS-03</span>
+                        <span class="req-title">Logging Specification</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Structured logging format</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Log format (JSON structure)</li>
+                            <li><span class="check"></span>Log levels (trace, debug, info, warn, error)</li>
+                            <li><span class="check"></span>Required fields (timestamp, request_id, etc.)</li>
+                            <li><span class="check"></span>PII redaction rules</li>
+                            <li><span class="check"></span>Log retention periods</li>
+                            <li><span class="check"></span>Log aggregation (VayaLog)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">OPS-04</span>
+                        <span class="req-title">Incident Response Procedures</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">What to do when things break</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Incident classification</li>
+                            <li><span class="check"></span>Response timeline (SLAs)</li>
+                            <li><span class="check"></span>Communication templates</li>
+                            <li><span class="check"></span>Runbooks per service</li>
+                            <li><span class="check"></span>Post-mortem process</li>
+                            <li><span class="check"></span>Status page procedures</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">OPS-05</span>
+                        <span class="req-title">Health Check Specification</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">How we know services are healthy</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Liveness check endpoints</li>
+                            <li><span class="check"></span>Readiness check endpoints</li>
+                            <li><span class="check"></span>Deep health checks (dependencies)</li>
+                            <li><span class="check"></span>Check intervals</li>
+                            <li><span class="check"></span>Failure thresholds</li>
+                            <li><span class="check"></span>Recovery actions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 8: PAYMENT DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header critical">
+                <span class="domain-icon">ðŸ’³</span>
+                <div>
+                    <div class="domain-title">8. PAYMENT DESIGN (VayaPay)</div>
+                    <div class="domain-subtitle">Custom payment processing â€” no Stripe, direct processor integration</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">8</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PAY-01</span>
+                        <span class="req-title">Payment Flow Design</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">End-to-end payment journey</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Payment initiation</li>
+                            <li><span class="check"></span>Card tokenization</li>
+                            <li><span class="check"></span>3D Secure flow</li>
+                            <li><span class="check"></span>Payment confirmation</li>
+                            <li><span class="check"></span>Receipt generation</li>
+                            <li><span class="check"></span>Failure handling</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PAY-02</span>
+                        <span class="req-title">Payment Methods Supported</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Malaysian payment landscape</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Credit/Debit cards (Visa, MC, AMEX)</li>
+                            <li><span class="check"></span>FPX (Malaysian bank transfer)</li>
+                            <li><span class="check"></span>GrabPay</li>
+                            <li><span class="check"></span>Touch 'n Go eWallet</li>
+                            <li><span class="check"></span>Boost</li>
+                            <li><span class="check"></span>ShopeePay</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PAY-03</span>
+                        <span class="req-title">Currency Handling</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Multi-currency support</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Supported currencies</li>
+                            <li><span class="check"></span>Exchange rate source</li>
+                            <li><span class="check"></span>Rate refresh frequency</li>
+                            <li><span class="check"></span>Markup strategy</li>
+                            <li><span class="check"></span>Display currency vs charge currency</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PAY-04</span>
+                        <span class="req-title">Refund Processing</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Money back to users</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Refund eligibility rules</li>
+                            <li><span class="check"></span>Full vs partial refunds</li>
+                            <li><span class="check"></span>Refund timeline</li>
+                            <li><span class="check"></span>Refund to original method</li>
+                            <li><span class="check"></span>Store credit option</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">PAY-05</span>
+                        <span class="req-title">PCI DSS Compliance</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Card data security requirements</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Scope definition (SAQ level)</li>
+                            <li><span class="check"></span>Tokenization strategy</li>
+                            <li><span class="check"></span>Data storage rules</li>
+                            <li><span class="check"></span>Encryption requirements</li>
+                            <li><span class="check"></span>Access controls</li>
+                            <li><span class="check"></span>Audit requirements</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 9: LEGAL DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header important">
+                <span class="domain-icon">âš–ï¸</span>
+                <div>
+                    <div class="domain-title">9. LEGAL DESIGN</div>
+                    <div class="domain-subtitle">Terms, policies, compliance â€” legally required before launch</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">6</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">LEGAL-01</span>
+                        <span class="req-title">Terms of Service</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">User agreement</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Service description</li>
+                            <li><span class="check"></span>User responsibilities</li>
+                            <li><span class="check"></span>Prohibited uses</li>
+                            <li><span class="check"></span>Liability limitations</li>
+                            <li><span class="check"></span>Dispute resolution</li>
+                            <li><span class="check"></span>Governing law</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">LEGAL-02</span>
+                        <span class="req-title">Privacy Policy</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">PDPA compliance</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Data collection disclosure</li>
+                            <li><span class="check"></span>Data usage purposes</li>
+                            <li><span class="check"></span>Data sharing (third parties)</li>
+                            <li><span class="check"></span>User rights</li>
+                            <li><span class="check"></span>Data retention</li>
+                            <li><span class="check"></span>Contact information</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">LEGAL-03</span>
+                        <span class="req-title">Booking Conditions</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Flight booking terms</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>VAYA's role (agent vs merchant)</li>
+                            <li><span class="check"></span>Airline terms reference</li>
+                            <li><span class="check"></span>Price guarantee (or not)</li>
+                            <li><span class="check"></span>Schedule change handling</li>
+                            <li><span class="check"></span>Cancellation terms</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">LEGAL-04</span>
+                        <span class="req-title">Refund Policy</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Money-back terms</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Refund eligibility</li>
+                            <li><span class="check"></span>Refund timeline</li>
+                            <li><span class="check"></span>Processing fees</li>
+                            <li><span class="check"></span>Force majeure</li>
+                            <li><span class="check"></span>Store credit terms</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 10: BUSINESS DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header standard">
+                <span class="domain-icon">ðŸ’¼</span>
+                <div>
+                    <div class="domain-title">10. BUSINESS DESIGN</div>
+                    <div class="domain-subtitle">Pricing, revenue, support â€” business operations</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">6</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">BIZ-01</span>
+                        <span class="req-title">Pricing Model Details</span>
+                        <span class="req-status partial">PARTIAL</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Exact pricing for all products</p>
+                        <ul class="req-items">
+                            <li><span class="check partial"></span>ATA pricing (RM29/month mentioned)</li>
+                            <li><span class="check"></span>Service fees per booking</li>
+                            <li><span class="check"></span>Pool participation fees</li>
+                            <li><span class="check"></span>Premium features pricing</li>
+                            <li><span class="check"></span>Enterprise pricing</li>
+                            <li><span class="check"></span>Discount/promo rules</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">BIZ-02</span>
+                        <span class="req-title">Commission Structures</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Revenue from affiliates</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Kiwi commission rates</li>
+                            <li><span class="check"></span>Travelpayouts commission rates</li>
+                            <li><span class="check"></span>Direct airline agreements</li>
+                            <li><span class="check"></span>Revenue recognition rules</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">BIZ-03</span>
+                        <span class="req-title">Customer Support Playbook</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Support operations</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Support channels (chat, email, phone)</li>
+                            <li><span class="check"></span>Response time SLAs</li>
+                            <li><span class="check"></span>FAQ database</li>
+                            <li><span class="check"></span>Escalation procedures</li>
+                            <li><span class="check"></span>Common issue templates</li>
+                            <li><span class="check"></span>Refund authority levels</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 11: TESTING DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header standard">
+                <span class="domain-icon">ðŸ§ª</span>
+                <div>
+                    <div class="domain-title">11. TESTING DESIGN</div>
+                    <div class="domain-subtitle">Test strategy, test cases, benchmarks â€” quality assurance</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">6</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">TEST-01</span>
+                        <span class="req-title">Test Strategy</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Overall testing approach</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Unit test coverage targets</li>
+                            <li><span class="check"></span>Integration test scope</li>
+                            <li><span class="check"></span>E2E test scenarios</li>
+                            <li><span class="check"></span>Performance test benchmarks</li>
+                            <li><span class="check"></span>Security testing approach</li>
+                            <li><span class="check"></span>Test data management</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">TEST-02</span>
+                        <span class="req-title">Performance Benchmarks</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Target performance numbers</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Search API latency (p50, p95, p99)</li>
+                            <li><span class="check"></span>Prediction API latency</li>
+                            <li><span class="check"></span>Booking API latency</li>
+                            <li><span class="check"></span>Concurrent users supported</li>
+                            <li><span class="check"></span>Requests per second</li>
+                            <li><span class="check"></span>Database query times</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DOMAIN 12: LAUNCH DESIGN -->
+        <!-- ================================================================ -->
+        <section class="domain-section">
+            <div class="domain-header standard">
+                <span class="domain-icon">ðŸš€</span>
+                <div>
+                    <div class="domain-title">12. LAUNCH DESIGN</div>
+                    <div class="domain-subtitle">Launch checklist, marketing, PR â€” going live</div>
+                </div>
+                <div class="domain-stats">
+                    <div class="count">5</div>
+                    <div class="label">Requirements</div>
+                </div>
+            </div>
+
+            <div class="req-grid">
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">LAUNCH-01</span>
+                        <span class="req-title">Launch Checklist</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Every checkbox before go-live</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Feature completion checklist</li>
+                            <li><span class="check"></span>Security audit complete</li>
+                            <li><span class="check"></span>Performance testing passed</li>
+                            <li><span class="check"></span>Legal documents published</li>
+                            <li><span class="check"></span>Support team trained</li>
+                            <li><span class="check"></span>Monitoring in place</li>
+                            <li><span class="check"></span>Rollback plan tested</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="req-card">
+                    <div class="req-card-header">
+                        <span class="req-id">LAUNCH-02</span>
+                        <span class="req-title">Beta Testing Plan</span>
+                        <span class="req-status missing">MISSING</span>
+                    </div>
+                    <div class="req-card-body">
+                        <p class="req-description">Controlled launch</p>
+                        <ul class="req-items">
+                            <li><span class="check"></span>Beta user selection criteria</li>
+                            <li><span class="check"></span>Beta user count</li>
+                            <li><span class="check"></span>Feedback collection method</li>
+                            <li><span class="check"></span>Beta timeline</li>
+                            <li><span class="check"></span>Success metrics</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SUMMARY -->
+        <!-- ================================================================ -->
+        <div class="progress-section">
+            <h3>OVERALL READINESS</h3>
+            <div class="progress-grid">
+                <div class="progress-item partial">
+                    <div class="progress-circle">17%</div>
+                    <div class="progress-label">Complete</div>
+                </div>
+                <div class="progress-item partial">
+                    <div class="progress-circle">13%</div>
+                    <div class="progress-label">Partial</div>
+                </div>
+                <div class="progress-item empty">
+                    <div class="progress-circle">70%</div>
+                    <div class="progress-label">Missing</div>
+                </div>
+                <div class="progress-item empty">
+                    <div class="progress-circle">~320h</div>
+                    <div class="progress-label">Est. Hours</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- BUILD ORDER -->
+        <!-- ================================================================ -->
+        <div class="final-cta">
+            <h3>RECOMMENDED DESIGN ORDER</h3>
+            <p>Complete these designs IN ORDER before writing production code. Each builds on the previous.</p>
+            
+            <div class="build-order">
+                <div class="build-step">
+                    <span class="build-step-num">1</span>
+                    <span class="build-step-text">User Flows (all 15)</span>
+                </div>
+                <div class="build-step">
+                    <span class="build-step-num">2</span>
+                    <span class="build-step-text">Screen Designs</span>
+                </div>
+                <div class="build-step">
+                    <span class="build-step-num">3</span>
+                    <span class="build-step-text">API Specification</span>
+                </div>
+                <div class="build-step">
+                    <span class="build-step-num">4</span>
+                    <span class="build-step-text">Database Schema</span>
+                </div>
+                <div class="build-step">
+                    <span class="build-step-num">5</span>
+                    <span class="build-step-text">Security Design</span>
+                </div>
+                <div class="build-step">
+                    <span class="build-step-num">6</span>
+                    <span class="build-step-text">ML Pipeline Design</span>
+                </div>
+                <div class="build-step">
+                    <span class="build-step-num">7</span>
+                    <span class="build-step-text">VayaForge/Fleet Design</span>
+                </div>
+                <div class="build-step">
+                    <span class="build-step-num">8</span>
+                    <span class="build-step-text">Payment Design</span>
+                </div>
+                <div class="build-step">
+                    <span class="build-step-num">9</span>
+                    <span class="build-step-text">Legal Documents</span>
+                </div>
+                <div class="build-step">
+                    <span class="build-step-num">10</span>
+                    <span class="build-step-text">Ops Runbooks</span>
+                </div>
+            </div>
+
+            <p style="margin-top: 40px; color: var(--gray-600); font-size: 14px;">
+                <strong style="color: var(--mint);">WHICH DOMAIN SHOULD WE DESIGN FIRST?</strong><br>
+                Tell me and I'll create the complete specification with paranoid-level detail.
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

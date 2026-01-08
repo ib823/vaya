@@ -1,0 +1,1703 @@
+openapi: 3.0.3
+info:
+  title: VAYA Flight Prediction Platform API
+  description: |
+    # VAYA API Specification
+    
+    Complete REST API for the VAYA flight search and prediction platform.
+    
+    ## Base URLs
+    - Production: `https://api.vaya.my/v1`
+    - Staging: `https://api.staging.vaya.my/v1`
+    
+    ## Authentication
+    All authenticated endpoints require a Bearer token in the Authorization header.
+    
+    ## Rate Limiting
+    - Anonymous: 60 requests/minute
+    - Authenticated: 300 requests/minute
+    - Premium (ATA): 1000 requests/minute
+    
+    Rate limit headers included in all responses:
+    - `X-RateLimit-Limit`: Maximum requests allowed
+    - `X-RateLimit-Remaining`: Requests remaining in window
+    - `X-RateLimit-Reset`: Unix timestamp when limit resets
+    
+    ## Versioning
+    API version is included in the URL path (`/v1/`). Breaking changes will increment the version.
+    Deprecated endpoints will include `Sunset` header with removal date.
+    
+  version: 1.0.0
+  contact:
+    name: VAYA API Support
+    email: api@vaya.my
+    url: https://developers.vaya.my
+  license:
+    name: Proprietary
+    url: https://vaya.my/api-terms
+
+servers:
+  - url: https://api.vaya.my/v1
+    description: Production
+  - url: https://api.staging.vaya.my/v1
+    description: Staging
+  - url: http://localhost:8080/v1
+    description: Local Development
+
+tags:
+  - name: Authentication
+    description: User authentication and session management
+  - name: Search
+    description: Flight search and intent declaration
+  - name: Predictions
+    description: Oracle price predictions
+  - name: Bookings
+    description: Flight booking management
+  - name: Pools
+    description: Group buying pools
+  - name: Alerts
+    description: Price alert management
+  - name: Users
+    description: User profile and settings
+  - name: Travelers
+    description: Saved traveler management
+  - name: Payments
+    description: Payment processing (VayaPay)
+  - name: Trips
+    description: Trip and itinerary management
+  - name: Notifications
+    description: User notifications
+  - name: Support
+    description: Help and support
+  - name: Admin
+    description: Administrative endpoints
+
+# ============================================================================
+# SECURITY SCHEMES
+# ============================================================================
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT access token obtained from `/auth/login` or `/auth/refresh`.
+        Token lifetime: 15 minutes.
+        Include as: `Authorization: Bearer <token>`
+    
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for server-to-server integrations (partner access only)
+
+  # ==========================================================================
+  # REUSABLE SCHEMAS
+  # ==========================================================================
+  schemas:
+    # --------------------------------------------------------------------------
+    # ERROR SCHEMAS
+    # --------------------------------------------------------------------------
+    Error:
+      type: object
+      required:
+        - code
+        - message
+        - request_id
+      properties:
+        code:
+          type: string
+          description: Machine-readable error code
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Invalid request parameters"
+        request_id:
+          type: string
+          format: uuid
+          description: Unique request identifier for support
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        details:
+          type: array
+          description: Field-level validation errors
+          items:
+            $ref: '#/components/schemas/FieldError'
+        retry_after:
+          type: integer
+          description: Seconds to wait before retrying (for rate limits)
+          example: 60
+    
+    FieldError:
+      type: object
+      required:
+        - field
+        - code
+        - message
+      properties:
+        field:
+          type: string
+          description: JSON path to the invalid field
+          example: "passengers.0.date_of_birth"
+        code:
+          type: string
+          description: Validation error code
+          example: "INVALID_DATE"
+        message:
+          type: string
+          description: Human-readable field error
+          example: "Date of birth must be in the past"
+
+    # --------------------------------------------------------------------------
+    # PAGINATION
+    # --------------------------------------------------------------------------
+    PaginationMeta:
+      type: object
+      required:
+        - page
+        - per_page
+        - total_items
+        - total_pages
+      properties:
+        page:
+          type: integer
+          minimum: 1
+          example: 1
+        per_page:
+          type: integer
+          minimum: 1
+          maximum: 100
+          example: 20
+        total_items:
+          type: integer
+          minimum: 0
+          example: 156
+        total_pages:
+          type: integer
+          minimum: 0
+          example: 8
+        has_next:
+          type: boolean
+          example: true
+        has_prev:
+          type: boolean
+          example: false
+
+    # --------------------------------------------------------------------------
+    # COMMON TYPES
+    # --------------------------------------------------------------------------
+    IATACode:
+      type: string
+      pattern: "^[A-Z]{3}$"
+      description: 3-letter IATA airport code
+      example: "KUL"
+    
+    AirlineCode:
+      type: string
+      pattern: "^[A-Z0-9]{2}$"
+      description: 2-character IATA airline code
+      example: "MH"
+    
+    CurrencyCode:
+      type: string
+      pattern: "^[A-Z]{3}$"
+      description: ISO 4217 currency code
+      example: "MYR"
+    
+    Money:
+      type: object
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: integer
+          description: Amount in smallest currency unit (cents/sen)
+          example: 123400
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+        display:
+          type: string
+          description: Formatted display string
+          example: "RM 1,234.00"
+    
+    DateRange:
+      type: object
+      required:
+        - start
+        - end
+      properties:
+        start:
+          type: string
+          format: date
+          example: "2024-03-15"
+        end:
+          type: string
+          format: date
+          example: "2024-03-22"
+    
+    Timestamp:
+      type: string
+      format: date-time
+      description: ISO 8601 timestamp with timezone
+      example: "2024-03-15T14:30:00+08:00"
+
+    # --------------------------------------------------------------------------
+    # USER & AUTH SCHEMAS
+    # --------------------------------------------------------------------------
+    User:
+      type: object
+      required:
+        - id
+        - email
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        phone:
+          type: string
+          pattern: "^\\+60[0-9]{9,10}$"
+          example: "+60123456789"
+        name:
+          type: string
+          maxLength: 100
+          example: "Ahmad Bin Abdullah"
+        avatar_url:
+          type: string
+          format: uri
+          nullable: true
+        email_verified:
+          type: boolean
+          example: true
+        phone_verified:
+          type: boolean
+          example: false
+        mfa_enabled:
+          type: boolean
+          example: false
+        tier:
+          type: string
+          enum: [free, premium, enterprise]
+          example: "free"
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+    
+    UserPreferences:
+      type: object
+      properties:
+        home_airport:
+          $ref: '#/components/schemas/IATACode'
+        preferred_currency:
+          $ref: '#/components/schemas/CurrencyCode'
+        preferred_cabin:
+          type: string
+          enum: [economy, premium_economy, business, first]
+          default: economy
+        preferred_seat:
+          type: string
+          enum: [window, aisle, middle, no_preference]
+          default: no_preference
+        meal_preference:
+          type: string
+          enum: [regular, vegetarian, vegan, halal, kosher, none]
+          default: regular
+        locale:
+          type: string
+          enum: [en, ms, zh]
+          default: en
+        date_format:
+          type: string
+          enum: [DMY, MDY, YMD]
+          default: DMY
+        notifications:
+          $ref: '#/components/schemas/NotificationPreferences'
+    
+    NotificationPreferences:
+      type: object
+      properties:
+        price_alerts:
+          $ref: '#/components/schemas/ChannelPreferences'
+        pool_updates:
+          $ref: '#/components/schemas/ChannelPreferences'
+        flight_status:
+          $ref: '#/components/schemas/ChannelPreferences'
+        promotions:
+          $ref: '#/components/schemas/ChannelPreferences'
+        quiet_hours:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: false
+            start:
+              type: string
+              pattern: "^[0-2][0-9]:[0-5][0-9]$"
+              example: "22:00"
+            end:
+              type: string
+              pattern: "^[0-2][0-9]:[0-5][0-9]$"
+              example: "08:00"
+    
+    ChannelPreferences:
+      type: object
+      properties:
+        push:
+          type: boolean
+          default: true
+        email:
+          type: boolean
+          default: true
+        sms:
+          type: boolean
+          default: false
+
+    TokenPair:
+      type: object
+      required:
+        - access_token
+        - refresh_token
+        - token_type
+        - expires_in
+      properties:
+        access_token:
+          type: string
+          description: JWT access token (15 minute lifetime)
+        refresh_token:
+          type: string
+          description: Refresh token (7 day lifetime, single use)
+        token_type:
+          type: string
+          enum: [Bearer]
+          example: "Bearer"
+        expires_in:
+          type: integer
+          description: Access token lifetime in seconds
+          example: 900
+        user:
+          $ref: '#/components/schemas/User'
+
+    Session:
+      type: object
+      required:
+        - id
+        - device
+        - last_active
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        device:
+          type: string
+          example: "Chrome on macOS"
+        ip_address:
+          type: string
+          format: ipv4
+          example: "203.0.113.42"
+        location:
+          type: string
+          example: "Kuala Lumpur, MY"
+        is_current:
+          type: boolean
+          example: true
+        last_active:
+          $ref: '#/components/schemas/Timestamp'
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    # --------------------------------------------------------------------------
+    # AIRPORT & AIRLINE SCHEMAS
+    # --------------------------------------------------------------------------
+    Airport:
+      type: object
+      required:
+        - iata
+        - name
+        - city
+        - country
+      properties:
+        iata:
+          $ref: '#/components/schemas/IATACode'
+        icao:
+          type: string
+          pattern: "^[A-Z]{4}$"
+          example: "WMKK"
+        name:
+          type: string
+          example: "Kuala Lumpur International Airport"
+        city:
+          type: string
+          example: "Kuala Lumpur"
+        country:
+          type: string
+          example: "Malaysia"
+        country_code:
+          type: string
+          pattern: "^[A-Z]{2}$"
+          example: "MY"
+        timezone:
+          type: string
+          example: "Asia/Kuala_Lumpur"
+        coordinates:
+          type: object
+          properties:
+            lat:
+              type: number
+              format: double
+              example: 2.7456
+            lng:
+              type: number
+              format: double
+              example: 101.7072
+    
+    Airline:
+      type: object
+      required:
+        - iata
+        - name
+      properties:
+        iata:
+          $ref: '#/components/schemas/AirlineCode'
+        icao:
+          type: string
+          pattern: "^[A-Z]{3}$"
+          example: "MAS"
+        name:
+          type: string
+          example: "Malaysia Airlines"
+        logo_url:
+          type: string
+          format: uri
+          example: "https://cdn.vaya.my/airlines/mh.svg"
+        alliance:
+          type: string
+          enum: [oneworld, skyteam, star_alliance, none]
+          example: "oneworld"
+
+    # --------------------------------------------------------------------------
+    # SEARCH & FLIGHT SCHEMAS
+    # --------------------------------------------------------------------------
+    SearchIntent:
+      type: object
+      required:
+        - origin
+        - destination
+        - departure_date
+        - passengers
+      properties:
+        origin:
+          $ref: '#/components/schemas/IATACode'
+        destination:
+          $ref: '#/components/schemas/IATACode'
+        departure_date:
+          type: string
+          format: date
+          description: Departure date (YYYY-MM-DD)
+          example: "2024-03-15"
+        return_date:
+          type: string
+          format: date
+          nullable: true
+          description: Return date for round trips
+          example: "2024-03-22"
+        flexibility:
+          type: object
+          description: Date flexibility for Oracle optimization
+          properties:
+            departure_days:
+              type: integer
+              minimum: 0
+              maximum: 7
+              default: 0
+              description: Days flexible before/after departure
+            return_days:
+              type: integer
+              minimum: 0
+              maximum: 7
+              default: 0
+        passengers:
+          $ref: '#/components/schemas/PassengerCounts'
+        cabin_class:
+          type: string
+          enum: [economy, premium_economy, business, first]
+          default: economy
+        preferences:
+          $ref: '#/components/schemas/SearchPreferences'
+    
+    PassengerCounts:
+      type: object
+      required:
+        - adults
+      properties:
+        adults:
+          type: integer
+          minimum: 1
+          maximum: 9
+          example: 2
+        children:
+          type: integer
+          minimum: 0
+          maximum: 8
+          default: 0
+          description: Ages 2-11
+        infants:
+          type: integer
+          minimum: 0
+          maximum: 4
+          default: 0
+          description: Under 2, must be less than adults
+    
+    SearchPreferences:
+      type: object
+      properties:
+        direct_only:
+          type: boolean
+          default: false
+        max_stops:
+          type: integer
+          minimum: 0
+          maximum: 3
+          default: 2
+        preferred_airlines:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/AirlineCode'
+        excluded_airlines:
+          type: array
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/AirlineCode'
+        max_layover_hours:
+          type: integer
+          minimum: 1
+          maximum: 24
+          default: 12
+        min_layover_minutes:
+          type: integer
+          minimum: 30
+          maximum: 180
+          default: 60
+        baggage_included:
+          type: boolean
+          default: false
+        refundable_only:
+          type: boolean
+          default: false
+
+    SearchResult:
+      type: object
+      required:
+        - id
+        - search_id
+        - outbound
+        - price
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique result ID for booking
+        search_id:
+          type: string
+          format: uuid
+          description: Parent search ID
+        outbound:
+          $ref: '#/components/schemas/Journey'
+        inbound:
+          $ref: '#/components/schemas/Journey'
+          nullable: true
+          description: Present for round trips
+        price:
+          $ref: '#/components/schemas/PriceBreakdown'
+        oracle:
+          $ref: '#/components/schemas/OraclePrediction'
+          description: Price prediction data
+        pool:
+          $ref: '#/components/schemas/PoolSummary'
+          nullable: true
+          description: Available pool for this route
+        badges:
+          type: array
+          items:
+            type: string
+            enum: [best_price, fastest, recommended, oracle_pick, pool_available]
+        booking_token:
+          type: string
+          description: Token required to initiate booking (expires in 30 minutes)
+        expires_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: When this result/price expires
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+    
+    Journey:
+      type: object
+      required:
+        - segments
+        - duration_minutes
+        - stops
+      properties:
+        segments:
+          type: array
+          minItems: 1
+          maxItems: 4
+          items:
+            $ref: '#/components/schemas/FlightSegment'
+        duration_minutes:
+          type: integer
+          minimum: 30
+          example: 435
+        stops:
+          type: integer
+          minimum: 0
+          maximum: 3
+          example: 0
+        overnight:
+          type: boolean
+          description: Arrives next calendar day
+          example: false
+    
+    FlightSegment:
+      type: object
+      required:
+        - flight_number
+        - airline
+        - departure
+        - arrival
+        - duration_minutes
+      properties:
+        flight_number:
+          type: string
+          pattern: "^[A-Z0-9]{2}[0-9]{1,4}$"
+          example: "MH52"
+        airline:
+          $ref: '#/components/schemas/Airline'
+        operating_airline:
+          $ref: '#/components/schemas/Airline'
+          nullable: true
+          description: If codeshare, the actual operating carrier
+        departure:
+          $ref: '#/components/schemas/FlightPoint'
+        arrival:
+          $ref: '#/components/schemas/FlightPoint'
+        duration_minutes:
+          type: integer
+          minimum: 15
+          example: 420
+        aircraft:
+          type: string
+          example: "Airbus A350-900"
+        cabin_class:
+          type: string
+          enum: [economy, premium_economy, business, first]
+        fare_class:
+          type: string
+          pattern: "^[A-Z]$"
+          example: "Y"
+        baggage:
+          $ref: '#/components/schemas/BaggageAllowance'
+        amenities:
+          type: array
+          items:
+            type: string
+            enum: [wifi, power, entertainment, meal, usb]
+    
+    FlightPoint:
+      type: object
+      required:
+        - airport
+        - time
+        - terminal
+      properties:
+        airport:
+          $ref: '#/components/schemas/Airport'
+        time:
+          $ref: '#/components/schemas/Timestamp'
+        terminal:
+          type: string
+          nullable: true
+          example: "KLIA"
+        gate:
+          type: string
+          nullable: true
+          example: "C32"
+    
+    BaggageAllowance:
+      type: object
+      properties:
+        cabin:
+          type: object
+          properties:
+            pieces:
+              type: integer
+              example: 1
+            weight_kg:
+              type: integer
+              example: 7
+        checked:
+          type: object
+          properties:
+            pieces:
+              type: integer
+              example: 1
+            weight_kg:
+              type: integer
+              example: 23
+            included:
+              type: boolean
+              example: true
+    
+    PriceBreakdown:
+      type: object
+      required:
+        - total
+        - base_fare
+        - taxes
+        - currency
+      properties:
+        total:
+          $ref: '#/components/schemas/Money'
+        base_fare:
+          $ref: '#/components/schemas/Money'
+        taxes:
+          $ref: '#/components/schemas/Money'
+        fees:
+          $ref: '#/components/schemas/Money'
+        service_fee:
+          $ref: '#/components/schemas/Money'
+          description: VAYA service fee
+        per_passenger:
+          type: object
+          properties:
+            adult:
+              $ref: '#/components/schemas/Money'
+            child:
+              $ref: '#/components/schemas/Money'
+            infant:
+              $ref: '#/components/schemas/Money'
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+
+    # --------------------------------------------------------------------------
+    # ORACLE PREDICTION SCHEMAS
+    # --------------------------------------------------------------------------
+    OraclePrediction:
+      type: object
+      required:
+        - recommendation
+        - confidence
+        - current_price
+      properties:
+        recommendation:
+          type: string
+          enum: [buy_now, wait, watch]
+          description: |
+            - buy_now: Price is optimal, unlikely to drop
+            - wait: Price expected to drop, hold off
+            - watch: Uncertain, monitor closely
+          example: "buy_now"
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Prediction confidence (0-1)
+          example: 0.92
+        current_price:
+          $ref: '#/components/schemas/Money'
+        predicted_low:
+          $ref: '#/components/schemas/Money'
+          description: Expected lowest price
+        predicted_high:
+          $ref: '#/components/schemas/Money'
+          description: Expected highest price
+        optimal_booking_window:
+          type: object
+          description: Best time to book
+          properties:
+            start:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+            days_until:
+              type: integer
+              description: Days until optimal window starts
+        price_trend:
+          type: string
+          enum: [rising, falling, stable, volatile]
+          example: "stable"
+        price_position:
+          type: string
+          enum: [lowest, below_average, average, above_average, highest]
+          description: Current price relative to historical
+          example: "below_average"
+        savings_potential:
+          $ref: '#/components/schemas/Money'
+          description: Potential savings if you wait
+        risk_assessment:
+          type: object
+          properties:
+            sellout_risk:
+              type: string
+              enum: [low, medium, high]
+              description: Risk of flight selling out
+            price_increase_risk:
+              type: string
+              enum: [low, medium, high]
+              description: Risk of price going up
+        historical:
+          $ref: '#/components/schemas/PriceHistory'
+        factors:
+          type: array
+          description: Factors influencing the prediction
+          items:
+            $ref: '#/components/schemas/PredictionFactor'
+    
+    PriceHistory:
+      type: object
+      properties:
+        data_points:
+          type: array
+          description: Historical prices (last 90 days)
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              price:
+                type: integer
+                description: Price in smallest currency unit
+        lowest:
+          $ref: '#/components/schemas/Money'
+        highest:
+          $ref: '#/components/schemas/Money'
+        average:
+          $ref: '#/components/schemas/Money'
+        median:
+          $ref: '#/components/schemas/Money'
+    
+    PredictionFactor:
+      type: object
+      required:
+        - factor
+        - impact
+        - description
+      properties:
+        factor:
+          type: string
+          enum: [
+            seasonality, 
+            days_until_departure,
+            day_of_week,
+            demand_level,
+            competitor_prices,
+            historical_pattern,
+            event,
+            holiday,
+            capacity
+          ]
+          example: "days_until_departure"
+        impact:
+          type: string
+          enum: [positive, negative, neutral]
+          description: Impact on price
+          example: "positive"
+        weight:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Factor importance in prediction
+          example: 0.35
+        description:
+          type: string
+          example: "Booking 45 days ahead typically yields 15% savings on this route"
+
+# ============================================================================
+# PATHS - AUTHENTICATION
+# ============================================================================
+paths:
+  # --------------------------------------------------------------------------
+  # AUTH ENDPOINTS
+  # --------------------------------------------------------------------------
+  /auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register new user
+      description: Create a new user account. Sends verification email.
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - name
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  maxLength: 128
+                  description: |
+                    Password requirements:
+                    - Minimum 8 characters
+                    - At least one uppercase letter
+                    - At least one lowercase letter
+                    - At least one number
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  example: "Ahmad Abdullah"
+                phone:
+                  type: string
+                  pattern: "^\\+60[0-9]{9,10}$"
+                  example: "+60123456789"
+                marketing_consent:
+                  type: boolean
+                  default: false
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+                    example: "Verification email sent"
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/login:
+    post:
+      tags: [Authentication]
+      summary: User login
+      description: Authenticate user and return JWT tokens
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                remember_me:
+                  type: boolean
+                  default: false
+                  description: If true, refresh token valid for 30 days instead of 7
+                device_info:
+                  type: object
+                  properties:
+                    device_name:
+                      type: string
+                      example: "Chrome on macOS"
+                    device_id:
+                      type: string
+                      description: Unique device identifier for session tracking
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Account locked or unverified
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    properties:
+                      locked_until:
+                        $ref: '#/components/schemas/Timestamp'
+                      attempts_remaining:
+                        type: integer
+        '429':
+          description: Too many login attempts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/refresh:
+    post:
+      tags: [Authentication]
+      summary: Refresh access token
+      description: Exchange refresh token for new token pair. Refresh token is single-use.
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Tokens refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/logout:
+    post:
+      tags: [Authentication]
+      summary: Logout current session
+      description: Invalidate current access and refresh tokens
+      operationId: logoutUser
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  description: Optional - also invalidate this refresh token
+                all_sessions:
+                  type: boolean
+                  default: false
+                  description: If true, invalidate all sessions for this user
+      responses:
+        '204':
+          description: Logged out successfully
+        '401':
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/verify-email:
+    post:
+      tags: [Authentication]
+      summary: Verify email address
+      description: Verify email using OTP sent during registration
+      operationId: verifyEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - code
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                  pattern: "^[0-9]{6}$"
+                  description: 6-digit verification code
+      responses:
+        '200':
+          description: Email verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '400':
+          description: Invalid or expired code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/resend-verification:
+    post:
+      tags: [Authentication]
+      summary: Resend verification email
+      operationId: resendVerification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: Verification email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  cooldown_seconds:
+                    type: integer
+                    description: Seconds until next resend allowed
+                    example: 30
+        '429':
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/forgot-password:
+    post:
+      tags: [Authentication]
+      summary: Request password reset
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: |
+            Reset email sent (always returns 200 to prevent email enumeration)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "If this email exists, a reset link has been sent"
+  
+  /auth/reset-password:
+    post:
+      tags: [Authentication]
+      summary: Reset password with token
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - password
+              properties:
+                token:
+                  type: string
+                  description: Reset token from email link
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+      responses:
+        '200':
+          description: Password reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  sessions_invalidated:
+                    type: integer
+                    description: Number of sessions logged out
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/sessions:
+    get:
+      tags: [Authentication]
+      summary: List active sessions
+      description: Get all active sessions for current user
+      operationId: listSessions
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Session'
+  
+  /auth/sessions/{session_id}:
+    delete:
+      tags: [Authentication]
+      summary: Revoke a session
+      description: Log out a specific session (remote logout)
+      operationId: revokeSession
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Session revoked
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /auth/mfa/setup:
+    post:
+      tags: [Authentication]
+      summary: Setup MFA (TOTP)
+      description: Generate TOTP secret and QR code for MFA setup
+      operationId: setupMFA
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: MFA setup initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  secret:
+                    type: string
+                    description: Base32-encoded TOTP secret
+                  qr_code:
+                    type: string
+                    description: Data URI of QR code image
+                  backup_codes:
+                    type: array
+                    items:
+                      type: string
+                    description: 10 single-use backup codes
+  
+  /auth/mfa/verify:
+    post:
+      tags: [Authentication]
+      summary: Verify and enable MFA
+      description: Verify TOTP code to complete MFA setup
+      operationId: verifyMFA
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+              properties:
+                code:
+                  type: string
+                  pattern: "^[0-9]{6}$"
+      responses:
+        '200':
+          description: MFA enabled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  backup_codes:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: Invalid code
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # --------------------------------------------------------------------------
+  # SEARCH ENDPOINTS
+  # --------------------------------------------------------------------------
+  /search:
+    post:
+      tags: [Search]
+      summary: Create flight search
+      description: |
+        Initiate a new flight search. Returns search ID for polling results.
+        Results are streamed as they become available from multiple sources.
+      operationId: createSearch
+      security:
+        - BearerAuth: []
+        - {}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchIntent'
+      responses:
+        '202':
+          description: Search initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  search_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [pending, in_progress, complete, failed]
+                  estimated_completion:
+                    type: integer
+                    description: Estimated seconds until complete
+                    example: 5
+                  poll_url:
+                    type: string
+                    format: uri
+                    example: "/v1/search/550e8400-e29b-41d4-a716-446655440000"
+                  websocket_url:
+                    type: string
+                    format: uri
+                    description: WebSocket URL for real-time results
+        '400':
+          description: Invalid search parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /search/{search_id}:
+    get:
+      tags: [Search]
+      summary: Get search results
+      description: |
+        Retrieve search results. Poll until status is `complete`.
+        Results are sorted by Oracle recommendation by default.
+      operationId: getSearchResults
+      security:
+        - BearerAuth: []
+        - {}
+      parameters:
+        - name: search_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [price_asc, price_desc, duration_asc, departure_asc, oracle_score]
+            default: oracle_score
+        - name: filter_stops
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 3
+          description: Maximum stops (0 = direct only)
+        - name: filter_airlines
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+          description: Comma-separated airline codes to include
+        - name: filter_departure_time
+          in: query
+          schema:
+            type: string
+            enum: [morning, afternoon, evening, night]
+          description: Filter by departure time window
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  search_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [pending, in_progress, complete, failed]
+                  intent:
+                    $ref: '#/components/schemas/SearchIntent'
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SearchResult'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+                  aggregations:
+                    $ref: '#/components/schemas/SearchAggregations'
+                  oracle_summary:
+                    $ref: '#/components/schemas/OracleSummary'
+        '404':
+          description: Search not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /search/airports:
+    get:
+      tags: [Search]
+      summary: Search airports
+      description: Autocomplete airport search by name, city, or IATA code
+      operationId: searchAirports
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 50
+          description: Search query
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 10
+      responses:
+        '200':
+          description: Matching airports
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  airports:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Airport'
+  
+  /search/popular-routes:
+    get:
+      tags: [Search]
+      summary: Get popular routes
+      description: Popular routes from a given origin, used for suggestions
+      operationId: getPopularRoutes
+      parameters:
+        - name: origin
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/IATACode'
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+            default: 10
+      responses:
+        '200':
+          description: Popular routes
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  routes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        destination:
+                          $ref: '#/components/schemas/Airport'
+                        lowest_price:
+                          $ref: '#/components/schemas/Money'
+                        typical_duration_minutes:
+                          type: integer
+
+# Additional schemas for search responses
+  # --------------------------------------------------------------------------
+  # SEARCH AGGREGATIONS
+  # --------------------------------------------------------------------------
+components:
+  schemas:
+    SearchAggregations:
+      type: object
+      description: Faceted aggregations for filtering UI
+      properties:
+        price_range:
+          type: object
+          properties:
+            min:
+              type: integer
+            max:
+              type: integer
+            currency:
+              $ref: '#/components/schemas/CurrencyCode'
+        stops:
+          type: array
+          items:
+            type: object
+            properties:
+              stops:
+                type: integer
+              count:
+                type: integer
+              min_price:
+                type: integer
+        airlines:
+          type: array
+          items:
+            type: object
+            properties:
+              airline:
+                $ref: '#/components/schemas/Airline'
+              count:
+                type: integer
+              min_price:
+                type: integer
+        departure_times:
+          type: array
+          items:
+            type: object
+            properties:
+              window:
+                type: string
+                enum: [morning, afternoon, evening, night]
+              range:
+                type: string
+                example: "06:00 - 12:00"
+              count:
+                type: integer
+        duration_range:
+          type: object
+          properties:
+            min_minutes:
+              type: integer
+            max_minutes:
+              type: integer
+    
+    OracleSummary:
+      type: object
+      description: Oracle analysis summary for the entire search
+      properties:
+        overall_recommendation:
+          type: string
+          enum: [buy_now, wait, watch]
+        confidence:
+          type: number
+          format: float
+        best_price_result_id:
+          type: string
+          format: uuid
+        oracle_pick_result_id:
+          type: string
+          format: uuid
+          description: Best value considering price trend
+        summary_text:
+          type: string
+          example: "Prices are 12% below average. Good time to book."
+        price_forecast:
+          type: string
+          enum: [rising, falling, stable]

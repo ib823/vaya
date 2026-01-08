@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Screen Design Specification: Flow 7 - User Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-500: #00F5A0;
+            --mint-600: #00CC85;
+            --mint-dim: rgba(0, 245, 160, 0.12);
+            --cyan-500: #00D9FF;
+            --cyan-dim: rgba(0, 217, 255, 0.12);
+            --n0: #000000;
+            --n50: #0A0A0B;
+            --n100: #111113;
+            --n150: #161618;
+            --n200: #1A1A1D;
+            --n300: #232326;
+            --n400: #2D2D31;
+            --n500: #3D3D42;
+            --n600: #5C5C63;
+            --n700: #7A7A82;
+            --n800: #9999A1;
+            --n900: #CCCCCC;
+            --n1000: #FFFFFF;
+            --warning: #FFB800;
+            --error: #FF4757;
+            --error-dim: rgba(255, 71, 87, 0.12);
+            --purple: #A855F7;
+            --purple-dim: rgba(168, 85, 247, 0.12);
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--n1000); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--purple); margin-bottom: 48px; background: linear-gradient(180deg, rgba(168,85,247,0.08) 0%, transparent 100%); }
+        .doc-logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .doc-logo span:first-child { color: var(--mint-500); }
+        .doc-logo span:last-child { color: var(--cyan-500); }
+        .doc-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-top: 16px; }
+        .doc-subtitle { font-size: 15px; color: var(--n700); margin-top: 8px; }
+        .section { margin-bottom: 64px; }
+        .section-header { background: var(--n100); border: 1px solid var(--n200); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .section-num { font-family: var(--font-mono); font-size: 11px; color: var(--purple); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .section-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .section-desc { color: var(--n700); font-size: 14px; }
+        .spec-card { background: var(--n50); border: 1px solid var(--n200); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+        .spec-card-header { background: var(--n100); padding: 16px 20px; border-bottom: 1px solid var(--n200); display: flex; align-items: center; gap: 12px; }
+        .spec-id { font-family: var(--font-mono); font-size: 11px; color: var(--purple); background: var(--purple-dim); padding: 4px 10px; border-radius: 4px; }
+        .spec-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+        .spec-card-body { padding: 20px; }
+        .pixel-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+        .pixel-table th { background: var(--n150); padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--n300); }
+        .pixel-table td { padding: 10px 12px; border-bottom: 1px solid var(--n200); color: var(--n800); vertical-align: top; }
+        .pixel-table .property { font-family: var(--font-mono); color: var(--cyan-500); font-weight: 500; }
+        .state-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+        .state-card { background: var(--n150); border: 1px solid var(--n300); border-radius: 8px; padding: 12px; }
+        .state-name { font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; margin-bottom: 8px; }
+        .state-preview { background: var(--n0); border-radius: 6px; padding: 12px; min-height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+        .state-specs { font-size: 10px; color: var(--n700); }
+        .state-specs code { font-family: var(--font-mono); color: var(--cyan-500); font-size: 9px; }
+        .security-box { background: linear-gradient(135deg, var(--n100), rgba(255,71,87,0.08)); border: 1px solid var(--error); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .security-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 12px; }
+        .integration-box { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.05)); border: 1px solid var(--mint-500); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .integration-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--mint-500); margin-bottom: 12px; }
+        .integration-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .integration-item { background: var(--n150); border-radius: 6px; padding: 10px; }
+        .integration-crate { font-family: var(--font-mono); font-size: 11px; color: var(--cyan-500); margin-bottom: 2px; }
+        .integration-desc { font-size: 10px; color: var(--n600); }
+        .summary-box { background: linear-gradient(135deg, var(--n100), rgba(168,85,247,0.08)); border: 2px solid var(--purple); border-radius: 20px; padding: 40px; text-align: center; margin-top: 48px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="doc-header">
+            <div class="doc-logo"><span>VA</span><span>YA</span></div>
+            <h1 class="doc-title">Screen Design Specification</h1>
+            <p class="doc-subtitle">Flow 7: User Authentication â€” Secure, Seamless Access</p>
+        </header>
+
+        <!-- S7.1: LOGIN -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S7.1</div>
+                <h2 class="section-title">Login</h2>
+                <p class="section-desc">Primary authentication screen. Email/password, social login, biometric options.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S7.1</span>
+                    <span class="spec-name">Login Screen</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Desktop</th><th>Mobile</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Container</td><td>W: 440px, center, card</td><td>Full width, padding: 24px</td><td>bg: n100, radius: 24px</td></tr>
+                            <tr><td class="property">Logo</td><td>W: 120px, center</td><td>W: 100px</td><td>VAYA logo, animated on load</td></tr>
+                            <tr><td class="property">Welcome Text</td><td>Space Grotesk 28px/700</td><td>24px/700</td><td>"Welcome back"</td></tr>
+                            <tr><td class="property">Email Input</td><td>W: 100%, H: 56px</td><td>H: 52px</td><td>type: email, autocomplete</td></tr>
+                            <tr><td class="property">Password Input</td><td>W: 100%, H: 56px</td><td>H: 52px</td><td>Show/hide toggle</td></tr>
+                            <tr><td class="property">Remember Me</td><td>Checkbox + label, left</td><td>Same</td><td>Default: checked</td></tr>
+                            <tr><td class="property">Forgot Password</td><td>Text link, right</td><td>Same</td><td>color: cyan-500</td></tr>
+                            <tr><td class="property">Login CTA</td><td>W: 100%, H: 56px</td><td>H: 52px</td><td>bg: mint-500, "Sign In"</td></tr>
+                            <tr><td class="property">Social Buttons</td><td>Row of 3, H: 52px each</td><td>Same</td><td>Google, Apple, Facebook</td></tr>
+                            <tr><td class="property">Sign Up Link</td><td>Bottom, centered</td><td>Same</td><td>"Don't have an account?"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--purple); margin: 24px 0 12px;">ðŸ“± Login States</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Default</div>
+                            <div class="state-preview" style="flex-direction: column; gap: 8px;">
+                                <div style="background: var(--n200); border-radius: 6px; width: 100%; height: 24px;"></div>
+                                <div style="background: var(--n200); border-radius: 6px; width: 100%; height: 24px;"></div>
+                                <div style="background: var(--mint-500); border-radius: 6px; width: 100%; height: 24px;"></div>
+                            </div>
+                            <div class="state-specs"><code>Empty inputs, CTA enabled</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Typing</div>
+                            <div class="state-preview" style="flex-direction: column; gap: 8px;">
+                                <div style="background: var(--n200); border: 2px solid var(--cyan-500); border-radius: 6px; width: 100%; height: 24px;"></div>
+                                <div style="background: var(--n200); border-radius: 6px; width: 100%; height: 24px;"></div>
+                                <div style="background: var(--mint-500); border-radius: 6px; width: 100%; height: 24px;"></div>
+                            </div>
+                            <div class="state-specs"><code>Focus ring on active</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Loading</div>
+                            <div class="state-preview" style="flex-direction: column; gap: 8px;">
+                                <div style="background: var(--n200); border-radius: 6px; width: 100%; height: 24px; opacity: 0.5;"></div>
+                                <div style="background: var(--n200); border-radius: 6px; width: 100%; height: 24px; opacity: 0.5;"></div>
+                                <div style="background: var(--mint-600); border-radius: 6px; width: 100%; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                    <div style="width: 10px; height: 10px; border: 2px solid white; border-top-color: transparent; border-radius: 50%;"></div>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>Spinner in CTA</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Error</div>
+                            <div class="state-preview" style="flex-direction: column; gap: 8px;">
+                                <div style="background: var(--error-dim); border: 1px solid var(--error); border-radius: 6px; width: 100%; height: 24px;"></div>
+                                <div style="background: var(--error-dim); border: 1px solid var(--error); border-radius: 6px; width: 100%; height: 24px;"></div>
+                                <div style="font-size: 9px; color: var(--error);">Invalid credentials</div>
+                            </div>
+                            <div class="state-specs"><code>Shake animation</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- S7.2: SIGN UP -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S7.2</div>
+                <h2 class="section-title">Sign Up</h2>
+                <p class="section-desc">New account registration with validation.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S7.2</span>
+                    <span class="spec-name">Registration Form</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Field</th><th>Type</th><th>Validation</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Full Name</td><td>text</td><td>Required, min 2 chars</td></tr>
+                            <tr><td class="property">Email</td><td>email</td><td>Valid format, unique</td></tr>
+                            <tr><td class="property">Phone</td><td>tel</td><td>Malaysian +60 format</td></tr>
+                            <tr><td class="property">Password</td><td>password</td><td>Min 8, upper, number</td></tr>
+                            <tr><td class="property">Confirm Password</td><td>password</td><td>Must match</td></tr>
+                            <tr><td class="property">Terms</td><td>checkbox</td><td>Required</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">ðŸ”’ Password Strength</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Weak</div>
+                            <div class="state-preview" style="flex-direction: column; gap: 4px;">
+                                <div style="display: flex; gap: 4px;">
+                                    <div style="flex: 1; height: 4px; background: var(--error); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--n300); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--n300); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--n300); border-radius: 2px;"></div>
+                                </div>
+                                <span style="font-size: 10px; color: var(--error);">Weak</span>
+                            </div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Fair</div>
+                            <div class="state-preview" style="flex-direction: column; gap: 4px;">
+                                <div style="display: flex; gap: 4px;">
+                                    <div style="flex: 1; height: 4px; background: var(--warning); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--warning); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--n300); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--n300); border-radius: 2px;"></div>
+                                </div>
+                                <span style="font-size: 10px; color: var(--warning);">Fair</span>
+                            </div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Good</div>
+                            <div class="state-preview" style="flex-direction: column; gap: 4px;">
+                                <div style="display: flex; gap: 4px;">
+                                    <div style="flex: 1; height: 4px; background: var(--cyan-500); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--cyan-500); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--cyan-500); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--n300); border-radius: 2px;"></div>
+                                </div>
+                                <span style="font-size: 10px; color: var(--cyan-500);">Good</span>
+                            </div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Strong</div>
+                            <div class="state-preview" style="flex-direction: column; gap: 4px;">
+                                <div style="display: flex; gap: 4px;">
+                                    <div style="flex: 1; height: 4px; background: var(--mint-500); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--mint-500); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--mint-500); border-radius: 2px;"></div>
+                                    <div style="flex: 1; height: 4px; background: var(--mint-500); border-radius: 2px;"></div>
+                                </div>
+                                <span style="font-size: 10px; color: var(--mint-500);">Strong</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- S7.3-S7.7 Summary -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screens S7.3 â€” S7.7</div>
+                <h2 class="section-title">Additional Auth Screens</h2>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Screen</th><th>Purpose</th><th>Key Elements</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">S7.3 Email Verify</td><td>OTP code entry</td><td>6-digit boxes, auto-advance, resend (30s cooldown)</td></tr>
+                            <tr><td class="property">S7.4 Forgot Password</td><td>Password reset flow</td><td>Email input â†’ Success â†’ New password â†’ Complete</td></tr>
+                            <tr><td class="property">S7.5 Biometric Setup</td><td>Face ID / Touch ID</td><td>Platform-specific prompts, "Enable" / "Skip"</td></tr>
+                            <tr><td class="property">S7.6 Two-Factor</td><td>2FA management</td><td>QR code, TOTP verify, 10 recovery codes</td></tr>
+                            <tr><td class="property">S7.7 Sessions</td><td>Active sessions list</td><td>Device cards, location, "Logout" / "Logout All"</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Requirements -->
+        <div class="security-box">
+            <div class="security-title">ðŸ›¡ï¸ Security Requirements</div>
+            <table class="pixel-table" style="margin: 0;">
+                <thead>
+                    <tr><th>Requirement</th><th>Implementation</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="property">Password Storage</td><td>Argon2id, cost=3, memory=64MB</td></tr>
+                    <tr><td class="property">Session Tokens</td><td>256-bit random, signed JWT</td></tr>
+                    <tr><td class="property">Token Expiry</td><td>Access: 15min, Refresh: 7 days</td></tr>
+                    <tr><td class="property">Rate Limiting</td><td>5 failures â†’ 15min lockout</td></tr>
+                    <tr><td class="property">Transport</td><td>TLS 1.3 only, HSTS</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Integration -->
+        <div class="integration-box">
+            <div class="integration-title">ðŸ”— VAYA Architecture Integration</div>
+            <div class="integration-grid">
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-auth</div>
+                    <div class="integration-desc">JWT/OAuth, sessions, 2FA, biometrics</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-crypto</div>
+                    <div class="integration-desc">Password hashing, token signing</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-notify</div>
+                    <div class="integration-desc">Email verification, reset emails</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-box">
+            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple); margin-bottom: 20px;">FLOW 7 COMPLETE</h3>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0;">
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple);">7</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Screens</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--mint-500);">28</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Variants</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--cyan-500);">3</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Auth Methods</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--error);">ðŸ”’</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Zero Trust</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

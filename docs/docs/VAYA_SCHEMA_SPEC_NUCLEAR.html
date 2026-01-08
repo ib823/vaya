@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” VayaDB Schema Specification (Nuclear/Sovereign)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0; --mint-dim: rgba(0,245,160,0.12);
+            --cyan: #00D9FF; --cyan-dim: rgba(0,217,255,0.12);
+            --white: #FFFFFF;
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n200: #1A1A1D; --n300: #232326;
+            --n600: #5C5C63; --n700: #7A7A82; --n800: #9999A1;
+            --error: #FF4757; --warning: #FFB800; --purple: #A855F7; --blue: #3B82F6;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--white); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--mint); margin-bottom: 48px; background: linear-gradient(180deg, rgba(0,245,160,0.1) 0%, transparent 100%); }
+        .logo { font-family: var(--font-display); font-size: 56px; font-weight: 800; }
+        .logo span:first-child { color: var(--mint); }
+        .logo span:last-child { color: var(--cyan); }
+        .title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--mint); margin-top: 16px; }
+        .compliance-badge { display: inline-block; background: var(--mint); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 12px; }
+        .section { margin-bottom: 48px; }
+        .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--n100); border-left: 4px solid var(--mint); margin-bottom: 20px; }
+        .section-id { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 4px 8px; border-radius: 4px; color: var(--n600); }
+        .section-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+        .subsection { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .subsection h4 { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--cyan); margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+        th { background: var(--n100); padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--n600); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--n200); vertical-align: top; }
+        .code { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 2px 6px; border-radius: 4px; }
+        .code-block { background: var(--n100); border-radius: 8px; padding: 16px; font-family: var(--font-mono); font-size: 11px; overflow-x: auto; margin: 12px 0; white-space: pre; line-height: 1.5; }
+        .storage-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-left: 8px; }
+        .storage-btree { background: var(--cyan); color: var(--n0); }
+        .storage-lsm { background: var(--purple); color: var(--white); }
+        .storage-cache { background: var(--warning); color: var(--n0); }
+        .arch-diagram { background: var(--n100); border-radius: 12px; padding: 20px; margin: 16px 0; font-family: var(--font-mono); font-size: 10px; line-height: 1.4; }
+        .warning-box { background: rgba(255,71,87,0.1); border: 1px solid var(--error); border-radius: 8px; padding: 16px; margin: 16px 0; }
+        .warning-box h5 { color: var(--error); margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span>VA</span><span>YA</span></div>
+            <h1 class="title">ðŸ—„ï¸ VayaDB Schema Specification</h1>
+            <div class="compliance-badge">âœ“ NUCLEAR/SOVEREIGN COMPLIANT</div>
+            <p style="color: var(--n600); margin-top: 12px;">100% Custom Storage â€” Zero External Database Dependencies</p>
+        </header>
+
+        <!-- WARNING -->
+        <div class="warning-box">
+            <h5>âš ï¸ CRITICAL: NO SQL, NO PostgreSQL, NO Redis</h5>
+            <p style="font-size: 12px; color: var(--n700);">
+                Per SCHEMA_DESIGN_OVERRIDE.md: All schemas are Rust structs with <code>#[derive(Archive, Serialize, Deserialize)]</code>.
+                Storage uses custom VayaDB (LSM-tree + B+Tree) and VayaCache (sharded LRU). No external database dependencies.
+            </p>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- SCHEMA-01: STORAGE ENGINE ARCHITECTURE -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SCHEMA-01</span>
+                <span class="section-title">Storage Engine Architecture</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ—ï¸ VayaDB Hybrid Storage Engine</h4>
+                <div class="arch-diagram">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                              VayaDB v2.0 ARCHITECTURE                            â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                                  â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚                         VAYADB UNIFIED ENGINE                            â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                   â”‚   â”‚
+â”‚  â”‚  â”‚    LSM-TREE ENGINE   â”‚    â”‚   B+TREE ENGINE      â”‚                   â”‚   â”‚
+â”‚  â”‚  â”‚   (Time-Series)      â”‚    â”‚   (Relational)       â”‚                   â”‚   â”‚
+â”‚  â”‚  â”‚                      â”‚    â”‚                      â”‚                   â”‚   â”‚
+â”‚  â”‚  â”‚  â€¢ Write-optimized   â”‚    â”‚  â€¢ Read-optimized    â”‚                   â”‚   â”‚
+â”‚  â”‚  â”‚  â€¢ Columnar storage  â”‚    â”‚  â€¢ ACID compliant    â”‚                   â”‚   â”‚
+â”‚  â”‚  â”‚  â€¢ Compression       â”‚    â”‚  â€¢ Index support     â”‚                   â”‚   â”‚
+â”‚  â”‚  â”‚  â€¢ Time partitions   â”‚    â”‚  â€¢ Foreign keys      â”‚                   â”‚   â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                   â”‚   â”‚
+â”‚  â”‚              â”‚                          â”‚                                â”‚   â”‚
+â”‚  â”‚              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                                â”‚   â”‚
+â”‚  â”‚                           â”‚                                              â”‚   â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                    â”‚   â”‚
+â”‚  â”‚  â”‚              WRITE-AHEAD LOG (WAL)              â”‚                    â”‚   â”‚
+â”‚  â”‚  â”‚         Crash recovery, durability              â”‚                    â”‚   â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                    â”‚   â”‚
+â”‚  â”‚                           â”‚                                              â”‚   â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                    â”‚   â”‚
+â”‚  â”‚  â”‚           TRANSACTION MANAGER                    â”‚                    â”‚   â”‚
+â”‚  â”‚  â”‚    MVCC, Serializable isolation, Deadlock det   â”‚                    â”‚   â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                    â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                                                  â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚                           VAYACACHE                                      â”‚   â”‚
+â”‚  â”‚       Sharded LRU â”‚ TTL Support â”‚ Zero-Copy â”‚ SIMD-Optimized            â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Storage Engine Selection</h4>
+                <table>
+                    <tr><th>Data Type</th><th>Engine</th><th>Reason</th><th>Tables</th></tr>
+                    <tr>
+                        <td>Time-Series</td>
+                        <td><span class="storage-badge storage-lsm">LSM-Tree</span></td>
+                        <td>Write-heavy, temporal queries, compression</td>
+                        <td>PriceObservation, SearchEvent, PredictionLog</td>
+                    </tr>
+                    <tr>
+                        <td>Relational</td>
+                        <td><span class="storage-badge storage-btree">B+Tree</span></td>
+                        <td>Read-heavy, ACID, relationships</td>
+                        <td>User, Booking, Pool, Payment, Alert</td>
+                    </tr>
+                    <tr>
+                        <td>Ephemeral</td>
+                        <td><span class="storage-badge storage-cache">VayaCache</span></td>
+                        <td>Fast access, TTL, sessions</td>
+                        <td>Session, RateLimit, FeatureCache</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCHEMA-02: CORE TYPES -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SCHEMA-02</span>
+                <span class="section-title">Core Types (vaya-common/src/types.rs)</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”§ Primitive Types</h4>
+                <div class="code-block">// vaya-common/src/types.rs
+// These are the CANONICAL type definitions â€” all schemas use these
+
+use rkyv::{Archive, Serialize, Deserialize};
+
+/// Airport/City Code (3-4 chars, null-padded)
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(C)]
+pub struct IataCode([u8; 4]);
+
+impl IataCode {
+    pub fn new(code: &str) -> Self {
+        let mut bytes = [0u8; 4];
+        let code_bytes = code.as_bytes();
+        bytes[..code_bytes.len().min(4)].copy_from_slice(&code_bytes[..code_bytes.len().min(4)]);
+        Self(bytes)
+    }
+    
+    pub fn as_str(&self) -> &str {
+        let len = self.0.iter().position(|&b| b == 0).unwrap_or(4);
+        std::str::from_utf8(&self.0[..len]).unwrap_or("")
+    }
+}
+
+/// Currency Code (3 chars)
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(C)]
+pub struct CurrencyCode([u8; 4]);
+
+impl CurrencyCode {
+    pub const MYR: Self = Self(*b"MYR\0");
+    pub const USD: Self = Self(*b"USD\0");
+    pub const SGD: Self = Self(*b"SGD\0");
+    pub const THB: Self = Self(*b"THB\0");
+    pub const IDR: Self = Self(*b"IDR\0");
+}
+
+/// Monetary amount in minor units (cents/sen)
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(C)]
+pub struct MinorUnits(i64);
+
+impl MinorUnits {
+    pub fn new(cents: i64) -> Self { Self(cents) }
+    pub fn as_minor(&self) -> i64 { self.0 }
+    pub fn as_major(&self, decimals: u8) -> f64 {
+        self.0 as f64 / 10f64.powi(decimals as i32)
+    }
+}
+
+/// Price with currency
+#[derive(Archive, Serialize, Deserialize, Clone, Copy)]
+#[repr(C)]
+pub struct Price {
+    pub amount: MinorUnits,
+    pub currency: CurrencyCode,
+    pub decimals: u8,
+}
+
+impl Price {
+    pub fn myr(sen: i64) -> Self {
+        Self { amount: MinorUnits(sen), currency: CurrencyCode::MYR, decimals: 2 }
+    }
+}
+
+/// Unix timestamp (seconds since epoch)
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(C)]
+pub struct Timestamp(i64);
+
+impl Timestamp {
+    pub fn now() -> Self { Self(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs() as i64) }
+    pub fn as_unix(&self) -> i64 { self.0 }
+}
+
+/// Date (year, month, day)
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[repr(C)]
+pub struct Date {
+    pub year: i16,
+    pub month: u8,
+    pub day: u8,
+}
+
+/// Route (origin -> destination)
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(C)]
+pub struct Route {
+    pub origin: IataCode,
+    pub destination: IataCode,
+}
+
+impl Route {
+    pub fn new(origin: IataCode, destination: IataCode) -> Self {
+        Self { origin, destination }
+    }
+}
+
+/// UUID (128-bit, stored as two u64s for alignment)
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Hash)]
+#[repr(C, align(16))]
+pub struct Uuid {
+    pub high: u64,
+    pub low: u64,
+}
+
+impl Uuid {
+    pub fn new_v4() -> Self {
+        // Generate using ring's SystemRandom
+        let mut bytes = [0u8; 16];
+        ring::rand::SystemRandom::new().fill(&mut bytes).unwrap();
+        bytes[6] = (bytes[6] & 0x0f) | 0x40; // Version 4
+        bytes[8] = (bytes[8] & 0x3f) | 0x80; // Variant 1
+        Self {
+            high: u64::from_be_bytes(bytes[0..8].try_into().unwrap()),
+            low: u64::from_be_bytes(bytes[8..16].try_into().unwrap()),
+        }
+    }
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Enum Types</h4>
+                <div class="code-block">// Enums are single-byte for efficiency
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum UserStatus {
+    Anonymous = 0,
+    Registered = 1,
+    Premium = 2,
+    Churned = 3,
+    Suspended = 4,
+}
+
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum UserTier {
+    Free = 0,
+    Premium = 1,
+    Enterprise = 2,
+}
+
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum BookingStatus {
+    Pending = 0,
+    Confirmed = 1,
+    Ticketed = 2,
+    Cancelled = 3,
+    Refunded = 4,
+    Failed = 5,
+}
+
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum PoolStatus {
+    Forming = 0,
+    Active = 1,
+    BiddingClosed = 2,
+    Booking = 3,
+    Completed = 4,
+    Expired = 5,
+    NoBids = 6,
+    Cancelled = 7,
+}
+
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum PaymentStatus {
+    Pending = 0,
+    Processing = 1,
+    RequiresAction = 2,
+    Completed = 3,
+    Failed = 4,
+    Refunded = 5,
+}
+
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum PaymentMethod {
+    Card = 0,
+    Fpx = 1,
+    GrabPay = 2,
+    TouchNGo = 3,
+    Boost = 4,
+    ShopeePay = 5,
+}
+
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum AlertStatus {
+    Active = 0,
+    Triggered = 1,
+    Paused = 2,
+    Expired = 3,
+    Deleted = 4,
+}
+
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum OracleRecommendation {
+    BuyNow = 0,
+    Wait = 1,
+    Watch = 2,
+}
+
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum OfferSource {
+    Kiwi = 0,
+    Travelpayouts = 1,
+    Amadeus = 2,
+    Duffel = 3,
+    Direct = 4,
+}
+
+impl OfferSource {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Self::Kiwi => "kiwi",
+            Self::Travelpayouts => "travelpayouts",
+            Self::Amadeus => "amadeus",
+            Self::Duffel => "duffel",
+            Self::Direct => "direct",
+        }
+    }
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCHEMA-03: USER DOMAIN (B+Tree) -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SCHEMA-03</span>
+                <span class="section-title">User Domain <span class="storage-badge storage-btree">B+Tree</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ‘¤ User</h4>
+                <div class="code-block">/// User account
+/// Storage: B+Tree (relational, read-heavy)
+/// Primary Key: id
+/// Indexes: email (unique), status
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct User {
+    /// Primary key (UUIDv4)
+    #[vaya(type = "uuid", auto_generate)]
+    pub id: Uuid,
+    
+    /// Email address (unique, indexed)
+    /// Fixed 256 bytes for zero-copy access
+    #[vaya(type = "varchar(255)", unique, indexed)]
+    pub email: [u8; 256],
+    
+    /// Argon2id password hash (64 bytes)
+    /// None for OAuth-only users
+    #[vaya(nullable)]
+    pub password_hash: Option<[u8; 64]>,
+    
+    /// Salt for password hashing (32 bytes)
+    #[vaya(nullable)]
+    pub password_salt: Option<[u8; 32]>,
+    
+    /// Display name
+    #[vaya(type = "varchar(100)")]
+    pub display_name: [u8; 100],
+    
+    /// Account status
+    #[vaya(indexed)]
+    pub status: UserStatus,
+    
+    /// Subscription tier
+    pub tier: UserTier,
+    
+    /// Phone number (for SMS alerts)
+    #[vaya(nullable)]
+    pub phone: Option<[u8; 20]>,
+    
+    /// Email verified flag
+    pub email_verified: bool,
+    
+    /// Phone verified flag
+    pub phone_verified: bool,
+    
+    /// Preferred currency
+    pub preferred_currency: CurrencyCode,
+    
+    /// Preferred language (2-char ISO)
+    pub preferred_language: [u8; 2],
+    
+    /// MFA enabled flag
+    pub mfa_enabled: bool,
+    
+    /// MFA secret (TOTP, encrypted)
+    #[vaya(nullable)]
+    pub mfa_secret: Option<[u8; 32]>,
+    
+    /// OAuth provider (if OAuth user)
+    #[vaya(nullable)]
+    pub oauth_provider: Option<[u8; 20]>,
+    
+    /// OAuth provider ID
+    #[vaya(nullable)]
+    pub oauth_id: Option<[u8; 64]>,
+    
+    /// Account creation timestamp
+    #[vaya(auto_now_add)]
+    pub created_at: Timestamp,
+    
+    /// Last update timestamp
+    #[vaya(auto_now)]
+    pub updated_at: Timestamp,
+    
+    /// Last login timestamp
+    #[vaya(nullable)]
+    pub last_login_at: Option<Timestamp>,
+}
+
+/// User preferences (embedded in User or separate)
+#[derive(Archive, Serialize, Deserialize, Clone)]
+pub struct UserPreferences {
+    /// Home airport (default search origin)
+    pub home_airport: Option<IataCode>,
+    
+    /// Preferred airlines (up to 10)
+    pub preferred_airlines: [[u8; 2]; 10],
+    pub preferred_airlines_count: u8,
+    
+    /// Avoided airlines (up to 10)
+    pub avoided_airlines: [[u8; 2]; 10],
+    pub avoided_airlines_count: u8,
+    
+    /// Notification preferences
+    pub email_notifications: bool,
+    pub push_notifications: bool,
+    pub sms_notifications: bool,
+    
+    /// Alert frequency (1=instant, 2=daily, 3=weekly)
+    pub alert_frequency: u8,
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Session (VayaCache)</h4>
+                <div class="code-block">/// User session (stored in VayaCache, not VayaDB)
+/// TTL: 7 days (configurable)
+/// Key format: session:{user_id}:{session_id}
+#[derive(Archive, Serialize, Deserialize, Clone)]
+pub struct Session {
+    /// Session ID
+    pub id: Uuid,
+    
+    /// User ID
+    pub user_id: Uuid,
+    
+    /// Access token hash (SHA-256)
+    pub token_hash: [u8; 32],
+    
+    /// Refresh token hash (SHA-256)
+    pub refresh_token_hash: [u8; 32],
+    
+    /// Device fingerprint
+    pub device_fingerprint: [u8; 64],
+    
+    /// IP address (IPv6-capable, 16 bytes)
+    pub ip_address: [u8; 16],
+    
+    /// User agent (truncated)
+    pub user_agent: [u8; 256],
+    
+    /// Created timestamp
+    pub created_at: Timestamp,
+    
+    /// Expires timestamp
+    pub expires_at: Timestamp,
+    
+    /// Last activity timestamp
+    pub last_activity_at: Timestamp,
+    
+    /// MFA verified for this session
+    pub mfa_verified: bool,
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ‘¥ Traveler Profile</h4>
+                <div class="code-block">/// Saved traveler profile for bookings
+/// Storage: B+Tree
+/// Foreign Key: user_id -> User.id
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct TravelerProfile {
+    pub id: Uuid,
+    
+    /// Owner user ID
+    #[vaya(indexed, foreign_key = "User.id")]
+    pub user_id: Uuid,
+    
+    /// Traveler type
+    pub traveler_type: TravelerType, // Adult, Child, Infant
+    
+    /// First name (as on passport)
+    pub first_name: [u8; 64],
+    
+    /// Last name (as on passport)
+    pub last_name: [u8; 64],
+    
+    /// Date of birth
+    pub date_of_birth: Date,
+    
+    /// Gender (M/F/X)
+    pub gender: u8,
+    
+    /// Nationality (2-char ISO)
+    pub nationality: [u8; 2],
+    
+    /// Passport number
+    pub passport_number: [u8; 20],
+    
+    /// Passport expiry date
+    pub passport_expiry: Date,
+    
+    /// Passport issuing country
+    pub passport_country: [u8; 2],
+    
+    /// Frequent flyer programs (up to 5)
+    pub frequent_flyer: [FrequentFlyer; 5],
+    pub frequent_flyer_count: u8,
+    
+    /// Is primary profile
+    pub is_primary: bool,
+    
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
+}
+
+#[derive(Archive, Serialize, Deserialize, Clone, Copy)]
+pub struct FrequentFlyer {
+    pub airline: [u8; 2],
+    pub number: [u8; 20],
+}
+
+#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[repr(u8)]
+pub enum TravelerType {
+    Adult = 0,
+    Child = 1,
+    Infant = 2,
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCHEMA-04: FLIGHT DOMAIN (LSM) -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SCHEMA-04</span>
+                <span class="section-title">Flight Domain <span class="storage-badge storage-lsm">LSM-Tree</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>âœˆï¸ Price Observation (Time-Series)</h4>
+                <div class="code-block">/// Price observation from data collection
+/// Storage: LSM-tree (time-series, write-heavy)
+/// Partition Key: collected_at (hourly partitions)
+/// Primary Key: (collected_at, route, departure_date, source)
+/// 
+/// Expected volume: 50M+ records, 6-hour collection intervals
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "lsm", partition_key = "collected_at", partition_interval = "hourly")]
+pub struct PriceObservation {
+    /// Collection timestamp (partition key)
+    #[vaya(partition_key)]
+    pub collected_at: Timestamp,
+    
+    /// Route
+    #[vaya(indexed)]
+    pub route: Route,
+    
+    /// Flight departure date
+    pub departure_date: Date,
+    
+    /// Return date (None for one-way)
+    pub return_date: Option<Date>,
+    
+    /// Price in minor units
+    pub price: Price,
+    
+    /// Data source
+    pub source: OfferSource,
+    
+    /// Marketing carrier (airline code)
+    pub carrier: [u8; 2],
+    
+    /// Operating carrier (may differ)
+    pub operating_carrier: [u8; 2],
+    
+    /// Number of stops
+    pub stops: u8,
+    
+    /// Total duration in minutes
+    pub duration_minutes: u16,
+    
+    /// Cabin class (0=economy, 1=premium, 2=business, 3=first)
+    pub cabin_class: u8,
+    
+    /// Seats available (if known)
+    pub seats_available: Option<u8>,
+    
+    /// Flight numbers (up to 4 segments)
+    pub flight_numbers: [[u8; 6]; 4],
+    pub segment_count: u8,
+}
+
+/// Route metadata (cached, rarely changes)
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct RouteInfo {
+    pub id: Uuid,
+    
+    #[vaya(unique)]
+    pub route: Route,
+    
+    /// Distance in kilometers
+    pub distance_km: u32,
+    
+    /// Is domestic route
+    pub is_domestic: bool,
+    
+    /// Route popularity score (0-100)
+    pub popularity_score: u8,
+    
+    /// Competition level (number of carriers)
+    pub carrier_count: u8,
+    
+    /// Is hub origin
+    pub is_hub_origin: bool,
+    
+    /// Is hub destination
+    pub is_hub_destination: bool,
+    
+    /// Average price (updated daily)
+    pub avg_price_30d: Price,
+    
+    /// Minimum price seen (30 days)
+    pub min_price_30d: Price,
+    
+    /// Maximum price seen (30 days)
+    pub max_price_30d: Price,
+    
+    pub updated_at: Timestamp,
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCHEMA-05: BOOKING DOMAIN (B+Tree) -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SCHEMA-05</span>
+                <span class="section-title">Booking Domain <span class="storage-badge storage-btree">B+Tree</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ Booking</h4>
+                <div class="code-block">/// Flight booking record
+/// Storage: B+Tree (ACID required)
+/// Indexes: user_id, reference_code, status
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct Booking {
+    pub id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "User.id")]
+    pub user_id: Uuid,
+    
+    /// Pool ID if booked through pool
+    #[vaya(nullable, indexed)]
+    pub pool_id: Option<Uuid>,
+    
+    /// VAYA reference code (8-char alphanumeric)
+    #[vaya(unique, indexed)]
+    pub reference_code: [u8; 8],
+    
+    /// Airline PNR (if issued)
+    #[vaya(nullable)]
+    pub pnr: Option<[u8; 10]>,
+    
+    /// Booking status
+    #[vaya(indexed)]
+    pub status: BookingStatus,
+    
+    /// Route
+    pub route: Route,
+    
+    /// Outbound departure date
+    pub departure_date: Date,
+    
+    /// Return date (None for one-way)
+    pub return_date: Option<Date>,
+    
+    /// Trip type (0=one_way, 1=round_trip, 2=multi_city)
+    pub trip_type: u8,
+    
+    /// Cabin class
+    pub cabin_class: u8,
+    
+    /// Total price (all travelers)
+    pub total_price: Price,
+    
+    /// Base fare (before taxes)
+    pub base_fare: Price,
+    
+    /// Taxes and fees
+    pub taxes: Price,
+    
+    /// Booking source
+    pub source: OfferSource,
+    
+    /// Supplier booking ID
+    pub supplier_booking_id: [u8; 64],
+    
+    /// Number of travelers
+    pub traveler_count: u8,
+    
+    /// Adult count
+    pub adult_count: u8,
+    
+    /// Child count
+    pub child_count: u8,
+    
+    /// Infant count
+    pub infant_count: u8,
+    
+    /// Contact email
+    pub contact_email: [u8; 256],
+    
+    /// Contact phone
+    pub contact_phone: [u8; 20],
+    
+    /// Booking timestamps
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
+    pub confirmed_at: Option<Timestamp>,
+    pub ticketed_at: Option<Timestamp>,
+    pub cancelled_at: Option<Timestamp>,
+    
+    /// Cancellation reason
+    pub cancellation_reason: Option<[u8; 256]>,
+}
+
+/// Booking segment (flight leg)
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct BookingSegment {
+    pub id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "Booking.id")]
+    pub booking_id: Uuid,
+    
+    /// Segment order (0, 1, 2...)
+    pub segment_order: u8,
+    
+    /// Direction (0=outbound, 1=return)
+    pub direction: u8,
+    
+    /// Marketing carrier
+    pub marketing_carrier: [u8; 2],
+    
+    /// Operating carrier
+    pub operating_carrier: [u8; 2],
+    
+    /// Flight number
+    pub flight_number: [u8; 6],
+    
+    /// Origin airport
+    pub origin: IataCode,
+    
+    /// Destination airport
+    pub destination: IataCode,
+    
+    /// Departure datetime (UTC timestamp)
+    pub departure_time: Timestamp,
+    
+    /// Arrival datetime (UTC timestamp)
+    pub arrival_time: Timestamp,
+    
+    /// Departure terminal
+    pub departure_terminal: [u8; 4],
+    
+    /// Arrival terminal
+    pub arrival_terminal: [u8; 4],
+    
+    /// Aircraft type
+    pub aircraft: [u8; 4],
+    
+    /// Booking class code
+    pub booking_class: u8,
+    
+    /// Fare basis code
+    pub fare_basis: [u8; 12],
+    
+    /// Baggage allowance (kg)
+    pub baggage_kg: u8,
+    
+    /// Baggage pieces
+    pub baggage_pieces: u8,
+    
+    /// Segment status
+    pub status: u8, // 0=confirmed, 1=waitlisted, 2=cancelled
+}
+
+/// Booking traveler (passenger on booking)
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct BookingTraveler {
+    pub id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "Booking.id")]
+    pub booking_id: Uuid,
+    
+    /// Link to saved profile (optional)
+    #[vaya(nullable)]
+    pub traveler_profile_id: Option<Uuid>,
+    
+    /// Traveler order
+    pub traveler_order: u8,
+    
+    /// Traveler type
+    pub traveler_type: TravelerType,
+    
+    /// First name
+    pub first_name: [u8; 64],
+    
+    /// Last name
+    pub last_name: [u8; 64],
+    
+    /// Date of birth
+    pub date_of_birth: Date,
+    
+    /// Gender
+    pub gender: u8,
+    
+    /// Passport number
+    pub passport_number: [u8; 20],
+    
+    /// Passport expiry
+    pub passport_expiry: Date,
+    
+    /// Passport country
+    pub passport_country: [u8; 2],
+    
+    /// Ticket number (if issued)
+    pub ticket_number: Option<[u8; 14]>,
+    
+    /// Ticket status
+    pub ticket_status: u8,
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCHEMA-06: POOL DOMAIN (B+Tree) -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SCHEMA-06</span>
+                <span class="section-title">Pool Domain <span class="storage-badge storage-btree">B+Tree</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸŠ Demand Pool</h4>
+                <div class="code-block">/// Demand aggregation pool
+/// Storage: B+Tree
+/// The core innovation â€” collective bargaining
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct DemandPool {
+    pub id: Uuid,
+    
+    /// Pool reference code
+    #[vaya(unique)]
+    pub pool_code: [u8; 10],
+    
+    /// Route for this pool
+    #[vaya(indexed)]
+    pub route: Route,
+    
+    /// Departure date window start
+    pub departure_window_start: Date,
+    
+    /// Departure date window end
+    pub departure_window_end: Date,
+    
+    /// Return window start (None for one-way)
+    pub return_window_start: Option<Date>,
+    
+    /// Return window end
+    pub return_window_end: Option<Date>,
+    
+    /// Flexible dates flag
+    pub flexible_dates: bool,
+    
+    /// Cabin class (0=economy, 1=premium, 2=business)
+    pub cabin_class: u8,
+    
+    /// Pool status
+    #[vaya(indexed)]
+    pub status: PoolStatus,
+    
+    /// Current member count
+    pub member_count: u32,
+    
+    /// Total seats demanded
+    pub total_seats: u32,
+    
+    /// Activation threshold (members)
+    pub activation_threshold: u32,
+    
+    /// Estimated market price (at formation)
+    pub estimated_market_price: Price,
+    
+    /// Target price (savings target)
+    pub target_price: Price,
+    
+    /// Winning bid (if bidding closed)
+    pub winning_bid_id: Option<Uuid>,
+    
+    /// Winning price per person
+    pub winning_price: Option<Price>,
+    
+    /// Creator user ID
+    #[vaya(indexed)]
+    pub created_by: Uuid,
+    
+    /// Timestamps
+    pub created_at: Timestamp,
+    pub activated_at: Option<Timestamp>,
+    pub bidding_closed_at: Option<Timestamp>,
+    pub expires_at: Timestamp,
+}
+
+/// Pool membership
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct PoolMembership {
+    pub id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "DemandPool.id")]
+    pub pool_id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "User.id")]
+    pub user_id: Uuid,
+    
+    /// Number of seats this member wants
+    pub seat_count: u8,
+    
+    /// Member's max acceptable price
+    pub max_price: Price,
+    
+    /// Preferred departure time (0=any, 1=morning, 2=afternoon, 3=evening)
+    pub preferred_time: u8,
+    
+    /// Membership status
+    pub status: u8, // 0=active, 1=confirmed, 2=withdrawn, 3=booked
+    
+    /// Has confirmed winning bid
+    pub confirmed: bool,
+    
+    /// Booking ID (if converted)
+    pub booking_id: Option<Uuid>,
+    
+    pub joined_at: Timestamp,
+    pub confirmed_at: Option<Timestamp>,
+}
+
+/// Airline bid on pool
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct PoolBid {
+    pub id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "DemandPool.id")]
+    pub pool_id: Uuid,
+    
+    /// Airline code
+    pub airline: [u8; 2],
+    
+    /// Price per person
+    pub price_per_person: Price,
+    
+    /// Total capacity offered
+    pub capacity: u32,
+    
+    /// Flight details
+    pub departure_time: Timestamp,
+    pub arrival_time: Timestamp,
+    pub flight_number: [u8; 6],
+    
+    /// Number of stops
+    pub stops: u8,
+    
+    /// Baggage included (kg)
+    pub baggage_kg: u8,
+    
+    /// Validity period
+    pub valid_until: Timestamp,
+    
+    /// Bid score (calculated)
+    pub score: f32,
+    
+    /// Is winning bid
+    pub is_winner: bool,
+    
+    pub submitted_at: Timestamp,
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCHEMA-07: PAYMENT DOMAIN (B+Tree) -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SCHEMA-07</span>
+                <span class="section-title">Payment Domain <span class="storage-badge storage-btree">B+Tree</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’³ Payment</h4>
+                <div class="code-block">/// Payment transaction
+/// Storage: B+Tree (ACID critical)
+/// PCI DSS: No PAN storage, only tokens
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct Payment {
+    pub id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "Booking.id")]
+    pub booking_id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "User.id")]
+    pub user_id: Uuid,
+    
+    /// Payment reference (external display)
+    #[vaya(unique)]
+    pub reference: [u8; 20],
+    
+    /// Payment method
+    pub method: PaymentMethod,
+    
+    /// Payment status
+    #[vaya(indexed)]
+    pub status: PaymentStatus,
+    
+    /// Amount in original currency
+    pub amount: Price,
+    
+    /// Amount in MYR (settlement)
+    pub amount_myr: Price,
+    
+    /// Exchange rate used
+    pub exchange_rate: f32,
+    
+    /// Processor used (0=primary, 1=fallback)
+    pub processor: u8,
+    
+    /// Processor transaction ID
+    pub processor_txn_id: [u8; 64],
+    
+    /// Authorization ID
+    pub auth_id: Option<[u8; 64]>,
+    
+    /// Capture ID
+    pub capture_id: Option<[u8; 64]>,
+    
+    /// Card token (PCI-compliant, no PAN)
+    pub card_token: Option<[u8; 64]>,
+    
+    /// Card last 4 digits (for display)
+    pub card_last4: Option<[u8; 4]>,
+    
+    /// Card brand (visa, mastercard, etc)
+    pub card_brand: Option<[u8; 20]>,
+    
+    /// FPX bank code (if FPX)
+    pub fpx_bank_code: Option<[u8; 10]>,
+    
+    /// eWallet provider ID (if eWallet)
+    pub ewallet_txn_id: Option<[u8; 64]>,
+    
+    /// 3D Secure status
+    pub threed_secure: bool,
+    
+    /// Failure reason (if failed)
+    pub failure_reason: Option<[u8; 256]>,
+    
+    /// Failure code
+    pub failure_code: Option<[u8; 20]>,
+    
+    /// IP address of payer
+    pub ip_address: [u8; 16],
+    
+    /// Timestamps
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
+    pub completed_at: Option<Timestamp>,
+}
+
+/// Refund record
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct Refund {
+    pub id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "Payment.id")]
+    pub payment_id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "Booking.id")]
+    pub booking_id: Uuid,
+    
+    /// Refund reference
+    #[vaya(unique)]
+    pub reference: [u8; 20],
+    
+    /// Refund amount
+    pub amount: Price,
+    
+    /// Refund type (0=full, 1=partial, 2=taxes_only)
+    pub refund_type: u8,
+    
+    /// Reason
+    pub reason: [u8; 256],
+    
+    /// Status
+    pub status: u8, // 0=pending, 1=processing, 2=completed, 3=failed
+    
+    /// Processor refund ID
+    pub processor_refund_id: [u8; 64],
+    
+    /// Initiated by (user_id or admin_id)
+    pub initiated_by: Uuid,
+    
+    pub created_at: Timestamp,
+    pub completed_at: Option<Timestamp>,
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCHEMA-08: ALERT DOMAIN (B+Tree) -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SCHEMA-08</span>
+                <span class="section-title">Alert Domain <span class="storage-badge storage-btree">B+Tree</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”” Price Alert</h4>
+                <div class="code-block">/// Price alert subscription
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "btree", primary_key = "id")]
+pub struct PriceAlert {
+    pub id: Uuid,
+    
+    #[vaya(indexed, foreign_key = "User.id")]
+    pub user_id: Uuid,
+    
+    /// Route to monitor
+    #[vaya(indexed)]
+    pub route: Route,
+    
+    /// Departure date range start
+    pub departure_from: Date,
+    
+    /// Departure date range end
+    pub departure_to: Date,
+    
+    /// Return date range (None for one-way)
+    pub return_from: Option<Date>,
+    pub return_to: Option<Date>,
+    
+    /// Trip type
+    pub trip_type: u8,
+    
+    /// Target price (alert when below)
+    pub target_price: Price,
+    
+    /// Current tracked price
+    pub current_price: Price,
+    
+    /// Lowest price seen
+    pub lowest_price: Price,
+    
+    /// Alert status
+    #[vaya(indexed)]
+    pub status: AlertStatus,
+    
+    /// Notification channels (bitmask: 1=email, 2=push, 4=sms)
+    pub channels: u8,
+    
+    /// Times triggered
+    pub trigger_count: u32,
+    
+    /// Last triggered timestamp
+    pub last_triggered_at: Option<Timestamp>,
+    
+    /// Last checked timestamp
+    pub last_checked_at: Timestamp,
+    
+    /// Expires at
+    pub expires_at: Timestamp,
+    
+    pub created_at: Timestamp,
+    pub updated_at: Timestamp,
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCHEMA-09: ORACLE/ML DOMAIN (LSM) -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SCHEMA-09</span>
+                <span class="section-title">Oracle/ML Domain <span class="storage-badge storage-lsm">LSM-Tree</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”® Prediction Record</h4>
+                <div class="code-block">/// Oracle prediction output
+/// Storage: LSM-tree (time-series log)
+#[derive(Archive, Serialize, Deserialize, Clone)]
+#[vaya(storage = "lsm", partition_key = "predicted_at")]
+pub struct Prediction {
+    /// When prediction was made
+    #[vaya(partition_key)]
+    pub predicted_at: Timestamp,
+    
+    /// Route
+    #[vaya(indexed)]
+    pub route: Route,
+    
+    /// Departure date
+    pub departure_date: Date,
+    
+    /// Current observed price
+    pub current_price: Price,
+    
+    /// Predicted price (7 days out)
+    pub predicted_price_7d: Price,
+    
+    /// Predicted price (14 days out)
+    pub predicted_price_14d: Price,
+    
+    /// Recommendation
+    pub recommendation: OracleRecommendation,
+    
+    /// Confidence score (0.0 - 1.0)
+    pub confidence: f32,
+    
+    /// Price trend (-1.0 to 1.0)
+    pub trend: f32,
+    
+    /// Volatility score (0.0 - 1.0)
+    pub volatility: f32,
+    
+    /// Model version used
+    pub model_version: u32,
+    
+    /// Feature hash (for reproducibility)
+    pub feature_hash: [u8; 32],
+}
+
+/// ML Feature Cache (VayaCache)
+/// Key: feature:{route}:{departure_date}
+#[derive(Archive, Serialize, Deserialize, Clone)]
+pub struct FeatureVector {
+    /// Route
+    pub route: Route,
+    
+    /// Departure date
+    pub departure_date: Date,
+    
+    /// Computed at
+    pub computed_at: Timestamp,
+    
+    /// Feature values (47 features as per ML spec)
+    pub features: [f32; 47],
+    
+    /// Feature names are implied by position (see ML-01 spec)
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCHEMA-10: CACHE KEYS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SCHEMA-10</span>
+                <span class="section-title">VayaCache Key Patterns <span class="storage-badge storage-cache">VayaCache</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”‘ Cache Key Strategy</h4>
+                <table>
+                    <tr><th>Pattern</th><th>Example</th><th>TTL</th><th>Purpose</th></tr>
+                    <tr><td><span class="code">session:{user_id}:{session_id}</span></td><td>session:abc:xyz</td><td>7 days</td><td>User sessions</td></tr>
+                    <tr><td><span class="code">ratelimit:{tier}:{endpoint}:{key}</span></td><td>ratelimit:free:search:1.2.3.4</td><td>60s</td><td>Rate limiting</td></tr>
+                    <tr><td><span class="code">search:{hash}</span></td><td>search:a1b2c3</td><td>30 min</td><td>Search results</td></tr>
+                    <tr><td><span class="code">price:{route}:{date}</span></td><td>price:KUL-NRT:2024-03-15</td><td>15 min</td><td>Price cache</td></tr>
+                    <tr><td><span class="code">feature:{route}:{date}</span></td><td>feature:KUL-NRT:2024-03-15</td><td>1 hour</td><td>ML features</td></tr>
+                    <tr><td><span class="code">prediction:{route}:{date}</span></td><td>prediction:KUL-NRT:2024-03-15</td><td>1 hour</td><td>Oracle predictions</td></tr>
+                    <tr><td><span class="code">airport:{query}</span></td><td>airport:kual</td><td>24 hours</td><td>Airport autocomplete</td></tr>
+                    <tr><td><span class="code">token:blocklist:{jti}</span></td><td>token:blocklist:xyz</td><td>Access token lifetime</td><td>Revoked JWT</td></tr>
+                    <tr><td><span class="code">user:{id}:profile</span></td><td>user:abc:profile</td><td>5 min</td><td>Hot user profile</td></tr>
+                    <tr><td><span class="code">pool:{id}:summary</span></td><td>pool:abc:summary</td><td>1 min</td><td>Pool stats</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <div style="background: linear-gradient(135deg, var(--n100), var(--n200)); border: 2px solid var(--mint); border-radius: 20px; padding: 40px; margin-top: 48px; text-align: center;">
+            <h2 style="font-family: var(--font-display); font-size: 28px; font-weight: 800; margin-bottom: 16px;">ðŸ—„ï¸ VAYADB SCHEMA SPECIFICATION COMPLETE</h2>
+            <div class="compliance-badge">âœ“ NUCLEAR/SOVEREIGN COMPLIANT â€” NO SQL, NO PostgreSQL</div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 700px; margin: 24px auto 0;">
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--mint);">25</div>
+                    <div style="font-size: 10px; color: var(--n600);">Rust Structs</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--cyan);">12</div>
+                    <div style="font-size: 10px; color: var(--n600);">Enums</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple);">LSM+B+Tree</div>
+                    <div style="font-size: 10px; color: var(--n600);">Hybrid Storage</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--warning);">rkyv</div>
+                    <div style="font-size: 10px; color: var(--n600);">Zero-Copy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

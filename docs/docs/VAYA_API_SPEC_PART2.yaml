@@ -1,0 +1,1892 @@
+# ============================================================================
+# VAYA API SPECIFICATION - PART 2
+# Bookings, Pools, Alerts, Payments
+# ============================================================================
+
+# This file continues from VAYA_API_SPEC_PART1.yaml
+# Merge all parts into single spec for production
+
+# ============================================================================
+# BOOKING SCHEMAS
+# ============================================================================
+components:
+  schemas:
+    # --------------------------------------------------------------------------
+    # BOOKING SCHEMAS
+    # --------------------------------------------------------------------------
+    Booking:
+      type: object
+      required:
+        - id
+        - reference
+        - status
+        - flights
+        - passengers
+        - price
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        reference:
+          type: string
+          pattern: "^[A-Z0-9]{6}$"
+          description: 6-character booking reference (PNR)
+          example: "VYA7K9"
+        status:
+          type: string
+          enum: [
+            pending_payment,
+            confirmed,
+            ticketed,
+            cancelled,
+            refunded,
+            failed,
+            expired
+          ]
+        flights:
+          type: object
+          properties:
+            outbound:
+              $ref: '#/components/schemas/BookedJourney'
+            inbound:
+              $ref: '#/components/schemas/BookedJourney'
+        passengers:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookedPassenger'
+        contact:
+          $ref: '#/components/schemas/BookingContact'
+        price:
+          $ref: '#/components/schemas/PriceBreakdown'
+        payment:
+          $ref: '#/components/schemas/PaymentSummary'
+        pool_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: If booked through a pool
+        oracle_saved:
+          $ref: '#/components/schemas/Money'
+          description: Amount saved by following Oracle advice
+        cancellation_policy:
+          $ref: '#/components/schemas/CancellationPolicy'
+        tickets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ticket'
+        add_ons:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookingAddOn'
+        notes:
+          type: string
+          maxLength: 500
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+        expires_at:
+          $ref: '#/components/schemas/Timestamp'
+          description: For pending_payment status
+
+    BookedJourney:
+      type: object
+      required:
+        - segments
+        - status
+      properties:
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookedSegment'
+        status:
+          type: string
+          enum: [confirmed, checked_in, boarding, departed, arrived, cancelled]
+        confirmation_number:
+          type: string
+          description: Airline confirmation number
+          example: "MH7K9X"
+
+    BookedSegment:
+      type: object
+      required:
+        - flight_number
+        - airline
+        - departure
+        - arrival
+        - status
+      properties:
+        flight_number:
+          type: string
+          example: "MH52"
+        airline:
+          $ref: '#/components/schemas/Airline'
+        departure:
+          $ref: '#/components/schemas/FlightPoint'
+        arrival:
+          $ref: '#/components/schemas/FlightPoint'
+        status:
+          type: string
+          enum: [scheduled, delayed, cancelled, departed, arrived, diverted]
+        delay_minutes:
+          type: integer
+          nullable: true
+        seats:
+          type: array
+          description: Seat assignments per passenger
+          items:
+            type: object
+            properties:
+              passenger_id:
+                type: string
+                format: uuid
+              seat:
+                type: string
+                example: "12A"
+        baggage_tags:
+          type: array
+          items:
+            type: string
+            example: "MH123456"
+
+    BookedPassenger:
+      type: object
+      required:
+        - id
+        - type
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [adult, child, infant]
+        traveler_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Link to saved traveler profile
+        name:
+          $ref: '#/components/schemas/PassengerName'
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum: [male, female]
+        nationality:
+          type: string
+          pattern: "^[A-Z]{2}$"
+          description: ISO 3166-1 alpha-2 country code
+        passport:
+          $ref: '#/components/schemas/PassportInfo'
+        ticket_number:
+          type: string
+          nullable: true
+          example: "232-1234567890"
+        frequent_flyer:
+          type: object
+          nullable: true
+          properties:
+            airline:
+              $ref: '#/components/schemas/AirlineCode'
+            number:
+              type: string
+        special_requests:
+          type: array
+          items:
+            type: string
+            enum: [wheelchair, blind, deaf, infant_bassinet, special_meal]
+        meal_preference:
+          type: string
+          enum: [regular, vegetarian, vegan, halal, kosher, gluten_free, child]
+
+    PassengerName:
+      type: object
+      required:
+        - first
+        - last
+      properties:
+        title:
+          type: string
+          enum: [Mr, Mrs, Ms, Miss, Mstr, Dr]
+        first:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Given name (as on passport)
+          example: "AHMAD"
+        middle:
+          type: string
+          maxLength: 50
+          nullable: true
+        last:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Surname (as on passport)
+          example: "BIN ABDULLAH"
+
+    PassportInfo:
+      type: object
+      required:
+        - number
+        - country
+        - expiry
+      properties:
+        number:
+          type: string
+          minLength: 5
+          maxLength: 20
+          example: "A12345678"
+        country:
+          type: string
+          pattern: "^[A-Z]{2}$"
+          description: Issuing country (ISO 3166-1 alpha-2)
+          example: "MY"
+        expiry:
+          type: string
+          format: date
+          description: Must be valid 6 months after travel
+          example: "2028-12-31"
+        issue_date:
+          type: string
+          format: date
+          nullable: true
+
+    BookingContact:
+      type: object
+      required:
+        - email
+        - phone
+      properties:
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          pattern: "^\\+[0-9]{10,15}$"
+          example: "+60123456789"
+        emergency_contact:
+          type: object
+          properties:
+            name:
+              type: string
+            phone:
+              type: string
+            relationship:
+              type: string
+
+    CancellationPolicy:
+      type: object
+      properties:
+        refundable:
+          type: boolean
+        free_cancellation_until:
+          $ref: '#/components/schemas/Timestamp'
+          nullable: true
+        penalties:
+          type: array
+          items:
+            type: object
+            properties:
+              from:
+                $ref: '#/components/schemas/Timestamp'
+              to:
+                $ref: '#/components/schemas/Timestamp'
+              fee:
+                $ref: '#/components/schemas/Money'
+              percentage:
+                type: integer
+                minimum: 0
+                maximum: 100
+        airline_terms_url:
+          type: string
+          format: uri
+
+    Ticket:
+      type: object
+      properties:
+        ticket_number:
+          type: string
+          example: "232-1234567890"
+        passenger_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [issued, void, refunded, exchanged]
+        issued_at:
+          $ref: '#/components/schemas/Timestamp'
+        e_ticket_url:
+          type: string
+          format: uri
+          description: URL to download e-ticket PDF
+
+    BookingAddOn:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [
+            seat_selection,
+            extra_baggage,
+            meal,
+            insurance,
+            lounge_access,
+            priority_boarding,
+            flexible_ticket
+          ]
+        description:
+          type: string
+        price:
+          $ref: '#/components/schemas/Money'
+        passenger_id:
+          type: string
+          format: uuid
+          nullable: true
+        segment_id:
+          type: string
+          nullable: true
+
+    PaymentSummary:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, processing, completed, failed, refunded, partial_refund]
+        method:
+          type: string
+          enum: [card, fpx, grabpay, tng, boost, shopeepay]
+        amount:
+          $ref: '#/components/schemas/Money'
+        paid_at:
+          $ref: '#/components/schemas/Timestamp'
+        transaction_id:
+          type: string
+
+    # --------------------------------------------------------------------------
+    # BOOKING REQUEST SCHEMAS
+    # --------------------------------------------------------------------------
+    CreateBookingRequest:
+      type: object
+      required:
+        - booking_token
+        - passengers
+        - contact
+      properties:
+        booking_token:
+          type: string
+          description: Token from search result (expires in 30 min)
+        passengers:
+          type: array
+          minItems: 1
+          maxItems: 9
+          items:
+            $ref: '#/components/schemas/PassengerInput'
+        contact:
+          $ref: '#/components/schemas/BookingContact'
+        add_ons:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              passenger_index:
+                type: integer
+              segment_index:
+                type: integer
+              option_id:
+                type: string
+        promo_code:
+          type: string
+          maxLength: 20
+        pool_id:
+          type: string
+          format: uuid
+          description: Join existing pool with this booking
+
+    PassengerInput:
+      type: object
+      required:
+        - type
+        - name
+        - date_of_birth
+        - gender
+        - nationality
+      properties:
+        type:
+          type: string
+          enum: [adult, child, infant]
+        traveler_id:
+          type: string
+          format: uuid
+          description: Use saved traveler data
+        name:
+          $ref: '#/components/schemas/PassengerName'
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum: [male, female]
+        nationality:
+          type: string
+          pattern: "^[A-Z]{2}$"
+        passport:
+          $ref: '#/components/schemas/PassportInfo'
+        frequent_flyer:
+          type: object
+          properties:
+            airline:
+              $ref: '#/components/schemas/AirlineCode'
+            number:
+              type: string
+        special_requests:
+          type: array
+          items:
+            type: string
+        meal_preference:
+          type: string
+
+    # --------------------------------------------------------------------------
+    # POOL SCHEMAS
+    # --------------------------------------------------------------------------
+    Pool:
+      type: object
+      required:
+        - id
+        - route
+        - status
+        - target_size
+        - current_size
+        - discount_tiers
+        - expires_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        route:
+          type: object
+          properties:
+            origin:
+              $ref: '#/components/schemas/Airport'
+            destination:
+              $ref: '#/components/schemas/Airport'
+        travel_dates:
+          $ref: '#/components/schemas/DateRange'
+        status:
+          type: string
+          enum: [forming, locked, booking, completed, failed, expired]
+        target_size:
+          type: integer
+          minimum: 2
+          description: Passengers needed for maximum discount
+          example: 20
+        current_size:
+          type: integer
+          minimum: 0
+          example: 12
+        discount_tiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiscountTier'
+        current_discount:
+          type: number
+          format: float
+          description: Current discount percentage
+          example: 0.15
+        estimated_price:
+          $ref: '#/components/schemas/Money'
+          description: Price per person at current discount
+        base_price:
+          $ref: '#/components/schemas/Money'
+          description: Price without pool discount
+        organizer:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            avatar_url:
+              type: string
+              format: uri
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/PoolMember'
+        visibility:
+          type: string
+          enum: [public, private, invite_only]
+        invite_code:
+          type: string
+          pattern: "^[A-Z0-9]{8}$"
+          description: Code to join private pools
+        chat_enabled:
+          type: boolean
+        lock_time:
+          $ref: '#/components/schemas/Timestamp'
+          description: When pool locks for booking
+        expires_at:
+          $ref: '#/components/schemas/Timestamp'
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    DiscountTier:
+      type: object
+      required:
+        - min_passengers
+        - discount_percentage
+      properties:
+        min_passengers:
+          type: integer
+          example: 5
+        discount_percentage:
+          type: number
+          format: float
+          example: 0.08
+        reached:
+          type: boolean
+          example: true
+
+    PoolMember:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        passenger_count:
+          type: integer
+          minimum: 1
+        status:
+          type: string
+          enum: [pending, confirmed, paid, withdrawn]
+        joined_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    CreatePoolRequest:
+      type: object
+      required:
+        - origin
+        - destination
+        - travel_dates
+        - passenger_count
+      properties:
+        origin:
+          $ref: '#/components/schemas/IATACode'
+        destination:
+          $ref: '#/components/schemas/IATACode'
+        travel_dates:
+          $ref: '#/components/schemas/DateRange'
+        passenger_count:
+          type: integer
+          minimum: 1
+          maximum: 9
+        target_size:
+          type: integer
+          minimum: 5
+          maximum: 50
+          default: 20
+        visibility:
+          type: string
+          enum: [public, private, invite_only]
+          default: public
+        lock_hours_before:
+          type: integer
+          minimum: 24
+          maximum: 168
+          default: 72
+          description: Hours before departure to lock pool
+
+    JoinPoolRequest:
+      type: object
+      required:
+        - passenger_count
+      properties:
+        passenger_count:
+          type: integer
+          minimum: 1
+          maximum: 9
+        invite_code:
+          type: string
+          description: Required for private/invite_only pools
+
+    # --------------------------------------------------------------------------
+    # ALERT SCHEMAS
+    # --------------------------------------------------------------------------
+    Alert:
+      type: object
+      required:
+        - id
+        - route
+        - status
+        - condition
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        route:
+          type: object
+          properties:
+            origin:
+              $ref: '#/components/schemas/Airport'
+            destination:
+              $ref: '#/components/schemas/Airport'
+        travel_dates:
+          $ref: '#/components/schemas/DateRange'
+        flexibility_days:
+          type: integer
+          minimum: 0
+          maximum: 7
+        passengers:
+          $ref: '#/components/schemas/PassengerCounts'
+        cabin_class:
+          type: string
+          enum: [economy, premium_economy, business, first]
+        status:
+          type: string
+          enum: [active, paused, triggered, expired, deleted]
+        condition:
+          $ref: '#/components/schemas/AlertCondition'
+        current_price:
+          $ref: '#/components/schemas/Money'
+        price_history:
+          type: array
+          maxItems: 30
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              price:
+                type: integer
+        last_checked:
+          $ref: '#/components/schemas/Timestamp'
+        triggered_at:
+          $ref: '#/components/schemas/Timestamp'
+          nullable: true
+        trigger_count:
+          type: integer
+          description: Number of times alert has triggered
+        notifications:
+          $ref: '#/components/schemas/ChannelPreferences'
+        expires_at:
+          $ref: '#/components/schemas/Timestamp'
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    AlertCondition:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [
+            price_below,      # Price drops below threshold
+            price_drop,       # Price drops by percentage
+            oracle_buy,       # Oracle recommends buy
+            any_drop          # Any price decrease
+          ]
+        threshold:
+          type: integer
+          description: Price in smallest currency unit (for price_below)
+        percentage:
+          type: number
+          format: float
+          minimum: 0.01
+          maximum: 0.50
+          description: Drop percentage (for price_drop)
+        currency:
+          $ref: '#/components/schemas/CurrencyCode'
+
+    CreateAlertRequest:
+      type: object
+      required:
+        - origin
+        - destination
+        - departure_date
+        - condition
+      properties:
+        origin:
+          $ref: '#/components/schemas/IATACode'
+        destination:
+          $ref: '#/components/schemas/IATACode'
+        departure_date:
+          type: string
+          format: date
+        return_date:
+          type: string
+          format: date
+          nullable: true
+        flexibility_days:
+          type: integer
+          minimum: 0
+          maximum: 7
+          default: 0
+        passengers:
+          $ref: '#/components/schemas/PassengerCounts'
+        cabin_class:
+          type: string
+          enum: [economy, premium_economy, business, first]
+          default: economy
+        condition:
+          $ref: '#/components/schemas/AlertCondition'
+        notifications:
+          $ref: '#/components/schemas/ChannelPreferences'
+        expires_in_days:
+          type: integer
+          minimum: 1
+          maximum: 90
+          default: 30
+
+    # --------------------------------------------------------------------------
+    # PAYMENT SCHEMAS
+    # --------------------------------------------------------------------------
+    PaymentMethod:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [card, fpx, grabpay, tng, boost, shopeepay]
+        card:
+          $ref: '#/components/schemas/CardDetails'
+          description: Required if type=card
+        fpx_bank:
+          type: string
+          description: Bank code for FPX
+        wallet_phone:
+          type: string
+          description: Phone number for e-wallets
+
+    CardDetails:
+      type: object
+      description: Card details (tokenized - never store raw)
+      properties:
+        token:
+          type: string
+          description: Tokenized card from VayaPay.js
+        last_four:
+          type: string
+          pattern: "^[0-9]{4}$"
+        brand:
+          type: string
+          enum: [visa, mastercard, amex]
+        expiry_month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        expiry_year:
+          type: integer
+        holder_name:
+          type: string
+        save_card:
+          type: boolean
+          default: false
+          description: Save for future payments
+
+    SavedCard:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        last_four:
+          type: string
+        brand:
+          type: string
+          enum: [visa, mastercard, amex]
+        expiry_month:
+          type: integer
+        expiry_year:
+          type: integer
+        holder_name:
+          type: string
+        is_default:
+          type: boolean
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    InitiatePaymentRequest:
+      type: object
+      required:
+        - booking_id
+        - method
+      properties:
+        booking_id:
+          type: string
+          format: uuid
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+        saved_card_id:
+          type: string
+          format: uuid
+          description: Use saved card instead of new method
+        billing_address:
+          $ref: '#/components/schemas/BillingAddress'
+        return_url:
+          type: string
+          format: uri
+          description: Redirect URL after 3DS/bank auth
+
+    BillingAddress:
+      type: object
+      required:
+        - line1
+        - city
+        - country
+      properties:
+        line1:
+          type: string
+          maxLength: 100
+        line2:
+          type: string
+          maxLength: 100
+        city:
+          type: string
+          maxLength: 50
+        state:
+          type: string
+          maxLength: 50
+        postal_code:
+          type: string
+          maxLength: 20
+        country:
+          type: string
+          pattern: "^[A-Z]{2}$"
+
+    PaymentIntent:
+      type: object
+      required:
+        - id
+        - status
+        - amount
+      properties:
+        id:
+          type: string
+          format: uuid
+        booking_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [
+            requires_payment_method,
+            requires_confirmation,
+            requires_action,      # 3DS or bank redirect needed
+            processing,
+            succeeded,
+            failed,
+            cancelled
+          ]
+        amount:
+          $ref: '#/components/schemas/Money'
+        method_type:
+          type: string
+          enum: [card, fpx, grabpay, tng, boost, shopeepay]
+        next_action:
+          type: object
+          nullable: true
+          properties:
+            type:
+              type: string
+              enum: [redirect, three_d_secure, display_qr]
+            redirect_url:
+              type: string
+              format: uri
+            qr_code:
+              type: string
+              description: QR code data URI
+        error:
+          type: object
+          nullable: true
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            decline_reason:
+              type: string
+        receipt_url:
+          type: string
+          format: uri
+          nullable: true
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        expires_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    RefundRequest:
+      type: object
+      required:
+        - booking_id
+        - reason
+      properties:
+        booking_id:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+          description: Partial refund amount (omit for full refund)
+        reason:
+          type: string
+          enum: [
+            customer_request,
+            flight_cancelled,
+            schedule_change,
+            duplicate_booking,
+            fraud,
+            other
+          ]
+        notes:
+          type: string
+          maxLength: 500
+
+    Refund:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        booking_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        amount:
+          $ref: '#/components/schemas/Money'
+        fee:
+          $ref: '#/components/schemas/Money'
+          description: Cancellation/processing fee deducted
+        net_amount:
+          $ref: '#/components/schemas/Money'
+          description: Actual amount refunded
+        reason:
+          type: string
+        refund_method:
+          type: string
+          enum: [original_method, store_credit, bank_transfer]
+        estimated_arrival:
+          type: string
+          format: date
+          description: Expected date funds arrive
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        completed_at:
+          $ref: '#/components/schemas/Timestamp'
+          nullable: true
+
+# ============================================================================
+# PATHS - BOOKINGS
+# ============================================================================
+paths:
+  /bookings:
+    post:
+      tags: [Bookings]
+      summary: Create booking
+      description: |
+        Create a new booking from search result.
+        Booking token expires 30 minutes after search.
+        Returns booking in `pending_payment` status.
+      operationId: createBooking
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '201':
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  booking:
+                    $ref: '#/components/schemas/Booking'
+                  payment_deadline:
+                    $ref: '#/components/schemas/Timestamp'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Booking token expired or flight unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Price changed - requires re-confirmation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    properties:
+                      old_price:
+                        $ref: '#/components/schemas/Money'
+                      new_price:
+                        $ref: '#/components/schemas/Money'
+                      new_booking_token:
+                        type: string
+
+    get:
+      tags: [Bookings]
+      summary: List user bookings
+      operationId: listBookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [upcoming, past, cancelled, all]
+            default: all
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 50
+      responses:
+        '200':
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Booking'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /bookings/{booking_id}:
+    get:
+      tags: [Bookings]
+      summary: Get booking details
+      operationId: getBooking
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /bookings/{booking_id}/cancel:
+    post:
+      tags: [Bookings]
+      summary: Cancel booking
+      description: |
+        Request booking cancellation.
+        Refund amount depends on cancellation policy.
+      operationId: cancelBooking
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  enum: [change_of_plans, found_better_price, medical, other]
+                notes:
+                  type: string
+                  maxLength: 500
+      responses:
+        '200':
+          description: Cancellation processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  booking:
+                    $ref: '#/components/schemas/Booking'
+                  refund:
+                    $ref: '#/components/schemas/Refund'
+        '400':
+          description: Booking cannot be cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /bookings/{booking_id}/add-ons:
+    get:
+      tags: [Bookings]
+      summary: Get available add-ons
+      description: Get available add-ons (seats, baggage, meals) for booking
+      operationId: getBookingAddOns
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Available add-ons
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  seats:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SeatMap'
+                  baggage:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BaggageOption'
+                  meals:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MealOption'
+
+    post:
+      tags: [Bookings]
+      summary: Add extras to booking
+      operationId: addBookingAddOns
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                add_ons:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      option_id:
+                        type: string
+                      passenger_id:
+                        type: string
+                        format: uuid
+                      segment_index:
+                        type: integer
+      responses:
+        '200':
+          description: Add-ons added
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  booking:
+                    $ref: '#/components/schemas/Booking'
+                  payment_required:
+                    $ref: '#/components/schemas/Money'
+
+  /bookings/lookup:
+    get:
+      tags: [Bookings]
+      summary: Lookup booking by reference
+      description: Find booking by PNR (for non-logged-in users)
+      operationId: lookupBooking
+      parameters:
+        - name: reference
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: "^[A-Z0-9]{6}$"
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Booking found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          description: Booking not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ==========================================================================
+  # POOL ENDPOINTS
+  # ==========================================================================
+  /pools:
+    get:
+      tags: [Pools]
+      summary: Discover pools
+      description: Find public pools matching criteria
+      operationId: discoverPools
+      parameters:
+        - name: origin
+          in: query
+          schema:
+            $ref: '#/components/schemas/IATACode'
+        - name: destination
+          in: query
+          schema:
+            $ref: '#/components/schemas/IATACode'
+        - name: departure_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: departure_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: min_discount
+          in: query
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 0.5
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [discount_desc, expires_soon, newest, most_members]
+            default: discount_desc
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: List of pools
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pools:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Pool'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+    post:
+      tags: [Pools]
+      summary: Create pool
+      description: Start a new group buying pool
+      operationId: createPool
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePoolRequest'
+      responses:
+        '201':
+          description: Pool created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pool'
+        '400':
+          description: Invalid pool parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pools/{pool_id}:
+    get:
+      tags: [Pools]
+      summary: Get pool details
+      operationId: getPool
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Pool details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pool'
+        '404':
+          description: Pool not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pools/{pool_id}/join:
+    post:
+      tags: [Pools]
+      summary: Join pool
+      operationId: joinPool
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinPoolRequest'
+      responses:
+        '200':
+          description: Joined pool
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pool:
+                    $ref: '#/components/schemas/Pool'
+                  membership:
+                    $ref: '#/components/schemas/PoolMember'
+        '400':
+          description: Cannot join pool
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Pool is locked or full
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pools/{pool_id}/leave:
+    post:
+      tags: [Pools]
+      summary: Leave pool
+      operationId: leavePool
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: pool_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Left pool
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Cannot leave (pool locked or already paid)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pools/my:
+    get:
+      tags: [Pools]
+      summary: List my pools
+      operationId: listMyPools
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, completed, all]
+            default: active
+      responses:
+        '200':
+          description: User's pools
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pools:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Pool'
+
+  # ==========================================================================
+  # ALERT ENDPOINTS
+  # ==========================================================================
+  /alerts:
+    get:
+      tags: [Alerts]
+      summary: List user alerts
+      operationId: listAlerts
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, paused, triggered, expired, all]
+            default: active
+      responses:
+        '200':
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  alerts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Alert'
+                  limits:
+                    type: object
+                    properties:
+                      max_alerts:
+                        type: integer
+                      current_count:
+                        type: integer
+
+    post:
+      tags: [Alerts]
+      summary: Create price alert
+      operationId: createAlert
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAlertRequest'
+      responses:
+        '201':
+          description: Alert created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '400':
+          description: Invalid alert parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Alert limit reached
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /alerts/{alert_id}:
+    get:
+      tags: [Alerts]
+      summary: Get alert details
+      operationId: getAlert
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Alert details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+
+    patch:
+      tags: [Alerts]
+      summary: Update alert
+      operationId: updateAlert
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                condition:
+                  $ref: '#/components/schemas/AlertCondition'
+                notifications:
+                  $ref: '#/components/schemas/ChannelPreferences'
+                status:
+                  type: string
+                  enum: [active, paused]
+      responses:
+        '200':
+          description: Alert updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+
+    delete:
+      tags: [Alerts]
+      summary: Delete alert
+      operationId: deleteAlert
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Alert deleted
+
+  # ==========================================================================
+  # PAYMENT ENDPOINTS
+  # ==========================================================================
+  /payments/initiate:
+    post:
+      tags: [Payments]
+      summary: Initiate payment
+      description: Start payment for a booking
+      operationId: initiatePayment
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiatePaymentRequest'
+      responses:
+        '200':
+          description: Payment initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentIntent'
+        '400':
+          description: Invalid payment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '402':
+          description: Payment declined
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /payments/{payment_id}:
+    get:
+      tags: [Payments]
+      summary: Get payment status
+      operationId: getPaymentStatus
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentIntent'
+
+  /payments/{payment_id}/confirm:
+    post:
+      tags: [Payments]
+      summary: Confirm payment
+      description: Confirm payment after 3DS or redirect
+      operationId: confirmPayment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment confirmed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentIntent'
+
+  /payments/methods:
+    get:
+      tags: [Payments]
+      summary: List saved payment methods
+      operationId: listPaymentMethods
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Saved cards
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cards:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SavedCard'
+
+  /payments/methods/{card_id}:
+    delete:
+      tags: [Payments]
+      summary: Delete saved card
+      operationId: deletePaymentMethod
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: card_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Card deleted
+
+  /payments/refunds:
+    post:
+      tags: [Payments]
+      summary: Request refund
+      operationId: requestRefund
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+      responses:
+        '200':
+          description: Refund initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Refund'
+        '400':
+          description: Booking not eligible for refund
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /payments/banks:
+    get:
+      tags: [Payments]
+      summary: List FPX banks
+      description: Get list of banks available for FPX
+      operationId: listFPXBanks
+      responses:
+        '200':
+          description: Available banks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  banks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                          example: "MBB0227"
+                        name:
+                          type: string
+                          example: "Maybank2u"
+                        online:
+                          type: boolean
+
+# Additional component schemas for add-ons
+components:
+  schemas:
+    SeatMap:
+      type: object
+      properties:
+        segment_index:
+          type: integer
+        rows:
+          type: array
+          items:
+            type: object
+            properties:
+              number:
+                type: integer
+              seats:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    column:
+                      type: string
+                      example: "A"
+                    available:
+                      type: boolean
+                    type:
+                      type: string
+                      enum: [window, middle, aisle, exit_row]
+                    price:
+                      $ref: '#/components/schemas/Money'
+                    features:
+                      type: array
+                      items:
+                        type: string
+                        enum: [extra_legroom, recline, power, bassinet]
+
+    BaggageOption:
+      type: object
+      properties:
+        id:
+          type: string
+        weight_kg:
+          type: integer
+        pieces:
+          type: integer
+        price:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+
+    MealOption:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+          example: "VGML"
+        name:
+          type: string
+          example: "Vegetarian Meal"
+        description:
+          type: string
+        price:
+          $ref: '#/components/schemas/Money'
+        dietary_info:
+          type: array
+          items:
+            type: string

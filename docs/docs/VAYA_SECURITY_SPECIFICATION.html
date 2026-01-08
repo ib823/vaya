@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Security Specification v1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0; --mint-dim: rgba(0,245,160,0.12);
+            --cyan: #00D9FF; --cyan-dim: rgba(0,217,255,0.12);
+            --white: #FFFFFF;
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n200: #1A1A1D; --n300: #232326;
+            --n600: #5C5C63; --n700: #7A7A82; --n800: #9999A1;
+            --error: #FF4757; --error-dim: rgba(255,71,87,0.12);
+            --warning: #FFB800; --warning-dim: rgba(255,184,0,0.12);
+            --purple: #A855F7; --blue: #3B82F6;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--white); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--error); margin-bottom: 48px; background: linear-gradient(180deg, rgba(255,71,87,0.1) 0%, transparent 100%); }
+        .logo { font-family: var(--font-display); font-size: 56px; font-weight: 800; }
+        .logo span:first-child { color: var(--mint); }
+        .logo span:last-child { color: var(--cyan); }
+        .title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--error); margin-top: 16px; }
+        .version { background: var(--error-dim); color: var(--error); padding: 4px 12px; border-radius: 6px; font-family: var(--font-mono); font-size: 12px; display: inline-block; margin-top: 12px; }
+        .section { margin-bottom: 48px; }
+        .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--n100); border-left: 4px solid var(--error); margin-bottom: 20px; }
+        .section-id { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 4px 8px; border-radius: 4px; color: var(--n600); }
+        .section-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+        .subsection { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .subsection h4 { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--cyan); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+        th { background: var(--n100); padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--n600); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--n200); vertical-align: top; }
+        .code { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 2px 6px; border-radius: 4px; }
+        .code-block { background: var(--n100); border-radius: 8px; padding: 16px; font-family: var(--font-mono); font-size: 11px; overflow-x: auto; margin: 12px 0; white-space: pre; }
+        .warning-box { background: var(--warning-dim); border: 1px solid var(--warning); border-radius: 8px; padding: 16px; margin: 16px 0; }
+        .warning-box h5 { color: var(--warning); font-size: 12px; margin-bottom: 8px; }
+        .critical-box { background: var(--error-dim); border: 1px solid var(--error); border-radius: 8px; padding: 16px; margin: 16px 0; }
+        .critical-box h5 { color: var(--error); font-size: 12px; margin-bottom: 8px; }
+        .flow-diagram { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 16px; background: var(--n100); border-radius: 8px; margin: 12px 0; }
+        .flow-step { background: var(--n200); border-radius: 8px; padding: 12px 16px; text-align: center; min-width: 120px; }
+        .flow-step-num { font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--mint); }
+        .flow-step-text { font-size: 10px; color: var(--n700); margin-top: 4px; }
+        .flow-arrow { color: var(--n600); font-size: 20px; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-right: 4px; }
+        .tag-critical { background: var(--error); color: white; }
+        .tag-high { background: var(--warning); color: black; }
+        .tag-medium { background: var(--cyan); color: black; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span>VA</span><span>YA</span></div>
+            <h1 class="title">ðŸ”’ Security Specification</h1>
+            <span class="version">v1.0.0 â€” Zero Trust Architecture</span>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- SEC-01: AUTHENTICATION FLOW DESIGN -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SEC-01</span>
+                <span class="section-title">Authentication Flow Design</span>
+            </div>
+
+            <!-- Email/Password Flow -->
+            <div class="subsection">
+                <h4>ðŸ“§ Email/Password Authentication</h4>
+                <div class="flow-diagram">
+                    <div class="flow-step"><div class="flow-step-num">1</div><div class="flow-step-text">User enters<br>email + password</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">2</div><div class="flow-step-text">Rate limit<br>check</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">3</div><div class="flow-step-text">Lookup user<br>by email</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">4</div><div class="flow-step-text">Verify password<br>(Argon2id)</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">5</div><div class="flow-step-text">Check MFA<br>enabled?</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">6</div><div class="flow-step-text">Issue JWT<br>tokens</div></div>
+                </div>
+                
+                <table>
+                    <tr><th>Step</th><th>Action</th><th>Failure Behavior</th></tr>
+                    <tr><td>Rate Limit</td><td>Check IP + email combo against limits</td><td>429 + retry-after header</td></tr>
+                    <tr><td>User Lookup</td><td>Query by email (case-insensitive)</td><td>401 "Invalid credentials" (same as wrong password)</td></tr>
+                    <tr><td>Password Verify</td><td>Argon2id verify with timing-safe compare</td><td>Increment failed_attempts, possible lockout</td></tr>
+                    <tr><td>Account Check</td><td>Verify is_active=true, not locked, email verified</td><td>403 with specific reason</td></tr>
+                    <tr><td>MFA Check</td><td>If mfa_enabled, return partial token requiring TOTP</td><td>Challenge response with MFA token</td></tr>
+                    <tr><td>Token Issue</td><td>Generate access + refresh tokens</td><td>Create session record</td></tr>
+                </table>
+
+                <div class="warning-box">
+                    <h5>âš ï¸ ACCOUNT LOCKOUT POLICY</h5>
+                    <ul style="font-size: 12px; margin-left: 16px; color: var(--n800);">
+                        <li><strong>5 failed attempts:</strong> 5-minute lockout</li>
+                        <li><strong>10 failed attempts:</strong> 30-minute lockout</li>
+                        <li><strong>15 failed attempts:</strong> 24-hour lockout + email notification</li>
+                        <li>Failed attempts reset after successful login or lockout expiry</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- OAuth Flow -->
+            <div class="subsection">
+                <h4>ðŸ”— OAuth 2.0 Flow (Google, Apple, Facebook)</h4>
+                <div class="flow-diagram">
+                    <div class="flow-step"><div class="flow-step-num">1</div><div class="flow-step-text">Redirect to<br>provider</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">2</div><div class="flow-step-text">User grants<br>consent</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">3</div><div class="flow-step-text">Callback with<br>auth code</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">4</div><div class="flow-step-text">Exchange for<br>tokens</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">5</div><div class="flow-step-text">Fetch user<br>profile</div></div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-step"><div class="flow-step-num">6</div><div class="flow-step-text">Create/link<br>account</div></div>
+                </div>
+                
+                <table>
+                    <tr><th>Provider</th><th>Scopes Requested</th><th>Data Retrieved</th></tr>
+                    <tr><td>Google</td><td><span class="code">openid email profile</span></td><td>email, name, picture, email_verified</td></tr>
+                    <tr><td>Apple</td><td><span class="code">name email</span></td><td>email, name (first login only)</td></tr>
+                    <tr><td>Facebook</td><td><span class="code">email public_profile</span></td><td>email, name, picture</td></tr>
+                </table>
+
+                <p style="font-size: 12px; color: var(--n700); margin-top: 12px;">
+                    <strong>Account Linking:</strong> If OAuth email matches existing account, link OAuth provider. 
+                    If no account exists, create new account with email pre-verified.
+                </p>
+            </div>
+
+            <!-- MFA Flow -->
+            <div class="subsection">
+                <h4>ðŸ” Multi-Factor Authentication (TOTP)</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th><th>Notes</th></tr>
+                    <tr><td>Algorithm</td><td><span class="code">SHA-1</span></td><td>Standard TOTP (RFC 6238)</td></tr>
+                    <tr><td>Digits</td><td><span class="code">6</span></td><td>6-digit codes</td></tr>
+                    <tr><td>Period</td><td><span class="code">30 seconds</span></td><td>Code validity window</td></tr>
+                    <tr><td>Window</td><td><span class="code">Â±1 period</span></td><td>Accept current Â±1 to handle clock drift</td></tr>
+                    <tr><td>Backup Codes</td><td><span class="code">10 codes</span></td><td>Single-use, 12 characters each</td></tr>
+                </table>
+
+                <div class="code-block"># MFA Setup Response
+{
+  "secret": "JBSWY3DPEHPK3PXP",  // Base32 encoded
+  "qr_code": "data:image/png;base64,...",
+  "backup_codes": [
+    "XXXX-XXXX-XXXX",
+    "XXXX-XXXX-XXXX",
+    // ... 10 total
+  ],
+  "issuer": "VAYA",
+  "account": "user@example.com"
+}</div>
+            </div>
+
+            <!-- Password Reset Flow -->
+            <div class="subsection">
+                <h4>ðŸ”‘ Password Reset Flow</h4>
+                <table>
+                    <tr><th>Step</th><th>Implementation</th><th>Security Measure</th></tr>
+                    <tr><td>Request</td><td>Generate 32-byte random token</td><td>Always return 200 (prevent enumeration)</td></tr>
+                    <tr><td>Token Storage</td><td>Store SHA-256 hash, not plaintext</td><td>Token expires in 1 hour</td></tr>
+                    <tr><td>Email</td><td>Send reset link with token</td><td>Rate limit: 3 requests per hour</td></tr>
+                    <tr><td>Reset</td><td>Verify token hash, update password</td><td>Invalidate all sessions</td></tr>
+                </table>
+            </div>
+
+            <!-- Session Management -->
+            <div class="subsection">
+                <h4>ðŸªª Session Management</h4>
+                <table>
+                    <tr><th>Session Type</th><th>Lifetime</th><th>Storage</th></tr>
+                    <tr><td>Access Token</td><td>15 minutes</td><td>Client memory only (never localStorage)</td></tr>
+                    <tr><td>Refresh Token</td><td>7 days (30 days with "remember me")</td><td>HttpOnly secure cookie + DB hash</td></tr>
+                    <tr><td>Session Record</td><td>Until logout or expiry</td><td>Database (auth.sessions)</td></tr>
+                </table>
+
+                <div class="critical-box">
+                    <h5>ðŸš¨ SESSION SECURITY REQUIREMENTS</h5>
+                    <ul style="font-size: 12px; margin-left: 16px; color: var(--n800);">
+                        <li>Refresh tokens are <strong>single-use</strong> â€” rotation on every refresh</li>
+                        <li>Refresh token reuse triggers <strong>session family invalidation</strong> (detect token theft)</li>
+                        <li>Maximum <strong>5 concurrent sessions</strong> per user (oldest auto-revoked)</li>
+                        <li>Session list visible to user with remote logout capability</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SEC-02: JWT TOKEN SPECIFICATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SEC-02</span>
+                <span class="section-title">JWT Token Specification</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“œ Access Token Structure</h4>
+                <div class="code-block"># JWT Header
+{
+  "alg": "RS256",
+  "typ": "JWT",
+  "kid": "key-2024-03-01"  // Key ID for rotation
+}
+
+# JWT Payload (Claims)
+{
+  "iss": "https://api.vaya.my",           // Issuer
+  "sub": "550e8400-e29b-41d4-a716-446655440000",  // User ID
+  "aud": ["https://api.vaya.my"],         // Audience
+  "iat": 1710489600,                      // Issued at
+  "exp": 1710490500,                      // Expires (15 min)
+  "jti": "unique-token-id",               // JWT ID (for revocation)
+  
+  // Custom claims
+  "email": "user@example.com",
+  "name": "Ahmad Abdullah",
+  "tier": "premium",                      // User tier
+  "roles": ["user"],                      // Roles
+  "permissions": [],                      // Granular permissions
+  "session_id": "sess_abc123"             // Session reference
+}</div>
+
+                <table>
+                    <tr><th>Claim</th><th>Type</th><th>Required</th><th>Description</th></tr>
+                    <tr><td><span class="code">iss</span></td><td>String</td><td>Yes</td><td>Token issuer (always api.vaya.my)</td></tr>
+                    <tr><td><span class="code">sub</span></td><td>UUID</td><td>Yes</td><td>User ID</td></tr>
+                    <tr><td><span class="code">aud</span></td><td>Array</td><td>Yes</td><td>Intended audiences</td></tr>
+                    <tr><td><span class="code">exp</span></td><td>Number</td><td>Yes</td><td>Expiration timestamp (Unix)</td></tr>
+                    <tr><td><span class="code">iat</span></td><td>Number</td><td>Yes</td><td>Issued at timestamp</td></tr>
+                    <tr><td><span class="code">jti</span></td><td>String</td><td>Yes</td><td>Unique token ID</td></tr>
+                    <tr><td><span class="code">tier</span></td><td>String</td><td>Yes</td><td>User subscription tier</td></tr>
+                    <tr><td><span class="code">roles</span></td><td>Array</td><td>Yes</td><td>User roles</td></tr>
+                    <tr><td><span class="code">session_id</span></td><td>String</td><td>Yes</td><td>Session reference for revocation</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Refresh Token Structure</h4>
+                <div class="code-block"># Refresh Token (Opaque, not JWT)
+{
+  "token": "vaya_rt_Abc123XyzSecureRandomString...",  // 64 bytes, URL-safe base64
+  "family_id": "fam_abc123",                          // Token family for rotation
+  "user_id": "550e8400-e29b-41d4-a716-446655440000",
+  "session_id": "sess_abc123",
+  "created_at": "2024-03-15T14:30:00Z",
+  "expires_at": "2024-03-22T14:30:00Z"
+}
+
+# Stored in database as SHA-256 hash
+# Original token never stored</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Key Management</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Specification</th></tr>
+                    <tr><td>Algorithm</td><td><span class="code">RS256</span> (RSA-SHA256)</td></tr>
+                    <tr><td>Key Size</td><td>4096 bits</td></tr>
+                    <tr><td>Key Rotation</td><td>Every 90 days</td></tr>
+                    <tr><td>Key Overlap</td><td>30 days (old key valid for verification)</td></tr>
+                    <tr><td>Key Storage</td><td>HSM (production) / Encrypted file (dev)</td></tr>
+                    <tr><td>Public Key Endpoint</td><td><span class="code">/.well-known/jwks.json</span></td></tr>
+                </table>
+
+                <div class="code-block"># JWKS Response
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "use": "sig",
+      "kid": "key-2024-03-01",
+      "alg": "RS256",
+      "n": "0vx7agoebGcQ...",  // Modulus
+      "e": "AQAB"              // Exponent
+    }
+  ]
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>âŒ Token Revocation</h4>
+                <table>
+                    <tr><th>Method</th><th>Implementation</th><th>Latency</th></tr>
+                    <tr><td>Logout (single session)</td><td>Delete session record, add jti to blocklist</td><td>Immediate</td></tr>
+                    <tr><td>Logout (all sessions)</td><td>Delete all user sessions, increment token version</td><td>Immediate</td></tr>
+                    <tr><td>Password change</td><td>Invalidate all sessions</td><td>Immediate</td></tr>
+                    <tr><td>Refresh token theft detection</td><td>Invalidate entire token family</td><td>Immediate</td></tr>
+                </table>
+
+                <p style="font-size: 12px; color: var(--n700); margin-top: 12px;">
+                    <strong>Blocklist TTL:</strong> JTI blocklist entries expire after access token lifetime (15 min).
+                    In-memory cache (Redis/VayaCache) for fast lookups.
+                </p>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SEC-03: AUTHORIZATION MODEL -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SEC-03</span>
+                <span class="section-title">Authorization Model (RBAC + ABAC)</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ‘¥ Role Definitions</h4>
+                <table>
+                    <tr><th>Role</th><th>Description</th><th>Inherits</th></tr>
+                    <tr><td><span class="code">user</span></td><td>Standard authenticated user</td><td>â€”</td></tr>
+                    <tr><td><span class="code">premium</span></td><td>ATA subscriber</td><td>user</td></tr>
+                    <tr><td><span class="code">enterprise</span></td><td>Enterprise API client</td><td>premium</td></tr>
+                    <tr><td><span class="code">support_agent</span></td><td>Customer support staff</td><td>â€”</td></tr>
+                    <tr><td><span class="code">support_lead</span></td><td>Support team lead</td><td>support_agent</td></tr>
+                    <tr><td><span class="code">analyst</span></td><td>Read-only analytics access</td><td>â€”</td></tr>
+                    <tr><td><span class="code">admin</span></td><td>Full admin access</td><td>support_lead, analyst</td></tr>
+                    <tr><td><span class="code">super_admin</span></td><td>System administration</td><td>admin</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”‘ Permission Taxonomy</h4>
+                <table>
+                    <tr><th>Resource</th><th>Actions</th><th>Format</th></tr>
+                    <tr><td>bookings</td><td>create, read, update, cancel</td><td><span class="code">bookings:create</span>, <span class="code">bookings:read</span></td></tr>
+                    <tr><td>pools</td><td>create, join, leave, manage</td><td><span class="code">pools:create</span>, <span class="code">pools:manage</span></td></tr>
+                    <tr><td>alerts</td><td>create, read, update, delete</td><td><span class="code">alerts:*</span></td></tr>
+                    <tr><td>payments</td><td>initiate, refund</td><td><span class="code">payments:initiate</span>, <span class="code">payments:refund</span></td></tr>
+                    <tr><td>users</td><td>read, update, delete</td><td><span class="code">users:read</span>, <span class="code">users:delete</span></td></tr>
+                    <tr><td>admin</td><td>users, bookings, reports, system</td><td><span class="code">admin:users:*</span>, <span class="code">admin:system:*</span></td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Role-Permission Matrix</h4>
+                <table>
+                    <tr>
+                        <th>Permission</th>
+                        <th>user</th>
+                        <th>premium</th>
+                        <th>support</th>
+                        <th>admin</th>
+                    </tr>
+                    <tr><td>bookings:create</td><td>âœ“</td><td>âœ“</td><td>â€”</td><td>âœ“</td></tr>
+                    <tr><td>bookings:read (own)</td><td>âœ“</td><td>âœ“</td><td>âœ“</td><td>âœ“</td></tr>
+                    <tr><td>bookings:read (all)</td><td>â€”</td><td>â€”</td><td>âœ“</td><td>âœ“</td></tr>
+                    <tr><td>bookings:cancel (own)</td><td>âœ“</td><td>âœ“</td><td>â€”</td><td>âœ“</td></tr>
+                    <tr><td>bookings:cancel (any)</td><td>â€”</td><td>â€”</td><td>âœ“</td><td>âœ“</td></tr>
+                    <tr><td>alerts:create</td><td>âœ“ (3 max)</td><td>âœ“ (unlimited)</td><td>â€”</td><td>âœ“</td></tr>
+                    <tr><td>pools:create</td><td>âœ“</td><td>âœ“</td><td>â€”</td><td>âœ“</td></tr>
+                    <tr><td>payments:refund</td><td>â€”</td><td>â€”</td><td>âœ“ (â‰¤RM500)</td><td>âœ“</td></tr>
+                    <tr><td>admin:users:*</td><td>â€”</td><td>â€”</td><td>â€”</td><td>âœ“</td></tr>
+                    <tr><td>admin:system:*</td><td>â€”</td><td>â€”</td><td>â€”</td><td>âœ“</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”’ Resource Ownership Rules</h4>
+                <table>
+                    <tr><th>Resource</th><th>Owner Field</th><th>Access Rule</th></tr>
+                    <tr><td>Booking</td><td><span class="code">user_id</span></td><td>Owner OR admin/support can access</td></tr>
+                    <tr><td>Traveler</td><td><span class="code">user_id</span></td><td>Owner only (never shared)</td></tr>
+                    <tr><td>Alert</td><td><span class="code">user_id</span></td><td>Owner only</td></tr>
+                    <tr><td>Trip</td><td><span class="code">user_id</span> + shares</td><td>Owner OR explicitly shared with</td></tr>
+                    <tr><td>Pool</td><td><span class="code">organizer_id</span> + members</td><td>Public (if visible) OR member</td></tr>
+                    <tr><td>Support Ticket</td><td><span class="code">user_id</span></td><td>Owner OR assigned agent</td></tr>
+                </table>
+
+                <div class="code-block"># Authorization Check Pseudocode
+def can_access(user, resource, action):
+    # 1. Check role-based permissions
+    if has_permission(user.roles, f"{resource.type}:{action}"):
+        # 2. Check resource ownership (ABAC)
+        if action in ["read", "update", "delete"]:
+            if resource.owner_id == user.id:
+                return True
+            if has_permission(user.roles, f"{resource.type}:{action}:any"):
+                return True
+            if resource.type == "trip" and user.id in resource.shared_with:
+                return True
+            return False
+        return True
+    return False</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SEC-04: RATE LIMITING RULES -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SEC-04</span>
+                <span class="section-title">Rate Limiting Rules</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Rate Limits by Tier</h4>
+                <table>
+                    <tr><th>Endpoint Category</th><th>Anonymous</th><th>Free</th><th>Premium</th><th>Enterprise</th></tr>
+                    <tr><td>Global (all endpoints)</td><td>60/min</td><td>300/min</td><td>1,000/min</td><td>5,000/min</td></tr>
+                    <tr><td>Search</td><td>10/min</td><td>30/min</td><td>100/min</td><td>500/min</td></tr>
+                    <tr><td>Booking Create</td><td>â€”</td><td>10/min</td><td>30/min</td><td>100/min</td></tr>
+                    <tr><td>Payment Initiate</td><td>â€”</td><td>5/min</td><td>20/min</td><td>50/min</td></tr>
+                    <tr><td>Alert Create</td><td>â€”</td><td>10/hour</td><td>50/hour</td><td>200/hour</td></tr>
+                    <tr><td>Auth (login/register)</td><td colspan="4">5/min per IP, 10/min per email</td></tr>
+                    <tr><td>Password Reset</td><td colspan="4">3/hour per email</td></tr>
+                    <tr><td>Email Verification</td><td colspan="4">3/hour per email</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”§ Rate Limit Implementation</h4>
+                <table>
+                    <tr><th>Algorithm</th><th>Sliding Window Counter</th></tr>
+                    <tr><td>Window Size</td><td>60 seconds (1 minute)</td></tr>
+                    <tr><td>Key Format</td><td><span class="code">ratelimit:{tier}:{endpoint}:{user_id|ip}</span></td></tr>
+                    <tr><td>Storage</td><td>VayaCache (Redis-compatible)</td></tr>
+                    <tr><td>Precision</td><td>Sub-second (Redis ZADD with timestamps)</td></tr>
+                </table>
+
+                <div class="code-block"># Rate Limit Response Headers (always included)
+X-RateLimit-Limit: 300
+X-RateLimit-Remaining: 287
+X-RateLimit-Reset: 1710489660
+
+# On 429 Too Many Requests
+HTTP/1.1 429 Too Many Requests
+Retry-After: 30
+X-RateLimit-Limit: 300
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1710489660
+
+{
+  "code": "RATE_8001",
+  "message": "Rate limit exceeded",
+  "retry_after": 30
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸš¨ Burst Handling</h4>
+                <table>
+                    <tr><th>Scenario</th><th>Behavior</th></tr>
+                    <tr><td>Short burst within limit</td><td>Allow all requests</td></tr>
+                    <tr><td>Burst exceeding limit</td><td>Queue first 10%, reject rest with 429</td></tr>
+                    <tr><td>Sustained overload</td><td>Reject all over limit, no queueing</td></tr>
+                    <tr><td>DDoS pattern detected</td><td>IP blocked at edge (WAF)</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SEC-05: ENCRYPTION SPECIFICATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SEC-05</span>
+                <span class="section-title">Encryption Specification</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Data in Transit</h4>
+                <table>
+                    <tr><th>Protocol</th><th>Specification</th></tr>
+                    <tr><td>TLS Version</td><td><span class="code">TLS 1.3</span> only (1.2 for legacy clients with explicit opt-in)</td></tr>
+                    <tr><td>Cipher Suites</td><td><span class="code">TLS_AES_256_GCM_SHA384</span>, <span class="code">TLS_CHACHA20_POLY1305_SHA256</span></td></tr>
+                    <tr><td>Key Exchange</td><td>X25519 (ECDHE)</td></tr>
+                    <tr><td>Certificate</td><td>RSA 4096-bit or ECDSA P-384</td></tr>
+                    <tr><td>HSTS</td><td><span class="code">max-age=31536000; includeSubDomains; preload</span></td></tr>
+                    <tr><td>Certificate Transparency</td><td>Required (CT logs)</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ—„ï¸ Data at Rest</h4>
+                <table>
+                    <tr><th>Data Type</th><th>Encryption</th><th>Key Management</th></tr>
+                    <tr><td>Database (VayaDB)</td><td>AES-256-GCM (full disk)</td><td>HSM-managed DEK</td></tr>
+                    <tr><td>File Storage</td><td>AES-256-GCM</td><td>Per-file keys wrapped by KEK</td></tr>
+                    <tr><td>Cache (VayaCache)</td><td>None (ephemeral)</td><td>â€”</td></tr>
+                    <tr><td>Backups</td><td>AES-256-GCM</td><td>Offline KEK, rotated annually</td></tr>
+                    <tr><td>Logs</td><td>AES-256-GCM</td><td>Log-specific KEK</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”‘ Field-Level Encryption (PII)</h4>
+                <table>
+                    <tr><th>Field</th><th>Table</th><th>Algorithm</th><th>Searchable</th></tr>
+                    <tr><td>passport_number</td><td>users.travelers</td><td>AES-256-GCM</td><td>No (decrypt on read)</td></tr>
+                    <tr><td>mfa_secret</td><td>auth.users</td><td>AES-256-GCM</td><td>No</td></tr>
+                    <tr><td>mfa_backup_codes</td><td>auth.users</td><td>AES-256-GCM</td><td>No</td></tr>
+                    <tr><td>card_token</td><td>users.saved_cards</td><td>Already tokenized by processor</td><td>N/A</td></tr>
+                    <tr><td>oauth_tokens</td><td>auth.oauth_accounts</td><td>AES-256-GCM</td><td>No</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Password Hashing (Argon2id)</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th><th>Rationale</th></tr>
+                    <tr><td>Algorithm</td><td><span class="code">Argon2id</span></td><td>Hybrid defense against GPU and side-channel attacks</td></tr>
+                    <tr><td>Memory</td><td><span class="code">64 MB</span></td><td>Makes GPU attacks expensive</td></tr>
+                    <tr><td>Iterations</td><td><span class="code">3</span></td><td>Time cost</td></tr>
+                    <tr><td>Parallelism</td><td><span class="code">4</span></td><td>Threads</td></tr>
+                    <tr><td>Salt</td><td><span class="code">16 bytes</span></td><td>Random per password</td></tr>
+                    <tr><td>Hash Length</td><td><span class="code">32 bytes</span></td><td>Output length</td></tr>
+                </table>
+
+                <div class="code-block"># Argon2id Parameters (RFC 9106)
+$argon2id$v=19$m=65536,t=3,p=4$[16-byte-salt]$[32-byte-hash]
+
+# Example
+$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHRzYWx0$WVG5J4K...</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Key Rotation</h4>
+                <table>
+                    <tr><th>Key Type</th><th>Rotation Period</th><th>Overlap Period</th></tr>
+                    <tr><td>JWT Signing Key (RSA)</td><td>90 days</td><td>30 days</td></tr>
+                    <tr><td>Database Encryption Key (DEK)</td><td>365 days</td><td>7 days (re-encryption)</td></tr>
+                    <tr><td>Field Encryption Key (FEK)</td><td>180 days</td><td>14 days</td></tr>
+                    <tr><td>API Keys</td><td>On request / compromise</td><td>Immediate revocation option</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SEC-06: INPUT VALIDATION RULES -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">SEC-06</span>
+                <span class="section-title">Input Validation Rules</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ String Validation</h4>
+                <table>
+                    <tr><th>Field Type</th><th>Min</th><th>Max</th><th>Pattern</th><th>Sanitization</th></tr>
+                    <tr><td>Email</td><td>5</td><td>255</td><td><span class="code">^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$</span></td><td>Lowercase, trim</td></tr>
+                    <tr><td>Password</td><td>8</td><td>128</td><td>1 upper, 1 lower, 1 number</td><td>None (preserve exactly)</td></tr>
+                    <tr><td>Name</td><td>1</td><td>100</td><td>Unicode letters, spaces, hyphens</td><td>Trim, normalize Unicode</td></tr>
+                    <tr><td>Phone (MY)</td><td>12</td><td>13</td><td><span class="code">^\+60[0-9]{9,10}$</span></td><td>Strip spaces/dashes</td></tr>
+                    <tr><td>IATA Code</td><td>3</td><td>3</td><td><span class="code">^[A-Z]{3}$</span></td><td>Uppercase</td></tr>
+                    <tr><td>Airline Code</td><td>2</td><td>2</td><td><span class="code">^[A-Z0-9]{2}$</span></td><td>Uppercase</td></tr>
+                    <tr><td>Booking Ref</td><td>6</td><td>6</td><td><span class="code">^[A-Z0-9]{6}$</span></td><td>Uppercase</td></tr>
+                    <tr><td>Passport</td><td>5</td><td>20</td><td><span class="code">^[A-Z0-9]+$</span></td><td>Uppercase, strip spaces</td></tr>
+                    <tr><td>OTP Code</td><td>6</td><td>6</td><td><span class="code">^[0-9]{6}$</span></td><td>None</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”¢ Numeric Validation</h4>
+                <table>
+                    <tr><th>Field</th><th>Type</th><th>Min</th><th>Max</th><th>Notes</th></tr>
+                    <tr><td>Adults (passengers)</td><td>Integer</td><td>1</td><td>9</td><td>Required</td></tr>
+                    <tr><td>Children</td><td>Integer</td><td>0</td><td>8</td><td>Must be &lt; adults count</td></tr>
+                    <tr><td>Infants</td><td>Integer</td><td>0</td><td>4</td><td>Must be â‰¤ adults count</td></tr>
+                    <tr><td>Price (sen)</td><td>Integer</td><td>0</td><td>100,000,000</td><td>RM 1M max</td></tr>
+                    <tr><td>Flexibility days</td><td>Integer</td><td>0</td><td>7</td><td>â€”</td></tr>
+                    <tr><td>Pool target size</td><td>Integer</td><td>5</td><td>50</td><td>â€”</td></tr>
+                    <tr><td>Page number</td><td>Integer</td><td>1</td><td>1000</td><td>â€”</td></tr>
+                    <tr><td>Per page</td><td>Integer</td><td>1</td><td>100</td><td>Default 20</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“… Date Validation</h4>
+                <table>
+                    <tr><th>Field</th><th>Format</th><th>Rules</th></tr>
+                    <tr><td>Departure date</td><td><span class="code">YYYY-MM-DD</span></td><td>â‰¥ today, â‰¤ today + 365 days</td></tr>
+                    <tr><td>Return date</td><td><span class="code">YYYY-MM-DD</span></td><td>â‰¥ departure date, â‰¤ departure + 365 days</td></tr>
+                    <tr><td>Date of birth</td><td><span class="code">YYYY-MM-DD</span></td><td>&lt; today, â‰¥ 1900-01-01</td></tr>
+                    <tr><td>Passport expiry</td><td><span class="code">YYYY-MM-DD</span></td><td>â‰¥ departure + 6 months</td></tr>
+                    <tr><td>Timestamp</td><td><span class="code">ISO 8601</span></td><td>Valid ISO format with timezone</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ›¡ï¸ Security-Specific Validation</h4>
+                <table>
+                    <tr><th>Attack Vector</th><th>Prevention</th></tr>
+                    <tr><td>SQL Injection</td><td>Parameterized queries only (never string concat)</td></tr>
+                    <tr><td>XSS</td><td>Output encoding, CSP headers, no innerHTML</td></tr>
+                    <tr><td>CSRF</td><td>SameSite cookies, CSRF tokens for state-changing ops</td></tr>
+                    <tr><td>Path Traversal</td><td>Whitelist allowed paths, no user input in file paths</td></tr>
+                    <tr><td>JSON Injection</td><td>Strict JSON parsing, no eval()</td></tr>
+                    <tr><td>Mass Assignment</td><td>Explicit field whitelisting per endpoint</td></tr>
+                    <tr><td>IDOR</td><td>Authorization check on every resource access</td></tr>
+                </table>
+
+                <div class="critical-box">
+                    <h5>ðŸš¨ INPUT VALIDATION PRINCIPLES</h5>
+                    <ul style="font-size: 12px; margin-left: 16px; color: var(--n800);">
+                        <li><strong>Validate at boundary:</strong> All validation at API layer before business logic</li>
+                        <li><strong>Reject by default:</strong> Whitelist valid inputs, reject everything else</li>
+                        <li><strong>Type coercion:</strong> Explicit type conversion, no implicit coercion</li>
+                        <li><strong>Length limits:</strong> Always enforce max length before processing</li>
+                        <li><strong>Encoding:</strong> UTF-8 only, reject invalid sequences</li>
+                        <li><strong>Error messages:</strong> Never reveal validation logic details to client</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Content-Type Validation</h4>
+                <table>
+                    <tr><th>Endpoint Type</th><th>Accepted Content-Types</th></tr>
+                    <tr><td>JSON APIs</td><td><span class="code">application/json</span> only</td></tr>
+                    <tr><td>File uploads</td><td><span class="code">multipart/form-data</span></td></tr>
+                    <tr><td>Webhooks (inbound)</td><td>Signature verification required</td></tr>
+                </table>
+
+                <div class="code-block"># Security Headers (all responses)
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 0  # Disabled, rely on CSP instead
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()</div>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <div style="background: linear-gradient(135deg, var(--n100), var(--n200)); border: 2px solid var(--error); border-radius: 20px; padding: 40px; margin-top: 48px; text-align: center;">
+            <h2 style="font-family: var(--font-display); font-size: 28px; font-weight: 800; margin-bottom: 16px;">ðŸ”’ SECURITY SPECIFICATION COMPLETE</h2>
+            <p style="color: var(--n700); margin-bottom: 24px;">Domain 5 (Security Design) â€” SEC-01 through SEC-06 âœ“</p>
+            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; max-width: 900px; margin: 0 auto;">
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-size: 10px; color: var(--n600);">SEC-01</div>
+                    <div style="font-size: 11px; color: var(--mint);">Auth Flows</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-size: 10px; color: var(--n600);">SEC-02</div>
+                    <div style="font-size: 11px; color: var(--mint);">JWT Spec</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-size: 10px; color: var(--n600);">SEC-03</div>
+                    <div style="font-size: 11px; color: var(--mint);">RBAC/ABAC</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-size: 10px; color: var(--n600);">SEC-04</div>
+                    <div style="font-size: 11px; color: var(--mint);">Rate Limits</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-size: 10px; color: var(--n600);">SEC-05</div>
+                    <div style="font-size: 11px; color: var(--mint);">Encryption</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-size: 10px; color: var(--n600);">SEC-06</div>
+                    <div style="font-size: 11px; color: var(--mint);">Validation</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

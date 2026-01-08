@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Complete Design System v2.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Brand Primary */
+            --mint-500: #00F5A0;
+            --mint-600: #00CC85;
+            --mint-dim: rgba(0, 245, 160, 0.12);
+            --mint-muted: rgba(0, 245, 160, 0.24);
+            
+            /* Brand Secondary */
+            --cyan-500: #00D9FF;
+            --cyan-dim: rgba(0, 217, 255, 0.12);
+            
+            /* Neutrals */
+            --n0: #000000;
+            --n50: #0A0A0B;
+            --n100: #111113;
+            --n150: #161618;
+            --n200: #1A1A1D;
+            --n300: #232326;
+            --n400: #2D2D31;
+            --n500: #3D3D42;
+            --n600: #5C5C63;
+            --n700: #7A7A82;
+            --n800: #9999A1;
+            --n1000: #FFFFFF;
+            
+            /* Semantic */
+            --warning: #FFB800;
+            --warning-dim: rgba(255, 184, 0, 0.12);
+            --error: #FF4757;
+            --error-dim: rgba(255, 71, 87, 0.12);
+            
+            /* Fonts */
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            /* Shadows */
+            --glow-sm: 0 0 16px rgba(0, 245, 160, 0.3);
+            --glow-md: 0 0 24px rgba(0, 245, 160, 0.4);
+            --glow-lg: 0 0 40px rgba(0, 245, 160, 0.5);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.5);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--n1000); line-height: 1.5; }
+        ::selection { background: var(--mint-500); color: var(--n0); }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--n100); }
+        ::-webkit-scrollbar-thumb { background: var(--n400); border-radius: 4px; }
+        
+        /* Document Layout */
+        .doc { max-width: 1800px; margin: 0 auto; padding: 32px; }
+        .doc-header { text-align: center; padding: 96px 0; border-bottom: 1px solid var(--n200); margin-bottom: 64px; }
+        .doc-logo { font-family: var(--font-display); font-size: 120px; font-weight: 700; letter-spacing: -0.04em; line-height: 1; background: linear-gradient(135deg, var(--mint-500), var(--cyan-500)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .doc-version { font-family: var(--font-mono); font-size: 14px; color: var(--n600); letter-spacing: 0.05em; margin-top: 16px; }
+        .doc-tagline { font-size: 20px; color: var(--n700); margin-top: 24px; }
+        
+        /* Sections */
+        .section { margin-bottom: 96px; padding-bottom: 64px; border-bottom: 1px solid var(--n200); }
+        .section:last-child { border-bottom: none; }
+        .section-num { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--mint-500); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px; }
+        .section-title { font-family: var(--font-display); font-size: 40px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 16px; }
+        .section-desc { font-size: 18px; color: var(--n700); max-width: 720px; margin-bottom: 48px; }
+        
+        .subsection { margin-bottom: 48px; }
+        .subsection-title { font-family: var(--font-display); font-size: 24px; font-weight: 600; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+        .subsection-title::before { content: ''; width: 4px; height: 24px; background: linear-gradient(180deg, var(--mint-500), var(--cyan-500)); border-radius: 2px; }
+        
+        /* Grids */
+        .grid { display: grid; gap: 24px; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+        .grid-5 { grid-template-columns: repeat(5, 1fr); }
+        .grid-6 { grid-template-columns: repeat(6, 1fr); }
+        @media (max-width: 1200px) { .grid-4, .grid-5, .grid-6 { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 900px) { .grid-2, .grid-3, .grid-4, .grid-5, .grid-6 { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .grid-2, .grid-3, .grid-4, .grid-5, .grid-6 { grid-template-columns: 1fr; } }
+        
+        /* Component Cards */
+        .comp-card { background: var(--n100); border: 1px solid var(--n200); border-radius: 20px; overflow: hidden; }
+        .comp-header { background: var(--n150); padding: 16px 20px; border-bottom: 1px solid var(--n200); display: flex; align-items: center; justify-content: space-between; }
+        .comp-label { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--n600); letter-spacing: 0.05em; text-transform: uppercase; }
+        .comp-badge { font-family: var(--font-mono); font-size: 10px; font-weight: 600; padding: 4px 8px; border-radius: 4px; background: var(--mint-500); color: var(--n0); }
+        .comp-body { padding: 24px; }
+        .comp-preview { background: var(--n0); border-radius: 12px; padding: 24px; display: flex; align-items: center; justify-content: center; min-height: 100px; }
+        
+        /* Device Frames */
+        .device-row { display: flex; gap: 32px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+        
+        /* Watch Frame */
+        .device-watch { width: 198px; background: var(--n300); border-radius: 40px; padding: 8px; box-shadow: var(--shadow-xl); position: relative; }
+        .device-watch-screen { width: 100%; aspect-ratio: 198/242; background: var(--n0); border-radius: 32px; overflow: hidden; }
+        .device-watch-crown { position: absolute; right: -12px; top: 50%; transform: translateY(-50%); width: 8px; height: 32px; background: var(--n400); border-radius: 2px; }
+        
+        /* Mobile Frame */
+        .device-mobile { width: 390px; background: var(--n200); border-radius: 48px; padding: 12px; box-shadow: var(--shadow-xl); }
+        .device-mobile-screen { width: 100%; background: var(--n0); border-radius: 40px; overflow: hidden; position: relative; }
+        .device-mobile-notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 126px; height: 34px; background: var(--n200); border-radius: 0 0 20px 20px; z-index: 10; }
+        .device-mobile-home { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; background: var(--n1000); border-radius: 3px; }
+        
+        /* Tablet Frame */
+        .device-tablet { width: 820px; max-width: 100%; background: var(--n200); border-radius: 24px; padding: 16px; box-shadow: var(--shadow-xl); }
+        .device-tablet-screen { width: 100%; background: var(--n0); border-radius: 12px; overflow: hidden; }
+        
+        /* Desktop Frame */
+        .device-desktop { width: 100%; background: var(--n200); border-radius: 12px 12px 0 0; padding: 12px 12px 0 12px; box-shadow: var(--shadow-xl); }
+        .device-desktop-toolbar { display: flex; gap: 8px; padding: 8px 12px; }
+        .device-desktop-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .device-desktop-dot-red { background: #FF5F57; }
+        .device-desktop-dot-yellow { background: #FEBC2E; }
+        .device-desktop-dot-green { background: #28C840; }
+        .device-desktop-screen { width: 100%; background: var(--n0); border-radius: 4px 4px 0 0; overflow: hidden; }
+        
+        /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+           WATCH COMPONENTS (38mm-49mm, 162-198px width)
+           â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+        
+        .watch-container { width: 100%; height: 100%; display: flex; flex-direction: column; }
+        .watch-header { padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; }
+        .watch-logo { font-family: var(--font-display); font-size: 14px; font-weight: 700; background: linear-gradient(135deg, var(--mint-500), var(--cyan-500)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .watch-time { font-family: var(--font-mono); font-size: 11px; color: var(--n600); }
+        .watch-content { flex: 1; padding: 0 12px 12px; overflow-y: auto; }
+        
+        .watch-price-card { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.05)); border: 1px solid var(--mint-500); border-radius: 16px; padding: 12px; margin-bottom: 8px; }
+        .watch-price-route { font-size: 11px; color: var(--n700); margin-bottom: 4px; }
+        .watch-price-value { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .watch-price-savings { font-size: 10px; color: var(--mint-500); font-weight: 600; margin-top: 4px; }
+        
+        .watch-alert-card { background: var(--n100); border-radius: 12px; padding: 10px; margin-bottom: 8px; }
+        .watch-alert-row { display: flex; justify-content: space-between; align-items: center; }
+        .watch-alert-route { font-size: 12px; color: var(--n1000); }
+        .watch-alert-price { font-size: 14px; font-weight: 600; color: var(--mint-500); }
+        
+        .watch-btn { width: 100%; background: var(--mint-500); color: var(--n0); border: none; border-radius: 12px; padding: 10px; font-family: var(--font-body); font-size: 14px; font-weight: 600; text-align: center; margin-top: 8px; }
+        
+        .watch-complication { width: 52px; height: 52px; background: var(--n100); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid var(--mint-500); }
+        .watch-complication-value { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .watch-complication-label { font-size: 8px; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+           MOBILE COMPONENTS (320-428px width)
+           Touch targets: 44px minimum
+           â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+        
+        .mobile-container { width: 100%; min-height: 100%; display: flex; flex-direction: column; background: var(--n0); }
+        
+        .mobile-header { height: 56px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; background: var(--n50); border-bottom: 1px solid var(--n200); }
+        .mobile-header-logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; background: linear-gradient(135deg, var(--mint-500), var(--cyan-500)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .mobile-header-title { font-family: var(--font-display); font-size: 17px; font-weight: 600; text-align: center; flex: 1; }
+        .mobile-header-subtitle { font-size: 12px; color: var(--n600); text-align: center; }
+        .mobile-header-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--n1000); cursor: pointer; border-radius: 22px; }
+        
+        .mobile-content { flex: 1; padding: 16px; padding-bottom: 100px; overflow-y: auto; }
+        
+        .mobile-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 83px; padding-bottom: 34px; background: var(--n50); border-top: 1px solid var(--n200); display: flex; justify-content: space-around; align-items: flex-start; padding-top: 8px; }
+        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 12px; color: var(--n600); text-decoration: none; min-width: 64px; }
+        .mobile-nav-item-active { color: var(--mint-500); }
+        .mobile-nav-icon { width: 24px; height: 24px; }
+        .mobile-nav-label { font-size: 10px; font-weight: 500; }
+        
+        .mobile-search-card { background: var(--n100); border: 1px solid var(--n200); border-radius: 20px; padding: 20px; margin-bottom: 16px; }
+        .mobile-search-field { margin-bottom: 16px; }
+        .mobile-search-field:last-of-type { margin-bottom: 0; }
+        .mobile-search-label { font-size: 11px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .mobile-search-value { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--n1000); line-height: 1.2; }
+        .mobile-search-hint { font-size: 14px; color: var(--n600); margin-top: 2px; }
+        .mobile-search-divider { height: 1px; background: var(--n200); margin: 16px 0; }
+        .mobile-search-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        
+        .mobile-btn-primary { width: 100%; height: 56px; background: linear-gradient(135deg, var(--mint-500), var(--mint-600)); color: var(--n0); border: none; border-radius: 16px; font-family: var(--font-display); font-size: 17px; font-weight: 600; cursor: pointer; box-shadow: var(--glow-sm); }
+        .mobile-btn-secondary { width: 100%; height: 56px; background: var(--n200); color: var(--n1000); border: none; border-radius: 16px; font-family: var(--font-body); font-size: 17px; font-weight: 600; cursor: pointer; }
+        .mobile-btn-ghost { height: 44px; background: transparent; color: var(--mint-500); border: none; padding: 0 16px; font-family: var(--font-body); font-size: 15px; font-weight: 600; cursor: pointer; }
+        
+        .mobile-flight-card { background: var(--n100); border: 1px solid var(--n200); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+        .mobile-flight-card-best { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.08)); border-color: var(--mint-500); }
+        .mobile-flight-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .mobile-flight-airline { display: flex; align-items: center; gap: 10px; }
+        .mobile-flight-airline-logo { width: 36px; height: 36px; background: var(--n300); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--n600); }
+        .mobile-flight-airline-name { font-size: 15px; font-weight: 600; }
+        .mobile-flight-airline-code { font-size: 13px; color: var(--n600); }
+        .mobile-flight-price-block { text-align: right; }
+        .mobile-flight-price { font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .mobile-flight-price-currency { font-size: 16px; }
+        .mobile-flight-savings { display: inline-flex; align-items: center; gap: 4px; background: var(--mint-dim); color: var(--mint-500); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 99px; margin-top: 4px; }
+        .mobile-flight-route { display: flex; align-items: center; gap: 12px; }
+        .mobile-flight-endpoint { flex: 1; }
+        .mobile-flight-time { font-family: var(--font-display); font-size: 20px; font-weight: 600; line-height: 1; }
+        .mobile-flight-airport { font-size: 13px; color: var(--n600); margin-top: 2px; }
+        .mobile-flight-duration { flex: 2; text-align: center; }
+        .mobile-flight-duration-line { height: 2px; background: var(--n300); position: relative; margin-bottom: 4px; }
+        .mobile-flight-duration-line::before, .mobile-flight-duration-line::after { content: ''; position: absolute; width: 8px; height: 8px; background: var(--n0); border: 2px solid var(--mint-500); border-radius: 50%; top: 50%; transform: translateY(-50%); }
+        .mobile-flight-duration-line::before { left: 0; }
+        .mobile-flight-duration-line::after { right: 0; }
+        .mobile-flight-duration-text { font-size: 12px; color: var(--n600); }
+        .mobile-flight-duration-stops { font-size: 11px; color: var(--mint-500); font-weight: 600; }
+        
+        .mobile-input { width: 100%; height: 56px; background: var(--n100); border: 1px solid var(--n300); border-radius: 14px; padding: 0 16px; font-family: var(--font-body); font-size: 17px; color: var(--n1000); outline: none; }
+        .mobile-input::placeholder { color: var(--n500); }
+        .mobile-input:focus { border-color: var(--mint-500); box-shadow: 0 0 0 3px var(--mint-dim); }
+        
+        .mobile-badge { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+        .mobile-badge-mint { background: var(--mint-dim); color: var(--mint-500); }
+        .mobile-badge-warning { background: var(--warning-dim); color: var(--warning); }
+        .mobile-badge-error { background: var(--error-dim); color: var(--error); }
+        
+        .mobile-filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0; margin: 0 -16px; padding-left: 16px; padding-right: 16px; scrollbar-width: none; }
+        .mobile-filter-scroll::-webkit-scrollbar { display: none; }
+        .mobile-filter-pill { flex-shrink: 0; height: 36px; padding: 0 16px; background: var(--n200); border: 1px solid var(--n300); border-radius: 99px; font-size: 14px; font-weight: 500; color: var(--n800); white-space: nowrap; }
+        .mobile-filter-pill-active { background: var(--mint-500); border-color: var(--mint-500); color: var(--n0); }
+        
+        .mobile-alert { padding: 16px; border-radius: 14px; margin-bottom: 16px; }
+        .mobile-alert-success { background: var(--mint-dim); border: 1px solid var(--mint-muted); }
+        .mobile-alert-warning { background: var(--warning-dim); border: 1px solid rgba(255,184,0,0.24); }
+        .mobile-alert-error { background: var(--error-dim); border: 1px solid rgba(255,71,87,0.24); }
+        .mobile-alert-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+        .mobile-alert-message { font-size: 14px; color: var(--n700); line-height: 1.4; }
+        
+        /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+           TABLET COMPONENTS (744-1366px width)
+           Split-view optimized
+           â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+        
+        .tablet-container { width: 100%; min-height: 100%; display: flex; flex-direction: column; background: var(--n0); }
+        
+        .tablet-header { height: 64px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; background: var(--n50); border-bottom: 1px solid var(--n200); }
+        .tablet-header-logo { font-family: var(--font-display); font-size: 26px; font-weight: 700; background: linear-gradient(135deg, var(--mint-500), var(--cyan-500)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tablet-header-nav { display: flex; gap: 32px; }
+        .tablet-header-link { font-size: 15px; font-weight: 500; color: var(--n700); text-decoration: none; padding: 8px 0; border-bottom: 2px solid transparent; }
+        .tablet-header-link-active { color: var(--mint-500); border-bottom-color: var(--mint-500); }
+        
+        .tablet-split { display: flex; flex: 1; overflow: hidden; }
+        .tablet-split-left { width: 380px; flex-shrink: 0; background: var(--n50); border-right: 1px solid var(--n200); overflow-y: auto; padding: 24px; }
+        .tablet-split-right { flex: 1; overflow-y: auto; padding: 24px; }
+        
+        .tablet-search-box { background: var(--n100); border: 1px solid var(--n200); border-radius: 24px; padding: 24px; }
+        .tablet-search-box:focus-within { border-color: var(--mint-500); box-shadow: var(--glow-sm); }
+        .tablet-search-field { margin-bottom: 20px; }
+        .tablet-search-label { font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .tablet-search-input { width: 100%; background: transparent; border: none; font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--n1000); outline: none; }
+        .tablet-search-input::placeholder { color: var(--n400); }
+        .tablet-search-hint { font-size: 14px; color: var(--n600); margin-top: 4px; }
+        .tablet-search-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .tablet-search-divider { height: 1px; background: var(--n200); margin: 20px 0; }
+        
+        .tablet-btn-primary { width: 100%; height: 60px; background: linear-gradient(135deg, var(--mint-500), var(--mint-600)); color: var(--n0); border: none; border-radius: 16px; font-family: var(--font-display); font-size: 18px; font-weight: 600; cursor: pointer; box-shadow: var(--glow-sm); }
+        .tablet-btn-secondary { height: 52px; background: var(--n200); color: var(--n1000); border: none; border-radius: 14px; padding: 0 24px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        
+        .tablet-flight-card { background: var(--n100); border: 1px solid var(--n200); border-radius: 20px; padding: 24px; margin-bottom: 16px; cursor: pointer; transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s; }
+        .tablet-flight-card:hover { border-color: var(--n400); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .tablet-flight-card-best { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.08)); border-color: var(--mint-500); }
+        .tablet-flight-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .tablet-flight-airline { display: flex; align-items: center; gap: 14px; }
+        .tablet-flight-airline-logo { width: 48px; height: 48px; background: var(--n300); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--n600); }
+        .tablet-flight-airline-name { font-size: 18px; font-weight: 600; }
+        .tablet-flight-airline-code { font-size: 14px; color: var(--n600); }
+        .tablet-flight-price-block { text-align: right; }
+        .tablet-flight-price { font-family: var(--font-display); font-size: 36px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .tablet-flight-price-currency { font-size: 20px; }
+        .tablet-flight-savings { display: inline-flex; align-items: center; gap: 6px; background: var(--mint-dim); color: var(--mint-500); font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 99px; margin-top: 8px; }
+        .tablet-flight-route { display: flex; align-items: center; gap: 20px; }
+        .tablet-flight-endpoint { width: 100px; }
+        .tablet-flight-endpoint-right { text-align: right; }
+        .tablet-flight-time { font-family: var(--font-display); font-size: 28px; font-weight: 600; line-height: 1; }
+        .tablet-flight-airport { font-size: 15px; color: var(--n600); margin-top: 4px; }
+        .tablet-flight-duration { flex: 1; text-align: center; }
+        .tablet-flight-duration-line { height: 2px; background: var(--n300); position: relative; margin-bottom: 8px; }
+        .tablet-flight-duration-line::before, .tablet-flight-duration-line::after { content: ''; position: absolute; width: 10px; height: 10px; background: var(--n0); border: 2px solid var(--mint-500); border-radius: 50%; top: 50%; transform: translateY(-50%); }
+        .tablet-flight-duration-line::before { left: 0; }
+        .tablet-flight-duration-line::after { right: 0; }
+        .tablet-flight-duration-text { font-size: 14px; color: var(--n600); }
+        .tablet-flight-duration-stops { font-size: 13px; color: var(--mint-500); font-weight: 600; }
+        
+        .tablet-filter-bar { display: flex; gap: 12px; flex-wrap: wrap; }
+        .tablet-filter-chip { height: 40px; padding: 0 20px; background: var(--n200); border: 1px solid var(--n300); border-radius: 99px; font-size: 14px; font-weight: 500; color: var(--n800); cursor: pointer; }
+        .tablet-filter-chip-active { background: var(--mint-500); border-color: var(--mint-500); color: var(--n0); }
+        
+        /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+           DESKTOP COMPONENTS (1280px+ width)
+           Keyboard/mouse optimized
+           â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+        
+        .desktop-container { width: 100%; min-height: 100vh; display: flex; flex-direction: column; background: var(--n0); }
+        
+        .desktop-header { height: 72px; padding: 0 40px; display: flex; align-items: center; justify-content: space-between; background: var(--n50); border-bottom: 1px solid var(--n200); }
+        .desktop-header-left { display: flex; align-items: center; gap: 48px; }
+        .desktop-header-logo { font-family: var(--font-display); font-size: 28px; font-weight: 700; background: linear-gradient(135deg, var(--mint-500), var(--cyan-500)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .desktop-header-nav { display: flex; gap: 36px; }
+        .desktop-header-link { font-size: 15px; font-weight: 500; color: var(--n700); text-decoration: none; padding: 8px 0; position: relative; }
+        .desktop-header-link::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--mint-500); transform: scaleX(0); transition: transform 0.15s; }
+        .desktop-header-link:hover { color: var(--n1000); }
+        .desktop-header-link:hover::after { transform: scaleX(1); }
+        .desktop-header-link-active { color: var(--mint-500); }
+        .desktop-header-link-active::after { transform: scaleX(1); }
+        
+        .desktop-content { flex: 1; padding: 40px; max-width: 1600px; margin: 0 auto; width: 100%; }
+        
+        .desktop-search-box { background: var(--n100); border: 1px solid var(--n200); border-radius: 28px; padding: 28px 32px; display: flex; align-items: stretch; gap: 24px; transition: border-color 0.2s, box-shadow 0.2s; max-width: 1200px; margin: 0 auto; }
+        .desktop-search-box:focus-within { border-color: var(--mint-500); box-shadow: var(--glow-md); }
+        .desktop-search-field { flex: 1; min-width: 0; }
+        .desktop-search-label { font-size: 11px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .desktop-search-input { width: 100%; background: transparent; border: none; font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--n1000); outline: none; }
+        .desktop-search-input::placeholder { color: var(--n400); }
+        .desktop-search-hint { font-size: 14px; color: var(--n600); margin-top: 4px; }
+        .desktop-search-divider { width: 1px; background: var(--n300); align-self: stretch; }
+        .desktop-search-swap { width: 48px; height: 48px; background: var(--n200); border: 1px solid var(--n300); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; align-self: center; transition: all 0.15s; }
+        .desktop-search-swap:hover { background: var(--mint-500); border-color: var(--mint-500); color: var(--n0); transform: rotate(180deg); }
+        .desktop-search-btn { height: 64px; padding: 0 48px; background: linear-gradient(135deg, var(--mint-500), var(--mint-600)); color: var(--n0); border: none; border-radius: 20px; font-family: var(--font-display); font-size: 18px; font-weight: 600; cursor: pointer; box-shadow: var(--glow-sm); transition: all 0.15s; align-self: flex-end; white-space: nowrap; }
+        .desktop-search-btn:hover { transform: translateY(-2px); box-shadow: var(--glow-lg); }
+        
+        .desktop-results { display: grid; grid-template-columns: 280px 1fr; gap: 32px; margin-top: 48px; }
+        
+        .desktop-sidebar { background: var(--n100); border: 1px solid var(--n200); border-radius: 20px; padding: 24px; height: fit-content; position: sticky; top: 112px; }
+        .desktop-sidebar-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+        .desktop-filter-group { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--n200); }
+        .desktop-filter-group:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .desktop-filter-label { font-size: 13px; font-weight: 600; color: var(--n600); margin-bottom: 12px; }
+        .desktop-filter-option { display: flex; align-items: center; gap: 12px; padding: 10px 0; cursor: pointer; }
+        .desktop-filter-checkbox { width: 20px; height: 20px; border: 2px solid var(--n400); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+        .desktop-filter-checkbox-checked { background: var(--mint-500); border-color: var(--mint-500); }
+        .desktop-filter-option-label { flex: 1; font-size: 14px; }
+        .desktop-filter-option-count { font-size: 13px; color: var(--n600); }
+        
+        .desktop-flight-card { background: var(--n100); border: 1px solid var(--n200); border-radius: 24px; padding: 28px; margin-bottom: 20px; cursor: pointer; transition: all 0.15s; position: relative; overflow: hidden; }
+        .desktop-flight-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--mint-500), var(--cyan-500)); transform: scaleX(0); transform-origin: left; transition: transform 0.2s; }
+        .desktop-flight-card:hover { border-color: var(--n400); transform: translateY(-4px); box-shadow: var(--shadow-xl); }
+        .desktop-flight-card:hover::before { transform: scaleX(1); }
+        .desktop-flight-card-best { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.06)); border-color: var(--mint-500); }
+        .desktop-flight-card-best::before { transform: scaleX(1); }
+        .desktop-best-badge { position: absolute; top: 20px; right: 20px; background: var(--mint-500); color: var(--n0); font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .desktop-flight-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+        .desktop-flight-airline { display: flex; align-items: center; gap: 16px; }
+        .desktop-flight-airline-logo { width: 56px; height: 56px; background: var(--n300); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: var(--n600); }
+        .desktop-flight-airline-name { font-size: 20px; font-weight: 600; }
+        .desktop-flight-airline-code { font-size: 15px; color: var(--n600); margin-top: 2px; }
+        .desktop-flight-price-block { text-align: right; }
+        .desktop-flight-price { font-family: var(--font-display); font-size: 44px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .desktop-flight-price-currency { font-size: 24px; }
+        .desktop-flight-original { font-size: 18px; color: var(--n600); text-decoration: line-through; margin-top: 6px; }
+        .desktop-flight-savings { display: inline-flex; align-items: center; gap: 6px; background: var(--mint-dim); color: var(--mint-500); font-size: 14px; font-weight: 600; padding: 6px 16px; border-radius: 99px; margin-top: 10px; }
+        .desktop-flight-route { display: flex; align-items: center; gap: 32px; }
+        .desktop-flight-endpoint { width: 140px; }
+        .desktop-flight-endpoint-right { text-align: right; }
+        .desktop-flight-time { font-family: var(--font-display); font-size: 36px; font-weight: 600; line-height: 1; }
+        .desktop-flight-airport { font-size: 16px; color: var(--n600); margin-top: 6px; }
+        .desktop-flight-airport-full { font-size: 14px; color: var(--n500); margin-top: 2px; }
+        .desktop-flight-duration { flex: 1; text-align: center; }
+        .desktop-flight-duration-line { height: 2px; background: var(--n300); position: relative; margin-bottom: 10px; }
+        .desktop-flight-duration-line::before, .desktop-flight-duration-line::after { content: ''; position: absolute; width: 12px; height: 12px; background: var(--n0); border: 2px solid var(--mint-500); border-radius: 50%; top: 50%; transform: translateY(-50%); }
+        .desktop-flight-duration-line::before { left: 0; }
+        .desktop-flight-duration-line::after { right: 0; }
+        .desktop-flight-plane { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 24px; height: 24px; background: var(--mint-500); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--n0); font-size: 12px; }
+        .desktop-flight-duration-text { font-size: 15px; color: var(--n600); }
+        .desktop-flight-duration-stops { font-size: 14px; color: var(--mint-500); font-weight: 600; }
+        .desktop-flight-meta { display: flex; gap: 32px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--n200); }
+        .desktop-flight-meta-item { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--n600); }
+        .desktop-flight-actions { display: flex; gap: 12px; margin-left: auto; }
+        .desktop-flight-btn { height: 48px; padding: 0 32px; border-radius: 14px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .desktop-flight-btn-primary { background: var(--mint-500); color: var(--n0); border: none; }
+        .desktop-flight-btn-primary:hover { background: var(--mint-600); }
+        .desktop-flight-btn-secondary { background: transparent; color: var(--n700); border: 1px solid var(--n300); }
+        .desktop-flight-btn-secondary:hover { background: var(--n200); }
+        
+        .desktop-btn-primary { height: 56px; padding: 0 40px; background: linear-gradient(135deg, var(--mint-500), var(--mint-600)); color: var(--n0); border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: var(--glow-sm); transition: all 0.15s; }
+        .desktop-btn-primary:hover { transform: translateY(-2px); box-shadow: var(--glow-md); }
+        .desktop-btn-secondary { height: 56px; padding: 0 40px; background: var(--n200); color: var(--n1000); border: none; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        
+        .desktop-input { width: 100%; height: 56px; background: var(--n100); border: 1px solid var(--n300); border-radius: 14px; padding: 0 20px; font-size: 16px; color: var(--n1000); outline: none; }
+        .desktop-input:focus { border-color: var(--mint-500); box-shadow: 0 0 0 3px var(--mint-dim); }
+        
+        /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+           SHARED COMPONENTS
+           â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+        
+        /* Error Fare Banner */
+        .error-fare-banner { background: linear-gradient(90deg, #FF4757, #FF6B81); color: white; display: flex; align-items: center; gap: 16px; padding: 16px 40px; }
+        .error-fare-pulse { width: 12px; height: 12px; background: white; border-radius: 50%; animation: pulse 1s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
+        .error-fare-content { flex: 1; }
+        .error-fare-title { font-weight: 700; font-size: 18px; }
+        .error-fare-subtitle { font-size: 14px; opacity: 0.9; }
+        .error-fare-btn { background: white; color: #FF4757; font-weight: 700; padding: 10px 24px; border-radius: 99px; border: none; cursor: pointer; white-space: nowrap; }
+        
+        /* Price Alert Card */
+        .price-alert-card { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.06)); border: 1px solid var(--mint-500); border-radius: 20px; padding: 32px; position: relative; overflow: hidden; }
+        .price-alert-card::before { content: ''; position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, var(--mint-dim) 0%, transparent 70%); pointer-events: none; }
+        .price-alert-icon { width: 56px; height: 56px; background: var(--mint-500); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px; }
+        
+        /* Skeletons */
+        .skeleton { background: linear-gradient(90deg, var(--n200) 0%, var(--n300) 50%, var(--n200) 100%); background-size: 200% 100%; animation: shimmer 1.5s ease-in-out infinite; border-radius: 8px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        
+        /* Spinners */
+        .spinner { border: 3px solid var(--n300); border-top-color: var(--mint-500); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .spinner-sm { width: 20px; height: 20px; border-width: 2px; }
+        .spinner-md { width: 32px; height: 32px; }
+        .spinner-lg { width: 48px; height: 48px; border-width: 4px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* Typography helpers */
+        .type-watch-price { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .type-mobile-price-xl { font-family: var(--font-display); font-size: 40px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .type-mobile-price-lg { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .type-mobile-price-md { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .type-mobile-h1 { font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+        .type-mobile-h2 { font-family: var(--font-display); font-size: 22px; font-weight: 600; }
+        .type-mobile-h3 { font-family: var(--font-display); font-size: 18px; font-weight: 600; }
+        .type-mobile-body { font-family: var(--font-body); font-size: 15px; }
+        .type-mobile-caption { font-family: var(--font-body); font-size: 12px; color: var(--n600); }
+        .type-tablet-price-xl { font-family: var(--font-display); font-size: 56px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .type-tablet-h1 { font-family: var(--font-display); font-size: 36px; font-weight: 700; }
+        .type-tablet-h2 { font-family: var(--font-display); font-size: 28px; font-weight: 600; }
+        .type-desktop-price-xl { font-family: var(--font-display); font-size: 72px; font-weight: 700; color: var(--mint-500); line-height: 1; }
+        .type-desktop-hero { font-family: var(--font-display); font-size: 96px; font-weight: 700; letter-spacing: -0.04em; }
+        .type-desktop-h1 { font-family: var(--font-display); font-size: 48px; font-weight: 700; }
+        .type-desktop-h2 { font-family: var(--font-display); font-size: 36px; font-weight: 600; }
+        .type-desktop-h3 { font-family: var(--font-display); font-size: 28px; font-weight: 600; }
+        .type-desktop-body-lg { font-family: var(--font-body); font-size: 18px; color: var(--n600); }
+    </style>
+</head>
+<body>
+    <div class="doc">
+        <!-- Document Header -->
+        <header class="doc-header">
+            <div class="doc-logo">VAYA</div>
+            <div class="doc-version">DESIGN SYSTEM v2.0</div>
+            <p class="doc-tagline">Pixel-Perfect â€¢ Device-Dedicated â€¢ Zero Laziness â€¢ Kiasu Paranoid</p>
+        </header>
+
+        <!-- SECTION: Watch Components -->
+        <section class="section">
+            <div class="section-num">Section 01</div>
+            <h2 class="section-title">Watch Components</h2>
+            <p class="section-desc">Apple Watch 38mm (162px) to 49mm (198px). Glanceable. Essential info only. Maximum 3 taps to any action. Touch targets: 38px minimum.</p>
+            
+            <div class="device-row">
+                <div>
+                    <p style="font-family: var(--font-mono); font-size: 11px; color: var(--n600); margin-bottom: 12px; text-align: center;">PRICE DROP ALERT</p>
+                    <div class="device-watch">
+                        <div class="device-watch-screen">
+                            <div class="watch-container" style="padding-top: 20px;">
+                                <div class="watch-content">
+                                    <div class="watch-price-card">
+                                        <div class="watch-price-route">KUL â†’ NRT</div>
+                                        <div class="watch-price-value">RM 847</div>
+                                        <div class="watch-price-savings">â†“ 42% drop</div>
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--n600); margin-bottom: 8px;">AirAsia X Â· Mar 15 Â· Direct</div>
+                                    <button class="watch-btn">Book Now</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="device-watch-crown"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <p style="font-family: var(--font-mono); font-size: 11px; color: var(--n600); margin-bottom: 12px; text-align: center;">QUICK VIEW</p>
+                    <div class="device-watch">
+                        <div class="device-watch-screen">
+                            <div class="watch-container" style="padding-top: 20px;">
+                                <div class="watch-content">
+                                    <div style="text-align: center; margin-bottom: 12px;">
+                                        <div class="watch-logo" style="font-size: 18px; margin-bottom: 8px;">VAYA</div>
+                                        <div style="font-size: 11px; color: var(--n600);">Watching 3 routes</div>
+                                    </div>
+                                    <div class="watch-alert-card">
+                                        <div class="watch-alert-row">
+                                            <span class="watch-alert-route">KULâ†’NRT</span>
+                                            <span class="watch-alert-price">RM 847</span>
+                                        </div>
+                                    </div>
+                                    <div class="watch-alert-card">
+                                        <div class="watch-alert-row">
+                                            <span class="watch-alert-route">KULâ†’LHR</span>
+                                            <span class="watch-alert-price" style="color: var(--n700);">RM 2.1k</span>
+                                        </div>
+                                    </div>
+                                    <div class="watch-alert-card">
+                                        <div class="watch-alert-row">
+                                            <span class="watch-alert-route">KULâ†’SYD</span>
+                                            <span class="watch-alert-price" style="color: var(--n700);">RM 1.6k</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="device-watch-crown"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <p style="font-family: var(--font-mono); font-size: 11px; color: var(--n600); margin-bottom: 12px; text-align: center;">COMPLICATIONS</p>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+                        <div class="watch-complication">
+                            <div class="watch-complication-value">847</div>
+                            <div class="watch-complication-label">MYR</div>
+                        </div>
+                        <div class="watch-complication" style="border-color: var(--error);">
+                            <div class="watch-complication-value" style="color: var(--error);">!</div>
+                            <div class="watch-complication-label">DEAL</div>
+                        </div>
+                        <div class="watch-complication" style="border-color: var(--n400);">
+                            <div class="watch-complication-value" style="color: var(--n700);">3</div>
+                            <div class="watch-complication-label">ALERTS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Mobile Components -->
+        <section class="section">
+            <div class="section-num">Section 02</div>
+            <h2 class="section-title">Mobile Components</h2>
+            <p class="section-desc">iPhone SE (320px) to iPhone 14 Pro Max (428px). One-thumb operation. Bottom navigation. 44px minimum touch targets. Safe area: 34px bottom.</p>
+            
+            <div class="device-row">
+                <!-- Mobile Search -->
+                <div>
+                    <p style="font-family: var(--font-mono); font-size: 11px; color: var(--n600); margin-bottom: 12px; text-align: center;">SEARCH SCREEN</p>
+                    <div class="device-mobile">
+                        <div class="device-mobile-screen" style="min-height: 844px;">
+                            <div class="device-mobile-notch"></div>
+                            <div class="mobile-container">
+                                <div class="mobile-header">
+                                    <div class="mobile-header-logo">VAYA</div>
+                                    <button class="mobile-header-btn">âš™ï¸</button>
+                                </div>
+                                <div class="mobile-content">
+                                    <h1 class="type-mobile-h1" style="margin-bottom: 20px;">Where to?</h1>
+                                    <div class="mobile-search-card">
+                                        <div class="mobile-search-field">
+                                            <div class="mobile-search-label">From</div>
+                                            <div class="mobile-search-value">Kuala Lumpur</div>
+                                            <div class="mobile-search-hint">KUL Â· Malaysia</div>
+                                        </div>
+                                        <div class="mobile-search-divider"></div>
+                                        <div class="mobile-search-field">
+                                            <div class="mobile-search-label">To</div>
+                                            <div class="mobile-search-value">Tokyo</div>
+                                            <div class="mobile-search-hint">NRT Â· Japan</div>
+                                        </div>
+                                        <div class="mobile-search-divider"></div>
+                                        <div class="mobile-search-row">
+                                            <div class="mobile-search-field">
+                                                <div class="mobile-search-label">Depart</div>
+                                                <div class="mobile-search-value">Mar 15</div>
+                                                <div class="mobile-search-hint">Saturday</div>
+                                            </div>
+                                            <div class="mobile-search-field">
+                                                <div class="mobile-search-label">Return</div>
+                                                <div class="mobile-search-value">Mar 22</div>
+                                                <div class="mobile-search-hint">Saturday</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="mobile-btn-primary">Search Flights</button>
+                                    
+                                    <div style="margin-top: 32px;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                            <span class="type-mobile-h3">Recent</span>
+                                            <button class="mobile-btn-ghost">Clear</button>
+                                        </div>
+                                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                                            <div style="display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--n100); border-radius: 14px;">
+                                                <span style="font-size: 24px;">ðŸ‡¯ðŸ‡µ</span>
+                                                <div style="flex: 1;">
+                                                    <div class="type-mobile-body" style="font-weight: 600;">KUL â†’ NRT</div>
+                                                    <div class="type-mobile-caption">Mar 15 - 22 Â· 2 adults</div>
+                                                </div>
+                                                <span class="type-mobile-price-md">RM 847</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mobile-nav">
+                                    <a href="#" class="mobile-nav-item mobile-nav-item-active">
+                                        <span class="mobile-nav-icon">ðŸ”</span>
+                                        <span class="mobile-nav-label">Search</span>
+                                    </a>
+                                    <a href="#" class="mobile-nav-item">
+                                        <span class="mobile-nav-icon">ðŸ”–</span>
+                                        <span class="mobile-nav-label">Saved</span>
+                                    </a>
+                                    <a href="#" class="mobile-nav-item">
+                                        <span class="mobile-nav-icon">ðŸ””</span>
+                                        <span class="mobile-nav-label">Alerts</span>
+                                    </a>
+                                    <a href="#" class="mobile-nav-item">
+                                        <span class="mobile-nav-icon">ðŸ‘¤</span>
+                                        <span class="mobile-nav-label">Account</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="device-mobile-home"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Results -->
+                <div>
+                    <p style="font-family: var(--font-mono); font-size: 11px; color: var(--n600); margin-bottom: 12px; text-align: center;">RESULTS SCREEN</p>
+                    <div class="device-mobile">
+                        <div class="device-mobile-screen" style="min-height: 844px;">
+                            <div class="device-mobile-notch"></div>
+                            <div class="mobile-container">
+                                <div class="mobile-header">
+                                    <button class="mobile-header-btn">â†</button>
+                                    <div style="text-align: center;">
+                                        <div class="mobile-header-title">KUL â†’ NRT</div>
+                                        <div class="mobile-header-subtitle">Mar 15 - 22 Â· 2 adults</div>
+                                    </div>
+                                    <button class="mobile-header-btn">âš™ï¸</button>
+                                </div>
+                                <div class="mobile-content" style="padding-top: 12px;">
+                                    <div class="mobile-filter-scroll">
+                                        <button class="mobile-filter-pill mobile-filter-pill-active">Direct</button>
+                                        <button class="mobile-filter-pill">1 Stop</button>
+                                        <button class="mobile-filter-pill">Morning</button>
+                                        <button class="mobile-filter-pill">Cheapest</button>
+                                        <button class="mobile-filter-pill">Fastest</button>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 16px 0;">
+                                        <span class="type-mobile-caption">47 flights found</span>
+                                        <button class="mobile-btn-ghost" style="font-size: 13px;">Sort: Price â†‘</button>
+                                    </div>
+                                    
+                                    <!-- Best Deal -->
+                                    <div class="mobile-flight-card mobile-flight-card-best">
+                                        <div class="mobile-flight-header">
+                                            <div class="mobile-flight-airline">
+                                                <div class="mobile-flight-airline-logo">AK</div>
+                                                <div>
+                                                    <div class="mobile-flight-airline-name">AirAsia X</div>
+                                                    <div class="mobile-flight-airline-code">D7 386</div>
+                                                </div>
+                                            </div>
+                                            <div class="mobile-flight-price-block">
+                                                <div class="mobile-flight-price"><span class="mobile-flight-price-currency">RM</span> 847</div>
+                                                <div class="mobile-flight-savings">â†‘ Save 42%</div>
+                                            </div>
+                                        </div>
+                                        <div class="mobile-flight-route">
+                                            <div class="mobile-flight-endpoint">
+                                                <div class="mobile-flight-time">14:30</div>
+                                                <div class="mobile-flight-airport">KUL</div>
+                                            </div>
+                                            <div class="mobile-flight-duration">
+                                                <div class="mobile-flight-duration-line"></div>
+                                                <div class="mobile-flight-duration-text">7h 15m</div>
+                                                <div class="mobile-flight-duration-stops">Direct</div>
+                                            </div>
+                                            <div class="mobile-flight-endpoint" style="text-align: right;">
+                                                <div class="mobile-flight-time">22:45</div>
+                                                <div class="mobile-flight-airport">NRT</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Standard Card -->
+                                    <div class="mobile-flight-card">
+                                        <div class="mobile-flight-header">
+                                            <div class="mobile-flight-airline">
+                                                <div class="mobile-flight-airline-logo">MH</div>
+                                                <div>
+                                                    <div class="mobile-flight-airline-name">Malaysia Airlines</div>
+                                                    <div class="mobile-flight-airline-code">MH 88</div>
+                                                </div>
+                                            </div>
+                                            <div class="mobile-flight-price-block">
+                                                <div class="mobile-flight-price"><span class="mobile-flight-price-currency">RM</span> 1,247</div>
+                                                <div class="mobile-flight-savings">â†‘ Save 28%</div>
+                                            </div>
+                                        </div>
+                                        <div class="mobile-flight-route">
+                                            <div class="mobile-flight-endpoint">
+                                                <div class="mobile-flight-time">09:00</div>
+                                                <div class="mobile-flight-airport">KUL</div>
+                                            </div>
+                                            <div class="mobile-flight-duration">
+                                                <div class="mobile-flight-duration-line"></div>
+                                                <div class="mobile-flight-duration-text">7h</div>
+                                                <div class="mobile-flight-duration-stops">Direct</div>
+                                            </div>
+                                            <div class="mobile-flight-endpoint" style="text-align: right;">
+                                                <div class="mobile-flight-time">17:00</div>
+                                                <div class="mobile-flight-airport">NRT</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="device-mobile-home"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Tablet Components -->
+        <section class="section">
+            <div class="section-num">Section 03</div>
+            <h2 class="section-title">Tablet Components</h2>
+            <p class="section-desc">iPad Mini (744px) to iPad Pro 12.9" (1366px). Split-view optimized. Landscape-first. Touch + Pencil ready. Touch targets: 48px optimal.</p>
+            
+            <div style="margin-bottom: 48px;">
+                <p style="font-family: var(--font-mono); font-size: 11px; color: var(--n600); margin-bottom: 12px; text-align: center;">SPLIT VIEW LAYOUT</p>
+                <div class="device-tablet">
+                    <div class="device-tablet-screen" style="min-height: 600px;">
+                        <div class="tablet-container" style="height: 100%;">
+                            <div class="tablet-header">
+                                <div class="tablet-header-logo">VAYA</div>
+                                <div class="tablet-header-nav">
+                                    <a href="#" class="tablet-header-link tablet-header-link-active">Search</a>
+                                    <a href="#" class="tablet-header-link">Deals</a>
+                                    <a href="#" class="tablet-header-link">Alerts</a>
+                                </div>
+                                <button class="tablet-btn-secondary" style="height: 44px; padding: 0 20px; font-size: 14px;">Sign In</button>
+                            </div>
+                            <div class="tablet-split">
+                                <div class="tablet-split-left">
+                                    <h2 class="type-tablet-h2" style="margin-bottom: 24px;">Search Flights</h2>
+                                    <div class="tablet-search-box">
+                                        <div class="tablet-search-field">
+                                            <div class="tablet-search-label">From</div>
+                                            <input type="text" class="tablet-search-input" value="Kuala Lumpur">
+                                            <div class="tablet-search-hint">KUL Â· Malaysia</div>
+                                        </div>
+                                        <div class="tablet-search-divider"></div>
+                                        <div class="tablet-search-field">
+                                            <div class="tablet-search-label">To</div>
+                                            <input type="text" class="tablet-search-input" value="Tokyo">
+                                            <div class="tablet-search-hint">NRT Â· Japan</div>
+                                        </div>
+                                        <div class="tablet-search-divider"></div>
+                                        <div class="tablet-search-row">
+                                            <div class="tablet-search-field">
+                                                <div class="tablet-search-label">Depart</div>
+                                                <input type="text" class="tablet-search-input" value="Mar 15" style="font-size: 20px;">
+                                            </div>
+                                            <div class="tablet-search-field">
+                                                <div class="tablet-search-label">Return</div>
+                                                <input type="text" class="tablet-search-input" value="Mar 22" style="font-size: 20px;">
+                                            </div>
+                                        </div>
+                                        <button class="tablet-btn-primary" style="margin-top: 20px;">Search Flights</button>
+                                    </div>
+                                </div>
+                                <div class="tablet-split-right">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                        <h2 class="type-tablet-h2">47 flights found</h2>
+                                        <div class="tablet-filter-bar" style="margin-bottom: 0;">
+                                            <button class="tablet-filter-chip tablet-filter-chip-active">Direct</button>
+                                            <button class="tablet-filter-chip">1 Stop</button>
+                                            <button class="tablet-filter-chip">Morning</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="tablet-flight-card tablet-flight-card-best">
+                                        <div class="tablet-flight-header">
+                                            <div class="tablet-flight-airline">
+                                                <div class="tablet-flight-airline-logo">AK</div>
+                                                <div>
+                                                    <div class="tablet-flight-airline-name">AirAsia X</div>
+                                                    <div class="tablet-flight-airline-code">D7 386</div>
+                                                </div>
+                                            </div>
+                                            <div class="tablet-flight-price-block">
+                                                <div class="tablet-flight-price"><span class="tablet-flight-price-currency">RM</span> 847</div>
+                                                <div class="tablet-flight-savings">â†‘ Save 42%</div>
+                                            </div>
+                                        </div>
+                                        <div class="tablet-flight-route">
+                                            <div class="tablet-flight-endpoint">
+                                                <div class="tablet-flight-time">14:30</div>
+                                                <div class="tablet-flight-airport">KUL</div>
+                                            </div>
+                                            <div class="tablet-flight-duration">
+                                                <div class="tablet-flight-duration-line"></div>
+                                                <div class="tablet-flight-duration-text">7h 15m</div>
+                                                <div class="tablet-flight-duration-stops">Direct</div>
+                                            </div>
+                                            <div class="tablet-flight-endpoint tablet-flight-endpoint-right">
+                                                <div class="tablet-flight-time">22:45</div>
+                                                <div class="tablet-flight-airport">NRT</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="tablet-flight-card">
+                                        <div class="tablet-flight-header">
+                                            <div class="tablet-flight-airline">
+                                                <div class="tablet-flight-airline-logo">MH</div>
+                                                <div>
+                                                    <div class="tablet-flight-airline-name">Malaysia Airlines</div>
+                                                    <div class="tablet-flight-airline-code">MH 88</div>
+                                                </div>
+                                            </div>
+                                            <div class="tablet-flight-price-block">
+                                                <div class="tablet-flight-price"><span class="tablet-flight-price-currency">RM</span> 1,247</div>
+                                            </div>
+                                        </div>
+                                        <div class="tablet-flight-route">
+                                            <div class="tablet-flight-endpoint">
+                                                <div class="tablet-flight-time">09:00</div>
+                                                <div class="tablet-flight-airport">KUL</div>
+                                            </div>
+                                            <div class="tablet-flight-duration">
+                                                <div class="tablet-flight-duration-line"></div>
+                                                <div class="tablet-flight-duration-text">7h</div>
+                                                <div class="tablet-flight-duration-stops">Direct</div>
+                                            </div>
+                                            <div class="tablet-flight-endpoint tablet-flight-endpoint-right">
+                                                <div class="tablet-flight-time">17:00</div>
+                                                <div class="tablet-flight-airport">NRT</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Desktop Components -->
+        <section class="section">
+            <div class="section-num">Section 04</div>
+            <h2 class="section-title">Desktop Components</h2>
+            <p class="section-desc">1280px to 2560px+. Keyboard shortcuts. Multi-column layouts. Mouse precision (36px targets). Hover states enabled.</p>
+            
+            <div style="margin-bottom: 48px;">
+                <p style="font-family: var(--font-mono); font-size: 11px; color: var(--n600); margin-bottom: 12px; text-align: center;">FULL DESKTOP LAYOUT</p>
+                <div class="device-desktop">
+                    <div class="device-desktop-toolbar">
+                        <div class="device-desktop-dot device-desktop-dot-red"></div>
+                        <div class="device-desktop-dot device-desktop-dot-yellow"></div>
+                        <div class="device-desktop-dot device-desktop-dot-green"></div>
+                    </div>
+                    <div class="device-desktop-screen" style="min-height: 700px;">
+                        <div class="desktop-container">
+                            <div class="desktop-header">
+                                <div class="desktop-header-left">
+                                    <a href="#" class="desktop-header-logo">VAYA</a>
+                                    <nav class="desktop-header-nav">
+                                        <a href="#" class="desktop-header-link desktop-header-link-active">Search</a>
+                                        <a href="#" class="desktop-header-link">Deals</a>
+                                        <a href="#" class="desktop-header-link">Price Alerts</a>
+                                        <a href="#" class="desktop-header-link">How It Works</a>
+                                    </nav>
+                                </div>
+                                <button class="desktop-btn-secondary" style="height: 44px; padding: 0 24px;">Sign In</button>
+                            </div>
+                            <div class="desktop-content" style="padding-top: 60px;">
+                                <div style="text-align: center; margin-bottom: 48px;">
+                                    <h1 class="type-desktop-hero" style="margin-bottom: 16px;">Where to?</h1>
+                                    <p class="type-desktop-body-lg">Find the cheapest flights. No bullshit.</p>
+                                </div>
+                                
+                                <div class="desktop-search-box">
+                                    <div class="desktop-search-field" style="flex: 1.5;">
+                                        <div class="desktop-search-label">From</div>
+                                        <input type="text" class="desktop-search-input" value="Kuala Lumpur">
+                                        <div class="desktop-search-hint">KUL Â· Malaysia</div>
+                                    </div>
+                                    <button class="desktop-search-swap">â‡„</button>
+                                    <div class="desktop-search-field" style="flex: 1.5;">
+                                        <div class="desktop-search-label">To</div>
+                                        <input type="text" class="desktop-search-input" value="Tokyo">
+                                        <div class="desktop-search-hint">NRT Â· Japan</div>
+                                    </div>
+                                    <div class="desktop-search-divider"></div>
+                                    <div class="desktop-search-field">
+                                        <div class="desktop-search-label">Depart</div>
+                                        <input type="text" class="desktop-search-input" value="Mar 15" style="font-size: 20px;">
+                                        <div class="desktop-search-hint">Saturday</div>
+                                    </div>
+                                    <div class="desktop-search-field">
+                                        <div class="desktop-search-label">Return</div>
+                                        <input type="text" class="desktop-search-input" value="Mar 22" style="font-size: 20px;">
+                                        <div class="desktop-search-hint">Saturday</div>
+                                    </div>
+                                    <div class="desktop-search-divider"></div>
+                                    <div class="desktop-search-field" style="flex: 0.5;">
+                                        <div class="desktop-search-label">Travelers</div>
+                                        <input type="text" class="desktop-search-input" value="2" style="text-align: center; font-size: 20px;">
+                                        <div class="desktop-search-hint">Adults</div>
+                                    </div>
+                                    <button class="desktop-search-btn">Search</button>
+                                </div>
+                                
+                                <div class="desktop-results">
+                                    <div class="desktop-sidebar">
+                                        <h3 class="desktop-sidebar-title">Filters</h3>
+                                        <div class="desktop-filter-group">
+                                            <div class="desktop-filter-label">Stops</div>
+                                            <div class="desktop-filter-option">
+                                                <div class="desktop-filter-checkbox desktop-filter-checkbox-checked">âœ“</div>
+                                                <span class="desktop-filter-option-label">Direct</span>
+                                                <span class="desktop-filter-option-count">12</span>
+                                            </div>
+                                            <div class="desktop-filter-option">
+                                                <div class="desktop-filter-checkbox"></div>
+                                                <span class="desktop-filter-option-label">1 Stop</span>
+                                                <span class="desktop-filter-option-count">28</span>
+                                            </div>
+                                            <div class="desktop-filter-option">
+                                                <div class="desktop-filter-checkbox"></div>
+                                                <span class="desktop-filter-option-label">2+ Stops</span>
+                                                <span class="desktop-filter-option-count">7</span>
+                                            </div>
+                                        </div>
+                                        <div class="desktop-filter-group">
+                                            <div class="desktop-filter-label">Airlines</div>
+                                            <div class="desktop-filter-option">
+                                                <div class="desktop-filter-checkbox desktop-filter-checkbox-checked">âœ“</div>
+                                                <span class="desktop-filter-option-label">AirAsia X</span>
+                                                <span class="desktop-filter-option-count">8</span>
+                                            </div>
+                                            <div class="desktop-filter-option">
+                                                <div class="desktop-filter-checkbox"></div>
+                                                <span class="desktop-filter-option-label">Malaysia Airlines</span>
+                                                <span class="desktop-filter-option-count">6</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="flex: 1;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                                            <h2 class="type-desktop-h3">47 flights found</h2>
+                                            <div style="display: flex; gap: 12px;">
+                                                <button class="tablet-filter-chip tablet-filter-chip-active">Cheapest</button>
+                                                <button class="tablet-filter-chip">Fastest</button>
+                                                <button class="tablet-filter-chip">Best</button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="desktop-flight-card desktop-flight-card-best">
+                                            <div class="desktop-best-badge">BEST DEAL</div>
+                                            <div class="desktop-flight-header">
+                                                <div class="desktop-flight-airline">
+                                                    <div class="desktop-flight-airline-logo">AK</div>
+                                                    <div>
+                                                        <div class="desktop-flight-airline-name">AirAsia X</div>
+                                                        <div class="desktop-flight-airline-code">D7 386 Â· Airbus A330</div>
+                                                    </div>
+                                                </div>
+                                                <div class="desktop-flight-price-block">
+                                                    <div class="desktop-flight-price"><span class="desktop-flight-price-currency">RM</span> 847</div>
+                                                    <div class="desktop-flight-original">RM 1,460</div>
+                                                    <div class="desktop-flight-savings">â†‘ Save 42% (RM 613)</div>
+                                                </div>
+                                            </div>
+                                            <div class="desktop-flight-route">
+                                                <div class="desktop-flight-endpoint">
+                                                    <div class="desktop-flight-time">14:30</div>
+                                                    <div class="desktop-flight-airport">KUL</div>
+                                                    <div class="desktop-flight-airport-full">Kuala Lumpur Intl</div>
+                                                </div>
+                                                <div class="desktop-flight-duration">
+                                                    <div class="desktop-flight-duration-line" style="position: relative;">
+                                                        <div class="desktop-flight-plane">âœˆ</div>
+                                                    </div>
+                                                    <div class="desktop-flight-duration-text">7h 15m</div>
+                                                    <div class="desktop-flight-duration-stops">Direct flight</div>
+                                                </div>
+                                                <div class="desktop-flight-endpoint desktop-flight-endpoint-right">
+                                                    <div class="desktop-flight-time">22:45</div>
+                                                    <div class="desktop-flight-airport">NRT</div>
+                                                    <div class="desktop-flight-airport-full">Tokyo Narita</div>
+                                                </div>
+                                            </div>
+                                            <div class="desktop-flight-meta">
+                                                <div class="desktop-flight-meta-item">ðŸ’¼ 7kg carry-on</div>
+                                                <div class="desktop-flight-meta-item">ðŸ’° No change fee</div>
+                                                <div class="desktop-flight-actions">
+                                                    <button class="desktop-flight-btn desktop-flight-btn-secondary">Details</button>
+                                                    <button class="desktop-flight-btn desktop-flight-btn-primary">Select</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Component States -->
+        <section class="section">
+            <div class="section-num">Section 05</div>
+            <h2 class="section-title">Component States</h2>
+            <p class="section-desc">Every interactive element has defined states. Default, hover, focus, active, disabled, loading. Pixel-perfect transitions.</p>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Button States</h3>
+                <div class="grid grid-5">
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Default</span></div>
+                        <div class="comp-body">
+                            <div class="comp-preview">
+                                <button class="mobile-btn-primary" style="width: auto; padding: 0 32px;">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Pressed</span></div>
+                        <div class="comp-body">
+                            <div class="comp-preview">
+                                <button class="mobile-btn-primary" style="width: auto; padding: 0 32px; transform: scale(0.98); box-shadow: var(--glow-md);">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Loading</span></div>
+                        <div class="comp-body">
+                            <div class="comp-preview">
+                                <button class="mobile-btn-primary" style="width: auto; padding: 0 32px; opacity: 0.8;">
+                                    <div class="spinner spinner-sm" style="border-color: rgba(0,0,0,0.2); border-top-color: black;"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Disabled</span></div>
+                        <div class="comp-body">
+                            <div class="comp-preview">
+                                <button class="mobile-btn-primary" style="width: auto; padding: 0 32px; opacity: 0.4; cursor: not-allowed;">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Success</span></div>
+                        <div class="comp-body">
+                            <div class="comp-preview">
+                                <button class="mobile-btn-primary" style="width: auto; padding: 0 32px; background: var(--mint-600);">âœ“</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Input States</h3>
+                <div class="grid grid-4">
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Default</span></div>
+                        <div class="comp-body">
+                            <input type="text" class="mobile-input" placeholder="Enter city" style="height: 52px;">
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Focus</span></div>
+                        <div class="comp-body">
+                            <input type="text" class="mobile-input" value="Tokyo" style="height: 52px; border-color: var(--mint-500); box-shadow: 0 0 0 3px var(--mint-dim);">
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Error</span></div>
+                        <div class="comp-body">
+                            <input type="text" class="mobile-input" value="Invalid" style="height: 52px; border-color: var(--error); box-shadow: 0 0 0 3px var(--error-dim);">
+                            <p style="font-size: 12px; color: var(--error); margin-top: 6px;">City not found</p>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Disabled</span></div>
+                        <div class="comp-body">
+                            <input type="text" class="mobile-input" value="Locked" disabled style="height: 52px; opacity: 0.5; cursor: not-allowed;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Card States</h3>
+                <div class="grid grid-3">
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Default</span></div>
+                        <div class="comp-body" style="padding: 0;">
+                            <div style="background: var(--n100); border: 1px solid var(--n200); border-radius: 16px; padding: 20px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <span style="font-weight: 600;">AirAsia X</span>
+                                    <span class="type-mobile-price-md">RM 847</span>
+                                </div>
+                                <div style="font-size: 14px; color: var(--n600);">KUL â†’ NRT Â· 7h 15m</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Hover</span></div>
+                        <div class="comp-body" style="padding: 0;">
+                            <div style="background: var(--n100); border: 1px solid var(--n400); border-radius: 16px; padding: 20px; transform: translateY(-4px); box-shadow: var(--shadow-lg);">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <span style="font-weight: 600;">AirAsia X</span>
+                                    <span class="type-mobile-price-md">RM 847</span>
+                                </div>
+                                <div style="font-size: 14px; color: var(--n600);">KUL â†’ NRT Â· 7h 15m</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Best Deal</span></div>
+                        <div class="comp-body" style="padding: 0;">
+                            <div style="background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.08)); border: 1px solid var(--mint-500); border-radius: 16px; padding: 20px; position: relative; overflow: hidden;">
+                                <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--mint-500), var(--cyan-500));"></div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                    <span style="font-weight: 600;">AirAsia X</span>
+                                    <span class="type-mobile-price-md">RM 847</span>
+                                </div>
+                                <div style="font-size: 14px; color: var(--n600);">KUL â†’ NRT Â· 7h 15m</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Loading States -->
+        <section class="section">
+            <div class="section-num">Section 06</div>
+            <h2 class="section-title">Loading States</h2>
+            <p class="section-desc">Loading should feel fast. Skeleton shimmer. Spinners where needed. Progressive loading for large result sets.</p>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Skeleton Loaders</h3>
+                <div class="grid grid-3">
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Flight Card Skeleton</span></div>
+                        <div class="comp-body" style="padding: 0;">
+                            <div style="background: var(--n100); border-radius: 16px; padding: 20px;">
+                                <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                                    <div class="skeleton" style="width: 48px; height: 48px; border-radius: 12px;"></div>
+                                    <div style="flex: 1;">
+                                        <div class="skeleton" style="height: 16px; width: 60%; margin-bottom: 8px;"></div>
+                                        <div class="skeleton" style="height: 12px; width: 40%;"></div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div class="skeleton" style="height: 24px; width: 80px; margin-bottom: 8px;"></div>
+                                        <div class="skeleton" style="height: 12px; width: 60px;"></div>
+                                    </div>
+                                </div>
+                                <div class="skeleton" style="height: 40px; border-radius: 8px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Search Box Skeleton</span></div>
+                        <div class="comp-body" style="padding: 0;">
+                            <div style="background: var(--n100); border-radius: 16px; padding: 20px;">
+                                <div class="skeleton" style="height: 12px; width: 30%; margin-bottom: 8px;"></div>
+                                <div class="skeleton" style="height: 24px; width: 70%; margin-bottom: 16px;"></div>
+                                <div class="skeleton" style="height: 1px; width: 100%; margin-bottom: 16px;"></div>
+                                <div class="skeleton" style="height: 12px; width: 30%; margin-bottom: 8px;"></div>
+                                <div class="skeleton" style="height: 24px; width: 50%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">List Skeleton</span></div>
+                        <div class="comp-body">
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <div class="skeleton" style="width: 40px; height: 40px; border-radius: 10px;"></div>
+                                    <div style="flex: 1;">
+                                        <div class="skeleton" style="height: 14px; width: 80%; margin-bottom: 6px;"></div>
+                                        <div class="skeleton" style="height: 10px; width: 50%;"></div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <div class="skeleton" style="width: 40px; height: 40px; border-radius: 10px;"></div>
+                                    <div style="flex: 1;">
+                                        <div class="skeleton" style="height: 14px; width: 70%; margin-bottom: 6px;"></div>
+                                        <div class="skeleton" style="height: 10px; width: 40%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Spinners</h3>
+                <div class="grid grid-4">
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Small (20px)</span></div>
+                        <div class="comp-body"><div class="comp-preview"><div class="spinner spinner-sm"></div></div></div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Medium (32px)</span></div>
+                        <div class="comp-body"><div class="comp-preview"><div class="spinner spinner-md"></div></div></div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Large (48px)</span></div>
+                        <div class="comp-body"><div class="comp-preview"><div class="spinner spinner-lg"></div></div></div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">In Button</span></div>
+                        <div class="comp-body">
+                            <div class="comp-preview">
+                                <button class="mobile-btn-primary" style="width: auto; padding: 0 32px; display: flex; align-items: center; gap: 8px;">
+                                    <div class="spinner spinner-sm" style="border-color: rgba(0,0,0,0.2); border-top-color: black;"></div>
+                                    <span>Searching...</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Alerts & Notifications -->
+        <section class="section">
+            <div class="section-num">Section 07</div>
+            <h2 class="section-title">Alerts & Notifications</h2>
+            <p class="section-desc">Communicate status clearly. Success, warning, error, info. Toasts for ephemeral messages. Banners for persistent alerts.</p>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Alert Messages</h3>
+                <div class="grid grid-2">
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Success</span></div>
+                        <div class="comp-body">
+                            <div class="mobile-alert mobile-alert-success">
+                                <div class="mobile-alert-title" style="color: var(--mint-500);">âœ“ Price Alert Set</div>
+                                <div class="mobile-alert-message">We'll notify you when KULâ†’NRT drops below RM 800.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Warning</span></div>
+                        <div class="comp-body">
+                            <div class="mobile-alert mobile-alert-warning">
+                                <div class="mobile-alert-title" style="color: var(--warning);">âš  Split Ticket Warning</div>
+                                <div class="mobile-alert-message">These are separate bookings. If your first flight is delayed, you may miss the connection.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Error</span></div>
+                        <div class="comp-body">
+                            <div class="mobile-alert mobile-alert-error">
+                                <div class="mobile-alert-title" style="color: var(--error);">âœ• Flight Sold Out</div>
+                                <div class="mobile-alert-message">This fare is no longer available. Please select another flight.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Info</span></div>
+                        <div class="comp-body">
+                            <div style="padding: 16px; border-radius: 14px; background: var(--cyan-dim); border: 1px solid rgba(0,217,255,0.24);">
+                                <div class="mobile-alert-title" style="color: var(--cyan-500);">â„¹ Price Prediction</div>
+                                <div class="mobile-alert-message">Prices for this route typically drop 23% in the next 2 weeks.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Error Fare Banner</h3>
+                <div style="border-radius: 16px; overflow: hidden;">
+                    <div class="error-fare-banner">
+                        <div class="error-fare-pulse"></div>
+                        <div class="error-fare-content">
+                            <div class="error-fare-title">ðŸš¨ ERROR FARE ALERT: KUL â†’ London for RM 890!</div>
+                            <div class="error-fare-subtitle">Usually RM 2,800+. Book now before airlines fix this mistake.</div>
+                        </div>
+                        <button class="error-fare-btn">Book Now â†’</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Toast Notifications</h3>
+                <div class="grid grid-3">
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Success Toast</span></div>
+                        <div class="comp-body">
+                            <div style="background: var(--n300); border-radius: 14px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 24px; height: 24px; background: var(--mint-500); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">âœ“</div>
+                                <span style="font-weight: 500;">Flight saved to your list</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Error Toast</span></div>
+                        <div class="comp-body">
+                            <div style="background: var(--n300); border-radius: 14px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 24px; height: 24px; background: var(--error); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px;">âœ•</div>
+                                <span style="font-weight: 500;">Failed to save. Try again.</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comp-card">
+                        <div class="comp-header"><span class="comp-label">Action Toast</span></div>
+                        <div class="comp-body">
+                            <div style="background: var(--n300); border-radius: 14px; padding: 12px 16px; display: flex; align-items: center; gap: 12px;">
+                                <span style="font-weight: 500; flex: 1;">Price dropped to RM 750!</span>
+                                <button style="background: var(--mint-500); color: black; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 14px;">View</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Badges & Tags -->
+        <section class="section">
+            <div class="section-num">Section 08</div>
+            <h2 class="section-title">Badges & Tags</h2>
+            <p class="section-desc">Visual indicators for status, filters, and metadata. Consistent sizing across all devices.</p>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Status Badges</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+                    <span class="mobile-badge mobile-badge-mint">â†‘ Save 42%</span>
+                    <span class="mobile-badge mobile-badge-mint">Best Deal</span>
+                    <span class="mobile-badge mobile-badge-mint">Direct</span>
+                    <span class="mobile-badge mobile-badge-warning">Selling Fast</span>
+                    <span class="mobile-badge mobile-badge-warning">1 Stop</span>
+                    <span class="mobile-badge mobile-badge-error">Sold Out</span>
+                    <span class="mobile-badge mobile-badge-error">Limited</span>
+                    <span class="mobile-badge" style="background: var(--cyan-dim); color: var(--cyan-500);">New Route</span>
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Filter Chips</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <button class="mobile-filter-pill mobile-filter-pill-active">Direct</button>
+                    <button class="mobile-filter-pill">1 Stop</button>
+                    <button class="mobile-filter-pill">2+ Stops</button>
+                    <button class="mobile-filter-pill mobile-filter-pill-active">Morning</button>
+                    <button class="mobile-filter-pill">Afternoon</button>
+                    <button class="mobile-filter-pill">Evening</button>
+                    <button class="mobile-filter-pill">AirAsia</button>
+                    <button class="mobile-filter-pill mobile-filter-pill-active">Malaysia Airlines</button>
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Airline Tags</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <span style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--n200); border-radius: 10px;">
+                        <span style="width: 24px; height: 24px; background: #D7182A; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 700;">AK</span>
+                        <span style="font-weight: 500;">AirAsia X</span>
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--n200); border-radius: 10px;">
+                        <span style="width: 24px; height: 24px; background: #0033A1; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 700;">MH</span>
+                        <span style="font-weight: 500;">Malaysia Airlines</span>
+                    </span>
+                    <span style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--n200); border-radius: 10px;">
+                        <span style="width: 24px; height: 24px; background: #003C71; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 700;">SQ</span>
+                        <span style="font-weight: 500;">Singapore Airlines</span>
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Price Alert Component -->
+        <section class="section">
+            <div class="section-num">Section 09</div>
+            <h2 class="section-title">Price Alert Component</h2>
+            <p class="section-desc">The money-maker. Help users set alerts for price drops. Clear value proposition, simple form.</p>
+            
+            <div class="grid grid-2">
+                <div class="comp-card">
+                    <div class="comp-header"><span class="comp-label">Mobile</span></div>
+                    <div class="comp-body" style="padding: 0;">
+                        <div class="price-alert-card" style="padding: 24px; border-radius: 16px;">
+                            <div class="price-alert-icon">ðŸ””</div>
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Get Price Alerts</h3>
+                            <p style="font-size: 14px; color: var(--n600); margin-bottom: 20px;">We'll notify you when prices drop for KUL â†’ NRT</p>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <input type="email" class="mobile-input" placeholder="Email address" style="height: 52px;">
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <span style="font-size: 14px; color: var(--n600);">Alert when below</span>
+                                    <input type="text" class="mobile-input" value="RM 800" style="height: 48px; width: 100px; text-align: center; font-weight: 600;">
+                                </div>
+                                <button class="mobile-btn-primary">Set Alert</button>
+                            </div>
+                            <div style="border-top: 1px solid var(--n200); margin-top: 20px; padding-top: 16px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 13px; color: var(--n600);">Price prediction:</span>
+                                    <span style="font-size: 13px; color: var(--mint-500); font-weight: 600;">â†“ Likely to drop 18% in 2 weeks</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comp-card">
+                    <div class="comp-header"><span class="comp-label">Desktop</span></div>
+                    <div class="comp-body" style="padding: 0;">
+                        <div class="price-alert-card" style="padding: 28px; border-radius: 20px;">
+                            <div style="display: flex; gap: 24px; align-items: flex-start;">
+                                <div class="price-alert-icon">ðŸ””</div>
+                                <div style="flex: 1;">
+                                    <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 8px;">Get Price Alerts</h3>
+                                    <p style="font-size: 16px; color: var(--n600); margin-bottom: 24px;">We'll notify you when prices drop for KUL â†’ NRT</p>
+                                    <div style="display: flex; gap: 16px; align-items: flex-end;">
+                                        <div style="flex: 1;">
+                                            <label style="font-size: 12px; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: block;">Email</label>
+                                            <input type="email" class="desktop-input" placeholder="your@email.com">
+                                        </div>
+                                        <div style="width: 140px;">
+                                            <label style="font-size: 12px; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: block;">Target Price</label>
+                                            <input type="text" class="desktop-input" value="RM 800" style="text-align: center; font-weight: 600;">
+                                        </div>
+                                        <button class="desktop-btn-primary">Set Alert</button>
+                                    </div>
+                                    <div style="margin-top: 20px; display: flex; align-items: center; gap: 8px;">
+                                        <span style="font-size: 14px; color: var(--n600);">ðŸ“ˆ Price prediction:</span>
+                                        <span style="font-size: 14px; color: var(--mint-500); font-weight: 600;">â†“ Likely to drop 18% in 2 weeks</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Empty States -->
+        <section class="section">
+            <div class="section-num">Section 10</div>
+            <h2 class="section-title">Empty States</h2>
+            <p class="section-desc">When there's nothing to show, make it helpful. Clear messaging, actionable next steps.</p>
+            
+            <div class="grid grid-3">
+                <div class="comp-card">
+                    <div class="comp-header"><span class="comp-label">No Results</span></div>
+                    <div class="comp-body">
+                        <div style="text-align: center; padding: 32px 20px;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">ðŸ”</div>
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">No flights found</h3>
+                            <p style="font-size: 14px; color: var(--n600); margin-bottom: 20px;">Try adjusting your dates or adding nearby airports</p>
+                            <button class="mobile-btn-secondary" style="width: auto; height: 44px; padding: 0 24px;">Modify Search</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="comp-card">
+                    <div class="comp-header"><span class="comp-label">No Saved Flights</span></div>
+                    <div class="comp-body">
+                        <div style="text-align: center; padding: 32px 20px;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">âœˆï¸</div>
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">No saved flights yet</h3>
+                            <p style="font-size: 14px; color: var(--n600); margin-bottom: 20px;">Save flights to compare them later</p>
+                            <button class="mobile-btn-primary" style="width: auto; height: 44px; padding: 0 24px;">Search Flights</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="comp-card">
+                    <div class="comp-header"><span class="comp-label">No Alerts</span></div>
+                    <div class="comp-body">
+                        <div style="text-align: center; padding: 32px 20px;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">ðŸ””</div>
+                            <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">No price alerts</h3>
+                            <p style="font-size: 14px; color: var(--n600); margin-bottom: 20px;">Set alerts to get notified when prices drop</p>
+                            <button class="mobile-btn-primary" style="width: auto; height: 44px; padding: 0 24px;">Create Alert</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: Pixel Specifications -->
+        <section class="section">
+            <div class="section-num">Section 11</div>
+            <h2 class="section-title">Pixel Specifications</h2>
+            <p class="section-desc">The exact values. No approximations. Copy these numbers directly into code.</p>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Touch Targets</h3>
+                <div style="background: var(--n100); border-radius: 16px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--n200);">
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Device</th>
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Min Target</th>
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Optimal</th>
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Spacing</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Watch</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">38 Ã— 38px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">44 Ã— 44px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">4px</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Mobile</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">44 Ã— 44px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">48 Ã— 48px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">8px</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Tablet</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">44 Ã— 44px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">52 Ã— 52px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">12px</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 14px 20px; font-weight: 500;">Desktop</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">32 Ã— 32px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">40 Ã— 40px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">8px</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Typography Sizes</h3>
+                <div style="background: var(--n100); border-radius: 16px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--n200);">
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Element</th>
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Watch</th>
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Mobile</th>
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Tablet</th>
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Desktop</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Price (Hero)</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">32px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">40px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">56px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">72px</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Price (Card)</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">28px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">26px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">36px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">44px</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">H1</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">17px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">28px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">36px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">48px</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Body</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">14px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">15px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">16px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">16px</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 14px 20px; font-weight: 500;">Caption</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">12px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">12px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">13px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">13px</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="subsection">
+                <h3 class="subsection-title">Component Dimensions</h3>
+                <div style="background: var(--n100); border-radius: 16px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: var(--n200);">
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Component</th>
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Mobile</th>
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Tablet</th>
+                                <th style="padding: 16px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px;">Desktop</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Header Height</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">56px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">64px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">72px</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Bottom Nav</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">83px (49+34)</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">â€”</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">â€”</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Button Height</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">56px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">60px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">56px</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Input Height</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">56px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">56px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">56px</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Card Padding</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">16px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">24px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">28px</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--n200);">
+                                <td style="padding: 14px 20px; font-weight: 500;">Card Radius</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">16px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">20px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">24px</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 14px 20px; font-weight: 500;">Content Margin</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">16px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">24px</td>
+                                <td style="padding: 14px 20px; font-family: var(--font-mono); font-size: 14px;">40px</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="text-align: center; padding: 64px 0; border-top: 1px solid var(--n200);">
+            <div class="doc-logo" style="font-size: 48px; margin-bottom: 16px;">VAYA</div>
+            <p style="color: var(--n600); font-size: 14px; margin-bottom: 8px;">Design System v2.0 â€” Pixel-Perfect, Device-Dedicated, Zero Laziness</p>
+            <p style="color: var(--n500); font-size: 12px;">Built with paranoid precision. Every component optimized for its exact context.</p>
+        </footer>
+    </div>
+</body>
+</html>

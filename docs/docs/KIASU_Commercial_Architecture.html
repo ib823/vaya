@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIASU COMMERCIAL - Paranoid Architecture</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif; background: #000; color: #e0e0e0; line-height: 1.7; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        h1 { text-align: center; font-size: 3rem; margin: 40px 0 10px; background: linear-gradient(90deg, #ff0040, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tagline { text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 30px; }
+        
+        .classification { background: #ff0040; color: #fff; text-align: center; padding: 10px; font-weight: bold; letter-spacing: 3px; }
+        
+        .section { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 16px; padding: 30px; margin: 30px 0; }
+        .section-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; }
+        .section-icon { font-size: 2rem; }
+        .section-title { font-size: 1.6rem; color: #fff; }
+        .section-subtitle { color: #666; font-size: 0.9rem; }
+        
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        
+        .card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 20px; }
+        .card:hover { border-color: #ff0040; }
+        .card-title { color: #ff8c00; font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; }
+        
+        .layer { background: linear-gradient(135deg, #0a0a0a, #111); border: 2px solid #222; border-radius: 16px; padding: 25px; margin: 20px 0; position: relative; }
+        .layer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #ff0040, #ff8c00); border-radius: 16px 16px 0 0; }
+        .layer-number { position: absolute; top: -15px; left: 20px; background: #ff0040; color: #fff; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        .layer-title { font-size: 1.4rem; color: #fff; margin-bottom: 15px; margin-top: 10px; }
+        
+        .tech-tag { display: inline-block; background: #1a1a1a; color: #ff8c00; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; margin: 3px; border: 1px solid #333; }
+        .tech-tag.critical { border-color: #ff0040; color: #ff0040; }
+        .tech-tag.secret { background: #ff0040; color: #fff; border-color: #ff0040; }
+        
+        .flow-diagram { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; padding: 20px; background: #050505; border-radius: 12px; margin: 15px 0; }
+        .flow-box { background: linear-gradient(135deg, #1a1a1a, #111); border: 1px solid #333; padding: 12px 20px; border-radius: 8px; text-align: center; min-width: 120px; }
+        .flow-box.highlight { border-color: #ff0040; background: linear-gradient(135deg, #1a0a0a, #0a0505); }
+        .flow-arrow { color: #ff0040; font-size: 1.5rem; }
+        
+        .security-badge { display: inline-flex; align-items: center; gap: 5px; background: #ff0040; color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 12px 15px; text-align: left; border: 1px solid #222; }
+        th { background: #1a1a1a; color: #ff8c00; }
+        tr:hover { background: #0f0f0f; }
+        
+        .code-block { background: #050505; border: 1px solid #222; border-radius: 10px; padding: 20px; margin: 15px 0; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.85rem; overflow-x: auto; }
+        .code-comment { color: #666; }
+        .code-keyword { color: #ff0040; }
+        .code-string { color: #ff8c00; }
+        .code-function { color: #00ff88; }
+        
+        .warning-box { background: linear-gradient(135deg, #1a0a0a, #0a0505); border: 1px solid #ff0040; border-radius: 10px; padding: 20px; margin: 15px 0; }
+        .warning-box::before { content: 'ðŸ”’ SECURITY: '; color: #ff0040; font-weight: bold; }
+        
+        .secret-box { background: repeating-linear-gradient(45deg, #0a0505, #0a0505 10px, #0f0808 10px, #0f0808 20px); border: 2px solid #ff0040; border-radius: 10px; padding: 20px; margin: 15px 0; }
+        
+        .metric { text-align: center; padding: 20px; }
+        .metric-value { font-size: 2.5rem; font-weight: bold; background: linear-gradient(90deg, #ff0040, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .metric-label { color: #666; font-size: 0.9rem; margin-top: 5px; }
+        
+        .timeline { position: relative; padding-left: 40px; }
+        .timeline::before { content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, #ff0040, #ff8c00); }
+        .timeline-item { position: relative; margin-bottom: 30px; }
+        .timeline-item::before { content: ''; position: absolute; left: -33px; top: 5px; width: 16px; height: 16px; background: #ff0040; border-radius: 50%; border: 3px solid #000; }
+        .timeline-phase { color: #ff8c00; font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+        
+        .paranoid-level { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+        .paranoid-bar { flex: 1; height: 8px; background: #1a1a1a; border-radius: 4px; overflow: hidden; }
+        .paranoid-fill { height: 100%; background: linear-gradient(90deg, #ff0040, #ff8c00); border-radius: 4px; }
+        
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="classification">âš ï¸ CONFIDENTIAL - TRADE SECRET - DO NOT DISTRIBUTE âš ï¸</div>
+    
+    <div class="container">
+        <h1>ðŸŽ¯ KIASU COMMERCIAL</h1>
+        <p class="tagline">Paranoid-Grade Automated Fare Optimization Portal</p>
+        
+        <!-- Executive Summary -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">ðŸ“‹</div>
+                <div>
+                    <div class="section-title">Executive Summary</div>
+                    <div class="section-subtitle">What we're building</div>
+                </div>
+            </div>
+            
+            <div class="grid-4">
+                <div class="metric">
+                    <div class="metric-value">100%</div>
+                    <div class="metric-label">Automated</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">0</div>
+                    <div class="metric-label">Paid APIs</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">24/7</div>
+                    <div class="metric-label">Monitoring</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">âˆž</div>
+                    <div class="metric-label">Paranoia Level</div>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 20px;">
+                <p><strong>MISSION:</strong> Build a commercial portal that automates ALL fare hacking techniques, runs 24/7, captures every opportunity, while keeping the methods COMPLETELY SECRET from users and competitors.</p>
+                <p style="margin-top: 10px;"><strong>USER EXPERIENCE:</strong> Customer sees simple search box â†’ Gets magical low prices â†’ Has NO IDEA how we did it.</p>
+                <p style="margin-top: 10px;"><strong>BUSINESS MODEL:</strong> Markup our secret prices by 5-10% (still 20-30% cheaper than OTAs) = Pure profit.</p>
+            </div>
+        </div>
+
+        <!-- System Architecture Overview -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">ðŸ—ï¸</div>
+                <div>
+                    <div class="section-title">System Architecture</div>
+                    <div class="section-subtitle">7-Layer paranoid design</div>
+                </div>
+            </div>
+            
+            <div class="flow-diagram">
+                <div class="flow-box">ðŸ‘¤ Customer</div>
+                <span class="flow-arrow">â†’</span>
+                <div class="flow-box">ðŸ›¡ï¸ CDN/WAF</div>
+                <span class="flow-arrow">â†’</span>
+                <div class="flow-box">ðŸŒ Frontend</div>
+                <span class="flow-arrow">â†’</span>
+                <div class="flow-box">ðŸ” API Gateway</div>
+                <span class="flow-arrow">â†’</span>
+                <div class="flow-box highlight">âš¡ Orchestrator</div>
+                <span class="flow-arrow">â†’</span>
+                <div class="flow-box highlight">ðŸ§  Secret Engine</div>
+                <span class="flow-arrow">â†’</span>
+                <div class="flow-box">ðŸ•·ï¸ Scrapers</div>
+            </div>
+        </div>
+
+        <!-- Layer 1: Data Collection -->
+        <div class="layer">
+            <div class="layer-number">LAYER 1</div>
+            <div class="layer-title">ðŸ•·ï¸ Stealth Data Collection Engine</div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Scraping Infrastructure</div>
+                    <p style="color: #888; margin-bottom: 15px;">Collect data from ALL free sources without detection</p>
+                    
+                    <table>
+                        <tr><th>Source</th><th>Method</th><th>Frequency</th></tr>
+                        <tr><td>Google Flights</td><td>Headless Chrome + Puppeteer</td><td>Every 15 min</td></tr>
+                        <tr><td>Skyscanner</td><td>Unofficial API reverse-engineered</td><td>Every 30 min</td></tr>
+                        <tr><td>Kayak</td><td>Selenium + rotating proxies</td><td>Every 30 min</td></tr>
+                        <tr><td>Momondo</td><td>Request interception</td><td>Every 30 min</td></tr>
+                        <tr><td>Airline sites (50+)</td><td>Per-site custom scrapers</td><td>On-demand</td></tr>
+                        <tr><td>ITA Matrix</td><td>Puppeteer automation</td><td>On-demand</td></tr>
+                        <tr><td>Skiplagged</td><td>API reverse-engineering</td><td>On-demand</td></tr>
+                    </table>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Anti-Detection Measures <span class="security-badge">CRITICAL</span></div>
+                    <ul style="color: #888; padding-left: 20px;">
+                        <li><strong>Rotating Residential Proxies:</strong> 10,000+ IPs from real ISPs</li>
+                        <li><strong>Browser Fingerprint Rotation:</strong> Canvas, WebGL, fonts randomized</li>
+                        <li><strong>Human Behavior Simulation:</strong> Random delays, mouse movements, scroll patterns</li>
+                        <li><strong>CAPTCHA Solving:</strong> 2Captcha/Anti-Captcha integration</li>
+                        <li><strong>Request Throttling:</strong> Per-domain rate limits to avoid blocks</li>
+                        <li><strong>User-Agent Rotation:</strong> 500+ realistic browser signatures</li>
+                        <li><strong>Cookie Management:</strong> Fresh sessions, realistic cookie accumulation</li>
+                    </ul>
+                    
+                    <div class="tech-tag">Puppeteer-Extra-Stealth</div>
+                    <div class="tech-tag">Playwright</div>
+                    <div class="tech-tag">Bright Data</div>
+                    <div class="tech-tag">Oxylabs</div>
+                </div>
+            </div>
+            
+            <div class="code-block">
+<span class="code-comment">// Stealth scraper configuration</span>
+<span class="code-keyword">const</span> scraper = <span class="code-keyword">new</span> <span class="code-function">StealthScraper</span>({
+  proxy: <span class="code-function">rotatingResidentialPool</span>(<span class="code-string">'10000_ips'</span>),
+  fingerprint: <span class="code-function">randomize</span>([<span class="code-string">'canvas'</span>, <span class="code-string">'webgl'</span>, <span class="code-string">'fonts'</span>, <span class="code-string">'screen'</span>]),
+  behavior: {
+    mouseMovement: <span class="code-string">'human_like'</span>,
+    scrollPattern: <span class="code-string">'natural'</span>,
+    typingSpeed: <span class="code-function">randomBetween</span>(80, 150), <span class="code-comment">// WPM</span>
+    clickDelay: <span class="code-function">randomBetween</span>(100, 500), <span class="code-comment">// ms</span>
+  },
+  captcha: {
+    solver: <span class="code-string">'2captcha'</span>,
+    autoRetry: <span class="code-keyword">true</span>,
+    maxAttempts: 3
+  },
+  rateLimit: {
+    <span class="code-string">'google.com'</span>: { requests: 100, per: <span class="code-string">'hour'</span> },
+    <span class="code-string">'skyscanner.com'</span>: { requests: 60, per: <span class="code-string">'hour'</span> },
+  }
+});
+            </div>
+        </div>
+
+        <!-- Layer 2: Secret Processing Engine -->
+        <div class="layer">
+            <div class="layer-number">LAYER 2</div>
+            <div class="layer-title">ðŸ§  Secret Fare Construction Engine <span class="security-badge">TOP SECRET</span></div>
+            
+            <div class="secret-box">
+                <h4 style="color: #ff0040; margin-bottom: 15px;">âš ï¸ THIS IS YOUR COMPETITIVE ADVANTAGE - NEVER EXPOSE</h4>
+                <p style="color: #888;">All logic runs server-side. No algorithms in frontend. No API responses reveal methods.</p>
+            </div>
+            
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-title">Hidden City Detector</div>
+                    <p style="color: #888; font-size: 0.9rem;">Auto-finds layover exploitation opportunities</p>
+                    <div class="tech-tag secret">ALGORITHM HIDDEN</div>
+                    <div class="code-block" style="font-size: 0.8rem;">
+<span class="code-function">detectHiddenCity</span>(origin, dest) {
+  <span class="code-comment">// Query flights BEYOND dest</span>
+  <span class="code-comment">// Find where dest is layover</span>
+  <span class="code-comment">// Compare prices</span>
+  <span class="code-comment">// Return if savings > 15%</span>
+}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Split Ticket Optimizer</div>
+                    <p style="color: #888; font-size: 0.9rem;">Tests all one-way combinations</p>
+                    <div class="tech-tag secret">ALGORITHM HIDDEN</div>
+                    <div class="code-block" style="font-size: 0.8rem;">
+<span class="code-function">optimizeSplit</span>(route, dates) {
+  <span class="code-comment">// Get RT price baseline</span>
+  <span class="code-comment">// Get all OW outbound options</span>
+  <span class="code-comment">// Get all OW return options</span>
+  <span class="code-comment">// Find cheapest combo</span>
+}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Multi-POS Arbitrage</div>
+                    <p style="color: #888; font-size: 0.9rem;">Checks 15+ country pricing simultaneously</p>
+                    <div class="tech-tag secret">ALGORITHM HIDDEN</div>
+                    <div class="code-block" style="font-size: 0.8rem;">
+<span class="code-function">findCheapestPOS</span>(flight) {
+  <span class="code-comment">// Query from MY,SG,TH,ID,IN...</span>
+  <span class="code-comment">// Convert all to MYR</span>
+  <span class="code-comment">// Factor 0% FX cards</span>
+  <span class="code-comment">// Return cheapest source</span>
+}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Positioning Flight Calculator</div>
+                    <p style="color: #888; font-size: 0.9rem;">Auto-tests nearby departure cities</p>
+                    <div class="tech-tag secret">ALGORITHM HIDDEN</div>
+                    <div class="code-block" style="font-size: 0.8rem;">
+<span class="code-function">testPositioning</span>(origin, dest) {
+  hubs = [<span class="code-string">'SIN'</span>,<span class="code-string">'BKK'</span>,<span class="code-string">'HKG'</span>,<span class="code-string">'CGK'</span>]
+  <span class="code-comment">// For each hub:</span>
+  <span class="code-comment">// Cost(originâ†’hub) + Cost(hubâ†’dest)</span>
+  <span class="code-comment">// vs Cost(originâ†’dest)</span>
+}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Throwaway Ticket Detector</div>
+                    <p style="color: #888; font-size: 0.9rem;">RT cheaper than OW? Book RT, skip return</p>
+                    <div class="tech-tag secret">ALGORITHM HIDDEN</div>
+                    <div class="code-block" style="font-size: 0.8rem;">
+<span class="code-function">checkThrowaway</span>(route) {
+  ow = <span class="code-function">getOneWayPrice</span>(route)
+  rt = <span class="code-function">getRoundTripPrice</span>(route)
+  <span class="code-keyword">if</span> (rt < ow) <span class="code-keyword">return</span> {
+    book: <span class="code-string">'roundtrip'</span>,
+    use: <span class="code-string">'outbound_only'</span>
+  }
+}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Open-Jaw Optimizer</div>
+                    <p style="color: #888; font-size: 0.9rem;">Tests all arrival/departure airport combos</p>
+                    <div class="tech-tag secret">ALGORITHM HIDDEN</div>
+                    <div class="code-block" style="font-size: 0.8rem;">
+<span class="code-function">optimizeOpenJaw</span>(cityA, cityB) {
+  airportsA = <span class="code-function">getNearbyAirports</span>(cityA)
+  airportsB = <span class="code-function">getNearbyAirports</span>(cityB)
+  <span class="code-comment">// Test all combinations</span>
+  <span class="code-comment">// A1â†’B1, A1â†’B2, A2â†’B1...</span>
+}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                These algorithms are your TRADE SECRET. They run ONLY on your servers. API responses to frontend contain ONLY final prices and booking links - NEVER the method used, NEVER the original prices, NEVER the intermediate calculations.
+            </div>
+        </div>
+
+        <!-- Layer 3: Error Fare Detection -->
+        <div class="layer">
+            <div class="layer-number">LAYER 3</div>
+            <div class="layer-title">ðŸš¨ 24/7 Error Fare Detection System</div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Real-Time Price Monitoring</div>
+                    <div class="code-block">
+<span class="code-comment">// Continuous monitoring pipeline</span>
+<span class="code-keyword">const</span> monitor = {
+  routes: <span class="code-function">loadPopularRoutes</span>(), <span class="code-comment">// 5000+ routes</span>
+  interval: <span class="code-string">'5_minutes'</span>,
+  sources: [<span class="code-string">'google'</span>, <span class="code-string">'skyscanner'</span>, <span class="code-string">'kayak'</span>, <span class="code-string">'direct'</span>],
+  
+  <span class="code-function">onPriceFound</span>(route, price) {
+    historical = <span class="code-function">get90DayAverage</span>(route)
+    <span class="code-keyword">if</span> (price < historical * <span class="code-string">0.4</span>) {
+      <span class="code-function">triggerErrorFareAlert</span>(route, price)
+    }
+  }
+}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">ML Anomaly Detection</div>
+                    <p style="color: #888; margin-bottom: 15px;">Trained on historical fare data to spot anomalies</p>
+                    <ul style="color: #888; padding-left: 20px; font-size: 0.9rem;">
+                        <li>Isolation Forest for outlier detection</li>
+                        <li>LSTM for price pattern prediction</li>
+                        <li>Confidence scoring (avoid false positives)</li>
+                        <li>Auto-validation: attempt booking to confirm ticketable</li>
+                    </ul>
+                    <div class="tech-tag">TensorFlow</div>
+                    <div class="tech-tag">scikit-learn</div>
+                    <div class="tech-tag">Time Series Analysis</div>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-title">Alert Pipeline</div>
+                <div class="flow-diagram">
+                    <div class="flow-box">Price Scraped</div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box">Compare to Baseline</div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box">ML Confidence Check</div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box">Booking Validation</div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box highlight">ALERT in &lt;60 sec</div>
+                </div>
+                <p style="color: #888; margin-top: 15px;"><strong>Alert channels:</strong> Push notification, SMS, Telegram, Email, In-app banner</p>
+            </div>
+        </div>
+
+        <!-- Layer 4: API & Orchestration -->
+        <div class="layer">
+            <div class="layer-number">LAYER 4</div>
+            <div class="layer-title">ðŸ” Zero-Trust API Gateway</div>
+            
+            <div class="warning-box">
+                Every API response is SANITIZED. Users see prices, not methods. Competitors cannot reverse-engineer.
+            </div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">API Response Sanitization</div>
+                    <div class="code-block">
+<span class="code-comment">// INTERNAL (never exposed)</span>
+internalResult = {
+  method: <span class="code-string">'hidden_city'</span>,
+  originalPrice: 1200,
+  constructedPrice: 480,
+  pos: <span class="code-string">'IN'</span>,
+  bookingSource: <span class="code-string">'skyscanner_india'</span>,
+  <span class="code-comment">// ... trade secrets</span>
+}
+
+<span class="code-comment">// EXTERNAL (what user sees)</span>
+apiResponse = {
+  price: 550, <span class="code-comment">// Our price + markup</span>
+  flights: [...], <span class="code-comment">// Just the itinerary</span>
+  bookingUrl: <span class="code-string">'https://our-booking-portal/xyz'</span>
+  <span class="code-comment">// NO method, NO original price, NO source</span>
+}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Security Measures</div>
+                    <ul style="color: #888; padding-left: 20px;">
+                        <li><strong>Rate Limiting:</strong> Per-user, per-IP, per-endpoint</li>
+                        <li><strong>JWT + Refresh Tokens:</strong> Short-lived access tokens</li>
+                        <li><strong>Request Signing:</strong> HMAC signature verification</li>
+                        <li><strong>IP Allowlisting:</strong> For admin endpoints</li>
+                        <li><strong>Audit Logging:</strong> Every request logged</li>
+                        <li><strong>Anomaly Detection:</strong> Flag suspicious patterns</li>
+                        <li><strong>Bot Detection:</strong> Block scrapers trying to steal our data</li>
+                    </ul>
+                    <div class="tech-tag critical">No Algorithm Exposure</div>
+                    <div class="tech-tag critical">No Price Source Exposure</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Layer 5: Customer Frontend -->
+        <div class="layer">
+            <div class="layer-number">LAYER 5</div>
+            <div class="layer-title">ðŸŒ Customer-Facing Portal (Simple & Clean)</div>
+            
+            <div class="card">
+                <div class="card-title">User Experience Design</div>
+                <p style="color: #888; margin-bottom: 20px;">Users don't know (or care) about our methods. They just see CHEAP PRICES.</p>
+                
+                <div class="grid-3">
+                    <div style="background: #050505; border-radius: 10px; padding: 20px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">ðŸ”</div>
+                        <div style="color: #ff8c00; font-weight: bold;">Search</div>
+                        <p style="color: #666; font-size: 0.85rem; margin-top: 5px;">Simple form: From, To, Dates, Passengers</p>
+                    </div>
+                    <div style="background: #050505; border-radius: 10px; padding: 20px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">âš¡</div>
+                        <div style="color: #ff8c00; font-weight: bold;">Results</div>
+                        <p style="color: #666; font-size: 0.85rem; margin-top: 5px;">Sorted by price. Shows savings vs "retail"</p>
+                    </div>
+                    <div style="background: #050505; border-radius: 10px; padding: 20px; text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">âœ…</div>
+                        <div style="color: #ff8c00; font-weight: bold;">Book</div>
+                        <p style="color: #666; font-size: 0.85rem; margin-top: 5px;">One-click booking via our portal</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid-2" style="margin-top: 20px;">
+                <div class="card">
+                    <div class="card-title">What Users SEE</div>
+                    <ul style="color: #888; padding-left: 20px;">
+                        <li>âœ… Final price (our markup included)</li>
+                        <li>âœ… Flight details (airlines, times, stops)</li>
+                        <li>âœ… "You save RM XXX vs retail"</li>
+                        <li>âœ… Clean booking flow</li>
+                        <li>âœ… E-ticket delivery</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-title">What Users DON'T SEE <span class="security-badge">HIDDEN</span></div>
+                    <ul style="color: #888; padding-left: 20px;">
+                        <li>âŒ Original scraped price</li>
+                        <li>âŒ Which method found the deal</li>
+                        <li>âŒ Which source/POS we booked from</li>
+                        <li>âŒ Hidden city / split ticket indicators</li>
+                        <li>âŒ Our profit margin</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="code-block" style="margin-top: 20px;">
+<span class="code-comment">// Frontend displays ONLY sanitized data</span>
+&lt;FlightResult&gt;
+  &lt;Price&gt;{result.finalPrice}&lt;/Price&gt;  <span class="code-comment">// RM 550 (includes our cut)</span>
+  &lt;Savings&gt;Save {result.savingsPercent}%&lt;/Savings&gt;  <span class="code-comment">// vs "retail" baseline</span>
+  &lt;Itinerary&gt;{result.flights}&lt;/Itinerary&gt;
+  &lt;BookButton onClick={handleBook} /&gt;
+  
+  <span class="code-comment">// NEVER displayed:</span>
+  <span class="code-comment">// result.method = 'hidden_city'</span>
+  <span class="code-comment">// result.originalPrice = 480</span>
+  <span class="code-comment">// result.source = 'skyscanner_india'</span>
+&lt;/FlightResult&gt;
+            </div>
+        </div>
+
+        <!-- Layer 6: Booking Engine -->
+        <div class="layer">
+            <div class="layer-number">LAYER 6</div>
+            <div class="layer-title">ðŸŽ« Automated Booking Engine</div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Booking Flow</div>
+                    <div class="flow-diagram" style="flex-direction: column; align-items: stretch;">
+                        <div class="flow-box">User clicks "Book"</div>
+                        <span class="flow-arrow" style="transform: rotate(90deg);">â†’</span>
+                        <div class="flow-box">System retrieves optimal booking path</div>
+                        <span class="flow-arrow" style="transform: rotate(90deg);">â†’</span>
+                        <div class="flow-box">Auto-fills booking on source site (headless)</div>
+                        <span class="flow-arrow" style="transform: rotate(90deg);">â†’</span>
+                        <div class="flow-box">Payment via our payment gateway</div>
+                        <span class="flow-arrow" style="transform: rotate(90deg);">â†’</span>
+                        <div class="flow-box highlight">E-ticket delivered to user</div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Booking Methods by Source</div>
+                    <table>
+                        <tr><th>Source Type</th><th>Booking Method</th></tr>
+                        <tr><td>OTAs (Skyscanner, Kayak)</td><td>Affiliate redirect + commission</td></tr>
+                        <tr><td>Airline direct</td><td>Headless browser automation</td></tr>
+                        <tr><td>Hidden city tickets</td><td>Book via cheapest OTA, instructions to user</td></tr>
+                        <tr><td>Multi-POS</td><td>VPN + regional site booking</td></tr>
+                        <tr><td>Split tickets</td><td>2 separate bookings, combined confirmation</td></tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                For hidden city tickets: Provide clear instructions to customer (carry-on only, one-way, don't miss connection). Build this into booking confirmation email. Cover yourself legally.
+            </div>
+        </div>
+
+        <!-- Layer 7: Infrastructure -->
+        <div class="layer">
+            <div class="layer-number">LAYER 7</div>
+            <div class="layer-title">â˜ï¸ Paranoid Infrastructure</div>
+            
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-title">Compute</div>
+                    <div class="tech-tag">AWS / GCP</div>
+                    <div class="tech-tag">Kubernetes</div>
+                    <div class="tech-tag">Auto-scaling</div>
+                    <p style="color: #888; font-size: 0.9rem; margin-top: 10px;">Scrapers on separate infra from customer-facing. Isolated networks.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Database</div>
+                    <div class="tech-tag">PostgreSQL (transactions)</div>
+                    <div class="tech-tag">Redis (cache)</div>
+                    <div class="tech-tag">ClickHouse (analytics)</div>
+                    <p style="color: #888; font-size: 0.9rem; margin-top: 10px;">Encrypted at rest. Encrypted in transit. Regular backups.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Security</div>
+                    <div class="tech-tag critical">WAF</div>
+                    <div class="tech-tag critical">DDoS Protection</div>
+                    <div class="tech-tag critical">Intrusion Detection</div>
+                    <p style="color: #888; font-size: 0.9rem; margin-top: 10px;">Assume breach. Segment everything. Log everything.</p>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-title">Network Isolation (Paranoid Mode)</div>
+                <div class="code-block">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                        PUBLIC INTERNET                          â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                              â”‚
+                    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                    â”‚   CDN + WAF       â”‚  â† Cloudflare / AWS Shield
+                    â”‚   (DDoS protect)  â”‚
+                    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                              â”‚
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    PUBLIC SUBNET                               â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”‚
+â”‚  â”‚   Frontend   â”‚  â”‚ API Gateway  â”‚  â”‚  Load Balancerâ”‚        â”‚
+â”‚  â”‚   (React)    â”‚  â”‚  (Kong/AWS)  â”‚  â”‚              â”‚        â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                            â”‚ (internal only)
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    PRIVATE SUBNET 1                            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”‚
+â”‚  â”‚ Orchestrator â”‚  â”‚   Workers    â”‚  â”‚   Queue      â”‚        â”‚
+â”‚  â”‚              â”‚  â”‚              â”‚  â”‚  (RabbitMQ)  â”‚        â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                            â”‚ (heavily restricted)
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    PRIVATE SUBNET 2 (TOP SECRET)               â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
+â”‚  â”‚            SECRET FARE ENGINE                         â”‚     â”‚
+â”‚  â”‚   - Hidden city algorithms                           â”‚     â”‚
+â”‚  â”‚   - Split ticket optimizer                           â”‚     â”‚
+â”‚  â”‚   - Multi-POS arbitrage                              â”‚     â”‚
+â”‚  â”‚   - NO external access, NO logging to shared systems â”‚     â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                            â”‚ (VPN only)
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    SCRAPER SUBNET (ISOLATED)                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”‚
+â”‚  â”‚  Scraper 1   â”‚  â”‚  Scraper 2   â”‚  â”‚  Scraper N   â”‚        â”‚
+â”‚  â”‚ (Google Flts)â”‚  â”‚ (Skyscanner) â”‚  â”‚ (Airlines)   â”‚        â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â”‚
+â”‚                                                                â”‚
+â”‚  â†’ Outbound via rotating residential proxies                  â”‚
+â”‚  â†’ No direct connection to customer-facing infra              â”‚
+â”‚  â†’ Separate cloud account for liability isolation             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Model -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">ðŸ’°</div>
+                <div>
+                    <div class="section-title">Revenue Model</div>
+                    <div class="section-subtitle">How we make money while staying cheaper</div>
+                </div>
+            </div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Pricing Strategy</div>
+                    <div class="code-block">
+<span class="code-comment">// Our pricing formula</span>
+ourCostPrice = <span class="code-function">lowestFoundPrice</span>(allMethods)
+retailBaseline = <span class="code-function">googleFlightsPrice</span>(route) <span class="code-comment">// What normies pay</span>
+
+<span class="code-comment">// We add 5-15% markup on OUR cost</span>
+ourSellingPrice = ourCostPrice * 1.10
+
+<span class="code-comment">// Customer still saves vs retail</span>
+customerSavings = retailBaseline - ourSellingPrice
+
+<span class="code-comment">// Example:</span>
+<span class="code-comment">// Retail: RM 1,000</span>
+<span class="code-comment">// Our cost (hidden city): RM 500</span>
+<span class="code-comment">// Our selling: RM 550</span>
+<span class="code-comment">// Customer saves: RM 450 (45%!)</span>
+<span class="code-comment">// Our profit: RM 50 per booking</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Revenue Streams</div>
+                    <table>
+                        <tr><th>Stream</th><th>Description</th><th>Est. Margin</th></tr>
+                        <tr><td>Booking Markup</td><td>5-15% on our cost price</td><td>RM 20-200/booking</td></tr>
+                        <tr><td>Affiliate Commission</td><td>When redirecting to OTAs</td><td>1-3% of booking</td></tr>
+                        <tr><td>Premium Tier</td><td>Priority error fare alerts</td><td>RM 29/month</td></tr>
+                        <tr><td>Hotel Bookings</td><td>Wholesale markup</td><td>10-20%</td></tr>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-title">Unit Economics</div>
+                <div class="grid-4">
+                    <div class="metric">
+                        <div class="metric-value">RM 75</div>
+                        <div class="metric-label">Avg. Profit/Booking</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">5,000</div>
+                        <div class="metric-label">Monthly Bookings Target</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">RM 375K</div>
+                        <div class="metric-label">Monthly Revenue</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">RM 150K</div>
+                        <div class="metric-label">Est. Monthly Costs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legal & Compliance -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">âš–ï¸</div>
+                <div>
+                    <div class="section-title">Legal & Compliance</div>
+                    <div class="section-subtitle">Cover yourself</div>
+                </div>
+            </div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-title">Legal Considerations</div>
+                    <ul style="color: #888; padding-left: 20px;">
+                        <li><strong>Terms of Service:</strong> Clear disclaimers about booking methods</li>
+                        <li><strong>Hidden City Disclosure:</strong> User must acknowledge risks (carrier-on only, etc.)</li>
+                        <li><strong>Refund Policy:</strong> Clear terms - some fares are non-refundable</li>
+                        <li><strong>PDPA Compliance:</strong> Malaysian data protection for user data</li>
+                        <li><strong>SSM Registration:</strong> Proper business entity</li>
+                        <li><strong>Travel Agency License:</strong> May need MOTAC license for commercial ops</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">Risk Mitigation</div>
+                    <ul style="color: #888; padding-left: 20px;">
+                        <li><strong>Liability Insurance:</strong> E&O insurance for travel business</li>
+                        <li><strong>Separate Legal Entity:</strong> Don't run this under personal name</li>
+                        <li><strong>Scraper Isolation:</strong> Separate cloud account for scrapers</li>
+                        <li><strong>Legal Review:</strong> Get lawyer to review ToS and operations</li>
+                        <li><strong>Airline Relations:</strong> Be prepared for cease & desist (have plan)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="warning-box">
+                Hidden city ticketing and throwaway ticketing may violate airline terms of service. You're not doing anything illegal, but airlines may cancel tickets. Always disclose to customers. Consider this a calculated risk.
+            </div>
+        </div>
+
+        <!-- Implementation Roadmap -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">ðŸ“…</div>
+                <div>
+                    <div class="section-title">Implementation Roadmap</div>
+                    <div class="section-subtitle">From zero to launch</div>
+                </div>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-phase">Phase 1: Foundation (Weeks 1-4)</div>
+                    <div class="timeline-content">
+                        <ul style="color: #888; padding-left: 20px;">
+                            <li>Set up cloud infrastructure (AWS/GCP)</li>
+                            <li>Build first scrapers (Google Flights, Skyscanner)</li>
+                            <li>Set up proxy rotation system</li>
+                            <li>Basic database schema for fares</li>
+                            <li>Simple API skeleton</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-phase">Phase 2: Secret Engine (Weeks 5-8)</div>
+                    <div class="timeline-content">
+                        <ul style="color: #888; padding-left: 20px;">
+                            <li>Hidden city detection algorithm</li>
+                            <li>Split ticketing optimizer</li>
+                            <li>Multi-POS price checking</li>
+                            <li>Positioning flight calculator</li>
+                            <li>Result aggregation & ranking</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-phase">Phase 3: Error Detection (Weeks 9-10)</div>
+                    <div class="timeline-content">
+                        <ul style="color: #888; padding-left: 20px;">
+                            <li>Historical price database</li>
+                            <li>Anomaly detection model</li>
+                            <li>Alert system (push, Telegram, email)</li>
+                            <li>Auto-validation of error fares</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-phase">Phase 4: Customer Portal (Weeks 11-14)</div>
+                    <div class="timeline-content">
+                        <ul style="color: #888; padding-left: 20px;">
+                            <li>Frontend development (React/Next.js)</li>
+                            <li>User authentication</li>
+                            <li>Search interface</li>
+                            <li>Result display (sanitized)</li>
+                            <li>Booking flow integration</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-phase">Phase 5: Beta Launch (Weeks 15-16)</div>
+                    <div class="timeline-content">
+                        <ul style="color: #888; padding-left: 20px;">
+                            <li>Closed beta with 100 users</li>
+                            <li>Bug fixes and optimization</li>
+                            <li>Performance tuning</li>
+                            <li>Security audit</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-phase">Phase 6: Public Launch (Week 17+)</div>
+                    <div class="timeline-content">
+                        <ul style="color: #888; padding-left: 20px;">
+                            <li>Marketing campaign</li>
+                            <li>SEO optimization</li>
+                            <li>Social media presence</li>
+                            <li>Referral program</li>
+                            <li>Scale infrastructure</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Stack Summary -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">âš™ï¸</div>
+                <div>
+                    <div class="section-title">Complete Tech Stack</div>
+                    <div class="section-subtitle">What you need to build</div>
+                </div>
+            </div>
+            
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-title">Frontend</div>
+                    <div class="tech-tag">Next.js 14</div>
+                    <div class="tech-tag">React</div>
+                    <div class="tech-tag">TailwindCSS</div>
+                    <div class="tech-tag">TypeScript</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Backend</div>
+                    <div class="tech-tag">Node.js</div>
+                    <div class="tech-tag">Python (scrapers)</div>
+                    <div class="tech-tag">FastAPI</div>
+                    <div class="tech-tag">GraphQL</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Scraping</div>
+                    <div class="tech-tag">Puppeteer</div>
+                    <div class="tech-tag">Playwright</div>
+                    <div class="tech-tag">Selenium</div>
+                    <div class="tech-tag">Scrapy</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Database</div>
+                    <div class="tech-tag">PostgreSQL</div>
+                    <div class="tech-tag">Redis</div>
+                    <div class="tech-tag">ClickHouse</div>
+                    <div class="tech-tag">S3 (backups)</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Infrastructure</div>
+                    <div class="tech-tag">AWS / GCP</div>
+                    <div class="tech-tag">Docker</div>
+                    <div class="tech-tag">Kubernetes</div>
+                    <div class="tech-tag">Terraform</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Security</div>
+                    <div class="tech-tag">Cloudflare</div>
+                    <div class="tech-tag">WAF</div>
+                    <div class="tech-tag">Vault</div>
+                    <div class="tech-tag">2Captcha</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cost Estimation -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-icon">ðŸ’µ</div>
+                <div>
+                    <div class="section-title">Monthly Operating Costs</div>
+                    <div class="section-subtitle">What it takes to run</div>
+                </div>
+            </div>
+            
+            <table>
+                <tr><th>Item</th><th>Description</th><th>Est. Cost (MYR)</th></tr>
+                <tr><td>Cloud Infrastructure</td><td>AWS/GCP compute, storage, networking</td><td>RM 3,000 - 8,000</td></tr>
+                <tr><td>Residential Proxies</td><td>Bright Data / Oxylabs (10K+ IPs)</td><td>RM 2,000 - 5,000</td></tr>
+                <tr><td>CAPTCHA Solving</td><td>2Captcha credits</td><td>RM 500 - 1,500</td></tr>
+                <tr><td>CDN & Security</td><td>Cloudflare Pro/Business</td><td>RM 400 - 1,000</td></tr>
+                <tr><td>Monitoring</td><td>Datadog / New Relic</td><td>RM 500 - 1,500</td></tr>
+                <tr><td>Domain & SSL</td><td>Domain registration, certificates</td><td>RM 100</td></tr>
+                <tr><td>Email Service</td><td>SendGrid / SES</td><td>RM 200 - 500</td></tr>
+                <tr><th colspan="2">TOTAL (Startup Phase)</th><th>RM 7,000 - 18,000/month</th></tr>
+                <tr><th colspan="2">TOTAL (Scale Phase)</th><th>RM 30,000 - 80,000/month</th></tr>
+            </table>
+        </div>
+
+        <!-- Final Notes -->
+        <div class="section" style="background: linear-gradient(135deg, #1a0a0a, #0a0505); border-color: #ff0040;">
+            <h2 style="color: #ff0040; text-align: center; margin-bottom: 20px;">ðŸ” PARANOID CHECKLIST</h2>
+            
+            <div class="grid-2">
+                <div>
+                    <h4 style="color: #ff8c00; margin-bottom: 15px;">Algorithm Protection</h4>
+                    <ul style="color: #888; padding-left: 20px;">
+                        <li>â˜ All fare logic runs server-side only</li>
+                        <li>â˜ API responses sanitized (no methods exposed)</li>
+                        <li>â˜ No source prices in responses</li>
+                        <li>â˜ Frontend is "dumb" - just displays</li>
+                        <li>â˜ Code obfuscation on any client-side</li>
+                        <li>â˜ Employee access control (need-to-know)</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: #ff8c00; margin-bottom: 15px;">Infrastructure Protection</h4>
+                    <ul style="color: #888; padding-left: 20px;">
+                        <li>â˜ Scrapers on separate infra/account</li>
+                        <li>â˜ Network isolation between layers</li>
+                        <li>â˜ WAF + DDoS protection</li>
+                        <li>â˜ All data encrypted at rest</li>
+                        <li>â˜ Audit logging on everything</li>
+                        <li>â˜ Regular security audits</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #333;">
+                <p style="color: #ff0040; font-size: 1.2rem; font-weight: bold;">
+                    Remember: Your algorithms are your moat. Guard them with paranoia.
+                </p>
+                <p style="color: #666; margin-top: 10px;">
+                    Competitors can copy your UI. They cannot copy what they cannot see.
+                </p>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 40px; color: #444;">
+            <p>KIASU COMMERCIAL - Paranoid Architecture v1.0</p>
+            <p>Classification: CONFIDENTIAL</p>
+        </div>
+    </div>
+</body>
+</html>

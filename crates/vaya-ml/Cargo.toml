@@ -1,0 +1,15 @@
+[package]
+name = "vaya-ml"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "VayaML - Custom machine learning library for VAYA"
+
+[dependencies]
+vaya-common = { workspace = true }
+rkyv = { workspace = true }
+tracing = { workspace = true }
+
+# Random number generation for weight initialization
+rand = "0.8"

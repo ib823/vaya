@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Screen Design Specification: Flow 4 - Payment Flow (VayaPay)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-500: #00F5A0;
+            --mint-600: #00CC85;
+            --mint-dim: rgba(0, 245, 160, 0.12);
+            --mint-muted: rgba(0, 245, 160, 0.24);
+            --cyan-500: #00D9FF;
+            --cyan-dim: rgba(0, 217, 255, 0.12);
+            --n0: #000000;
+            --n50: #0A0A0B;
+            --n100: #111113;
+            --n150: #161618;
+            --n200: #1A1A1D;
+            --n300: #232326;
+            --n400: #2D2D31;
+            --n500: #3D3D42;
+            --n600: #5C5C63;
+            --n700: #7A7A82;
+            --n800: #9999A1;
+            --n900: #CCCCCC;
+            --n1000: #FFFFFF;
+            --warning: #FFB800;
+            --warning-dim: rgba(255, 184, 0, 0.12);
+            --error: #FF4757;
+            --error-dim: rgba(255, 71, 87, 0.12);
+            --success: #00F5A0;
+            --purple: #A855F7;
+            --blue: #3B82F6;
+            --fpx-blue: #003366;
+            --visa-blue: #1A1F71;
+            --mastercard-red: #EB001B;
+            --grabpay-green: #00B14F;
+            --tng-blue: #015ABD;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --glow-sm: 0 0 16px rgba(0, 245, 160, 0.3);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.5);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--n1000); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--error); margin-bottom: 48px; background: linear-gradient(180deg, rgba(255,71,87,0.08) 0%, transparent 100%); }
+        .doc-logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .doc-logo span:first-child { color: var(--mint-500); }
+        .doc-logo span:last-child { color: var(--cyan-500); }
+        .doc-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-top: 16px; }
+        .doc-subtitle { font-size: 15px; color: var(--n700); margin-top: 8px; }
+        .doc-meta { display: flex; justify-content: center; gap: 32px; margin-top: 24px; }
+        .doc-meta-item { text-align: center; }
+        .doc-meta-label { font-size: 10px; color: var(--n600); text-transform: uppercase; }
+        .doc-meta-value { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--error); }
+        .section { margin-bottom: 64px; }
+        .section-header { background: var(--n100); border: 1px solid var(--n200); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .section-num { font-family: var(--font-mono); font-size: 11px; color: var(--error); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .section-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .section-desc { color: var(--n700); font-size: 14px; }
+        .spec-card { background: var(--n50); border: 1px solid var(--n200); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+        .spec-card-header { background: var(--n100); padding: 16px 20px; border-bottom: 1px solid var(--n200); display: flex; align-items: center; justify-content: space-between; }
+        .spec-id { font-family: var(--font-mono); font-size: 11px; color: var(--error); background: var(--error-dim); padding: 4px 10px; border-radius: 4px; }
+        .spec-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+        .spec-badge { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; }
+        .spec-badge-pci { background: var(--error); color: #fff; }
+        .spec-badge-secure { background: var(--mint-500); color: #000; }
+        .spec-card-body { padding: 20px; }
+        .pixel-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+        .pixel-table th { background: var(--n150); padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--n300); }
+        .pixel-table td { padding: 10px 12px; border-bottom: 1px solid var(--n200); color: var(--n800); vertical-align: top; }
+        .pixel-table .property { font-family: var(--font-mono); color: var(--cyan-500); font-weight: 500; }
+        .state-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+        .state-card { background: var(--n150); border: 1px solid var(--n300); border-radius: 8px; padding: 12px; }
+        .state-name { font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; margin-bottom: 8px; }
+        .state-preview { background: var(--n0); border-radius: 6px; padding: 12px; min-height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+        .state-specs { font-size: 10px; color: var(--n700); }
+        .state-specs code { font-family: var(--font-mono); color: var(--cyan-500); font-size: 9px; }
+        .integration-box { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.05)); border: 1px solid var(--mint-500); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .integration-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--mint-500); margin-bottom: 12px; }
+        .integration-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .integration-item { background: var(--n150); border-radius: 6px; padding: 10px; }
+        .integration-crate { font-family: var(--font-mono); font-size: 11px; color: var(--cyan-500); margin-bottom: 2px; }
+        .integration-desc { font-size: 10px; color: var(--n600); }
+        .security-box { background: linear-gradient(135deg, var(--n100), rgba(255,71,87,0.05)); border: 1px solid var(--error); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .security-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 12px; }
+        .warning-box { background: var(--warning-dim); border: 1px solid var(--warning); border-radius: 8px; padding: 12px; margin: 12px 0; }
+        .warning-box p { color: var(--n800); font-size: 12px; }
+        .warning-box strong { color: var(--warning); }
+        .success-box { background: var(--mint-dim); border: 1px solid var(--mint-500); border-radius: 8px; padding: 12px; margin: 12px 0; }
+        .success-box p { color: var(--n800); font-size: 12px; }
+        .success-box strong { color: var(--mint-500); }
+        .error-box { background: var(--error-dim); border: 1px solid var(--error); border-radius: 8px; padding: 12px; margin: 12px 0; }
+        .error-box p { color: var(--n800); font-size: 12px; }
+        .error-box strong { color: var(--error); }
+        .payment-method { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--n100); border: 1px solid var(--n300); border-radius: 12px; margin-bottom: 8px; }
+        .payment-method-selected { border-color: var(--mint-500); background: var(--mint-dim); }
+        .payment-icon { width: 48px; height: 32px; background: var(--n200); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+        .summary-box { background: linear-gradient(135deg, var(--n100), rgba(255,71,87,0.05)); border: 2px solid var(--error); border-radius: 20px; padding: 40px; text-align: center; margin-top: 48px; }
+        @media (max-width: 1200px) { .state-grid { grid-template-columns: repeat(2, 1fr); } .integration-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="doc-header">
+            <div class="doc-logo"><span>VA</span><span>YA</span></div>
+            <h1 class="doc-title">Screen Design Specification</h1>
+            <p class="doc-subtitle">Flow 4: Payment Flow (VayaPay) â€” PCI-DSS Compliant, 100% Sovereign</p>
+            <div class="doc-meta">
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Screens</div>
+                    <div class="doc-meta-value">7</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Payment Methods</div>
+                    <div class="doc-meta-value">12</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Error States</div>
+                    <div class="doc-meta-value">18</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Security Level</div>
+                    <div class="doc-meta-value">PCI-DSS L1</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- S4.1: PAYMENT METHOD SELECTION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S4.1</div>
+                <h2 class="section-title">Payment Method Selection</h2>
+                <p class="section-desc">Choose payment method. Card, FPX, e-Wallets. Saved methods for logged-in users. Security badges prominent.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="spec-id">S4.1</span>
+                        <span class="spec-name">Payment Method Selection</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <span class="spec-badge spec-badge-pci">PCI-DSS</span>
+                        <span class="spec-badge spec-badge-secure">SECURE</span>
+                    </div>
+                </div>
+                <div class="spec-card-body">
+                    <!-- Desktop Layout -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin-bottom: 12px;">ðŸ–¥ï¸ Desktop Layout (1280px+)</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Typography</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Page Container</td><td>below header</td><td>W: 100%, max: 1000px</td><td>â€”</td><td>Two column: 600px form + 360px summary</td></tr>
+                            <tr><td class="property">â”œâ”€ Security Banner</td><td>top, full width</td><td>W: 100%, H: 48px</td><td>DM Sans 13px/500</td><td>bg: mint-dim, "ðŸ”’ 256-bit encrypted â€¢ PCI-DSS compliant"</td></tr>
+                            <tr><td class="property">â”œâ”€ Timer (persistent)</td><td>top right</td><td>W: auto, H: 40px</td><td>JetBrains Mono 14px/700</td><td>From booking session, continues countdown</td></tr>
+                            <tr><td class="property">â”œâ”€ Payment Methods Card</td><td>main column</td><td>W: 100%, H: auto</td><td>â€”</td><td>bg: n100, border: n200, radius: 16px, padding: 24px</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Title</td><td>â€”</td><td>W: auto</td><td>Space Grotesk 20px/700</td><td>"Select Payment Method"</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Saved Methods Section</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>Only if logged in with saved cards</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â””â”€ Saved Card</td><td>â€”</td><td>W: 100%, H: 64px</td><td>â€”</td><td>Card icon + â€¢â€¢â€¢â€¢ 4242 + Expiry</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Divider + "Or pay with"</td><td>â€”</td><td>W: 100%, H: 40px</td><td>13px/500, center</td><td>color: n600</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Card Payment Option</td><td>â€”</td><td>W: 100%, H: 72px</td><td>â€”</td><td>Radio + Icons (Visa/MC/Amex) + Label</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ FPX Option</td><td>â€”</td><td>W: 100%, H: 72px</td><td>â€”</td><td>Radio + FPX logo + "Online Banking"</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ e-Wallet Options</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>Grid of wallet options</td></tr>
+                            <tr><td class="property">â””â”€ Order Summary Sidebar</td><td>right</td><td>W: 360px, H: auto</td><td>â€”</td><td>Sticky, shows total + breakdown</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Payment Method Options -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">ðŸ’³ Payment Method Options</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Method</th><th>Icon</th><th>Label</th><th>Market Share (MY)</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Credit/Debit Card</td><td>Visa, Mastercard, Amex logos</td><td>"Credit or Debit Card"</td><td>45%</td><td>Default selected for new users</td></tr>
+                            <tr><td class="property">FPX</td><td>FPX logo (blue)</td><td>"Online Banking (FPX)"</td><td>32%</td><td>Shows bank selection on select</td></tr>
+                            <tr><td class="property">GrabPay</td><td>Grab logo (green)</td><td>"GrabPay"</td><td>12%</td><td>Redirect to Grab app</td></tr>
+                            <tr><td class="property">Touch 'n Go</td><td>TnG logo (blue)</td><td>"Touch 'n Go eWallet"</td><td>8%</td><td>Redirect to TnG app</td></tr>
+                            <tr><td class="property">Boost</td><td>Boost logo (red)</td><td>"Boost"</td><td>2%</td><td>â€”</td></tr>
+                            <tr><td class="property">ShopeePay</td><td>Shopee logo (orange)</td><td>"ShopeePay"</td><td>1%</td><td>â€”</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Payment Method States -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">Payment Method Card States</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Default</div>
+                            <div class="state-preview">
+                                <div class="payment-method" style="width: 100%;">
+                                    <div style="width: 20px; height: 20px; border: 2px solid var(--n400); border-radius: 50%;"></div>
+                                    <div class="payment-icon">VISA</div>
+                                    <span style="font-size: 14px;">Credit Card</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>border: 1px n300</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Hover</div>
+                            <div class="state-preview">
+                                <div class="payment-method" style="width: 100%; border-color: var(--n400); transform: translateY(-1px);">
+                                    <div style="width: 20px; height: 20px; border: 2px solid var(--n400); border-radius: 50%;"></div>
+                                    <div class="payment-icon">VISA</div>
+                                    <span style="font-size: 14px;">Credit Card</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>border: n400</code><br><code>translateY(-1px)</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Selected</div>
+                            <div class="state-preview">
+                                <div class="payment-method payment-method-selected" style="width: 100%;">
+                                    <div style="width: 20px; height: 20px; background: var(--mint-500); border-radius: 50%; display: flex; align-items: center; justify-content: center;"><span style="color: var(--n0); font-size: 12px;">âœ“</span></div>
+                                    <div class="payment-icon">VISA</div>
+                                    <span style="font-size: 14px; font-weight: 600;">Credit Card</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>border: mint-500</code><br><code>bg: mint-dim</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Unavailable</div>
+                            <div class="state-preview">
+                                <div class="payment-method" style="width: 100%; opacity: 0.5;">
+                                    <div style="width: 20px; height: 20px; border: 2px solid var(--n500); border-radius: 50%;"></div>
+                                    <div class="payment-icon" style="opacity: 0.5;">TnG</div>
+                                    <span style="font-size: 14px; color: var(--n600);">Unavailable</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>opacity: 0.5</code><br><code>pointer-events: none</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S4.2: CARD PAYMENT FORM -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S4.2</div>
+                <h2 class="section-title">Card Payment Form</h2>
+                <p class="section-desc">Secure card entry. Luhn validation. CVV field. Optional save card. Billing address if required.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="spec-id">S4.2</span>
+                        <span class="spec-name">Card Payment Form</span>
+                    </div>
+                    <span class="spec-badge spec-badge-pci">PCI-DSS</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Validation</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Card Number</td><td>full width</td><td>W: 100%, H: 56px</td><td>Luhn algorithm, 13-19 digits</td><td>Auto-format with spaces: 4242 4242 4242 4242</td></tr>
+                            <tr><td class="property">â”œâ”€ Card Type Icon</td><td>right inside input</td><td>W: 40px, H: 28px</td><td>â€”</td><td>Auto-detect from first digits</td></tr>
+                            <tr><td class="property">Expiry Date</td><td>left, half width</td><td>W: 48%, H: 56px</td><td>MM/YY, not past</td><td>Auto-format with /</td></tr>
+                            <tr><td class="property">CVV</td><td>right, half width</td><td>W: 48%, H: 56px</td><td>3-4 digits</td><td>Masked input (â€¢â€¢â€¢)</td></tr>
+                            <tr><td class="property">â”œâ”€ CVV Help</td><td>right of label</td><td>W: 16px, H: 16px</td><td>â€”</td><td>"?" icon, shows CVV location tooltip</td></tr>
+                            <tr><td class="property">Cardholder Name</td><td>full width</td><td>W: 100%, H: 56px</td><td>Required, 2+ chars</td><td>As shown on card</td></tr>
+                            <tr><td class="property">Save Card Checkbox</td><td>below name</td><td>W: auto, H: 44px</td><td>â€”</td><td>Only if logged in, opt-in</td></tr>
+                            <tr><td class="property">Billing Address</td><td>collapsible section</td><td>W: 100%, H: auto</td><td>Required for some cards</td><td>Address, City, Postal, Country</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Card Type Detection -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">ðŸ’³ Card Type Auto-Detection</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Card Type</th><th>Starts With</th><th>Length</th><th>Icon Color</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Visa</td><td>4</td><td>16</td><td style="color: var(--visa-blue);">#1A1F71</td></tr>
+                            <tr><td class="property">Mastercard</td><td>51-55, 2221-2720</td><td>16</td><td style="color: var(--mastercard-red);">#EB001B</td></tr>
+                            <tr><td class="property">Amex</td><td>34, 37</td><td>15</td><td style="color: var(--blue);">#006FCF</td></tr>
+                            <tr><td class="property">Unknown</td><td>â€”</td><td>â€”</td><td>n600 (gray placeholder)</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Card Input States -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">Card Number Input States</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Empty</div>
+                            <div class="state-preview" style="flex-direction: column; align-items: stretch; padding: 8px;">
+                                <div style="font-size: 10px; color: var(--n600); text-transform: uppercase; margin-bottom: 4px;">Card Number</div>
+                                <div style="background: var(--n100); border: 1px solid var(--n300); border-radius: 10px; height: 36px; display: flex; align-items: center; padding: 0 12px; justify-content: space-between;">
+                                    <span style="color: var(--n500); font-size: 13px;">1234 5678 9012 3456</span>
+                                    <div style="width: 32px; height: 20px; background: var(--n300); border-radius: 4px;"></div>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>Placeholder visible</code><br><code>Generic card icon</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Typing (Visa)</div>
+                            <div class="state-preview" style="flex-direction: column; align-items: stretch; padding: 8px;">
+                                <div style="font-size: 10px; color: var(--mint-500); text-transform: uppercase; margin-bottom: 4px;">Card Number</div>
+                                <div style="background: var(--n100); border: 2px solid var(--mint-500); border-radius: 10px; height: 36px; display: flex; align-items: center; padding: 0 12px; justify-content: space-between; box-shadow: 0 0 0 3px rgba(0,245,160,0.12);">
+                                    <span style="color: var(--n1000); font-size: 13px; font-family: var(--font-mono);">4242 4242|</span>
+                                    <div style="width: 32px; height: 20px; background: var(--visa-blue); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 8px; font-weight: 700;">VISA</div>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>Visa icon appears</code><br><code>Auto-spacing</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Valid</div>
+                            <div class="state-preview" style="flex-direction: column; align-items: stretch; padding: 8px;">
+                                <div style="font-size: 10px; color: var(--n600); text-transform: uppercase; margin-bottom: 4px;">Card Number</div>
+                                <div style="background: var(--n100); border: 1px solid var(--n300); border-radius: 10px; height: 36px; display: flex; align-items: center; padding: 0 12px; justify-content: space-between;">
+                                    <span style="color: var(--n1000); font-size: 13px; font-family: var(--font-mono);">4242 4242 4242 4242</span>
+                                    <div style="display: flex; align-items: center; gap: 4px;">
+                                        <span style="color: var(--mint-500); font-size: 12px;">âœ“</span>
+                                        <div style="width: 32px; height: 20px; background: var(--visa-blue); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 8px; font-weight: 700;">VISA</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>Check mark shown</code><br><code>Luhn validated</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Invalid</div>
+                            <div class="state-preview" style="flex-direction: column; align-items: stretch; padding: 8px;">
+                                <div style="font-size: 10px; color: var(--error); text-transform: uppercase; margin-bottom: 4px;">Card Number</div>
+                                <div style="background: var(--error-dim); border: 2px solid var(--error); border-radius: 10px; height: 36px; display: flex; align-items: center; padding: 0 12px;">
+                                    <span style="color: var(--n1000); font-size: 13px; font-family: var(--font-mono);">4242 4242 4242 4241</span>
+                                </div>
+                                <div style="font-size: 10px; color: var(--error); margin-top: 4px;">Invalid card number</div>
+                            </div>
+                            <div class="state-specs"><code>bg: error-dim</code><br><code>Luhn failed</code></div>
+                        </div>
+                    </div>
+
+                    <div class="security-box">
+                        <div class="security-title">ðŸ” Security Requirements</div>
+                        <table class="pixel-table" style="margin: 0;">
+                            <tbody>
+                                <tr><td class="property">Card Number</td><td>Never stored in plain text. Tokenized immediately via vaya-crypto.</td></tr>
+                                <tr><td class="property">CVV</td><td>Never stored. Used only for transaction, then discarded.</td></tr>
+                                <tr><td class="property">Form Isolation</td><td>Card fields in isolated iframe (PCI-DSS requirement).</td></tr>
+                                <tr><td class="property">TLS</td><td>All payment data transmitted over TLS 1.3.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S4.3: FPX BANK SELECTION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S4.3</div>
+                <h2 class="section-title">FPX Bank Selection</h2>
+                <p class="section-desc">Select bank for FPX payment. Shows all participating banks. Status indicators for bank availability.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S4.3</span>
+                    <span class="spec-name">FPX Bank Selection</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Bank</th><th>Code</th><th>Logo Colors</th><th>Status Check</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Maybank</td><td>MBB</td><td>Yellow #FFC72C</td><td>Real-time via FPX API</td></tr>
+                            <tr><td class="property">CIMB</td><td>CIMB</td><td>Red #EC1C24</td><td>Real-time via FPX API</td></tr>
+                            <tr><td class="property">Public Bank</td><td>PBB</td><td>Purple #662D91</td><td>Real-time via FPX API</td></tr>
+                            <tr><td class="property">RHB</td><td>RHB</td><td>Blue #003087</td><td>Real-time via FPX API</td></tr>
+                            <tr><td class="property">Hong Leong</td><td>HLB</td><td>Blue #0071BC</td><td>Real-time via FPX API</td></tr>
+                            <tr><td class="property">AmBank</td><td>AMB</td><td>Red #E31837</td><td>Real-time via FPX API</td></tr>
+                            <tr><td class="property">Bank Islam</td><td>BIMB</td><td>Green #006747</td><td>Real-time via FPX API</td></tr>
+                            <tr><td class="property">Bank Rakyat</td><td>BKRM</td><td>Green #00A651</td><td>Real-time via FPX API</td></tr>
+                            <tr><td class="property">+ 10 more banks</td><td>â€”</td><td>â€”</td><td>All FPX members supported</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Bank Status States -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">Bank Status Indicators</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Online</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 8px; height: 8px; background: var(--mint-500); border-radius: 50%;"></div>
+                                    <span style="font-size: 12px; color: var(--n800);">Maybank</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>dot: mint-500</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Slow</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 8px; height: 8px; background: var(--warning); border-radius: 50%;"></div>
+                                    <span style="font-size: 12px; color: var(--n800);">CIMB</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>dot: warning</code><br><code>"May be slow"</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Offline</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 8px; height: 8px; background: var(--error); border-radius: 50%;"></div>
+                                    <span style="font-size: 12px; color: var(--n600);">RHB (Offline)</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>dot: error</code><br><code>Disabled, grayed</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Checking</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 8px; height: 8px; border: 2px solid var(--n500); border-top-color: var(--mint-500); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                                    <span style="font-size: 12px; color: var(--n700);">Checking...</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>spinner animation</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S4.4: E-WALLET SELECTION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S4.4</div>
+                <h2 class="section-title">E-Wallet Selection</h2>
+                <p class="section-desc">Choose e-wallet provider. Redirect flow explanation. Deep link to wallet apps.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S4.4</span>
+                    <span class="spec-name">E-Wallet Selection</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Wallet</th><th>Brand Color</th><th>Redirect Type</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">GrabPay</td><td style="color: var(--grabpay-green);">#00B14F</td><td>App deep link / Web fallback</td><td>Most popular e-wallet</td></tr>
+                            <tr><td class="property">Touch 'n Go</td><td style="color: var(--tng-blue);">#015ABD</td><td>App deep link / Web fallback</td><td>Native Malaysian</td></tr>
+                            <tr><td class="property">Boost</td><td style="color: #E31837;">#E31837</td><td>App deep link / Web fallback</td><td>â€”</td></tr>
+                            <tr><td class="property">ShopeePay</td><td style="color: #EE4D2D;">#EE4D2D</td><td>App deep link / Web fallback</td><td>â€”</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="warning-box">
+                        <p><strong>âš ï¸ REDIRECT WARNING:</strong> Show message before redirect: "You'll be redirected to {Wallet} to complete payment. Don't close this window â€” you'll return here automatically."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S4.5: 3D SECURE CHALLENGE -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S4.5</div>
+                <h2 class="section-title">3D Secure Challenge</h2>
+                <p class="section-desc">Bank authentication (3DS). Iframe or redirect. Timeout handling. Fallback options.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S4.5</span>
+                    <span class="spec-name">3D Secure Challenge</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Specification</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">3DS Frame</td><td>Centered iframe, W: 400px, H: 600px (desktop) / Full screen (mobile)</td><td>Bank's authentication UI</td></tr>
+                            <tr><td class="property">Frame Header</td><td>"Verify with your bank" + Bank logo + Lock icon</td><td>Trust signal</td></tr>
+                            <tr><td class="property">Timeout Warning</td><td>Shows after 60 seconds: "Taking too long?"</td><td>Option to cancel and retry</td></tr>
+                            <tr><td class="property">Timeout (2 min)</td><td>Auto-cancel, show retry options</td><td>Don't leave user stuck</td></tr>
+                            <tr><td class="property">Cancel Button</td><td>Below frame, "Cancel and try different method"</td><td>Always available</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="error-box">
+                        <p><strong>âŒ 3DS FAILURE HANDLING:</strong> If 3DS fails, show: "Bank verification failed. Please try again or use a different payment method." Options: "Try Again" | "Use Different Card" | "Use FPX Instead"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S4.6: PROCESSING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S4.6</div>
+                <h2 class="section-title">Payment Processing</h2>
+                <p class="section-desc">Transaction in progress. "Do not close" warning. Status updates. Timeout handling.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S4.6</span>
+                    <span class="spec-name">Payment Processing</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Desktop</th><th>Mobile</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Container</td><td>Centered, 400Ã—300px</td><td>Full screen</td><td>bg: n0, all other UI hidden</td></tr>
+                            <tr><td class="property">Spinner</td><td>W: 64px, H: 64px</td><td>W: 56px, H: 56px</td><td>VAYA branded spinner (mint gradient)</td></tr>
+                            <tr><td class="property">Primary Text</td><td>Space Grotesk 24px/700</td><td>Space Grotesk 20px/700</td><td>"Processing Payment..."</td></tr>
+                            <tr><td class="property">Warning Text</td><td>DM Sans 14px/400</td><td>DM Sans 13px/400</td><td>"Please don't close or refresh this page"</td></tr>
+                            <tr><td class="property">Status Updates</td><td>DM Sans 13px/500</td><td>DM Sans 12px/500</td><td>Changes: "Connecting..." â†’ "Verifying..." â†’ "Confirming..."</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Processing Stages -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">Processing Status Messages</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Time</th><th>Status</th><th>Substatus</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">0-5s</td><td>"Processing Payment..."</td><td>"Connecting to payment network"</td></tr>
+                            <tr><td class="property">5-10s</td><td>"Processing Payment..."</td><td>"Verifying card details"</td></tr>
+                            <tr><td class="property">10-15s</td><td>"Processing Payment..."</td><td>"Confirming with airline"</td></tr>
+                            <tr><td class="property">15-20s</td><td>"Almost there..."</td><td>"Generating your tickets"</td></tr>
+                            <tr><td class="property">20-30s</td><td>"Taking a bit longer..."</td><td>"Please wait, don't refresh"</td></tr>
+                            <tr><td class="property">30s+ (timeout)</td><td>"Connection timeout"</td><td>Show retry/check options</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S4.7: PAYMENT RESULT -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S4.7</div>
+                <h2 class="section-title">Payment Result</h2>
+                <p class="section-desc">Success or failure. PNR display. E-ticket download. Receipt. Share options. Failure recovery.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S4.7-SUCCESS</span>
+                    <span class="spec-name">Payment Success</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Typography</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Success Animation</td><td>top center</td><td>W: 120px, H: 120px</td><td>â€”</td><td>Animated checkmark (Lottie)</td></tr>
+                            <tr><td class="property">Title</td><td>below animation</td><td>W: auto</td><td>Space Grotesk 32px/800</td><td>"Booking Confirmed!" color: mint-500</td></tr>
+                            <tr><td class="property">Subtitle</td><td>â€”</td><td>W: auto</td><td>DM Sans 16px/400</td><td>"Your tickets are ready" color: n700</td></tr>
+                            <tr><td class="property">PNR Card</td><td>center</td><td>W: 300px, H: 80px</td><td>â€”</td><td>bg: mint-dim, border: mint-500, prominent display</td></tr>
+                            <tr><td class="property">â”œâ”€ Label</td><td>â€”</td><td>W: auto</td><td>DM Sans 12px/500</td><td>"Booking Reference"</td></tr>
+                            <tr><td class="property">â””â”€ PNR</td><td>â€”</td><td>W: auto</td><td>JetBrains Mono 36px/800</td><td>"ABC123" â€” large, copyable</td></tr>
+                            <tr><td class="property">Copy Button</td><td>beside PNR</td><td>W: 40px, H: 40px</td><td>â€”</td><td>Icon button, shows "Copied!" toast</td></tr>
+                            <tr><td class="property">Flight Summary</td><td>below PNR</td><td>W: 100%, H: auto</td><td>â€”</td><td>Compact itinerary view</td></tr>
+                            <tr><td class="property">Action Buttons</td><td>bottom</td><td>W: 100%, gap: 12px</td><td>â€”</td><td>Grid of actions</td></tr>
+                            <tr><td class="property">â”œâ”€ Download Ticket</td><td>â€”</td><td>W: 50%, H: 56px</td><td>15px/600</td><td>Primary, bg: mint-500</td></tr>
+                            <tr><td class="property">â”œâ”€ Add to Calendar</td><td>â€”</td><td>W: 50%, H: 56px</td><td>15px/600</td><td>Secondary</td></tr>
+                            <tr><td class="property">â”œâ”€ Email Receipt</td><td>â€”</td><td>W: 50%, H: 56px</td><td>15px/600</td><td>Secondary</td></tr>
+                            <tr><td class="property">â””â”€ Share Itinerary</td><td>â€”</td><td>W: 50%, H: 56px</td><td>15px/600</td><td>Secondary</td></tr>
+                            <tr><td class="property">Confirmation Email Note</td><td>bottom</td><td>W: 100%</td><td>DM Sans 13px/400</td><td>"Confirmation sent to {email}"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="success-box">
+                        <p><strong>âœ“ CELEBRATION MOMENT:</strong> Use confetti animation on success. This is a major moment for users â€” make it feel special! Confetti: 2 second burst, VAYA colors (mint, cyan).</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S4.7-FAILURE</span>
+                    <span class="spec-name">Payment Failure</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Error Type</th><th>Message</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Card Declined</td><td>"Payment was declined by your bank"</td><td>"Try Again" | "Use Different Card" | "Use FPX"</td></tr>
+                            <tr><td class="property">Insufficient Funds</td><td>"Insufficient funds in account"</td><td>"Try Different Card" | "Use FPX"</td></tr>
+                            <tr><td class="property">3DS Failed</td><td>"Bank verification failed"</td><td>"Try Again" | "Use Different Method"</td></tr>
+                            <tr><td class="property">Network Error</td><td>"Connection error. Your card was NOT charged."</td><td>"Try Again" | "Check Status"</td></tr>
+                            <tr><td class="property">Timeout</td><td>"Request timed out. Payment status unknown."</td><td>"Check Status" | "Contact Support"</td></tr>
+                            <tr><td class="property">Booking Failed</td><td>"Payment successful but booking failed. Refund initiated."</td><td>"View Refund Status" | "Search Again"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="error-box">
+                        <p><strong>âŒ DOUBLE CHARGE PREVENTION:</strong> If payment succeeds but booking fails, IMMEDIATELY initiate auto-refund. Show: "Don't worry â€” your payment of RM {amount} will be refunded within 5-7 business days. Reference: {refund_id}"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INTEGRATION -->
+        <!-- ================================================================ -->
+        <div class="integration-box">
+            <div class="integration-title">ðŸ”— VAYA Architecture Integration â€” Flow 4 (Payment)</div>
+            <div class="integration-grid">
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-book</div>
+                    <div class="integration-desc">Payment orchestration, state machine, booking finalization</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-crypto</div>
+                    <div class="integration-desc">Card tokenization, PCI-compliant encryption, secure key management</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-net</div>
+                    <div class="integration-desc">Bank API connections, FPX gateway, e-wallet integrations</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-db</div>
+                    <div class="integration-desc">Payment ledger, transaction logs, refund tracking</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-auth</div>
+                    <div class="integration-desc">Saved payment methods, session security</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-stream</div>
+                    <div class="integration-desc">Real-time payment status updates via WebSocket</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- SUMMARY -->
+        <!-- ================================================================ -->
+        <div class="summary-box">
+            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--error); margin-bottom: 20px;">FLOW 4 COMPLETE: PAYMENT FLOW (VAYAPAY)</h3>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: 24px 0;">
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--error);">7</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Screens</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--mint-500);">12</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Payment Methods</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--cyan-500);">18</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Error States</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--warning);">PCI-L1</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Compliance</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple);">100%</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Sovereign</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

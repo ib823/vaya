@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Screen Design Specification: Flows 8-15 Complete</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-500: #00F5A0; --mint-600: #00CC85; --mint-dim: rgba(0, 245, 160, 0.12);
+            --cyan-500: #00D9FF; --cyan-dim: rgba(0, 217, 255, 0.12);
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n150: #161618; --n200: #1A1A1D;
+            --n300: #232326; --n400: #2D2D31; --n500: #3D3D42; --n600: #5C5C63;
+            --n700: #7A7A82; --n800: #9999A1; --n900: #CCCCCC; --n1000: #FFFFFF;
+            --warning: #FFB800; --warning-dim: rgba(255,184,0,0.12);
+            --error: #FF4757; --error-dim: rgba(255,71,87,0.12);
+            --success: #00F5A0; --purple: #A855F7; --purple-dim: rgba(168,85,247,0.12);
+            --blue: #3B82F6; --blue-dim: rgba(59,130,246,0.12);
+            --orange: #FF6B35; --orange-dim: rgba(255,107,53,0.12);
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--n1000); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--mint-500); margin-bottom: 48px; background: linear-gradient(180deg, rgba(0,245,160,0.08) 0%, transparent 100%); }
+        .doc-logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .doc-logo span:first-child { color: var(--mint-500); }
+        .doc-logo span:last-child { color: var(--cyan-500); }
+        .doc-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-top: 16px; }
+        .doc-subtitle { font-size: 15px; color: var(--n700); margin-top: 8px; }
+        .flow-section { margin-bottom: 80px; padding-bottom: 40px; border-bottom: 2px solid var(--n200); }
+        .flow-header { background: var(--n100); border: 1px solid var(--n200); border-radius: 20px; padding: 32px; margin-bottom: 32px; }
+        .flow-num { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        .flow-title { font-family: var(--font-display); font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+        .flow-desc { color: var(--n700); font-size: 15px; }
+        .screen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px; }
+        .screen-card { background: var(--n50); border: 1px solid var(--n200); border-radius: 16px; overflow: hidden; }
+        .screen-card-header { background: var(--n100); padding: 16px 20px; border-bottom: 1px solid var(--n200); display: flex; align-items: center; gap: 12px; }
+        .screen-id { font-family: var(--font-mono); font-size: 11px; padding: 4px 10px; border-radius: 4px; }
+        .screen-name { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+        .screen-card-body { padding: 16px; }
+        .pixel-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .pixel-table th { background: var(--n150); padding: 8px 10px; text-align: left; font-size: 9px; font-weight: 700; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--n300); }
+        .pixel-table td { padding: 8px 10px; border-bottom: 1px solid var(--n200); color: var(--n800); vertical-align: top; }
+        .pixel-table .property { font-family: var(--font-mono); color: var(--cyan-500); font-weight: 500; font-size: 10px; }
+        .state-row { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+        .state-badge { font-size: 10px; padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+        .integration-bar { background: var(--n150); border-radius: 8px; padding: 12px 16px; margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .crate-tag { font-family: var(--font-mono); font-size: 10px; background: var(--n200); padding: 4px 8px; border-radius: 4px; color: var(--cyan-500); }
+        .summary-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; margin: 32px 0; }
+        .summary-item { background: var(--n100); border-radius: 12px; padding: 20px; text-align: center; }
+        .summary-num { font-family: var(--font-display); font-size: 28px; font-weight: 800; }
+        .summary-label { font-size: 10px; color: var(--n600); text-transform: uppercase; margin-top: 4px; }
+        .final-box { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.08)); border: 2px solid var(--mint-500); border-radius: 24px; padding: 48px; text-align: center; margin-top: 64px; }
+        @media (max-width: 1200px) { .summary-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 768px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } .screen-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="doc-header">
+            <div class="doc-logo"><span>VA</span><span>YA</span></div>
+            <h1 class="doc-title">Screen Design Specification</h1>
+            <p class="doc-subtitle">Flows 8-15: Complete Secondary Flow Specifications</p>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- FLOW 8: ACCOUNT MANAGEMENT -->
+        <!-- ================================================================ -->
+        <section class="flow-section">
+            <div class="flow-header" style="border-left: 4px solid var(--blue);">
+                <div class="flow-num" style="color: var(--blue);">Flow 8</div>
+                <h2 class="flow-title">Account Management</h2>
+                <p class="flow-desc">Profile, travelers, payment methods, preferences, data privacy.</p>
+            </div>
+
+            <div class="screen-grid">
+                <!-- S8.1 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--blue-dim); color: var(--blue);">S8.1</span>
+                        <span class="screen-name">Profile Overview</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Avatar</td><td>120Ã—120px desktop, 80Ã—80px mobile, initials fallback</td></tr>
+                            <tr><td class="property">Name</td><td>Space Grotesk 32px/800</td></tr>
+                            <tr><td class="property">Stats Row</td><td>Trips count | Total saved (mint) | Pools joined</td></tr>
+                            <tr><td class="property">Menu Items</td><td>Personal Info, Travelers, Payment, Preferences, Security, Help</td></tr>
+                        </table>
+                        <div class="integration-bar">
+                            <span class="crate-tag">vaya-user</span>
+                            <span class="crate-tag">vaya-db</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- S8.2 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--blue-dim); color: var(--blue);">S8.2</span>
+                        <span class="screen-name">Personal Information</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Fields</td><td>First Name, Last Name, DOB, Gender, Nationality, Phone, Email</td></tr>
+                            <tr><td class="property">Validation</td><td>Names as on passport, valid phone format +60</td></tr>
+                            <tr><td class="property">Input Height</td><td>56px desktop, 52px mobile</td></tr>
+                            <tr><td class="property">Save CTA</td><td>W: 100%, H: 56px, bg: mint-500</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S8.3 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--blue-dim); color: var(--blue);">S8.3</span>
+                        <span class="screen-name">Saved Travelers</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Card</td><td>W: 100%, H: 100px, avatar + name + relation badge</td></tr>
+                            <tr><td class="property">Fields</td><td>Title, Name, DOB, Gender, Nationality, Passport, Relationship</td></tr>
+                            <tr><td class="property">Relations</td><td>Self, Spouse, Child, Parent, Sibling, Other</td></tr>
+                            <tr><td class="property">Actions</td><td>Edit, Delete (swipe on mobile)</td></tr>
+                        </table>
+                        <div class="integration-bar">
+                            <span class="crate-tag">vaya-traveler</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- S8.4 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--blue-dim); color: var(--blue);">S8.4</span>
+                        <span class="screen-name">Payment Methods</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Card Visual</td><td>W: 100%, H: 180px, brand gradient bg</td></tr>
+                            <tr><td class="property">Display</td><td>Brand logo, â€¢â€¢â€¢â€¢ 1234, Expiry, Cardholder</td></tr>
+                            <tr><td class="property">E-Wallets</td><td>GrabPay, TnG, Boost, ShopeePay linked accounts</td></tr>
+                            <tr><td class="property">Add CTA</td><td>Outline button, "+ Add Card"</td></tr>
+                        </table>
+                        <div class="integration-bar">
+                            <span class="crate-tag">vaya-crypto</span>
+                            <span class="crate-tag">vaya-book</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- S8.5 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--blue-dim); color: var(--blue);">S8.5</span>
+                        <span class="screen-name">Travel Preferences</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Home Airport</td><td>Airport picker, default: KUL</td></tr>
+                            <tr><td class="property">Cabin Class</td><td>Economy / Premium / Business / First</td></tr>
+                            <tr><td class="property">Seat</td><td>Window / Aisle / No preference</td></tr>
+                            <tr><td class="property">Meal</td><td>Regular / Vegetarian / Halal / Kosher / etc</td></tr>
+                            <tr><td class="property">Filters</td><td>Preferred/Avoid airlines, Max layovers, Duration</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S8.6 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--blue-dim); color: var(--blue);">S8.6</span>
+                        <span class="screen-name">Data & Privacy</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Download Data</td><td>Export JSON/CSV, email within 24h</td></tr>
+                            <tr><td class="property">Booking History</td><td>PDF export, instant</td></tr>
+                            <tr><td class="property">Clear History</td><td>Delete searches, confirmation required</td></tr>
+                            <tr><td class="property">Delete Account</td><td>30-day grace, password required</td></tr>
+                        </table>
+                        <div class="state-row">
+                            <span class="state-badge" style="background: var(--mint-dim); color: var(--mint-500);">GDPR Compliant</span>
+                            <span class="state-badge" style="background: var(--purple-dim); color: var(--purple);">PDPA Compliant</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- FLOW 9: TRIP MANAGEMENT -->
+        <!-- ================================================================ -->
+        <section class="flow-section">
+            <div class="flow-header" style="border-left: 4px solid var(--purple);">
+                <div class="flow-num" style="color: var(--purple);">Flow 9</div>
+                <h2 class="flow-title">Trip Management</h2>
+                <p class="flow-desc">My trips, booking details, itinerary, documents, check-in.</p>
+            </div>
+
+            <div class="screen-grid">
+                <!-- S9.1 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--purple-dim); color: var(--purple);">S9.1</span>
+                        <span class="screen-name">My Trips</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Tabs</td><td>Upcoming | Past | Cancelled</td></tr>
+                            <tr><td class="property">Trip Card</td><td>Route, dates, airline, status badge, countdown</td></tr>
+                            <tr><td class="property">Countdown</td><td>"Departs in 3 days" with visual timer</td></tr>
+                            <tr><td class="property">Status</td><td>Confirmed (mint), Pending, Cancelled (error)</td></tr>
+                            <tr><td class="property">Empty State</td><td>Illustration + "Plan your next adventure"</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S9.2 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--purple-dim); color: var(--purple);">S9.2</span>
+                        <span class="screen-name">Trip Detail</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Header</td><td>Large route display KUL âŸ¶ TYO, dates</td></tr>
+                            <tr><td class="property">Flight Card</td><td>Airline, flight #, times, duration, aircraft</td></tr>
+                            <tr><td class="property">Travelers</td><td>List of passengers with seat assignments</td></tr>
+                            <tr><td class="property">Actions</td><td>Check-in, Add to Wallet, Share, Cancel</td></tr>
+                            <tr><td class="property">Documents</td><td>E-ticket PDF, boarding pass (if available)</td></tr>
+                        </table>
+                        <div class="integration-bar">
+                            <span class="crate-tag">vaya-book</span>
+                            <span class="crate-tag">vaya-pnr</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- S9.3 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--purple-dim); color: var(--purple);">S9.3</span>
+                        <span class="screen-name">Web Check-in</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Availability</td><td>Shows when check-in opens (24-48h before)</td></tr>
+                            <tr><td class="property">Flow</td><td>Deep link to airline OR in-app for supported</td></tr>
+                            <tr><td class="property">Seat Selection</td><td>Seat map if available</td></tr>
+                            <tr><td class="property">Boarding Pass</td><td>Add to Apple/Google Wallet</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S9.4 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--purple-dim); color: var(--purple);">S9.4</span>
+                        <span class="screen-name">Flight Status</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Status</td><td>On Time (mint), Delayed (warning), Cancelled (error)</td></tr>
+                            <tr><td class="property">Times</td><td>Scheduled vs Actual, departure/arrival</td></tr>
+                            <tr><td class="property">Gate</td><td>Gate number, terminal, changes highlighted</td></tr>
+                            <tr><td class="property">Updates</td><td>Push notifications for changes</td></tr>
+                        </table>
+                        <div class="integration-bar">
+                            <span class="crate-tag">vaya-status</span>
+                            <span class="crate-tag">vaya-notify</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- S9.5 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--purple-dim); color: var(--purple);">S9.5</span>
+                        <span class="screen-name">Trip Sharing</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Share Options</td><td>Link, WhatsApp, Email, Copy</td></tr>
+                            <tr><td class="property">Content</td><td>Read-only itinerary view for recipients</td></tr>
+                            <tr><td class="property">Expiry</td><td>Link valid for 30 days</td></tr>
+                            <tr><td class="property">Privacy</td><td>No personal details exposed</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S9.6 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--purple-dim); color: var(--purple);">S9.6</span>
+                        <span class="screen-name">Cancel Booking</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Warning</td><td>Clear refund policy display</td></tr>
+                            <tr><td class="property">Refund Info</td><td>Amount, method, timeline (5-10 days)</td></tr>
+                            <tr><td class="property">Confirmation</td><td>Double-confirm with reason selection</td></tr>
+                            <tr><td class="property">Result</td><td>Cancellation receipt, email confirmation</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- FLOW 10: NOTIFICATIONS -->
+        <!-- ================================================================ -->
+        <section class="flow-section">
+            <div class="flow-header" style="border-left: 4px solid var(--orange);">
+                <div class="flow-num" style="color: var(--orange);">Flow 10</div>
+                <h2 class="flow-title">Notifications</h2>
+                <p class="flow-desc">Notification center, preferences, push/email/SMS settings.</p>
+            </div>
+
+            <div class="screen-grid">
+                <!-- S10.1 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--orange-dim); color: var(--orange);">S10.1</span>
+                        <span class="screen-name">Notification Center</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Layout</td><td>Chronological list, grouped by date</td></tr>
+                            <tr><td class="property">Item</td><td>Icon + title + body + timestamp + action</td></tr>
+                            <tr><td class="property">Types</td><td>Alert triggered, Pool update, Flight change, Promo</td></tr>
+                            <tr><td class="property">States</td><td>Unread (mint dot), Read (normal)</td></tr>
+                            <tr><td class="property">Actions</td><td>Mark all read, Clear all, individual delete</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S10.2 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--orange-dim); color: var(--orange);">S10.2</span>
+                        <span class="screen-name">Notification Settings</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Channels</td><td>Push, Email, SMS - toggles for each</td></tr>
+                            <tr><td class="property">Categories</td><td>Price Alerts, Pool Updates, Flight Status, Promotions</td></tr>
+                            <tr><td class="property">Frequency</td><td>Instant / Daily Digest / Weekly Summary</td></tr>
+                            <tr><td class="property">Quiet Hours</td><td>Time range picker for no notifications</td></tr>
+                        </table>
+                        <div class="integration-bar">
+                            <span class="crate-tag">vaya-notify</span>
+                            <span class="crate-tag">vaya-user</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- S10.3 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--orange-dim); color: var(--orange);">S10.3</span>
+                        <span class="screen-name">Push Permission</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Pre-Permission</td><td>VAYA UI explaining benefits before OS prompt</td></tr>
+                            <tr><td class="property">Benefits</td><td>"Get instant alerts when prices drop"</td></tr>
+                            <tr><td class="property">CTAs</td><td>"Enable Notifications" / "Not Now"</td></tr>
+                            <tr><td class="property">Denied State</td><td>Instructions to enable in Settings</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- FLOW 11: SUPPORT & HELP -->
+        <!-- ================================================================ -->
+        <section class="flow-section">
+            <div class="flow-header" style="border-left: 4px solid var(--cyan-500);">
+                <div class="flow-num" style="color: var(--cyan-500);">Flow 11</div>
+                <h2 class="flow-title">Support & Help</h2>
+                <p class="flow-desc">Help center, FAQs, contact support, live chat.</p>
+            </div>
+
+            <div class="screen-grid">
+                <!-- S11.1 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--cyan-dim); color: var(--cyan-500);">S11.1</span>
+                        <span class="screen-name">Help Center</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Search</td><td>Full-width search bar, W: 100%, H: 56px</td></tr>
+                            <tr><td class="property">Categories</td><td>Booking, Payment, Pools, Account, Refunds</td></tr>
+                            <tr><td class="property">Popular</td><td>Top 5 FAQs carousel</td></tr>
+                            <tr><td class="property">Contact</td><td>Chat, Email, Phone cards at bottom</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S11.2 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--cyan-dim); color: var(--cyan-500);">S11.2</span>
+                        <span class="screen-name">FAQ Article</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Title</td><td>Space Grotesk 24px/700</td></tr>
+                            <tr><td class="property">Content</td><td>Rich text, images, step lists</td></tr>
+                            <tr><td class="property">Feedback</td><td>"Was this helpful?" Yes/No buttons</td></tr>
+                            <tr><td class="property">Related</td><td>3-5 related articles at bottom</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S11.3 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--cyan-dim); color: var(--cyan-500);">S11.3</span>
+                        <span class="screen-name">Live Chat</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Interface</td><td>Chat bubble UI, alternating sides</td></tr>
+                            <tr><td class="property">Bot First</td><td>AI chatbot for common queries</td></tr>
+                            <tr><td class="property">Escalation</td><td>"Talk to human" option always visible</td></tr>
+                            <tr><td class="property">Context</td><td>Auto-attach booking if viewing trip</td></tr>
+                            <tr><td class="property">Hours</td><td>Bot: 24/7, Human: 9am-9pm MYT</td></tr>
+                        </table>
+                        <div class="integration-bar">
+                            <span class="crate-tag">vaya-support</span>
+                            <span class="crate-tag">vaya-ai</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- S11.4 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--cyan-dim); color: var(--cyan-500);">S11.4</span>
+                        <span class="screen-name">Contact Form</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Fields</td><td>Category (dropdown), Subject, Message, Attachments</td></tr>
+                            <tr><td class="property">Categories</td><td>Booking Issue, Payment, Refund, Technical, Other</td></tr>
+                            <tr><td class="property">Attachments</td><td>Up to 5 files, max 10MB each</td></tr>
+                            <tr><td class="property">Response</td><td>"We'll reply within 24 hours"</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- FLOW 12: SETTINGS -->
+        <!-- ================================================================ -->
+        <section class="flow-section">
+            <div class="flow-header" style="border-left: 4px solid var(--n600);">
+                <div class="flow-num" style="color: var(--n600);">Flow 12</div>
+                <h2 class="flow-title">Settings & Preferences</h2>
+                <p class="flow-desc">App settings, language, theme, accessibility.</p>
+            </div>
+
+            <div class="screen-grid">
+                <!-- S12.1 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--n200); color: var(--n700);">S12.1</span>
+                        <span class="screen-name">Settings Overview</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Sections</td><td>General, Display, Notifications, Privacy, About</td></tr>
+                            <tr><td class="property">Item Style</td><td>Icon + Label + Value/Toggle, H: 56px</td></tr>
+                            <tr><td class="property">Dividers</td><td>Section headers with labels</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S12.2 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--n200); color: var(--n700);">S12.2</span>
+                        <span class="screen-name">Language & Region</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Language</td><td>English, Bahasa Malaysia, ä¸­æ–‡, à®¤à®®à®¿à®´à¯</td></tr>
+                            <tr><td class="property">Region</td><td>Malaysia, Singapore, Indonesia</td></tr>
+                            <tr><td class="property">Currency</td><td>MYR, SGD, USD, EUR</td></tr>
+                            <tr><td class="property">Date Format</td><td>DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S12.3 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--n200); color: var(--n700);">S12.3</span>
+                        <span class="screen-name">Display & Theme</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Theme</td><td>Dark (default), Light, System</td></tr>
+                            <tr><td class="property">Text Size</td><td>Small, Medium, Large, Extra Large</td></tr>
+                            <tr><td class="property">Reduce Motion</td><td>Toggle - respects prefers-reduced-motion</td></tr>
+                            <tr><td class="property">High Contrast</td><td>Toggle - increases text contrast</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S12.4 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--n200); color: var(--n700);">S12.4</span>
+                        <span class="screen-name">About</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Version</td><td>App version + build number</td></tr>
+                            <tr><td class="property">Links</td><td>Terms, Privacy, Licenses, Rate App</td></tr>
+                            <tr><td class="property">Debug</td><td>Hidden: 7 taps on logo â†’ debug menu</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- FLOW 13: ERROR STATES -->
+        <!-- ================================================================ -->
+        <section class="flow-section">
+            <div class="flow-header" style="border-left: 4px solid var(--error);">
+                <div class="flow-num" style="color: var(--error);">Flow 13</div>
+                <h2 class="flow-title">Error States & Recovery</h2>
+                <p class="flow-desc">Network errors, not found, server errors, maintenance.</p>
+            </div>
+
+            <div class="screen-grid">
+                <!-- S13.1 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--error-dim); color: var(--error);">S13.1</span>
+                        <span class="screen-name">No Connection</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Illustration</td><td>Disconnected cloud icon, W: 120px, animated</td></tr>
+                            <tr><td class="property">Title</td><td>"No Internet Connection"</td></tr>
+                            <tr><td class="property">Message</td><td>"Check your connection and try again"</td></tr>
+                            <tr><td class="property">CTA</td><td>"Try Again" button, auto-retry option</td></tr>
+                            <tr><td class="property">Offline Mode</td><td>Show cached content if available</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S13.2 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--error-dim); color: var(--error);">S13.2</span>
+                        <span class="screen-name">Not Found (404)</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Illustration</td><td>Lost airplane icon</td></tr>
+                            <tr><td class="property">Title</td><td>"Page Not Found"</td></tr>
+                            <tr><td class="property">Message</td><td>"This page seems to have flown away"</td></tr>
+                            <tr><td class="property">CTAs</td><td>"Go Home", "Search Flights"</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S13.3 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--error-dim); color: var(--error);">S13.3</span>
+                        <span class="screen-name">Server Error (500)</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Illustration</td><td>Turbulence icon</td></tr>
+                            <tr><td class="property">Title</td><td>"Something Went Wrong"</td></tr>
+                            <tr><td class="property">Message</td><td>"We're experiencing turbulence. Try again shortly."</td></tr>
+                            <tr><td class="property">Support</td><td>Error ID for support reference</td></tr>
+                            <tr><td class="property">CTAs</td><td>"Try Again", "Contact Support"</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S13.4 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--error-dim); color: var(--error);">S13.4</span>
+                        <span class="screen-name">Maintenance</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Illustration</td><td>Wrench/tools icon</td></tr>
+                            <tr><td class="property">Title</td><td>"Under Maintenance"</td></tr>
+                            <tr><td class="property">Message</td><td>"We're upgrading VAYA. Back soon!"</td></tr>
+                            <tr><td class="property">ETA</td><td>Countdown if known: "Est. 30 min"</td></tr>
+                            <tr><td class="property">Updates</td><td>Link to status page</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S13.5 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--error-dim); color: var(--error);">S13.5</span>
+                        <span class="screen-name">Session Expired</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Title</td><td>"Session Expired"</td></tr>
+                            <tr><td class="property">Message</td><td>"Please sign in again to continue"</td></tr>
+                            <tr><td class="property">CTA</td><td>"Sign In" â†’ returns to original page</td></tr>
+                            <tr><td class="property">Context</td><td>Preserve draft data if possible</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S13.6 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--error-dim); color: var(--error);">S13.6</span>
+                        <span class="screen-name">Empty States</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">No Results</td><td>Illustration + "No flights found" + adjust filters</td></tr>
+                            <tr><td class="property">No Trips</td><td>Illustration + "Plan your adventure" + search CTA</td></tr>
+                            <tr><td class="property">No Alerts</td><td>Illustration + "Create your first alert"</td></tr>
+                            <tr><td class="property">No Notifications</td><td>"All caught up!" + checkmark</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- FLOW 14: ONBOARDING -->
+        <!-- ================================================================ -->
+        <section class="flow-section">
+            <div class="flow-header" style="border-left: 4px solid var(--mint-500);">
+                <div class="flow-num" style="color: var(--mint-500);">Flow 14</div>
+                <h2 class="flow-title">Onboarding</h2>
+                <p class="flow-desc">First-time user experience, app tour, feature highlights.</p>
+            </div>
+
+            <div class="screen-grid">
+                <!-- S14.1 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--mint-dim); color: var(--mint-500);">S14.1</span>
+                        <span class="screen-name">Welcome</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Logo</td><td>Large animated VAYA logo, center</td></tr>
+                            <tr><td class="property">Tagline</td><td>"Fly for less. Know when to book."</td></tr>
+                            <tr><td class="property">CTAs</td><td>"Get Started" (primary), "Sign In" (secondary)</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S14.2-4 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--mint-dim); color: var(--mint-500);">S14.2-4</span>
+                        <span class="screen-name">Feature Tour</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Slide 1</td><td>Oracle: "AI predicts the best time to book"</td></tr>
+                            <tr><td class="property">Slide 2</td><td>Pools: "Group buying for flight deals"</td></tr>
+                            <tr><td class="property">Slide 3</td><td>Alerts: "Never miss a price drop"</td></tr>
+                            <tr><td class="property">Navigation</td><td>Dots indicator, swipe, Skip link</td></tr>
+                            <tr><td class="property">Animation</td><td>Lottie illustrations per slide</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S14.5 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--mint-dim); color: var(--mint-500);">S14.5</span>
+                        <span class="screen-name">Home Airport</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Title</td><td>"Where do you usually fly from?"</td></tr>
+                            <tr><td class="property">Detection</td><td>Auto-suggest based on location</td></tr>
+                            <tr><td class="property">Search</td><td>Airport search with popular options</td></tr>
+                            <tr><td class="property">Skip</td><td>Can set later in preferences</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S14.6 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--mint-dim); color: var(--mint-500);">S14.6</span>
+                        <span class="screen-name">Notifications Prompt</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Illustration</td><td>Bell with price tag animation</td></tr>
+                            <tr><td class="property">Title</td><td>"Get notified about price drops"</td></tr>
+                            <tr><td class="property">Benefits</td><td>List of what notifications enable</td></tr>
+                            <tr><td class="property">CTAs</td><td>"Enable" (triggers OS prompt), "Not Now"</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- FLOW 15: ADMIN/PARTNER -->
+        <!-- ================================================================ -->
+        <section class="flow-section">
+            <div class="flow-header" style="border-left: 4px solid var(--warning);">
+                <div class="flow-num" style="color: var(--warning);">Flow 15</div>
+                <h2 class="flow-title">Admin & Partner Portal</h2>
+                <p class="flow-desc">Internal dashboard, partner management, analytics.</p>
+            </div>
+
+            <div class="screen-grid">
+                <!-- S15.1 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--warning-dim); color: var(--warning);">S15.1</span>
+                        <span class="screen-name">Admin Dashboard</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">KPIs</td><td>Bookings today, Revenue, Active users, Pools</td></tr>
+                            <tr><td class="property">Charts</td><td>Revenue trend, Booking volume, Conversion funnel</td></tr>
+                            <tr><td class="property">Alerts</td><td>System health, Failed payments, Support queue</td></tr>
+                            <tr><td class="property">Quick Actions</td><td>View bookings, Support tickets, Pool management</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S15.2 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--warning-dim); color: var(--warning);">S15.2</span>
+                        <span class="screen-name">User Management</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Search</td><td>By email, name, booking ID</td></tr>
+                            <tr><td class="property">User Card</td><td>Avatar, name, email, joined date, booking count</td></tr>
+                            <tr><td class="property">Actions</td><td>View profile, Bookings, Reset password, Suspend</td></tr>
+                            <tr><td class="property">Filters</td><td>Status, Registration date, Booking count</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- S15.3 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--warning-dim); color: var(--warning);">S15.3</span>
+                        <span class="screen-name">Pool Management</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Pool List</td><td>All pools with status, members, dates</td></tr>
+                            <tr><td class="property">Actions</td><td>Extend duration, Add capacity, Cancel pool</td></tr>
+                            <tr><td class="property">Analytics</td><td>Fill rate, Average savings, Success rate</td></tr>
+                            <tr><td class="property">Alerts</td><td>Pools at risk of not filling</td></tr>
+                        </table>
+                        <div class="integration-bar">
+                            <span class="crate-tag">vaya-admin</span>
+                            <span class="crate-tag">vaya-pool</span>
+                            <span class="crate-tag">vaya-analytics</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- S15.4 -->
+                <div class="screen-card">
+                    <div class="screen-card-header">
+                        <span class="screen-id" style="background: var(--warning-dim); color: var(--warning);">S15.4</span>
+                        <span class="screen-name">Analytics</span>
+                    </div>
+                    <div class="screen-card-body">
+                        <table class="pixel-table">
+                            <tr><td class="property">Traffic</td><td>Users, sessions, page views, bounce rate</td></tr>
+                            <tr><td class="property">Conversion</td><td>Searchâ†’Resultsâ†’Book funnel</td></tr>
+                            <tr><td class="property">Revenue</td><td>GMV, commission, by route, by airline</td></tr>
+                            <tr><td class="property">Oracle</td><td>Prediction accuracy, user trust rate</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- GRAND SUMMARY -->
+        <!-- ================================================================ -->
+        <div class="final-box">
+            <h2 style="font-family: var(--font-display); font-size: 32px; font-weight: 800; margin-bottom: 24px;">
+                FLOWS 8-15 COMPLETE
+            </h2>
+            <p style="color: var(--n700); font-size: 16px; margin-bottom: 32px;">
+                All secondary flows specified with pixel-perfect detail
+            </p>
+
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-num" style="color: var(--blue);">6</div>
+                    <div class="summary-label">Flow 8</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-num" style="color: var(--purple);">6</div>
+                    <div class="summary-label">Flow 9</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-num" style="color: var(--orange);">3</div>
+                    <div class="summary-label">Flow 10</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-num" style="color: var(--cyan-500);">4</div>
+                    <div class="summary-label">Flow 11</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-num" style="color: var(--n600);">4</div>
+                    <div class="summary-label">Flow 12</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-num" style="color: var(--error);">6</div>
+                    <div class="summary-label">Flow 13</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-num" style="color: var(--mint-500);">6</div>
+                    <div class="summary-label">Flow 14</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-num" style="color: var(--warning);">4</div>
+                    <div class="summary-label">Flow 15</div>
+                </div>
+            </div>
+
+            <div style="background: var(--n150); border-radius: 16px; padding: 24px; margin-top: 32px;">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; text-align: center;">
+                    <div>
+                        <div style="font-family: var(--font-display); font-size: 40px; font-weight: 800; color: var(--mint-500);">39</div>
+                        <div style="font-size: 12px; color: var(--n600);">SCREENS</div>
+                    </div>
+                    <div>
+                        <div style="font-family: var(--font-display); font-size: 40px; font-weight: 800; color: var(--cyan-500);">156</div>
+                        <div style="font-size: 12px; color: var(--n600);">DEVICE VARIANTS</div>
+                    </div>
+                    <div>
+                        <div style="font-family: var(--font-display); font-size: 40px; font-weight: 800; color: var(--purple);">8</div>
+                        <div style="font-size: 12px; color: var(--n600);">FLOWS</div>
+                    </div>
+                    <div>
+                        <div style="font-family: var(--font-display); font-size: 40px; font-weight: 800; color: var(--warning);">100%</div>
+                        <div style="font-size: 12px; color: var(--n600);">COVERAGE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

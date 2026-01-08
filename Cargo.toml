@@ -1,0 +1,71 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/vaya-common",
+    "crates/vaya-crypto",
+    "crates/vaya-db",
+    "crates/vaya-cache",
+    # "crates/vaya-store",
+    # "crates/vaya-auth",
+    "crates/vaya-ml",
+    # "crates/vaya-oracle",
+    # "crates/vaya-pool",
+    # "crates/vaya-book",
+    # "crates/vaya-search",
+    # "crates/vaya-collect",
+    # "crates/vaya-net",
+    # "crates/vaya-api",
+    # "crates/vaya-bin",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["VAYA Team"]
+license = "Proprietary"
+repository = "https://github.com/vaya/vaya-oracle"
+rust-version = "1.75"
+
+[workspace.dependencies]
+# Async runtime - ALLOWED
+tokio = { version = "1.35", features = ["full"] }
+
+# Crypto primitives - ALLOWED (ring for crypto, rustls for TLS)
+ring = "0.17"
+rustls = { version = "0.22", default-features = false, features = ["ring"] }
+
+# Zero-copy serialization - ALLOWED
+rkyv = { version = "0.7", features = ["validation", "strict"] }
+
+# Compression - ALLOWED
+lz4_flex = "0.11"
+
+# Time handling - ALLOWED
+time = { version = "0.3", features = ["formatting", "parsing", "macros"] }
+
+# Logging/tracing - ALLOWED
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Internal crates
+vaya-common = { path = "crates/vaya-common" }
+vaya-crypto = { path = "crates/vaya-crypto" }
+vaya-db = { path = "crates/vaya-db" }
+vaya-cache = { path = "crates/vaya-cache" }
+vaya-store = { path = "crates/vaya-store" }
+vaya-auth = { path = "crates/vaya-auth" }
+vaya-ml = { path = "crates/vaya-ml" }
+vaya-oracle = { path = "crates/vaya-oracle" }
+vaya-pool = { path = "crates/vaya-pool" }
+vaya-book = { path = "crates/vaya-book" }
+vaya-search = { path = "crates/vaya-search" }
+vaya-collect = { path = "crates/vaya-collect" }
+vaya-net = { path = "crates/vaya-net" }
+vaya-api = { path = "crates/vaya-api" }
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+strip = true
+panic = "abort"

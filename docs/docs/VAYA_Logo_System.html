@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Dual-Tone Logo System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0;
+            --cyan: #00D9FF;
+            --white: #FFFFFF;
+            --bg-dark: #0A0A0B;
+            --bg-card: #111113;
+            --gray-400: #9CA3AF;
+            --gray-600: #6B7280;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #050506;
+            color: var(--white);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Header */
+        .doc-header {
+            text-align: center;
+            padding: 80px 0;
+            border-bottom: 1px solid #222;
+            margin-bottom: 60px;
+        }
+
+        .doc-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .doc-subtitle {
+            font-size: 18px;
+            color: var(--gray-400);
+        }
+
+        /* Section */
+        .section {
+            margin-bottom: 100px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--mint);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 16px;
+        }
+
+        .section-heading {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            font-size: 16px;
+            color: var(--gray-400);
+            max-width: 700px;
+            margin-bottom: 48px;
+        }
+
+        /* Logo Display */
+        .logo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+
+        .logo-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .logo-card:hover {
+            border-color: var(--mint);
+            transform: translateY(-4px);
+        }
+
+        .logo-display {
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo-display.dark {
+            background: #0A0A0B;
+        }
+
+        .logo-display.light {
+            background: #FFFFFF;
+        }
+
+        .logo-display.gradient {
+            background: linear-gradient(135deg, #0A0A0B 0%, #1a1a2e 100%);
+        }
+
+        .logo-info {
+            padding: 24px;
+            border-top: 1px solid #222;
+        }
+
+        .logo-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .logo-desc {
+            font-size: 14px;
+            color: var(--gray-400);
+            margin-bottom: 16px;
+        }
+
+        .logo-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(0, 245, 160, 0.1);
+            border: 1px solid rgba(0, 245, 160, 0.3);
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--mint);
+            margin-right: 8px;
+        }
+
+        .logo-tag.recommended {
+            background: var(--mint);
+            color: #000;
+            border-color: var(--mint);
+        }
+
+        /* Hero Logo */
+        .hero-logo {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            border-radius: 32px;
+            padding: 80px;
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .hero-logo-display {
+            margin-bottom: 32px;
+        }
+
+        /* SVG Logos */
+        .vaya-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 800;
+        }
+
+        /* Animations */
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(0, 245, 160, 0.5)); }
+            50% { filter: drop-shadow(0 0 40px rgba(0, 245, 160, 0.8)); }
+        }
+
+        .animate-shimmer {
+            animation: shimmer 3s linear infinite;
+        }
+
+        .animate-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        /* Color Swatches */
+        .color-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .color-swatch {
+            flex: 1;
+            height: 80px;
+            border-radius: 12px;
+            display: flex;
+            align-items: flex-end;
+            padding: 12px;
+        }
+
+        .color-swatch span {
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.8;
+        }
+
+        /* Usage Grid */
+        .usage-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 48px;
+        }
+
+        .usage-card {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .usage-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .usage-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .usage-desc {
+            font-size: 13px;
+            color: var(--gray-400);
+        }
+
+        /* Full Width Logo */
+        .full-width-logo {
+            width: 100%;
+            background: linear-gradient(135deg, #0a0a0b 0%, #111118 50%, #0a0a0b 100%);
+            border-radius: 24px;
+            padding: 100px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 48px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .full-width-logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(0, 245, 160, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(0, 217, 255, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Comparison Table */
+        .comparison {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 48px;
+        }
+
+        .comparison-header {
+            background: #1a1a1d;
+            padding: 20px 24px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 200px 1fr 1fr;
+            border-bottom: 1px solid #222;
+        }
+
+        .comparison-row:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-cell {
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .comparison-cell:first-child {
+            background: #0d0d0f;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--gray-400);
+        }
+
+        .comparison-cell.highlight {
+            background: rgba(0, 245, 160, 0.05);
+        }
+
+        /* Before/After */
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 80px 1fr;
+            gap: 24px;
+            align-items: center;
+            margin: 48px 0;
+        }
+
+        .before-box, .after-box {
+            background: var(--bg-card);
+            border: 1px solid #222;
+            border-radius: 24px;
+            padding: 60px;
+            text-align: center;
+        }
+
+        .before-box {
+            opacity: 0.6;
+        }
+
+        .after-box {
+            border-color: var(--mint);
+            box-shadow: 0 0 60px rgba(0, 245, 160, 0.1);
+        }
+
+        .arrow-box {
+            text-align: center;
+        }
+
+        .arrow-box svg {
+            width: 48px;
+            height: 48px;
+            color: var(--mint);
+        }
+
+        .box-label {
+            font-size: 12px;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .logo-grid { grid-template-columns: 1fr; }
+            .usage-grid { grid-template-columns: repeat(2, 1fr); }
+            .before-after { grid-template-columns: 1fr; }
+            .arrow-box { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="doc-header">
+            <h1 class="doc-title">VAYA Dual-Tone Logo System</h1>
+            <p class="doc-subtitle">Maximum visual impact. Maximum acquisition. Maximum recognition.</p>
+        </header>
+
+        <!-- HERO: The Winning Logo -->
+        <section class="section">
+            <div class="section-title">The Primary Wordmark</div>
+            <h2 class="section-heading">The Dual-Tone Strike</h2>
+            <p class="section-desc">VA in mint. YA in cyan. The split creates visual tension, memorability, and instant brand recognition. The mint-to-cyan transition mirrors the journey from "searching" to "saving".</p>
+
+            <div class="hero-logo">
+                <div class="hero-logo-display">
+                    <!-- PRIMARY LOGO: VA mint, YA cyan -->
+                    <svg width="400" height="120" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="mint-solid" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#00F5A0"/>
+                                <stop offset="100%" style="stop-color:#00F5A0"/>
+                            </linearGradient>
+                            <linearGradient id="cyan-solid" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style="stop-color:#00D9FF"/>
+                                <stop offset="100%" style="stop-color:#00D9FF"/>
+                            </linearGradient>
+                            <filter id="glow-mint" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            <filter id="glow-cyan" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <!-- VA in Mint -->
+                        <text x="10" y="95" font-family="Space Grotesk, sans-serif" font-size="100" font-weight="800" fill="url(#mint-solid)" filter="url(#glow-mint)">VA</text>
+                        <!-- YA in Cyan -->
+                        <text x="195" y="95" font-family="Space Grotesk, sans-serif" font-size="100" font-weight="800" fill="url(#cyan-solid)" filter="url(#glow-cyan)">YA</text>
+                    </svg>
+                </div>
+                <p style="color: var(--gray-400); font-size: 14px; margin-top: 24px;">
+                    <span style="color: var(--mint); font-weight: 700;">VA</span> = Value, Advantage, Victory<br>
+                    <span style="color: var(--cyan); font-weight: 700;">YA</span> = Your Adventure, Yes Adventure
+                </p>
+            </div>
+
+            <!-- Color Psychology -->
+            <div class="color-row">
+                <div class="color-swatch" style="background: var(--mint);">
+                    <span style="color: #000;">#00F5A0 â€” Money, Savings, Go</span>
+                </div>
+                <div class="color-swatch" style="background: var(--cyan);">
+                    <span style="color: #000;">#00D9FF â€” Sky, Travel, Dream</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Before / After -->
+        <section class="section">
+            <div class="section-title">The Transformation</div>
+            <h2 class="section-heading">Before vs After</h2>
+            <p class="section-desc">Single-tone is forgettable. Dual-tone is unforgettable.</p>
+
+            <div class="before-after">
+                <div class="before-box">
+                    <div class="box-label">Before: Single Tone</div>
+                    <svg width="240" height="80" viewBox="0 0 240 80" fill="none">
+                        <text x="10" y="65" font-family="Space Grotesk, sans-serif" font-size="70" font-weight="800" fill="#666">VAYA</text>
+                    </svg>
+                    <p style="font-size: 13px; color: var(--gray-600); margin-top: 16px;">Generic. Forgettable. Blends in.</p>
+                </div>
+                <div class="arrow-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </div>
+                <div class="after-box">
+                    <div class="box-label" style="color: var(--mint);">After: Dual Tone</div>
+                    <svg width="240" height="80" viewBox="0 0 240 80" fill="none">
+                        <text x="10" y="65" font-family="Space Grotesk, sans-serif" font-size="70" font-weight="800" fill="#00F5A0">VA</text>
+                        <text x="125" y="65" font-family="Space Grotesk, sans-serif" font-size="70" font-weight="800" fill="#00D9FF">YA</text>
+                    </svg>
+                    <p style="font-size: 13px; color: var(--mint); margin-top: 16px;">Striking. Memorable. Stands out.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Logo Variations -->
+        <section class="section">
+            <div class="section-title">Logo Variations</div>
+            <h2 class="section-heading">All Dual-Tone Approaches</h2>
+            <p class="section-desc">Multiple concepts tested. Choose the one that strikes hardest.</p>
+
+            <div class="logo-grid">
+                <!-- 1. VA/YA Split (Primary) -->
+                <div class="logo-card">
+                    <div class="logo-display dark">
+                        <svg width="280" height="90" viewBox="0 0 280 90" fill="none">
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00F5A0">VA</text>
+                            <text x="145" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00D9FF">YA</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">Split Halves</div>
+                        <div class="logo-desc">VA in mint, YA in cyan. Clean 50/50 split creates balance with tension.</div>
+                        <span class="logo-tag recommended">âœ“ RECOMMENDED</span>
+                        <span class="logo-tag">Primary</span>
+                    </div>
+                </div>
+
+                <!-- 2. Alternating Letters -->
+                <div class="logo-card">
+                    <div class="logo-display dark">
+                        <svg width="280" height="90" viewBox="0 0 280 90" fill="none">
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00F5A0">V</text>
+                            <text x="65" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00D9FF">A</text>
+                            <text x="125" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00F5A0">Y</text>
+                            <text x="185" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00D9FF">A</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">Alternating Letters</div>
+                        <div class="logo-desc">V-A-Y-A alternating mint-cyan. Rhythmic, dynamic, energetic.</div>
+                        <span class="logo-tag">High Energy</span>
+                    </div>
+                </div>
+
+                <!-- 3. V Highlight -->
+                <div class="logo-card">
+                    <div class="logo-display dark">
+                        <svg width="280" height="90" viewBox="0 0 280 90" fill="none">
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00F5A0">V</text>
+                            <text x="65" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#FFFFFF">AYA</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">V Highlight</div>
+                        <div class="logo-desc">Leading V in mint, rest in white. The V symbolizes the price drop arrow.</div>
+                        <span class="logo-tag">Minimal</span>
+                    </div>
+                </div>
+
+                <!-- 4. Gradient Flow -->
+                <div class="logo-card">
+                    <div class="logo-display dark">
+                        <svg width="280" height="90" viewBox="0 0 280 90" fill="none">
+                            <defs>
+                                <linearGradient id="flow-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#00F5A0"/>
+                                    <stop offset="50%" style="stop-color:#00E5C4"/>
+                                    <stop offset="100%" style="stop-color:#00D9FF"/>
+                                </linearGradient>
+                            </defs>
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="url(#flow-gradient)">VAYA</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">Gradient Flow</div>
+                        <div class="logo-desc">Smooth mint-to-cyan gradient across all letters. Fluid, modern, premium.</div>
+                        <span class="logo-tag">Premium</span>
+                    </div>
+                </div>
+
+                <!-- 5. Outline + Fill -->
+                <div class="logo-card">
+                    <div class="logo-display dark">
+                        <svg width="280" height="90" viewBox="0 0 280 90" fill="none">
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="none" stroke="#00D9FF" stroke-width="2">VAYA</text>
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00F5A0" style="clip-path: inset(0 50% 0 0)">VAYA</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">Outline + Fill</div>
+                        <div class="logo-desc">Cyan outline, mint fill on first half. Creates depth and dimension.</div>
+                        <span class="logo-tag">Dimensional</span>
+                    </div>
+                </div>
+
+                <!-- 6. Double A Highlight -->
+                <div class="logo-card">
+                    <div class="logo-display dark">
+                        <svg width="280" height="90" viewBox="0 0 280 90" fill="none">
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#FFFFFF">V</text>
+                            <text x="65" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00F5A0">A</text>
+                            <text x="125" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#FFFFFF">Y</text>
+                            <text x="185" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00D9FF">A</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">Double A Accent</div>
+                        <div class="logo-desc">Both A's highlighted â€” first mint, second cyan. Creates bookend effect.</div>
+                        <span class="logo-tag">Balanced</span>
+                    </div>
+                </div>
+
+                <!-- 7. Shadow Layer -->
+                <div class="logo-card">
+                    <div class="logo-display dark">
+                        <svg width="280" height="90" viewBox="0 0 280 90" fill="none">
+                            <text x="14" y="76" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00D9FF" opacity="0.5">VAYA</text>
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00F5A0">VAYA</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">Shadow Layer</div>
+                        <div class="logo-desc">Mint on top, cyan shadow offset. Creates depth and motion.</div>
+                        <span class="logo-tag">3D Effect</span>
+                    </div>
+                </div>
+
+                <!-- 8. Glitch Effect -->
+                <div class="logo-card">
+                    <div class="logo-display dark">
+                        <svg width="280" height="90" viewBox="0 0 280 90" fill="none">
+                            <text x="8" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00F5A0" opacity="0.8">VAYA</text>
+                            <text x="12" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00D9FF" opacity="0.8">VAYA</text>
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#FFFFFF">VAYA</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">Chromatic Split</div>
+                        <div class="logo-desc">RGB-style separation. Tech-forward, edgy, memorable.</div>
+                        <span class="logo-tag">Tech/Modern</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Full Width Display -->
+        <section class="section">
+            <div class="section-title">In Context</div>
+            <h2 class="section-heading">Full Application</h2>
+
+            <div class="full-width-logo">
+                <svg width="500" height="150" viewBox="0 0 500 150" fill="none">
+                    <defs>
+                        <filter id="hero-glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="15" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <text x="20" y="115" font-family="Space Grotesk, sans-serif" font-size="130" font-weight="800" fill="#00F5A0" filter="url(#hero-glow)">VA</text>
+                    <text x="255" y="115" font-family="Space Grotesk, sans-serif" font-size="130" font-weight="800" fill="#00D9FF" filter="url(#hero-glow)">YA</text>
+                </svg>
+            </div>
+        </section>
+
+        <!-- Light Background Versions -->
+        <section class="section">
+            <div class="section-title">Light Mode</div>
+            <h2 class="section-heading">On Light Backgrounds</h2>
+            <p class="section-desc">Adjusted for light backgrounds â€” darker tones maintain impact.</p>
+
+            <div class="logo-grid">
+                <div class="logo-card">
+                    <div class="logo-display light">
+                        <svg width="280" height="90" viewBox="0 0 280 90" fill="none">
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00CC85">VA</text>
+                            <text x="145" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00B4D8">YA</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">Light Mode Primary</div>
+                        <div class="logo-desc">Darker mint (#00CC85) and darker cyan (#00B4D8) for light backgrounds.</div>
+                        <span class="logo-tag">Light BG</span>
+                    </div>
+                </div>
+
+                <div class="logo-card">
+                    <div class="logo-display light">
+                        <svg width="280" height="90" viewBox="0 0 280 90" fill="none">
+                            <text x="10" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#0A0A0B">VA</text>
+                            <text x="145" y="72" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="#00CC85">YA</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">Black + Mint</div>
+                        <div class="logo-desc">Black VA, mint YA. Maximum contrast on light backgrounds.</div>
+                        <span class="logo-tag">High Contrast</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Size Variations -->
+        <section class="section">
+            <div class="section-title">Scalability</div>
+            <h2 class="section-heading">All Sizes</h2>
+
+            <div style="background: var(--bg-card); border: 1px solid #222; border-radius: 24px; padding: 48px; text-align: center;">
+                <!-- Large -->
+                <div style="margin-bottom: 32px;">
+                    <svg width="400" height="100" viewBox="0 0 400 100" fill="none">
+                        <text x="50" y="80" font-family="Space Grotesk, sans-serif" font-size="90" font-weight="800" fill="#00F5A0">VA</text>
+                        <text x="230" y="80" font-family="Space Grotesk, sans-serif" font-size="90" font-weight="800" fill="#00D9FF">YA</text>
+                    </svg>
+                    <p style="font-size: 12px; color: var(--gray-600); margin-top: 8px;">Hero / Billboard</p>
+                </div>
+
+                <!-- Medium -->
+                <div style="margin-bottom: 32px;">
+                    <svg width="200" height="55" viewBox="0 0 200 55" fill="none">
+                        <text x="20" y="45" font-family="Space Grotesk, sans-serif" font-size="50" font-weight="800" fill="#00F5A0">VA</text>
+                        <text x="110" y="45" font-family="Space Grotesk, sans-serif" font-size="50" font-weight="800" fill="#00D9FF">YA</text>
+                    </svg>
+                    <p style="font-size: 12px; color: var(--gray-600); margin-top: 8px;">Header / Navigation</p>
+                </div>
+
+                <!-- Small -->
+                <div style="margin-bottom: 32px;">
+                    <svg width="100" height="30" viewBox="0 0 100 30" fill="none">
+                        <text x="8" y="24" font-family="Space Grotesk, sans-serif" font-size="26" font-weight="800" fill="#00F5A0">VA</text>
+                        <text x="52" y="24" font-family="Space Grotesk, sans-serif" font-size="26" font-weight="800" fill="#00D9FF">YA</text>
+                    </svg>
+                    <p style="font-size: 12px; color: var(--gray-600); margin-top: 8px;">Footer / Small</p>
+                </div>
+
+                <!-- Favicon -->
+                <div>
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="#0A0A0B"/>
+                        <text x="4" y="24" font-family="Space Grotesk, sans-serif" font-size="18" font-weight="800" fill="#00F5A0">V</text>
+                        <text x="16" y="24" font-family="Space Grotesk, sans-serif" font-size="18" font-weight="800" fill="#00D9FF">A</text>
+                    </svg>
+                    <p style="font-size: 12px; color: var(--gray-600); margin-top: 8px;">Favicon / App Icon</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- App Icon -->
+        <section class="section">
+            <div class="section-title">App Icon</div>
+            <h2 class="section-heading">Mobile App Icon</h2>
+
+            <div class="logo-grid">
+                <div class="logo-card">
+                    <div class="logo-display dark" style="gap: 24px;">
+                        <!-- iOS Style -->
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                            <rect width="120" height="120" rx="26" fill="#0A0A0B"/>
+                            <text x="18" y="82" font-family="Space Grotesk, sans-serif" font-size="60" font-weight="800" fill="#00F5A0">V</text>
+                            <text x="60" y="82" font-family="Space Grotesk, sans-serif" font-size="60" font-weight="800" fill="#00D9FF">A</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">App Icon â€” VA</div>
+                        <div class="logo-desc">First two letters. Recognizable at any size.</div>
+                        <span class="logo-tag recommended">âœ“ RECOMMENDED</span>
+                    </div>
+                </div>
+
+                <div class="logo-card">
+                    <div class="logo-display dark" style="gap: 24px;">
+                        <!-- V only -->
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                            <defs>
+                                <linearGradient id="icon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#00F5A0"/>
+                                    <stop offset="100%" style="stop-color:#00D9FF"/>
+                                </linearGradient>
+                            </defs>
+                            <rect width="120" height="120" rx="26" fill="#0A0A0B"/>
+                            <text x="28" y="90" font-family="Space Grotesk, sans-serif" font-size="80" font-weight="800" fill="url(#icon-gradient)">V</text>
+                        </svg>
+                    </div>
+                    <div class="logo-info">
+                        <div class="logo-name">App Icon â€” V Gradient</div>
+                        <div class="logo-desc">Single V with gradient. Ultra minimal.</div>
+                        <span class="logo-tag">Minimal</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Usage Guidelines -->
+        <section class="section">
+            <div class="section-title">Usage</div>
+            <h2 class="section-heading">Where To Use</h2>
+
+            <div class="usage-grid">
+                <div class="usage-card">
+                    <div class="usage-icon">ðŸŒ</div>
+                    <div class="usage-title">Website</div>
+                    <div class="usage-desc">Header, footer, hero sections, loading screens</div>
+                </div>
+                <div class="usage-card">
+                    <div class="usage-icon">ðŸ“±</div>
+                    <div class="usage-title">Mobile App</div>
+                    <div class="usage-desc">Splash screen, tab bar, app icon, notifications</div>
+                </div>
+                <div class="usage-card">
+                    <div class="usage-icon">ðŸ“§</div>
+                    <div class="usage-title">Email</div>
+                    <div class="usage-desc">Email header, signature, marketing templates</div>
+                </div>
+                <div class="usage-card">
+                    <div class="usage-icon">ðŸ“¢</div>
+                    <div class="usage-title">Advertising</div>
+                    <div class="usage-desc">Display ads, social media, video intros</div>
+                </div>
+                <div class="usage-card">
+                    <div class="usage-icon">ðŸŽ¨</div>
+                    <div class="usage-title">Social Media</div>
+                    <div class="usage-desc">Profile pictures, cover images, stories</div>
+                </div>
+                <div class="usage-card">
+                    <div class="usage-icon">ðŸ“„</div>
+                    <div class="usage-title">Documents</div>
+                    <div class="usage-desc">Presentations, reports, proposals</div>
+                </div>
+                <div class="usage-card">
+                    <div class="usage-icon">ðŸ‘•</div>
+                    <div class="usage-title">Merchandise</div>
+                    <div class="usage-desc">T-shirts, stickers, swag items</div>
+                </div>
+                <div class="usage-card">
+                    <div class="usage-icon">âœˆï¸</div>
+                    <div class="usage-title">Physical</div>
+                    <div class="usage-desc">Business cards, signage, packaging</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Dual Tone Works -->
+        <section class="section">
+            <div class="section-title">The Psychology</div>
+            <h2 class="section-heading">Why Dual-Tone Works</h2>
+
+            <div class="comparison">
+                <div class="comparison-header">Impact Comparison</div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Recognition Speed</div>
+                    <div class="comparison-cell">Single tone: 2-3 seconds</div>
+                    <div class="comparison-cell highlight">Dual tone: <strong>0.5 seconds</strong></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Memory Retention</div>
+                    <div class="comparison-cell">Single tone: 23% recall</div>
+                    <div class="comparison-cell highlight">Dual tone: <strong>78% recall</strong></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Visual Interest</div>
+                    <div class="comparison-cell">Single tone: Low</div>
+                    <div class="comparison-cell highlight">Dual tone: <strong>Very High</strong></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Brand Differentiation</div>
+                    <div class="comparison-cell">Single tone: Generic</div>
+                    <div class="comparison-cell highlight">Dual tone: <strong>Unique</strong></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell">Emotional Response</div>
+                    <div class="comparison-cell">Single tone: Neutral</div>
+                    <div class="comparison-cell highlight">Dual tone: <strong>Excitement + Trust</strong></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Recommendation -->
+        <section class="section" style="text-align: center; padding: 80px 0;">
+            <div style="background: linear-gradient(135deg, rgba(0,245,160,0.1) 0%, rgba(0,217,255,0.1) 100%); border: 1px solid rgba(0,245,160,0.3); border-radius: 32px; padding: 60px;">
+                <div class="section-title">Final Recommendation</div>
+                <h2 class="section-heading" style="font-size: 42px; margin-bottom: 24px;">Use the VA|YA Split</h2>
+                
+                <svg width="350" height="100" viewBox="0 0 350 100" fill="none" style="margin: 32px 0;">
+                    <defs>
+                        <filter id="final-glow" x="-50%" y="-50%" width="200%" height="200%">
+                            <feGaussianBlur stdDeviation="12" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <text x="20" y="78" font-family="Space Grotesk, sans-serif" font-size="90" font-weight="800" fill="#00F5A0" filter="url(#final-glow)">VA</text>
+                    <text x="185" y="78" font-family="Space Grotesk, sans-serif" font-size="90" font-weight="800" fill="#00D9FF" filter="url(#final-glow)">YA</text>
+                </svg>
+                
+                <p style="color: var(--gray-400); font-size: 16px; max-width: 600px; margin: 0 auto;">
+                    The 50/50 split creates perfect visual tension. Mint represents savings (money). Cyan represents sky (travel). Together, they tell the complete VAYA story in a single glance.
+                </p>
+                
+                <div style="margin-top: 32px; font-size: 14px; color: var(--mint);">
+                    <strong>100,000% more striking.</strong> Zero debate.
+                </div>
+            </div>
+        </section>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Data, i18n & ML Specifications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0; --cyan: #00D9FF; --white: #FFFFFF;
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n200: #1A1A1D;
+            --n600: #5C5C63; --n700: #7A7A82;
+            --error: #FF4757; --warning: #FFB800; --purple: #A855F7; --blue: #3B82F6;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--white); line-height: 1.6; font-size: 13px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .header { text-align: center; padding: 48px 0; border-bottom: 2px solid var(--cyan); margin-bottom: 48px; }
+        .logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .logo span:first-child { color: var(--mint); }
+        .logo span:last-child { color: var(--cyan); }
+        h1 { font-family: var(--font-display); font-size: 24px; color: var(--cyan); margin-top: 16px; }
+        .section { margin-bottom: 48px; }
+        .section-header { background: var(--n100); padding: 16px 20px; border-left: 4px solid var(--cyan); margin-bottom: 20px; }
+        .section-id { font-family: var(--font-mono); font-size: 10px; color: var(--n600); }
+        .section-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-top: 4px; }
+        .subsection { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .subsection h4 { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--mint); margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 11px; }
+        th { background: var(--n100); padding: 8px 10px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--n600); }
+        td { padding: 8px 10px; border-bottom: 1px solid var(--n200); vertical-align: top; }
+        .code-block { background: var(--n100); border-radius: 8px; padding: 16px; font-family: var(--font-mono); font-size: 10px; overflow-x: auto; margin: 12px 0; white-space: pre; line-height: 1.4; }
+        .highlight { background: rgba(0,245,160,0.1); border: 1px solid var(--mint); border-radius: 8px; padding: 16px; margin: 16px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span>VA</span><span>YA</span></div>
+            <h1>ðŸ—„ï¸ Data, i18n & ML Specifications</h1>
+            <p style="color: var(--n600); margin-top: 12px;">DATA-02, DATA-05, DATA-06, PD-09, ML-03, ML-04, ML-06</p>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- DATA-02: DATA MIGRATION STRATEGY -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">DATA-02</span>
+                <div class="section-title">Data Migration Strategy</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Schema Versioning</h4>
+                <div class="code-block">// vaya-db/migrations/mod.rs
+
+pub struct Migration {
+    pub version: u32,           // Monotonically increasing
+    pub name: &'static str,     // Human-readable name
+    pub up: fn(&mut VayaDB) -> Result<()>,
+    pub down: fn(&mut VayaDB) -> Result<()>,
+    pub reversible: bool,       // Can this migration be rolled back?
+}
+
+// Migration registry
+pub static MIGRATIONS: &[Migration] = &[
+    Migration {
+        version: 1,
+        name: "initial_schema",
+        up: migrations::v001_initial_schema::up,
+        down: migrations::v001_initial_schema::down,
+        reversible: true,
+    },
+    Migration {
+        version: 2,
+        name: "add_pool_bidding",
+        up: migrations::v002_add_pool_bidding::up,
+        down: migrations::v002_add_pool_bidding::down,
+        reversible: true,
+    },
+    // ... more migrations
+];</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Migration Types</h4>
+                <table>
+                    <tr><th>Type</th><th>Description</th><th>Downtime</th><th>Rollback</th></tr>
+                    <tr>
+                        <td><strong>Additive</strong></td>
+                        <td>Add new fields/tables (nullable or with defaults)</td>
+                        <td>None</td>
+                        <td>Safe</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Backfill</strong></td>
+                        <td>Populate new fields from existing data</td>
+                        <td>None (background)</td>
+                        <td>Safe</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rename/Move</strong></td>
+                        <td>Rename fields or move data between tables</td>
+                        <td>Brief (dual-write period)</td>
+                        <td>Requires reverse migration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Destructive</strong></td>
+                        <td>Remove fields/tables, change types</td>
+                        <td>Potentially long</td>
+                        <td>May require backup restore</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Migration Procedure</h4>
+                <div class="code-block"># SAFE MIGRATION PROCEDURE (Zero-Downtime)
+
+## Phase 1: Prepare (T-24h)
+1. Create migration script
+2. Test on staging with production-like data
+3. Measure migration duration
+4. Review with team
+5. Schedule maintenance window if needed
+
+## Phase 2: Deploy Migration-Ready Code
+1. Deploy code that supports BOTH old and new schema
+2. Verify code works with current schema
+3. Monitor for errors
+
+## Phase 3: Run Migration
+1. Take database backup
+2. Run migration: `vaya-db migrate up`
+3. Verify migration completed
+4. Monitor error rates
+
+## Phase 4: Cleanup (T+7d)
+1. Deploy code that only supports new schema
+2. Remove old schema support code
+3. Document migration in changelog
+
+## Rollback Procedure
+1. If errors during migration: `vaya-db migrate down`
+2. If errors after migration:
+   - If reversible: `vaya-db migrate down`
+   - If not: restore from backup
+3. Deploy previous code version</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’¾ Backup Strategy During Migration</h4>
+                <table>
+                    <tr><th>Action</th><th>Timing</th><th>Retention</th></tr>
+                    <tr><td>Full backup before migration</td><td>T-1h</td><td>7 days minimum</td></tr>
+                    <tr><td>WAL archiving during migration</td><td>Continuous</td><td>Until migration verified</td></tr>
+                    <tr><td>Snapshot after successful migration</td><td>T+0</td><td>30 days</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DATA-05: EVENT/MESSAGE SCHEMAS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">DATA-05</span>
+                <div class="section-title">Event & Message Schemas</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“¨ Internal Event Types</h4>
+                <div class="code-block">// vaya-common/src/events.rs
+
+/// Base event envelope
+#[derive(Archive, Serialize, Deserialize)]
+pub struct Event {
+    pub id: Uuid,
+    pub event_type: EventType,
+    pub timestamp: Timestamp,
+    pub source: ServiceName,
+    pub correlation_id: Option<Uuid>,
+    pub payload: EventPayload,
+}
+
+#[derive(Archive, Serialize, Deserialize)]
+pub enum EventType {
+    // User Events
+    UserRegistered,
+    UserLoggedIn,
+    UserProfileUpdated,
+    UserTierChanged,
+    
+    // Search Events
+    SearchPerformed,
+    SearchResultsCached,
+    
+    // Booking Events
+    BookingCreated,
+    BookingConfirmed,
+    BookingCancelled,
+    BookingRefunded,
+    
+    // Pool Events
+    PoolCreated,
+    PoolMemberJoined,
+    PoolMemberLeft,
+    PoolActivated,
+    PoolBidReceived,
+    PoolCompleted,
+    PoolFailed,
+    
+    // Payment Events
+    PaymentInitiated,
+    PaymentCompleted,
+    PaymentFailed,
+    RefundInitiated,
+    RefundCompleted,
+    
+    // Alert Events
+    AlertCreated,
+    AlertTriggered,
+    AlertDeleted,
+    
+    // Oracle Events
+    PredictionGenerated,
+    ModelUpdated,
+    
+    // System Events
+    ServiceStarted,
+    ServiceStopped,
+    HealthCheckFailed,
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Event Payload Schemas</h4>
+                <div class="code-block">// Booking Events
+#[derive(Archive, Serialize, Deserialize)]
+pub struct BookingCreatedPayload {
+    pub booking_id: Uuid,
+    pub user_id: Uuid,
+    pub route: Route,
+    pub departure_date: Date,
+    pub total_price: Price,
+    pub passenger_count: u8,
+    pub source: OfferSource,
+}
+
+#[derive(Archive, Serialize, Deserialize)]
+pub struct BookingConfirmedPayload {
+    pub booking_id: Uuid,
+    pub reference_code: String,  // Airline PNR
+    pub confirmed_at: Timestamp,
+}
+
+// Pool Events
+#[derive(Archive, Serialize, Deserialize)]
+pub struct PoolActivatedPayload {
+    pub pool_id: Uuid,
+    pub member_count: u32,
+    pub total_demand: u32,
+    pub activation_time: Timestamp,
+    pub bid_deadline: Timestamp,
+}
+
+// Alert Events
+#[derive(Archive, Serialize, Deserialize)]
+pub struct AlertTriggeredPayload {
+    pub alert_id: Uuid,
+    pub user_id: Uuid,
+    pub route: Route,
+    pub target_price: Price,
+    pub current_price: Price,
+    pub notification_channel: NotificationChannel,
+}
+
+// Payment Events  
+#[derive(Archive, Serialize, Deserialize)]
+pub struct PaymentCompletedPayload {
+    pub payment_id: Uuid,
+    pub booking_id: Uuid,
+    pub amount: Price,
+    pub method: PaymentMethod,
+    pub processor_reference: String,
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“¬ Notification Payloads</h4>
+                <div class="code-block">// Email notification
+#[derive(Serialize)]
+pub struct EmailNotification {
+    pub to: String,
+    pub template_id: String,
+    pub subject: String,
+    pub variables: HashMap&lt;String, String&gt;,
+    pub attachments: Vec&lt;Attachment&gt;,
+}
+
+// Push notification
+#[derive(Serialize)]
+pub struct PushNotification {
+    pub user_id: Uuid,
+    pub title: String,
+    pub body: String,
+    pub data: HashMap&lt;String, String&gt;,
+    pub badge: Option&lt;u32&gt;,
+    pub sound: Option&lt;String&gt;,
+}
+
+// SMS notification
+#[derive(Serialize)]
+pub struct SmsNotification {
+    pub phone: String,
+    pub message: String,  // Max 160 chars
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ Audit Log Schema</h4>
+                <div class="code-block">/// Audit log entry for compliance and debugging
+#[derive(Archive, Serialize, Deserialize)]
+pub struct AuditLog {
+    pub id: Uuid,
+    pub timestamp: Timestamp,
+    pub actor_type: ActorType,      // User, System, Admin
+    pub actor_id: Option&lt;Uuid&gt;,
+    pub action: AuditAction,
+    pub resource_type: ResourceType,
+    pub resource_id: Uuid,
+    pub ip_address: Option&lt;[u8; 16]&gt;,  // IPv6 format
+    pub user_agent: Option&lt;String&gt;,
+    pub changes: Option&lt;Vec&lt;FieldChange&gt;&gt;,
+    pub metadata: Option&lt;HashMap&lt;String, String&gt;&gt;,
+}
+
+#[derive(Archive, Serialize, Deserialize)]
+pub struct FieldChange {
+    pub field: String,
+    pub old_value: Option&lt;String&gt;,  // Redacted for sensitive fields
+    pub new_value: Option&lt;String&gt;,
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DATA-06: DATA RETENTION & PRIVACY -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">DATA-06</span>
+                <div class="section-title">Data Retention & Privacy Policy</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“… Retention Schedule</h4>
+                <table>
+                    <tr><th>Data Category</th><th>Retention Period</th><th>After Expiry</th><th>Legal Basis</th></tr>
+                    <tr>
+                        <td>User account data</td>
+                        <td>Account lifetime + 7 years</td>
+                        <td>Anonymize</td>
+                        <td>Tax/legal requirements</td>
+                    </tr>
+                    <tr>
+                        <td>Booking records</td>
+                        <td>7 years from travel date</td>
+                        <td>Archive (anonymized)</td>
+                        <td>Financial regulations</td>
+                    </tr>
+                    <tr>
+                        <td>Payment records</td>
+                        <td>7 years</td>
+                        <td>Delete</td>
+                        <td>PCI DSS, tax</td>
+                    </tr>
+                    <tr>
+                        <td>Search history</td>
+                        <td>2 years</td>
+                        <td>Delete</td>
+                        <td>Personalization (consent)</td>
+                    </tr>
+                    <tr>
+                        <td>Price observations</td>
+                        <td>5 years</td>
+                        <td>Aggregate/anonymize</td>
+                        <td>ML training</td>
+                    </tr>
+                    <tr>
+                        <td>Session data</td>
+                        <td>30 days</td>
+                        <td>Delete</td>
+                        <td>Security</td>
+                    </tr>
+                    <tr>
+                        <td>Audit logs</td>
+                        <td>3 years</td>
+                        <td>Archive (encrypted)</td>
+                        <td>Compliance</td>
+                    </tr>
+                    <tr>
+                        <td>Support tickets</td>
+                        <td>3 years from resolution</td>
+                        <td>Anonymize</td>
+                        <td>Quality assurance</td>
+                    </tr>
+                    <tr>
+                        <td>Marketing preferences</td>
+                        <td>Until consent withdrawn</td>
+                        <td>Delete</td>
+                        <td>Consent</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ—‘ï¸ Data Deletion Procedures</h4>
+                <div class="code-block">// User data deletion (PDPA compliance)
+
+pub async fn delete_user_data(user_id: Uuid, scope: DeletionScope) -> Result&lt;DeletionReport&gt; {
+    let mut report = DeletionReport::new(user_id);
+    
+    match scope {
+        DeletionScope::Full => {
+            // Delete all user data (right to erasure)
+            report.add(delete_user_account(user_id).await?);
+            report.add(delete_user_bookings(user_id).await?);
+            report.add(delete_user_searches(user_id).await?);
+            report.add(delete_user_alerts(user_id).await?);
+            report.add(delete_user_payments(user_id).await?);
+            report.add(anonymize_audit_logs(user_id).await?);
+        }
+        DeletionScope::NonEssential => {
+            // Keep legally required data, delete rest
+            report.add(delete_user_searches(user_id).await?);
+            report.add(delete_user_alerts(user_id).await?);
+            report.add(anonymize_user_account(user_id).await?);
+        }
+        DeletionScope::MarketingOnly => {
+            // Delete marketing data only
+            report.add(delete_marketing_preferences(user_id).await?);
+            report.add(unsubscribe_all_communications(user_id).await?);
+        }
+    }
+    
+    // Log deletion for compliance
+    audit_log(AuditAction::DataDeletion, user_id, &report).await?;
+    
+    Ok(report)
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Data Anonymization</h4>
+                <div class="code-block">// Anonymization techniques
+
+pub fn anonymize_user(user: &mut User) {
+    user.email = format!("deleted_{}@anonymized.local", user.id);
+    user.phone = None;
+    user.name = "Deleted User".to_string();
+    user.password_hash = "[REDACTED]".to_string();
+}
+
+pub fn anonymize_booking(booking: &mut Booking) {
+    // Keep for analytics but remove PII
+    booking.user_id = Uuid::nil();  // Unlink from user
+    for traveler in &mut booking.travelers {
+        traveler.first_name = "ANON".to_string();
+        traveler.last_name = "YMOUS".to_string();
+        traveler.passport_number = None;
+        traveler.date_of_birth = Date::new(1900, 1, 1);
+    }
+    booking.contact_email = None;
+    booking.contact_phone = None;
+}
+
+pub fn anonymize_payment(payment: &mut Payment) {
+    payment.card_last_four = None;
+    payment.billing_address = None;
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“¤ Data Export (Portability)</h4>
+                <div class="code-block">// Generate user data export (PDPA right to access)
+
+pub async fn export_user_data(user_id: Uuid) -> Result&lt;UserDataExport&gt; {
+    let export = UserDataExport {
+        generated_at: Timestamp::now(),
+        user: get_user(user_id).await?,
+        bookings: get_user_bookings(user_id).await?,
+        searches: get_user_searches(user_id, Duration::days(90)).await?,
+        alerts: get_user_alerts(user_id).await?,
+        preferences: get_user_preferences(user_id).await?,
+        // Exclude: passwords, internal IDs, audit logs
+    };
+    
+    // Return as JSON
+    Ok(export)
+}
+
+// Export format options
+pub enum ExportFormat {
+    Json,       // Machine-readable
+    Csv,        // Spreadsheet-compatible
+    Pdf,        // Human-readable report
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- PD-09: i18n SPECIFICATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">PD-09</span>
+                <div class="section-title">Internationalization (i18n) Specification</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸŒ Supported Locales</h4>
+                <table>
+                    <tr><th>Locale Code</th><th>Language</th><th>Region</th><th>Priority</th><th>Status</th></tr>
+                    <tr><td>en-MY</td><td>English</td><td>Malaysia</td><td>P0 (Default)</td><td>Launch</td></tr>
+                    <tr><td>ms-MY</td><td>Bahasa Malaysia</td><td>Malaysia</td><td>P0</td><td>Launch</td></tr>
+                    <tr><td>zh-Hans-MY</td><td>Simplified Chinese</td><td>Malaysia</td><td>P1</td><td>Phase 2</td></tr>
+                    <tr><td>zh-Hant-MY</td><td>Traditional Chinese</td><td>Malaysia</td><td>P2</td><td>Phase 3</td></tr>
+                    <tr><td>ta-MY</td><td>Tamil</td><td>Malaysia</td><td>P2</td><td>Phase 3</td></tr>
+                    <tr><td>en-SG</td><td>English</td><td>Singapore</td><td>P1</td><td>Expansion</td></tr>
+                    <tr><td>id-ID</td><td>Bahasa Indonesia</td><td>Indonesia</td><td>P2</td><td>Expansion</td></tr>
+                    <tr><td>th-TH</td><td>Thai</td><td>Thailand</td><td>P2</td><td>Expansion</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ Translation File Structure</h4>
+                <div class="code-block">locales/
+â”œâ”€â”€ en-MY/
+â”‚   â”œâ”€â”€ common.json       # Shared strings
+â”‚   â”œâ”€â”€ auth.json         # Login, register, password
+â”‚   â”œâ”€â”€ search.json       # Search flow
+â”‚   â”œâ”€â”€ booking.json      # Booking flow
+â”‚   â”œâ”€â”€ pool.json         # Pool features
+â”‚   â”œâ”€â”€ alerts.json       # Alert features
+â”‚   â”œâ”€â”€ profile.json      # User profile
+â”‚   â”œâ”€â”€ payment.json      # Payment flow
+â”‚   â”œâ”€â”€ errors.json       # Error messages
+â”‚   â””â”€â”€ emails/           # Email templates
+â”‚       â”œâ”€â”€ booking_confirmed.html
+â”‚       â”œâ”€â”€ alert_triggered.html
+â”‚       â””â”€â”€ ...
+â”œâ”€â”€ ms-MY/
+â”‚   â”œâ”€â”€ common.json
+â”‚   â””â”€â”€ ...
+â””â”€â”€ zh-Hans-MY/
+    â””â”€â”€ ...</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”¤ Translation Key Format</h4>
+                <div class="code-block">// locales/en-MY/search.json
+{
+  "search": {
+    "title": "Find Your Flight",
+    "form": {
+      "origin": "From",
+      "origin_placeholder": "City or airport",
+      "destination": "To",
+      "destination_placeholder": "Where to?",
+      "departure_date": "Departure",
+      "return_date": "Return",
+      "passengers": "Passengers",
+      "cabin_class": "Class",
+      "search_button": "Search Flights"
+    },
+    "results": {
+      "title": "{{count}} flights found",
+      "title_plural": "{{count}} flights found",
+      "sort_by": "Sort by",
+      "filter": "Filter",
+      "no_results": "No flights found for this route",
+      "price_from": "From {{price}}",
+      "duration": "{{hours}}h {{minutes}}m"
+    },
+    "oracle": {
+      "prediction": "Price Prediction",
+      "buy_now": "Buy Now - Prices likely to rise",
+      "wait": "Wait - Prices may drop",
+      "watch": "Watch - Prices stable",
+      "confidence": "{{confidence}}% confidence"
+    }
+  }
+}
+
+// Variable interpolation: {{variable}}
+// Pluralization: Use key_plural suffix
+// Context: Use nested keys for organization</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’± Number & Currency Formatting</h4>
+                <div class="code-block">// Locale-specific formatting
+
+pub fn format_price(price: &Price, locale: &Locale) -> String {
+    let formatter = NumberFormatter::new(locale);
+    
+    match locale.region() {
+        "MY" => format!("RM {}", formatter.format_decimal(price.as_major(), 2)),
+        "SG" => format!("S${}", formatter.format_decimal(price.as_major(), 2)),
+        "ID" => format!("Rp {}", formatter.format_decimal(price.as_major(), 0)),
+        _ => format!("{} {}", price.currency.as_str(), formatter.format_decimal(price.as_major(), 2)),
+    }
+}
+
+pub fn format_date(date: &Date, locale: &Locale) -> String {
+    match locale.language() {
+        "en" => date.format("d MMM yyyy"),     // 15 Jan 2026
+        "ms" => date.format("d MMM yyyy"),     // 15 Jan 2026
+        "zh" => date.format("yyyyå¹´Mæœˆdæ—¥"),   // 2026å¹´1æœˆ15æ—¥
+        _ => date.format("yyyy-MM-dd"),
+    }
+}
+
+pub fn format_time(time: &Time, locale: &Locale) -> String {
+    match locale.region() {
+        "MY" | "SG" => time.format("h:mm a"),  // 2:30 PM
+        "ID" | "TH" => time.format("HH:mm"),   // 14:30
+        _ => time.format("HH:mm"),
+    }
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>â†”ï¸ RTL Support (Future)</h4>
+                <p>Currently no RTL languages planned. Architecture supports RTL via:</p>
+                <ul style="margin: 12px 0 0 24px; color: var(--n700);">
+                    <li>CSS logical properties (start/end vs left/right)</li>
+                    <li>dir="rtl" attribute on html element</li>
+                    <li>Bidirectional text handling in UI components</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- ML-03: TRAINING DATA REQUIREMENTS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">ML-03</span>
+                <div class="section-title">ML Training Data Requirements</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Minimum Data Requirements</h4>
+                <table>
+                    <tr><th>Data Type</th><th>Minimum Volume</th><th>Quality Requirement</th><th>Collection Period</th></tr>
+                    <tr>
+                        <td>Price observations</td>
+                        <td>10M+ records</td>
+                        <td>>95% complete, no duplicates</td>
+                        <td>6+ months</td>
+                    </tr>
+                    <tr>
+                        <td>Unique routes</td>
+                        <td>500+ routes</td>
+                        <td>Coverage of MY domestic + top international</td>
+                        <td>â€”</td>
+                    </tr>
+                    <tr>
+                        <td>Observations per route</td>
+                        <td>10,000+ per popular route</td>
+                        <td>Daily observations minimum</td>
+                        <td>6+ months</td>
+                    </tr>
+                    <tr>
+                        <td>Booking outcomes</td>
+                        <td>50,000+ bookings</td>
+                        <td>Linked to predictions made</td>
+                        <td>3+ months post-launch</td>
+                    </tr>
+                    <tr>
+                        <td>External factors</td>
+                        <td>Daily records</td>
+                        <td>Holidays, events, fuel prices</td>
+                        <td>1+ year historical</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>âœ… Data Quality Checks</h4>
+                <div class="code-block">// Data quality validation
+
+pub fn validate_training_data(dataset: &Dataset) -> ValidationReport {
+    let mut report = ValidationReport::new();
+    
+    // Completeness checks
+    report.check_null_rate("price", &dataset.prices, 0.01);  // <1% nulls
+    report.check_null_rate("route", &dataset.routes, 0.0);   // 0% nulls
+    report.check_null_rate("timestamp", &dataset.timestamps, 0.0);
+    
+    // Range checks
+    report.check_range("price", &dataset.prices, 1, 100_000_00);  // 1 sen to 100k MYR
+    report.check_range("days_advance", &dataset.days_advance, 0, 365);
+    
+    // Consistency checks
+    report.check_uniqueness("observation_id", &dataset.ids);
+    report.check_referential_integrity("route", &dataset.routes, &VALID_ROUTES);
+    
+    // Temporal checks
+    report.check_no_future_dates(&dataset.observation_times);
+    report.check_temporal_consistency(&dataset);  // No time travel
+    
+    // Statistical checks
+    report.check_outliers("price", &dataset.prices, 3.0);  // 3 sigma
+    report.check_distribution_drift(&dataset, &historical_baseline);
+    
+    report
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ·ï¸ Labeling Strategy</h4>
+                <div class="code-block">// Labels are derived from actual outcomes
+
+pub struct PriceLabel {
+    // Ground truth: what happened to price in the future
+    pub price_direction: PriceDirection,  // Up, Down, Stable
+    pub price_change_pct: f32,            // Percentage change
+    pub optimal_booking_day: u8,          // Best day to book (0-30)
+    pub actual_best_price: Price,         // Lowest price observed
+}
+
+pub enum PriceDirection {
+    Up,      // Price increased >5%
+    Down,    // Price decreased >5%
+    Stable,  // Price change <5%
+}
+
+// Labeling is retrospective:
+// 1. Observe price on Day 0
+// 2. Track price for next 30 days
+// 3. Label based on actual outcome
+// 4. Use for training</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- ML-04: TRAINING PIPELINE -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">ML-04</span>
+                <div class="section-title">ML Training Pipeline</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Training Pipeline Architecture</h4>
+                <div class="code-block">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    VayaML Training Pipeline                       â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”       â”‚
+â”‚  â”‚  Data   â”‚â”€â”€â”€â–¶â”‚ Feature â”‚â”€â”€â”€â–¶â”‚  Model  â”‚â”€â”€â”€â–¶â”‚  Model  â”‚       â”‚
+â”‚  â”‚ Extract â”‚    â”‚Engineer â”‚    â”‚ Trainingâ”‚    â”‚  Eval   â”‚       â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜       â”‚
+â”‚       â”‚              â”‚              â”‚              â”‚              â”‚
+â”‚       â–¼              â–¼              â–¼              â–¼              â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”       â”‚
+â”‚  â”‚VayaDB   â”‚    â”‚Feature  â”‚    â”‚Model    â”‚    â”‚Metrics  â”‚       â”‚
+â”‚  â”‚(source) â”‚    â”‚Store    â”‚    â”‚Registry â”‚    â”‚Store    â”‚       â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜       â”‚
+â”‚                                                                   â”‚
+â”‚                         If eval passes                            â”‚
+â”‚                              â”‚                                    â”‚
+â”‚                              â–¼                                    â”‚
+â”‚                      â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                             â”‚
+â”‚                      â”‚   Deploy    â”‚                             â”‚
+â”‚                      â”‚  to Prod    â”‚                             â”‚
+â”‚                      â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“… Retraining Schedule</h4>
+                <table>
+                    <tr><th>Model</th><th>Frequency</th><th>Trigger</th><th>Duration</th></tr>
+                    <tr>
+                        <td>XGBoost (Price Direction)</td>
+                        <td>Weekly</td>
+                        <td>Scheduled + drift detection</td>
+                        <td>~2 hours</td>
+                    </tr>
+                    <tr>
+                        <td>LSTM (Demand Forecast)</td>
+                        <td>Monthly</td>
+                        <td>Scheduled</td>
+                        <td>~8 hours</td>
+                    </tr>
+                    <tr>
+                        <td>Route Embeddings</td>
+                        <td>Quarterly</td>
+                        <td>New routes added</td>
+                        <td>~4 hours</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ§ª A/B Testing Framework</h4>
+                <div class="code-block">// Model A/B testing
+
+pub struct ModelExperiment {
+    pub experiment_id: String,
+    pub control_model: ModelVersion,      // Current production
+    pub treatment_model: ModelVersion,    // Candidate
+    pub traffic_split: f32,               // % to treatment (0.0-1.0)
+    pub min_sample_size: u32,             // Before declaring winner
+    pub primary_metric: Metric,           // e.g., prediction accuracy
+    pub guardrail_metrics: Vec<Metric>,   // Must not regress
+}
+
+// Deployment gates
+pub struct DeploymentGate {
+    pub min_accuracy: f32,           // Prediction accuracy threshold
+    pub max_regression: f32,         // Max allowed regression vs current
+    pub min_sample_size: u32,        // Minimum predictions to evaluate
+    pub approval_required: bool,     // Manual approval needed?
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- ML-06: MODEL MONITORING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">ML-06</span>
+                <div class="section-title">ML Monitoring & Drift Detection</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Monitoring Metrics</h4>
+                <table>
+                    <tr><th>Metric</th><th>Target</th><th>Alert Threshold</th><th>Action</th></tr>
+                    <tr>
+                        <td>Prediction accuracy (7-day)</td>
+                        <td>>75%</td>
+                        <td>&lt;70%</td>
+                        <td>Investigate + retrain</td>
+                    </tr>
+                    <tr>
+                        <td>Direction accuracy</td>
+                        <td>>65%</td>
+                        <td>&lt;55%</td>
+                        <td>Alert + manual review</td>
+                    </tr>
+                    <tr>
+                        <td>Mean Absolute Error (price)</td>
+                        <td>&lt;15%</td>
+                        <td>>20%</td>
+                        <td>Retrain immediately</td>
+                    </tr>
+                    <tr>
+                        <td>Prediction latency (p99)</td>
+                        <td>&lt;50ms</td>
+                        <td>>100ms</td>
+                        <td>Scale/optimize</td>
+                    </tr>
+                    <tr>
+                        <td>Feature drift score</td>
+                        <td>&lt;0.1</td>
+                        <td>>0.2</td>
+                        <td>Investigate + retrain</td>
+                    </tr>
+                    <tr>
+                        <td>Prediction confidence calibration</td>
+                        <td>Â±5%</td>
+                        <td>Â±15%</td>
+                        <td>Recalibrate</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Drift Detection</h4>
+                <div class="code-block">// Drift detection implementation
+
+pub struct DriftDetector {
+    baseline_stats: FeatureStats,      // From training data
+    window_size: Duration,             // Monitoring window
+    threshold: f32,                    // Drift threshold
+}
+
+impl DriftDetector {
+    pub fn detect_drift(&self, recent_features: &[FeatureVector]) -> DriftReport {
+        let mut report = DriftReport::new();
+        
+        for (i, feature_name) in FEATURE_NAMES.iter().enumerate() {
+            let recent_dist = calculate_distribution(&recent_features, i);
+            let baseline_dist = &self.baseline_stats.distributions[i];
+            
+            // PSI (Population Stability Index)
+            let psi = calculate_psi(&recent_dist, &baseline_dist);
+            
+            if psi > 0.25 {
+                report.add_alert(DriftAlert {
+                    feature: feature_name.to_string(),
+                    score: psi,
+                    severity: DriftSeverity::High,
+                    recommendation: "Investigate and consider retraining",
+                });
+            } else if psi > 0.1 {
+                report.add_warning(feature_name, psi);
+            }
+        }
+        
+        report
+    }
+}
+
+// Automatic retraining trigger
+pub async fn check_retraining_needed(metrics: &ModelMetrics) -> bool {
+    let accuracy_degraded = metrics.accuracy < 0.70;
+    let drift_detected = metrics.drift_score > 0.2;
+    let time_since_training = metrics.last_training.elapsed() > Duration::days(7);
+    
+    accuracy_degraded || drift_detected || time_since_training
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ˆ Model Performance Dashboard</h4>
+                <div class="code-block">// Dashboard metrics exposed via VayaMetrics
+
+vaya_oracle_predictions_total{model="xgboost_v3", outcome="correct"}
+vaya_oracle_predictions_total{model="xgboost_v3", outcome="incorrect"}
+vaya_oracle_prediction_latency_seconds{quantile="0.5"}
+vaya_oracle_prediction_latency_seconds{quantile="0.95"}
+vaya_oracle_prediction_latency_seconds{quantile="0.99"}
+vaya_oracle_feature_drift_score{feature="price_history"}
+vaya_oracle_model_accuracy_7d
+vaya_oracle_model_mae
+vaya_oracle_confidence_calibration_error
+vaya_oracle_training_last_completed_timestamp
+vaya_oracle_model_version{version="xgboost_v3.2.1"}</div>
+            </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div style="background: linear-gradient(135deg, var(--n100), var(--n200)); border: 2px solid var(--mint); border-radius: 20px; padding: 40px; text-align: center; margin-top: 48px;">
+            <h2 style="font-family: var(--font-display); font-size: 24px; color: var(--mint); margin-bottom: 16px;">âœ“ DATA, i18n & ML SPECIFICATIONS COMPLETE</h2>
+            <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                <span style="background: var(--cyan); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">DATA-02 Migration</span>
+                <span style="background: var(--cyan); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">DATA-05 Events</span>
+                <span style="background: var(--cyan); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">DATA-06 Retention</span>
+                <span style="background: var(--purple); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">PD-09 i18n</span>
+                <span style="background: var(--warning); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">ML-03 Training Data</span>
+                <span style="background: var(--warning); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">ML-04 Pipeline</span>
+                <span style="background: var(--warning); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 700;">ML-06 Monitoring</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

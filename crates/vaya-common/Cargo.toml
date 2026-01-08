@@ -1,0 +1,14 @@
+[package]
+name = "vaya-common"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+rkyv = { workspace = true }
+time = { workspace = true }
+tracing = { workspace = true }
+
+# For UUID generation (uses ring internally)
+ring = { workspace = true }

@@ -1,0 +1,13 @@
+[package]
+name = "vaya-crypto"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+vaya-common = { workspace = true }
+ring = { workspace = true }
+rkyv = { workspace = true }
+time = { workspace = true }
+tracing = { workspace = true }

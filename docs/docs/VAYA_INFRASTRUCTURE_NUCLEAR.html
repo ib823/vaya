@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” VayaForge & VayaFleet Infrastructure (Nuclear/Sovereign)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0; --mint-dim: rgba(0,245,160,0.12);
+            --cyan: #00D9FF; --cyan-dim: rgba(0,217,255,0.12);
+            --white: #FFFFFF;
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n200: #1A1A1D; --n300: #232326;
+            --n600: #5C5C63; --n700: #7A7A82; --n800: #9999A1;
+            --error: #FF4757; --warning: #FFB800; --purple: #A855F7; --blue: #3B82F6;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--white); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--purple); margin-bottom: 48px; background: linear-gradient(180deg, rgba(168,85,247,0.1) 0%, transparent 100%); }
+        .logo { font-family: var(--font-display); font-size: 56px; font-weight: 800; }
+        .logo span:first-child { color: var(--mint); }
+        .logo span:last-child { color: var(--cyan); }
+        .title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--purple); margin-top: 16px; }
+        .compliance-badge { display: inline-block; background: var(--mint); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 12px; }
+        .section { margin-bottom: 48px; }
+        .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--n100); border-left: 4px solid var(--purple); margin-bottom: 20px; }
+        .section-id { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 4px 8px; border-radius: 4px; color: var(--n600); }
+        .section-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+        .subsection { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .subsection h4 { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--cyan); margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+        th { background: var(--n100); padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--n600); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--n200); vertical-align: top; }
+        .code { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 2px 6px; border-radius: 4px; }
+        .code-block { background: var(--n100); border-radius: 8px; padding: 16px; font-family: var(--font-mono); font-size: 11px; overflow-x: auto; margin: 12px 0; white-space: pre; line-height: 1.5; }
+        .arch-diagram { background: var(--n100); border-radius: 12px; padding: 20px; margin: 16px 0; font-family: var(--font-mono); font-size: 10px; line-height: 1.4; }
+        .warning-box { background: rgba(255,71,87,0.1); border: 1px solid var(--error); border-radius: 8px; padding: 16px; margin: 16px 0; }
+        .warning-box h5 { color: var(--error); margin-bottom: 8px; }
+        .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+        .compare-box { background: var(--n100); border-radius: 12px; padding: 20px; }
+        .compare-box.bad { border: 1px solid var(--error); }
+        .compare-box.good { border: 1px solid var(--mint); }
+        .compare-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+        .metric-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--n200); }
+        .metric-label { color: var(--n700); }
+        .metric-value { font-family: var(--font-mono); font-weight: 600; }
+        .metric-value.bad { color: var(--error); }
+        .metric-value.good { color: var(--mint); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span>VA</span><span>YA</span></div>
+            <h1 class="title">âš¡ VayaForge & VayaFleet Infrastructure</h1>
+            <div class="compliance-badge">âœ“ NUCLEAR/SOVEREIGN COMPLIANT</div>
+            <p style="color: var(--n600); margin-top: 12px;">Zero Docker â€¢ Zero Kubernetes â€¢ 100% Custom Orchestration</p>
+        </header>
+
+        <!-- WARNING -->
+        <div class="warning-box">
+            <h5>âš ï¸ CRITICAL: NO DOCKER, NO KUBERNETES</h5>
+            <p style="font-size: 12px; color: var(--n700);">
+                Per VAYA_FORGE_FLEET.md: VAYA uses custom build system (VayaForge) and custom orchestration (VayaFleet).
+                Docker overhead: 50-100MB/container. K8s overhead: 1.2GB+. VAYA Fleet: 11MB total. This is not negotiable.
+            </p>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- INFRA-01: WHY CUSTOM -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INFRA-01</span>
+                <span class="section-title">Why Custom Infrastructure</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Docker/Kubernetes vs VayaForge/Fleet Comparison</h4>
+                <div class="compare-grid">
+                    <div class="compare-box bad">
+                        <div class="compare-title" style="color: var(--error);">âŒ Docker/Kubernetes (REJECTED)</div>
+                        <div class="metric-row"><span class="metric-label">Control Plane Memory</span><span class="metric-value bad">1.2GB+</span></div>
+                        <div class="metric-row"><span class="metric-label">Per-Node Overhead</span><span class="metric-value bad">150MB+</span></div>
+                        <div class="metric-row"><span class="metric-label">Container Startup</span><span class="metric-value bad">500ms-2s</span></div>
+                        <div class="metric-row"><span class="metric-label">Rolling Update</span><span class="metric-value bad">1-5 minutes</span></div>
+                        <div class="metric-row"><span class="metric-label">Network Latency</span><span class="metric-value bad">+0.1-0.5ms</span></div>
+                        <div class="metric-row"><span class="metric-label">Image Size</span><span class="metric-value bad">500MB+</span></div>
+                        <div class="metric-row"><span class="metric-label">Cold Start</span><span class="metric-value bad">30s-2min</span></div>
+                        <div class="metric-row"><span class="metric-label">Scheduling Latency</span><span class="metric-value bad">100ms-5s</span></div>
+                        <div class="metric-row"><span class="metric-label">API Latency</span><span class="metric-value bad">10-50ms</span></div>
+                    </div>
+                    <div class="compare-box good">
+                        <div class="compare-title" style="color: var(--mint);">âœ“ VayaForge/Fleet (REQUIRED)</div>
+                        <div class="metric-row"><span class="metric-label">Control Plane Memory</span><span class="metric-value good">11MB</span></div>
+                        <div class="metric-row"><span class="metric-label">Per-Node Overhead</span><span class="metric-value good">3MB</span></div>
+                        <div class="metric-row"><span class="metric-label">Binary Startup</span><span class="metric-value good">&lt;10ms</span></div>
+                        <div class="metric-row"><span class="metric-label">Binary Swap</span><span class="metric-value good">&lt;100ms</span></div>
+                        <div class="metric-row"><span class="metric-label">Network Latency</span><span class="metric-value good">0 (native)</span></div>
+                        <div class="metric-row"><span class="metric-label">Binary Size</span><span class="metric-value good">~15MB</span></div>
+                        <div class="metric-row"><span class="metric-label">Cold Start</span><span class="metric-value good">&lt;1s</span></div>
+                        <div class="metric-row"><span class="metric-label">Scheduling Latency</span><span class="metric-value good">&lt;10ms</span></div>
+                        <div class="metric-row"><span class="metric-label">API Latency</span><span class="metric-value good">&lt;1ms</span></div>
+                    </div>
+                </div>
+                <p style="font-size: 12px; color: var(--mint); text-align: center; margin-top: 12px;">
+                    <strong>Improvement Factor: 100-1000x better</strong>
+                </p>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INFRA-02: VAYAFORGE BUILD SYSTEM -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INFRA-02</span>
+                <span class="section-title">VayaForge Build System</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ—ï¸ Build Pipeline Architecture</h4>
+                <div class="arch-diagram">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                         VAYAFORGE BUILD PIPELINE                                 â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                                  â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚                           SOURCE CODE                                    â”‚   â”‚
+â”‚  â”‚  vaya-oracle/                                                           â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-common/     (types, traits)                                   â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-crypto/     (ring-based crypto)                               â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-db/         (LSM + B+Tree storage)                            â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-cache/      (sharded LRU)                                     â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-net/        (HTTP/WS server)                                  â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-ml/         (XGBoost/LSTM custom)                             â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-oracle/     (prediction engine)                               â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-auth/       (JWT, Argon2id)                                   â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-pool/       (demand aggregation)                              â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-book/       (booking engine)                                  â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-search/     (search aggregation)                              â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-collect/    (data ingestion)                                  â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ vaya-api/        (REST/GraphQL)                                    â”‚   â”‚
+â”‚  â”‚  â””â”€â”€ vaya-bin/        (main entry)                                      â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                    â”‚                                            â”‚
+â”‚                                    â–¼                                            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚                      VAYAFORGE COMPILER                                  â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â”‚  1. Rust Compilation                                                    â”‚   â”‚
+â”‚  â”‚     â€¢ Target: x86_64-unknown-linux-musl (static)                        â”‚   â”‚
+â”‚  â”‚     â€¢ Profile: release                                                  â”‚   â”‚
+â”‚  â”‚     â€¢ LTO: fat (Link-Time Optimization)                                 â”‚   â”‚
+â”‚  â”‚     â€¢ codegen-units: 1 (maximum optimization)                           â”‚   â”‚
+â”‚  â”‚     â€¢ panic: abort (smaller binary)                                     â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â”‚  2. Static Linking                                                      â”‚   â”‚
+â”‚  â”‚     â€¢ musl libc (no glibc dependency)                                   â”‚   â”‚
+â”‚  â”‚     â€¢ All dependencies statically linked                                â”‚   â”‚
+â”‚  â”‚     â€¢ Zero runtime dependencies                                         â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â”‚  3. Binary Optimization                                                 â”‚   â”‚
+â”‚  â”‚     â€¢ strip --strip-all (remove symbols)                                â”‚   â”‚
+â”‚  â”‚     â€¢ Optional: UPX compression                                         â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â”‚  4. Integrity                                                           â”‚   â”‚
+â”‚  â”‚     â€¢ SHA-256 hash of final binary                                      â”‚   â”‚
+â”‚  â”‚     â€¢ Ed25519 signature                                                 â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                    â”‚                                            â”‚
+â”‚                                    â–¼                                            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚                       VAYA ARTIFACT (.vaya)                             â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â”‚  vaya-api-v1.0.0.vaya (~15MB total)                                    â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ binary      (statically linked ELF, ~14MB)                        â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ manifest.toml (metadata, ~1KB)                                    â”‚   â”‚
+â”‚  â”‚  â”œâ”€â”€ config.toml (default configuration, ~2KB)                         â”‚   â”‚
+â”‚  â”‚  â””â”€â”€ signature   (Ed25519, 64 bytes)                                   â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                    â”‚                                            â”‚
+â”‚                                    â–¼                                            â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚                       VAYA REGISTRY                                      â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â”‚  â€¢ Artifact storage (S3-compatible: DigitalOcean Spaces)               â”‚   â”‚
+â”‚  â”‚  â€¢ Version tracking (semantic versioning)                               â”‚   â”‚
+â”‚  â”‚  â€¢ Signature verification                                               â”‚   â”‚
+â”‚  â”‚  â€¢ Delta updates (bsdiff for fast updates)                             â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“¦ Artifact Format Specification</h4>
+                <div class="code-block">// .vaya artifact binary format
+// All multi-byte values are little-endian
+
+VAYA ARTIFACT FORMAT v1.0
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+Offset   Size    Field               Description
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+0x00     4       magic               "VAYA" (0x56 0x41 0x59 0x41)
+0x04     2       version             Format version (currently 1)
+0x06     2       flags               Bit flags:
+                                       bit 0: compressed (zstd)
+                                       bit 1: signed (Ed25519)
+                                       bit 2: encrypted (ChaCha20)
+                                       bits 3-15: reserved
+0x08     4       manifest_len        Length of manifest section
+0x0C     4       binary_len_lo       Binary length (low 32 bits)
+0x10     4       binary_len_hi       Binary length (high 32 bits)
+0x14     var     manifest            TOML manifest (optionally zstd)
+var      var     binary              ELF binary (optionally zstd)
+var      64      signature           Ed25519 signature (if signed)</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Manifest Specification</h4>
+                <div class="code-block"># manifest.toml - Artifact metadata
+
+[artifact]
+name = "vaya-api"
+version = "1.0.0"
+built_at = "2026-01-08T12:00:00Z"
+rust_version = "1.75.0"
+target = "x86_64-unknown-linux-musl"
+hash = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+[requirements]
+min_memory_mb = 64
+min_cpu_cores = 1
+ports = [8080, 9090]
+
+[health]
+endpoint = "/health"
+interval_ms = 5000
+timeout_ms = 1000
+healthy_threshold = 2
+unhealthy_threshold = 3
+
+[dependencies]
+# Internal service dependencies
+vaya-db = "^1.0.0"
+vaya-cache = "^1.0.0"
+
+[env]
+# Required environment variables
+VAYA_DB_PATH = { required = true }
+VAYA_CACHE_SIZE_MB = { default = "256" }
+VAYA_LOG_LEVEL = { default = "info" }
+
+[scaling]
+min_instances = 1
+max_instances = 10
+cpu_threshold = 70
+memory_threshold = 80</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”¨ Build Commands</h4>
+                <div class="code-block"># VayaForge CLI Commands
+
+# Build artifact (development)
+$ vaya-forge build --target vaya-api
+  â†’ Compiling vaya-common v1.0.0
+  â†’ Compiling vaya-crypto v1.0.0
+  â†’ Compiling vaya-api v1.0.0
+  â†’ Linking (static, musl)
+  â†’ Optimizing (LTO)
+  â†’ Signing (Ed25519)
+  â†’ Created: target/artifacts/vaya-api-v1.0.0.vaya (14.2 MB)
+
+# Build artifact (production, fully optimized)
+$ vaya-forge build --target vaya-api --release --sign
+  â†’ ... (same steps)
+  â†’ Created: target/artifacts/vaya-api-v1.0.0.vaya (12.8 MB)
+
+# Verify artifact
+$ vaya-forge verify vaya-api-v1.0.0.vaya
+  âœ“ Magic: valid
+  âœ“ Version: 1
+  âœ“ Hash: e3b0c44298fc1c...
+  âœ“ Signature: valid (key: vaya-release-2026)
+
+# Push to registry
+$ vaya-forge push vaya-api-v1.0.0.vaya
+  â†’ Uploading to registry.vaya.my/artifacts/vaya-api/v1.0.0
+  â†’ Computing delta from v0.9.9 (saves 2.1 MB)
+  âœ“ Published: vaya-api v1.0.0
+
+# List artifacts in registry
+$ vaya-forge list vaya-api
+  vaya-api v1.0.0  (12.8 MB)  2026-01-08T12:00:00Z
+  vaya-api v0.9.9  (12.6 MB)  2026-01-07T18:00:00Z
+  vaya-api v0.9.8  (12.5 MB)  2026-01-06T10:00:00Z</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INFRA-03: VAYAFLEET ORCHESTRATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INFRA-03</span>
+                <span class="section-title">VayaFleet Orchestration System</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸŒ Fleet Architecture</h4>
+                <div class="arch-diagram">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                         VAYAFLEET ARCHITECTURE                                   â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                                  â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚                      VAYAFLEET CONTROL PLANE                             â”‚   â”‚
+â”‚  â”‚                      Single Binary: ~8MB total                           â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚   â”‚
+â”‚  â”‚  â”‚  VayaAPI    â”‚  â”‚VayaSchedulerâ”‚  â”‚VayaConsensusâ”‚  â”‚  VayaDNS    â”‚    â”‚   â”‚
+â”‚  â”‚  â”‚  (Control)  â”‚  â”‚             â”‚  â”‚   (Raft)    â”‚  â”‚             â”‚    â”‚   â”‚
+â”‚  â”‚  â”‚   <1MB      â”‚  â”‚    <2MB     â”‚  â”‚    <5MB     â”‚  â”‚   <1MB      â”‚    â”‚   â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜    â”‚   â”‚
+â”‚  â”‚         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜           â”‚   â”‚
+â”‚  â”‚                                   â”‚                                     â”‚   â”‚
+â”‚  â”‚                          VayaFleet Core                                 â”‚   â”‚
+â”‚  â”‚                                                                          â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                    â”‚                                            â”‚
+â”‚                          Gossip Protocol                                        â”‚
+â”‚                        (UDP, <1ms latency)                                      â”‚
+â”‚                                    â”‚                                            â”‚
+â”‚         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                â”‚
+â”‚         â”‚                          â”‚                          â”‚                â”‚
+â”‚         â–¼                          â–¼                          â–¼                â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚     NODE 1      â”‚        â”‚     NODE 2      â”‚        â”‚     NODE 3      â”‚    â”‚
+â”‚  â”‚   (API + Search)â”‚        â”‚  (API + Pools)  â”‚        â”‚ (Search + Oracle)â”‚    â”‚
+â”‚  â”‚                 â”‚        â”‚                 â”‚        â”‚                 â”‚    â”‚
+â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚        â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚        â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚    â”‚
+â”‚  â”‚ â”‚ VayaAgent   â”‚ â”‚        â”‚ â”‚ VayaAgent   â”‚ â”‚        â”‚ â”‚ VayaAgent   â”‚ â”‚    â”‚
+â”‚  â”‚ â”‚    ~3MB     â”‚ â”‚        â”‚ â”‚    ~3MB     â”‚ â”‚        â”‚ â”‚    ~3MB     â”‚ â”‚    â”‚
+â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜ â”‚        â”‚ â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜ â”‚        â”‚ â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜ â”‚    â”‚
+â”‚  â”‚        â”‚        â”‚        â”‚        â”‚        â”‚        â”‚        â”‚        â”‚    â”‚
+â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â” â”‚        â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â” â”‚        â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â” â”‚    â”‚
+â”‚  â”‚ â”‚  vaya-api   â”‚ â”‚        â”‚ â”‚  vaya-api   â”‚ â”‚        â”‚ â”‚vaya-search  â”‚ â”‚    â”‚
+â”‚  â”‚ â”‚   ~15MB     â”‚ â”‚        â”‚ â”‚   ~15MB     â”‚ â”‚        â”‚ â”‚   ~12MB     â”‚ â”‚    â”‚
+â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚        â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚        â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚    â”‚
+â”‚  â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚        â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚        â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚    â”‚
+â”‚  â”‚ â”‚vaya-search  â”‚ â”‚        â”‚ â”‚ vaya-pool   â”‚ â”‚        â”‚ â”‚vaya-oracle  â”‚ â”‚    â”‚
+â”‚  â”‚ â”‚   ~12MB     â”‚ â”‚        â”‚ â”‚   ~10MB     â”‚ â”‚        â”‚ â”‚    ~8MB     â”‚ â”‚    â”‚
+â”‚  â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚        â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚        â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚    â”‚
+â”‚  â”‚                 â”‚        â”‚                 â”‚        â”‚                 â”‚    â”‚
+â”‚  â”‚  Memory: ~30MB  â”‚        â”‚  Memory: ~28MB  â”‚        â”‚  Memory: ~23MB  â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â”‚                                                                                  â”‚
+â”‚  Total Fleet Memory: ~89MB (vs ~2GB+ with Kubernetes)                          â”‚
+â”‚                                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”§ VayaAgent Specification</h4>
+                <div class="code-block">/// VayaAgent - Runs on each node, manages local services
+/// Binary size: ~3MB
+/// Memory usage: ~2MB runtime
+
+pub struct VayaAgent {
+    /// Node identity
+    node_id: NodeId,
+    
+    /// Connection to control plane
+    control_plane: ControlPlaneClient,
+    
+    /// Local service registry
+    services: HashMap<ServiceId, ManagedService>,
+    
+    /// Health checker
+    health_checker: HealthChecker,
+    
+    /// Metrics collector
+    metrics: MetricsCollector,
+}
+
+impl VayaAgent {
+    /// Start a service from artifact
+    pub async fn start_service(&mut self, spec: ServiceSpec) -> Result<ServiceId> {
+        // 1. Download artifact (if not cached)
+        let artifact = self.download_artifact(&spec.artifact).await?;
+        
+        // 2. Verify signature
+        artifact.verify_signature(&self.trusted_keys)?;
+        
+        // 3. Extract binary
+        let binary_path = self.extract_binary(&artifact)?;
+        
+        // 4. Spawn process
+        let process = Command::new(&binary_path)
+            .env("VAYA_NODE_ID", &self.node_id.to_string())
+            .env("VAYA_SERVICE_ID", &spec.service_id.to_string())
+            .envs(&spec.env)
+            .spawn()?;
+        
+        // 5. Register service
+        let service = ManagedService {
+            id: spec.service_id,
+            process,
+            spec,
+            started_at: Timestamp::now(),
+            status: ServiceStatus::Starting,
+        };
+        
+        self.services.insert(service.id, service);
+        
+        // 6. Wait for health check
+        self.wait_for_healthy(spec.service_id).await?;
+        
+        Ok(spec.service_id)
+    }
+    
+    /// Zero-downtime binary swap
+    pub async fn swap_binary(&mut self, service_id: ServiceId, new_artifact: &Artifact) -> Result<()> {
+        let service = self.services.get_mut(&service_id)?;
+        
+        // 1. Extract new binary
+        let new_binary_path = self.extract_binary(new_artifact)?;
+        
+        // 2. Fork new process
+        let new_process = Command::new(&new_binary_path)
+            .envs(&service.spec.env)
+            .spawn()?;
+        
+        // 3. Pass file descriptors (sockets stay open!)
+        // Uses SCM_RIGHTS to pass listening sockets to new process
+        self.pass_file_descriptors(&service.process, &new_process)?;
+        
+        // 4. Signal old process to drain
+        service.process.signal(Signal::USR1)?; // Start draining
+        
+        // 5. Wait for old process to finish draining
+        tokio::time::timeout(
+            Duration::from_secs(30),
+            service.process.wait()
+        ).await?;
+        
+        // 6. Update service reference
+        service.process = new_process;
+        service.artifact = new_artifact.clone();
+        
+        Ok(())
+    }
+    
+    /// Health check loop
+    async fn health_check_loop(&self) {
+        loop {
+            for (id, service) in &self.services {
+                let health = self.check_health(service).await;
+                
+                if health.is_unhealthy() && health.consecutive_failures >= 3 {
+                    // Restart service
+                    self.restart_service(*id).await;
+                }
+                
+                // Report to control plane
+                self.control_plane.report_health(*id, health).await;
+            }
+            
+            tokio::time::sleep(Duration::from_secs(5)).await;
+        }
+    }
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>âš¡ Zero-Downtime Binary Swap</h4>
+                <div class="arch-diagram">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                      ZERO-DOWNTIME BINARY SWAP                                   â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                                  â”‚
+â”‚  Time â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¶   â”‚
+â”‚                                                                                  â”‚
+â”‚  OLD BINARY (v1.0.0)                                                            â”‚
+â”‚  â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–’â–’â–’â–’â–’â–’â–’â–’â–‘â–‘â–‘â–‘                                       â”‚
+â”‚                              â†‘         â†‘                                        â”‚
+â”‚                         FD passing   drain                                      â”‚
+â”‚                              â†“                                                  â”‚
+â”‚  NEW BINARY (v1.0.1)                                                            â”‚
+â”‚                         â–‘â–‘â–‘â–‘â–’â–’â–’â–’â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ            â”‚
+â”‚                              â†‘                                                  â”‚
+â”‚                         takes over                                              â”‚
+â”‚                                                                                  â”‚
+â”‚  ACTIVE CONNECTIONS                                                             â”‚
+â”‚  â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•        â”‚
+â”‚  (never interrupted - sockets passed via SCM_RIGHTS)                            â”‚
+â”‚                                                                                  â”‚
+â”‚  Legend: â–ˆâ–ˆâ–ˆâ–ˆ Active  â–’â–’â–’â–’ Transitioning  â–‘â–‘â–‘â–‘ Starting/Stopping               â”‚
+â”‚                                                                                  â”‚
+â”‚  Total swap time: <100ms                                                        â”‚
+â”‚  Dropped connections: 0                                                         â”‚
+â”‚                                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INFRA-04: SERVICE DEPLOYMENT SPECS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INFRA-04</span>
+                <span class="section-title">Service Deployment Specifications</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Service Definitions</h4>
+                <table>
+                    <tr>
+                        <th>Service</th>
+                        <th>Artifact</th>
+                        <th>Binary Size</th>
+                        <th>Memory</th>
+                        <th>CPU</th>
+                        <th>Ports</th>
+                        <th>Instances</th>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-api</strong></td>
+                        <td>vaya-api.vaya</td>
+                        <td>~15MB</td>
+                        <td>64-256MB</td>
+                        <td>0.5-2 cores</td>
+                        <td>8080, 9090</td>
+                        <td>2-10</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-search</strong></td>
+                        <td>vaya-search.vaya</td>
+                        <td>~12MB</td>
+                        <td>128-512MB</td>
+                        <td>1-4 cores</td>
+                        <td>8081</td>
+                        <td>2-8</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-oracle</strong></td>
+                        <td>vaya-oracle.vaya</td>
+                        <td>~8MB</td>
+                        <td>256-1024MB</td>
+                        <td>2-4 cores</td>
+                        <td>8082</td>
+                        <td>2-6</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-pool</strong></td>
+                        <td>vaya-pool.vaya</td>
+                        <td>~10MB</td>
+                        <td>64-256MB</td>
+                        <td>0.5-2 cores</td>
+                        <td>8083</td>
+                        <td>2-4</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-book</strong></td>
+                        <td>vaya-book.vaya</td>
+                        <td>~10MB</td>
+                        <td>64-256MB</td>
+                        <td>0.5-2 cores</td>
+                        <td>8084</td>
+                        <td>2-4</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-collect</strong></td>
+                        <td>vaya-collect.vaya</td>
+                        <td>~8MB</td>
+                        <td>128-512MB</td>
+                        <td>0.5-2 cores</td>
+                        <td>8085</td>
+                        <td>2-4</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-alert</strong></td>
+                        <td>vaya-alert.vaya</td>
+                        <td>~6MB</td>
+                        <td>32-128MB</td>
+                        <td>0.25-1 core</td>
+                        <td>8086</td>
+                        <td>1-2</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“„ Service Specification (fleet.toml)</h4>
+                <div class="code-block"># fleet.toml - VayaFleet deployment specification
+
+[cluster]
+name = "vaya-production"
+region = "sgp1"  # Singapore (closest to Malaysia)
+
+# Control plane nodes (3 for Raft consensus)
+[[control_plane]]
+node_id = "ctrl-1"
+host = "10.0.1.1"
+role = "leader"
+
+[[control_plane]]
+node_id = "ctrl-2"
+host = "10.0.1.2"
+role = "follower"
+
+[[control_plane]]
+node_id = "ctrl-3"
+host = "10.0.1.3"
+role = "follower"
+
+# Worker nodes
+[[node]]
+node_id = "node-1"
+host = "10.0.2.1"
+labels = { tier = "api", zone = "a" }
+resources = { memory_mb = 4096, cpu_cores = 4 }
+
+[[node]]
+node_id = "node-2"
+host = "10.0.2.2"
+labels = { tier = "api", zone = "b" }
+resources = { memory_mb = 4096, cpu_cores = 4 }
+
+[[node]]
+node_id = "node-3"
+host = "10.0.2.3"
+labels = { tier = "compute", zone = "a" }
+resources = { memory_mb = 8192, cpu_cores = 8 }
+
+# Service definitions
+[services.vaya-api]
+artifact = "vaya-api:1.0.0"
+instances = { min = 2, max = 10 }
+placement = { labels = { tier = "api" } }
+resources = { memory_mb = 256, cpu_cores = 1 }
+ports = [8080]
+health = { path = "/health", interval = "5s", timeout = "1s" }
+env = { VAYA_LOG_LEVEL = "info" }
+
+[services.vaya-search]
+artifact = "vaya-search:1.0.0"
+instances = { min = 2, max = 8 }
+placement = { labels = { tier = "compute" } }
+resources = { memory_mb = 512, cpu_cores = 2 }
+ports = [8081]
+health = { path = "/health", interval = "5s", timeout = "2s" }
+
+[services.vaya-oracle]
+artifact = "vaya-oracle:1.0.0"
+instances = { min = 2, max = 6 }
+placement = { labels = { tier = "compute" } }
+resources = { memory_mb = 1024, cpu_cores = 2 }
+ports = [8082]
+health = { path = "/health", interval = "10s", timeout = "2s" }
+
+# Scaling rules
+[scaling.vaya-api]
+cpu_threshold = 70
+memory_threshold = 80
+scale_up_cooldown = "60s"
+scale_down_cooldown = "300s"
+
+[scaling.vaya-search]
+cpu_threshold = 60
+custom_metric = { name = "search_queue_depth", threshold = 100 }
+
+# Load balancing
+[loadbalancer]
+algorithm = "least_connections"
+health_check_interval = "5s"
+sticky_sessions = false
+
+# Networking
+[network]
+service_mesh = false  # No sidecar proxies - direct communication
+dns_ttl = "30s"
+internal_domain = "vaya.internal"</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INFRA-05: NODE PROVISIONING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INFRA-05</span>
+                <span class="section-title">Node Provisioning</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ–¥ï¸ Server Specifications</h4>
+                <table>
+                    <tr><th>Role</th><th>Provider</th><th>Spec</th><th>Count</th><th>Monthly Cost</th></tr>
+                    <tr>
+                        <td>Control Plane</td>
+                        <td>DigitalOcean</td>
+                        <td>s-2vcpu-4gb (2 vCPU, 4GB RAM, 80GB SSD)</td>
+                        <td>3</td>
+                        <td>$72 ($24 Ã— 3)</td>
+                    </tr>
+                    <tr>
+                        <td>API Nodes</td>
+                        <td>DigitalOcean</td>
+                        <td>s-4vcpu-8gb (4 vCPU, 8GB RAM, 160GB SSD)</td>
+                        <td>2</td>
+                        <td>$96 ($48 Ã— 2)</td>
+                    </tr>
+                    <tr>
+                        <td>Compute Nodes</td>
+                        <td>DigitalOcean</td>
+                        <td>c-4vcpu-8gb (4 vCPU, 8GB RAM, CPU-optimized)</td>
+                        <td>2</td>
+                        <td>$168 ($84 Ã— 2)</td>
+                    </tr>
+                    <tr>
+                        <td>Storage (VayaDB)</td>
+                        <td>DigitalOcean</td>
+                        <td>Block Storage (500GB NVMe)</td>
+                        <td>2</td>
+                        <td>$100 ($50 Ã— 2)</td>
+                    </tr>
+                    <tr>
+                        <td>Object Storage</td>
+                        <td>DO Spaces</td>
+                        <td>250GB (artifacts, backups)</td>
+                        <td>1</td>
+                        <td>$15</td>
+                    </tr>
+                    <tr>
+                        <td>Load Balancer</td>
+                        <td>DigitalOcean</td>
+                        <td>Regional LB</td>
+                        <td>1</td>
+                        <td>$12</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="text-align: right;"><strong>Total Baseline</strong></td>
+                        <td><strong>$463/month</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”§ Node Bootstrap Script</h4>
+                <div class="code-block">#!/bin/bash
+# bootstrap-node.sh - Initialize a VAYA fleet node
+# Run on fresh Ubuntu 24.04 LTS
+
+set -euo pipefail
+
+NODE_ID="${1:?Node ID required}"
+CONTROL_PLANE="${2:?Control plane address required}"
+JOIN_TOKEN="${3:?Join token required}"
+
+echo "=== VAYA Node Bootstrap ==="
+echo "Node ID: $NODE_ID"
+echo "Control Plane: $CONTROL_PLANE"
+
+# 1. System configuration
+echo "â†’ Configuring system..."
+sysctl -w vm.swappiness=10
+sysctl -w net.core.somaxconn=65535
+sysctl -w net.ipv4.tcp_max_syn_backlog=65535
+
+# 2. Create vaya user
+useradd -r -s /bin/false vaya || true
+mkdir -p /opt/vaya/{bin,data,logs,artifacts}
+chown -R vaya:vaya /opt/vaya
+
+# 3. Download VayaAgent
+echo "â†’ Installing VayaAgent..."
+curl -fsSL "https://registry.vaya.my/agent/latest/vaya-agent" \
+  -o /opt/vaya/bin/vaya-agent
+chmod +x /opt/vaya/bin/vaya-agent
+
+# 4. Verify signature
+echo "â†’ Verifying signature..."
+/opt/vaya/bin/vaya-agent verify --self
+
+# 5. Create systemd service
+cat > /etc/systemd/system/vaya-agent.service << EOF
+[Unit]
+Description=VAYA Fleet Agent
+After=network.target
+
+[Service]
+Type=simple
+User=vaya
+Group=vaya
+ExecStart=/opt/vaya/bin/vaya-agent \
+  --node-id=$NODE_ID \
+  --control-plane=$CONTROL_PLANE \
+  --data-dir=/opt/vaya/data \
+  --log-dir=/opt/vaya/logs
+Restart=always
+RestartSec=5
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 6. Start agent
+systemctl daemon-reload
+systemctl enable vaya-agent
+systemctl start vaya-agent
+
+# 7. Join cluster
+echo "â†’ Joining cluster..."
+/opt/vaya/bin/vaya-agent join \
+  --control-plane="$CONTROL_PLANE" \
+  --token="$JOIN_TOKEN"
+
+echo "âœ“ Node $NODE_ID bootstrapped successfully"</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INFRA-06: SCALING RULES -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INFRA-06</span>
+                <span class="section-title">Auto-Scaling Rules</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ˆ Scaling Configuration</h4>
+                <table>
+                    <tr>
+                        <th>Service</th>
+                        <th>Min</th>
+                        <th>Max</th>
+                        <th>CPU Trigger</th>
+                        <th>Memory Trigger</th>
+                        <th>Custom Metric</th>
+                        <th>Scale Up</th>
+                        <th>Scale Down</th>
+                    </tr>
+                    <tr>
+                        <td>vaya-api</td>
+                        <td>2</td>
+                        <td>10</td>
+                        <td>&gt;70%</td>
+                        <td>&gt;80%</td>
+                        <td>req/s &gt; 1000/instance</td>
+                        <td>60s cooldown</td>
+                        <td>5m cooldown</td>
+                    </tr>
+                    <tr>
+                        <td>vaya-search</td>
+                        <td>2</td>
+                        <td>8</td>
+                        <td>&gt;60%</td>
+                        <td>&gt;75%</td>
+                        <td>search queue &gt; 100</td>
+                        <td>30s cooldown</td>
+                        <td>5m cooldown</td>
+                    </tr>
+                    <tr>
+                        <td>vaya-oracle</td>
+                        <td>2</td>
+                        <td>6</td>
+                        <td>&gt;70%</td>
+                        <td>&gt;80%</td>
+                        <td>prediction latency &gt; 100ms</td>
+                        <td>60s cooldown</td>
+                        <td>10m cooldown</td>
+                    </tr>
+                    <tr>
+                        <td>vaya-pool</td>
+                        <td>2</td>
+                        <td>4</td>
+                        <td>&gt;70%</td>
+                        <td>&gt;80%</td>
+                        <td>â€”</td>
+                        <td>60s cooldown</td>
+                        <td>10m cooldown</td>
+                    </tr>
+                    <tr>
+                        <td>vaya-collect</td>
+                        <td>2</td>
+                        <td>4</td>
+                        <td>&gt;50%</td>
+                        <td>&gt;70%</td>
+                        <td>collection queue &gt; 500</td>
+                        <td>60s cooldown</td>
+                        <td>10m cooldown</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ• Time-Based Scaling</h4>
+                <div class="code-block"># Scheduled scaling rules (MYT = UTC+8)
+
+[schedule.morning_peak]
+cron = "0 7 * * *"  # 7 AM MYT daily
+actions = [
+  { service = "vaya-api", min_instances = 4 },
+  { service = "vaya-search", min_instances = 4 },
+]
+duration = "2h"
+
+[schedule.evening_peak]
+cron = "0 20 * * *"  # 8 PM MYT daily
+actions = [
+  { service = "vaya-api", min_instances = 6 },
+  { service = "vaya-search", min_instances = 6 },
+  { service = "vaya-oracle", min_instances = 4 },
+]
+duration = "3h"
+
+[schedule.weekend_boost]
+cron = "0 0 * * 6,0"  # Saturday and Sunday
+actions = [
+  { service = "vaya-search", min_instances = 4 },
+]
+duration = "24h"
+
+[schedule.night_minimum]
+cron = "0 2 * * *"  # 2 AM MYT daily
+actions = [
+  { service = "vaya-api", min_instances = 2 },
+  { service = "vaya-search", min_instances = 2 },
+  { service = "vaya-oracle", min_instances = 2 },
+]
+duration = "5h"</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INFRA-07: MONITORING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INFRA-07</span>
+                <span class="section-title">Monitoring & Observability</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Metrics (Built-in VayaMetrics)</h4>
+                <div class="code-block">// VayaMetrics - Custom metrics collection (no Prometheus dependency)
+// Embedded in each service, exposed on :9090/metrics
+
+pub struct VayaMetrics {
+    /// Counter metrics
+    counters: DashMap<MetricKey, AtomicU64>,
+    
+    /// Gauge metrics
+    gauges: DashMap<MetricKey, AtomicI64>,
+    
+    /// Histogram metrics (HDR histogram)
+    histograms: DashMap<MetricKey, Histogram>,
+}
+
+// Key metrics collected per service:
+
+// API Service
+vaya_api_requests_total{method, path, status}       // Counter
+vaya_api_request_duration_ms{method, path}          // Histogram
+vaya_api_active_connections                         // Gauge
+
+// Search Service
+vaya_search_queries_total{source}                   // Counter
+vaya_search_query_duration_ms                       // Histogram
+vaya_search_results_count                           // Histogram
+vaya_search_cache_hits_total                        // Counter
+vaya_search_supplier_latency_ms{supplier}           // Histogram
+
+// Oracle Service
+vaya_oracle_predictions_total                       // Counter
+vaya_oracle_prediction_latency_ms                   // Histogram
+vaya_oracle_model_accuracy                          // Gauge
+vaya_oracle_feature_compute_ms                      // Histogram
+
+// Pool Service
+vaya_pool_active_pools                              // Gauge
+vaya_pool_members_total                             // Counter
+vaya_pool_bids_received                             // Counter
+
+// System Metrics
+vaya_memory_bytes{type}                             // Gauge
+vaya_cpu_usage_percent                              // Gauge
+vaya_gc_pause_ms                                    // Histogram
+vaya_open_file_descriptors                          // Gauge</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”” Alerting Rules</h4>
+                <table>
+                    <tr><th>Alert</th><th>Condition</th><th>Severity</th><th>Action</th></tr>
+                    <tr>
+                        <td>HighErrorRate</td>
+                        <td>5xx rate &gt; 1% for 5 min</td>
+                        <td style="color: var(--error);">P1 Critical</td>
+                        <td>PagerDuty, auto-rollback</td>
+                    </tr>
+                    <tr>
+                        <td>ServiceDown</td>
+                        <td>0 healthy instances</td>
+                        <td style="color: var(--error);">P0 Emergency</td>
+                        <td>PagerDuty immediate</td>
+                    </tr>
+                    <tr>
+                        <td>HighLatency</td>
+                        <td>p95 &gt; 500ms for 10 min</td>
+                        <td style="color: var(--warning);">P2 Warning</td>
+                        <td>Slack notification</td>
+                    </tr>
+                    <tr>
+                        <td>DiskSpaceLow</td>
+                        <td>VayaDB disk &gt; 80%</td>
+                        <td style="color: var(--warning);">P2 Warning</td>
+                        <td>Slack, auto-expand</td>
+                    </tr>
+                    <tr>
+                        <td>OracleAccuracyDrop</td>
+                        <td>Accuracy &lt; 70% for 6h</td>
+                        <td style="color: var(--warning);">P2 Warning</td>
+                        <td>Slack, trigger retrain</td>
+                    </tr>
+                    <tr>
+                        <td>MemoryPressure</td>
+                        <td>Memory &gt; 90% for 5 min</td>
+                        <td style="color: var(--warning);">P2 Warning</td>
+                        <td>Auto-scale</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INFRA-08: DISASTER RECOVERY -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INFRA-08</span>
+                <span class="section-title">Disaster Recovery</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸŽ¯ Recovery Objectives</h4>
+                <table>
+                    <tr><th>Metric</th><th>Target</th><th>Description</th></tr>
+                    <tr><td>RTO (Recovery Time)</td><td>&lt; 30 minutes</td><td>Time to restore service</td></tr>
+                    <tr><td>RPO (Recovery Point)</td><td>&lt; 15 minutes</td><td>Maximum data loss</td></tr>
+                    <tr><td>MTTR (Mean Time to Repair)</td><td>&lt; 15 minutes</td><td>Average repair time</td></tr>
+                    <tr><td>Availability</td><td>99.9%</td><td>8.76 hours downtime/year max</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’¾ Backup Strategy</h4>
+                <div class="code-block"># Backup configuration
+
+[backup.vaya_db]
+type = "incremental"
+schedule = "*/15 * * * *"  # Every 15 minutes
+retention = "7d"
+destination = "spaces://vaya-backups/db/"
+encryption = "aes-256-gcm"
+
+[backup.vaya_db_full]
+type = "full"
+schedule = "0 3 * * *"  # Daily at 3 AM
+retention = "30d"
+destination = "spaces://vaya-backups/db-full/"
+
+[backup.wal]
+type = "continuous"
+destination = "spaces://vaya-backups/wal/"
+retention = "7d"
+
+[backup.artifacts]
+type = "mirror"
+source = "registry.vaya.my"
+destination = "spaces://vaya-backups/artifacts/"
+retention = "90d"
+
+[backup.secrets]
+type = "encrypted_export"
+schedule = "0 0 * * *"  # Daily
+destination = "spaces://vaya-backups/secrets/"
+encryption = "age"  # Age encryption with hardware key</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Failover Procedures</h4>
+                <table>
+                    <tr><th>Failure Type</th><th>Detection</th><th>Response</th><th>Time</th></tr>
+                    <tr>
+                        <td>Service crash</td>
+                        <td>Health check fail Ã— 3</td>
+                        <td>VayaAgent auto-restart</td>
+                        <td>&lt; 30s</td>
+                    </tr>
+                    <tr>
+                        <td>Node failure</td>
+                        <td>Gossip timeout</td>
+                        <td>Reschedule to other nodes</td>
+                        <td>&lt; 60s</td>
+                    </tr>
+                    <tr>
+                        <td>Control plane failure</td>
+                        <td>Raft leader election</td>
+                        <td>Automatic leader failover</td>
+                        <td>&lt; 10s</td>
+                    </tr>
+                    <tr>
+                        <td>Storage failure</td>
+                        <td>I/O errors</td>
+                        <td>Failover to replica</td>
+                        <td>&lt; 30s</td>
+                    </tr>
+                    <tr>
+                        <td>Region outage</td>
+                        <td>External monitoring</td>
+                        <td>DNS failover to DR site</td>
+                        <td>&lt; 5m (manual)</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INFRA-09: COST SUMMARY -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INFRA-09</span>
+                <span class="section-title">Cost Summary</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’° Monthly Infrastructure Costs (USD)</h4>
+                <table>
+                    <tr><th>Category</th><th>Item</th><th>Baseline</th><th>At Scale (10x)</th></tr>
+                    <tr><td>Control Plane</td><td>3Ã— s-2vcpu-4gb</td><td>$72</td><td>$72</td></tr>
+                    <tr><td>API Nodes</td><td>2-6Ã— s-4vcpu-8gb</td><td>$96</td><td>$288</td></tr>
+                    <tr><td>Compute Nodes</td><td>2-4Ã— c-4vcpu-8gb</td><td>$168</td><td>$336</td></tr>
+                    <tr><td>Storage</td><td>Block Storage (NVMe)</td><td>$100</td><td>$200</td></tr>
+                    <tr><td>Object Storage</td><td>DO Spaces</td><td>$15</td><td>$30</td></tr>
+                    <tr><td>Load Balancer</td><td>Regional LB</td><td>$12</td><td>$24</td></tr>
+                    <tr><td>Bandwidth</td><td>1-5 TB</td><td>$10</td><td>$50</td></tr>
+                    <tr><td>Monitoring</td><td>External (Better Uptime)</td><td>$20</td><td>$20</td></tr>
+                    <tr><td colspan="2"><strong>TOTAL</strong></td><td><strong>$493/month</strong></td><td><strong>$1,020/month</strong></td></tr>
+                </table>
+                <p style="font-size: 12px; color: var(--mint); margin-top: 12px;">
+                    <strong>Savings vs Kubernetes:</strong> ~40% lower (no K8s overhead, no managed K8s fees, smaller nodes needed)
+                </p>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <div style="background: linear-gradient(135deg, var(--n100), var(--n200)); border: 2px solid var(--purple); border-radius: 20px; padding: 40px; margin-top: 48px; text-align: center;">
+            <h2 style="font-family: var(--font-display); font-size: 28px; font-weight: 800; margin-bottom: 16px;">âš¡ VAYAFORGE/FLEET INFRASTRUCTURE COMPLETE</h2>
+            <div class="compliance-badge">âœ“ NUCLEAR/SOVEREIGN COMPLIANT â€” NO DOCKER, NO KUBERNETES</div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 700px; margin: 24px auto 0;">
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--mint);">11MB</div>
+                    <div style="font-size: 10px; color: var(--n600);">Control Plane</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--cyan);">&lt;100ms</div>
+                    <div style="font-size: 10px; color: var(--n600);">Binary Swap</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple);">~15MB</div>
+                    <div style="font-size: 10px; color: var(--n600);">Artifact Size</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--warning);">$493</div>
+                    <div style="font-size: 10px; color: var(--n600);">Monthly Cost</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

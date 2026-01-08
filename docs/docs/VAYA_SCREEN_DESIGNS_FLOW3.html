@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Screen Design Specification: Flow 3 - Booking Flow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-500: #00F5A0;
+            --mint-600: #00CC85;
+            --mint-dim: rgba(0, 245, 160, 0.12);
+            --mint-muted: rgba(0, 245, 160, 0.24);
+            --cyan-500: #00D9FF;
+            --cyan-dim: rgba(0, 217, 255, 0.12);
+            --n0: #000000;
+            --n50: #0A0A0B;
+            --n100: #111113;
+            --n150: #161618;
+            --n200: #1A1A1D;
+            --n300: #232326;
+            --n400: #2D2D31;
+            --n500: #3D3D42;
+            --n600: #5C5C63;
+            --n700: #7A7A82;
+            --n800: #9999A1;
+            --n900: #CCCCCC;
+            --n1000: #FFFFFF;
+            --warning: #FFB800;
+            --warning-dim: rgba(255, 184, 0, 0.12);
+            --error: #FF4757;
+            --error-dim: rgba(255, 71, 87, 0.12);
+            --success: #00F5A0;
+            --purple: #A855F7;
+            --blue: #3B82F6;
+            --gold: #FFD700;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --glow-sm: 0 0 16px rgba(0, 245, 160, 0.3);
+            --glow-md: 0 0 24px rgba(0, 245, 160, 0.4);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.5);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--n1000); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--gold); margin-bottom: 48px; background: linear-gradient(180deg, rgba(255,215,0,0.08) 0%, transparent 100%); }
+        .doc-logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .doc-logo span:first-child { color: var(--mint-500); }
+        .doc-logo span:last-child { color: var(--cyan-500); }
+        .doc-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-top: 16px; }
+        .doc-subtitle { font-size: 15px; color: var(--n700); margin-top: 8px; }
+        .doc-meta { display: flex; justify-content: center; gap: 32px; margin-top: 24px; }
+        .doc-meta-item { text-align: center; }
+        .doc-meta-label { font-size: 10px; color: var(--n600); text-transform: uppercase; }
+        .doc-meta-value { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--gold); }
+        .section { margin-bottom: 64px; }
+        .section-header { background: var(--n100); border: 1px solid var(--n200); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .section-num { font-family: var(--font-mono); font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .section-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .section-desc { color: var(--n700); font-size: 14px; }
+        .spec-card { background: var(--n50); border: 1px solid var(--n200); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+        .spec-card-header { background: var(--n100); padding: 16px 20px; border-bottom: 1px solid var(--n200); display: flex; align-items: center; justify-content: space-between; }
+        .spec-id { font-family: var(--font-mono); font-size: 11px; color: var(--gold); background: rgba(255,215,0,0.12); padding: 4px 10px; border-radius: 4px; }
+        .spec-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+        .spec-badge { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; }
+        .spec-badge-critical { background: var(--error); color: #fff; }
+        .spec-badge-revenue { background: var(--gold); color: #000; }
+        .spec-card-body { padding: 20px; }
+        .pixel-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+        .pixel-table th { background: var(--n150); padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--n300); }
+        .pixel-table td { padding: 10px 12px; border-bottom: 1px solid var(--n200); color: var(--n800); vertical-align: top; }
+        .pixel-table .property { font-family: var(--font-mono); color: var(--cyan-500); font-weight: 500; }
+        .pixel-table .desktop { color: var(--cyan-500); }
+        .pixel-table .tablet { color: var(--warning); }
+        .pixel-table .mobile { color: var(--mint-500); }
+        .pixel-table .watch { color: var(--purple); }
+        .state-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+        .state-card { background: var(--n150); border: 1px solid var(--n300); border-radius: 8px; padding: 12px; }
+        .state-name { font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; margin-bottom: 8px; }
+        .state-preview { background: var(--n0); border-radius: 6px; padding: 12px; min-height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+        .state-specs { font-size: 10px; color: var(--n700); }
+        .state-specs code { font-family: var(--font-mono); color: var(--cyan-500); font-size: 9px; }
+        .integration-box { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.05)); border: 1px solid var(--mint-500); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .integration-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--mint-500); margin-bottom: 12px; }
+        .integration-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .integration-item { background: var(--n150); border-radius: 6px; padding: 10px; }
+        .integration-crate { font-family: var(--font-mono); font-size: 11px; color: var(--cyan-500); margin-bottom: 2px; }
+        .integration-desc { font-size: 10px; color: var(--n600); }
+        .warning-box { background: var(--warning-dim); border: 1px solid var(--warning); border-radius: 8px; padding: 12px; margin: 12px 0; }
+        .warning-box p { color: var(--n800); font-size: 12px; }
+        .warning-box strong { color: var(--warning); }
+        .error-box { background: var(--error-dim); border: 1px solid var(--error); border-radius: 8px; padding: 12px; margin: 12px 0; }
+        .error-box p { color: var(--n800); font-size: 12px; }
+        .error-box strong { color: var(--error); }
+        .success-box { background: var(--mint-dim); border: 1px solid var(--mint-500); border-radius: 8px; padding: 12px; margin: 12px 0; }
+        .success-box p { color: var(--n800); font-size: 12px; }
+        .success-box strong { color: var(--mint-500); }
+        .validation-table { width: 100%; border-collapse: collapse; font-size: 11px; margin: 16px 0; }
+        .validation-table th { background: var(--n150); padding: 8px 10px; text-align: left; font-weight: 700; color: var(--n600); }
+        .validation-table td { padding: 8px 10px; border-bottom: 1px solid var(--n200); }
+        .validation-table .field { font-family: var(--font-mono); color: var(--cyan-500); }
+        .validation-table .rule { color: var(--n700); }
+        .validation-table .error { color: var(--error); font-size: 10px; }
+        .summary-box { background: linear-gradient(135deg, var(--n100), rgba(255,215,0,0.05)); border: 2px solid var(--gold); border-radius: 20px; padding: 40px; text-align: center; margin-top: 48px; }
+        @media (max-width: 1200px) { .state-grid { grid-template-columns: repeat(2, 1fr); } .integration-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="doc-header">
+            <div class="doc-logo"><span>VA</span><span>YA</span></div>
+            <h1 class="doc-title">Screen Design Specification</h1>
+            <p class="doc-subtitle">Flow 3: Booking Flow â€” Revenue Critical Path</p>
+            <div class="doc-meta">
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Screens</div>
+                    <div class="doc-meta-value">6</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Device Variants</div>
+                    <div class="doc-meta-value">24</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Form Fields</div>
+                    <div class="doc-meta-value">28</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Validation Rules</div>
+                    <div class="doc-meta-value">47</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- S3.1: BOOKING INITIATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S3.1</div>
+                <h2 class="section-title">Booking Initiation</h2>
+                <p class="section-desc">Price lock confirmation. Flight summary. Total price breakdown. Guest vs Login choice. 15-minute timer starts.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="spec-id">S3.1</span>
+                        <span class="spec-name">Booking Initiation</span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <span class="spec-badge spec-badge-critical">CRITICAL</span>
+                        <span class="spec-badge spec-badge-revenue">REVENUE</span>
+                    </div>
+                </div>
+                <div class="spec-card-body">
+                    <!-- Desktop Layout -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin-bottom: 12px;">ðŸ–¥ï¸ Desktop Layout (1280px+)</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Typography</th><th>Colors/Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Page Container</td><td>below header</td><td>W: 100%, max: 1200px, center</td><td>â€”</td><td>padding: 40px</td></tr>
+                            <tr><td class="property">â”œâ”€ Two Column Layout</td><td>â€”</td><td>grid: 1fr 400px, gap: 32px</td><td>â€”</td><td>Left: main, Right: sidebar</td></tr>
+                            <tr><td class="property">â”œâ”€ Price Lock Banner</td><td>top, full width</td><td>W: 100%, H: 56px</td><td>DM Sans 14px/600</td><td>bg: mint-dim, border: 1px mint-500, radius: 12px</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Lock Icon</td><td>left: 16px</td><td>W: 24px, H: 24px</td><td>â€”</td><td>color: mint-500</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Message</td><td>â€”</td><td>W: auto</td><td>DM Sans 14px/500</td><td>"Price locked for", color: n800</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Timer</td><td>â€”</td><td>W: auto</td><td>JetBrains Mono 16px/700</td><td>color: mint-500, format: "14:32"</td></tr>
+                            <tr><td class="property">â”œâ”€ Main Column</td><td>left</td><td>W: flex, H: auto</td><td>â€”</td><td>â€”</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Flight Summary Card</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>bg: n100, border: n200, radius: 16px, padding: 24px</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â”œâ”€ Title</td><td>â€”</td><td>W: auto</td><td>Space Grotesk 18px/700</td><td>"Your Flight"</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â”œâ”€ Route Visual</td><td>â€”</td><td>W: 100%, H: 80px</td><td>Times: 28px/700</td><td>Same as prediction card route display</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â”œâ”€ Flight Details</td><td>â€”</td><td>W: 100%, H: auto</td><td>14px/400</td><td>Airline, Flight#, Aircraft, Duration</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â””â”€ Expand/Collapse</td><td>bottom</td><td>W: auto, H: 40px</td><td>14px/600</td><td>color: mint-500, "Show full itinerary â†“"</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Auth Choice Card</td><td>below flight</td><td>W: 100%, H: auto</td><td>â€”</td><td>margin-top: 24px</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â”œâ”€ Login Option</td><td>â€”</td><td>W: 100%, H: 64px</td><td>16px/600</td><td>bg: n100, border: n300, "Log in for faster checkout"</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â””â”€ Guest Option</td><td>â€”</td><td>W: 100%, H: 64px</td><td>16px/600</td><td>bg: n100, border: n300, "Continue as guest"</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Trust Badges Row</td><td>below auth</td><td>W: 100%, H: 48px</td><td>12px/500</td><td>Icons: secure, refund, support | gap: 24px</td></tr>
+                            <tr><td class="property">â””â”€ Sidebar (Sticky)</td><td>right</td><td>W: 400px, H: auto</td><td>â€”</td><td>position: sticky, top: 112px</td></tr>
+                            <tr><td class="property">  â”œâ”€ Price Breakdown Card</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>bg: n100, border: n200, radius: 16px, padding: 24px</td></tr>
+                            <tr><td class="property">  â”‚ â”œâ”€ Title</td><td>â€”</td><td>W: auto</td><td>Space Grotesk 16px/700</td><td>"Price Summary"</td></tr>
+                            <tr><td class="property">  â”‚ â”œâ”€ Line Items</td><td>â€”</td><td>W: 100%, gap: 12px</td><td>14px/400</td><td>Flex between label and amount</td></tr>
+                            <tr><td class="property">  â”‚ â”‚ â”œâ”€ Base Fare</td><td>â€”</td><td>â€”</td><td>â€”</td><td>e.g., "2 Ã— RM 1,234"</td></tr>
+                            <tr><td class="property">  â”‚ â”‚ â”œâ”€ Taxes & Fees</td><td>â€”</td><td>â€”</td><td>â€”</td><td>Expandable to show breakdown</td></tr>
+                            <tr><td class="property">  â”‚ â”‚ â””â”€ VAYA Service Fee</td><td>â€”</td><td>â€”</td><td>â€”</td><td>Transparent display</td></tr>
+                            <tr><td class="property">  â”‚ â”œâ”€ Divider</td><td>â€”</td><td>W: 100%, H: 1px</td><td>â€”</td><td>bg: n300, margin: 16px 0</td></tr>
+                            <tr><td class="property">  â”‚ â””â”€ Total</td><td>â€”</td><td>W: 100%</td><td>Space Grotesk 28px/800</td><td>color: mint-500</td></tr>
+                            <tr><td class="property">  â”œâ”€ Savings Badge</td><td>below total</td><td>W: 100%, H: 40px</td><td>13px/600</td><td>bg: mint-dim, "You're saving RM 468"</td></tr>
+                            <tr><td class="property">  â””â”€ Continue CTA</td><td>bottom sticky</td><td>W: 100%, H: 60px</td><td>Space Grotesk 17px/700</td><td>bg: mint-500, "Continue to Passenger Details"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Price Lock Timer States -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--warning); margin: 24px 0 12px;">â±ï¸ Price Lock Timer States</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Normal (&gt;5 min)</div>
+                            <div class="state-preview"><span style="font-family: 'JetBrains Mono'; color: var(--mint-500); font-size: 16px; font-weight: 700;">14:32</span></div>
+                            <div class="state-specs"><code>color: mint-500</code><br>Standard display</div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Warning (2-5 min)</div>
+                            <div class="state-preview"><span style="font-family: 'JetBrains Mono'; color: var(--warning); font-size: 16px; font-weight: 700;">4:15</span></div>
+                            <div class="state-specs"><code>color: warning</code><br>Pulse animation</div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Critical (&lt;2 min)</div>
+                            <div class="state-preview"><span style="font-family: 'JetBrains Mono'; color: var(--error); font-size: 16px; font-weight: 700; animation: pulse 1s infinite;">1:23</span></div>
+                            <div class="state-specs"><code>color: error</code><br>Fast pulse + shake</div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Expired</div>
+                            <div class="state-preview"><span style="font-family: 'JetBrains Mono'; color: var(--error); font-size: 14px; font-weight: 700;">EXPIRED</span></div>
+                            <div class="state-specs"><code>Shows S3.6</code><br>Price Lock Expired screen</div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Layout -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--mint-500); margin: 24px 0 12px;">ðŸ“± Mobile Layout (320-428px)</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Dimensions</th><th>Typography</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Header</td><td>W: 100%, H: 56px</td><td>Title: 17px/600</td><td>Back button + "Booking" + Timer</td></tr>
+                            <tr><td class="property">Timer (in header)</td><td>W: auto, H: 32px</td><td>JetBrains Mono 14px/700</td><td>right side of header</td></tr>
+                            <tr><td class="property">Content</td><td>W: 100%, padding: 16px</td><td>â€”</td><td>Scroll, bottom padding for CTA</td></tr>
+                            <tr><td class="property">Flight Summary Card</td><td>W: 100%, H: auto</td><td>Times: 22px/700</td><td>Collapsed by default</td></tr>
+                            <tr><td class="property">Auth Choice</td><td>W: 100%, H: auto</td><td>15px/600</td><td>Stacked vertically</td></tr>
+                            <tr><td class="property">Price Breakdown</td><td>W: 100%, H: auto</td><td>Total: 24px/800</td><td>Below auth choice</td></tr>
+                            <tr><td class="property">Fixed Bottom CTA</td><td>W: 100%, H: 100px (inc safe)</td><td>17px/700</td><td>bg: n50, shadow above</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S3.2: PASSENGER DETAILS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S3.2</div>
+                <h2 class="section-title">Passenger Details</h2>
+                <p class="section-desc">Collect traveler information. Per-passenger form. Name, DOB, Gender, Nationality, Passport. Contact details. Saved passengers if logged in.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="spec-id">S3.2</span>
+                        <span class="spec-name">Passenger Details Form</span>
+                    </div>
+                    <span class="spec-badge spec-badge-critical">CRITICAL</span>
+                </div>
+                <div class="spec-card-body">
+                    <!-- Progress Indicator -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin-bottom: 12px;">ðŸ“Š Progress Indicator</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Desktop</th><th>Mobile</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Container</td><td>W: 100%, H: 48px</td><td>W: 100%, H: 40px</td><td>Below header</td></tr>
+                            <tr><td class="property">Steps</td><td>Horizontal, labels visible</td><td>Horizontal, numbers only</td><td>1. Passengers â†’ 2. Extras â†’ 3. Review â†’ 4. Payment</td></tr>
+                            <tr><td class="property">Step Circle</td><td>W: 32px, H: 32px</td><td>W: 28px, H: 28px</td><td>Active: mint-500, Completed: mint-500 + check, Pending: n400</td></tr>
+                            <tr><td class="property">Connector Line</td><td>W: 80px, H: 2px</td><td>W: flex, H: 2px</td><td>Completed: mint-500, Pending: n300</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Form Layout -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">ðŸ“ Passenger Form â€” Desktop</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Typography</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Passenger Card</td><td>â€”</td><td>W: 100%, H: auto, padding: 28px</td><td>â€”</td><td>bg: n100, border: n200, radius: 16px, margin-bottom: 20px</td></tr>
+                            <tr><td class="property">â”œâ”€ Passenger Header</td><td>top</td><td>W: 100%, H: 40px</td><td>Space Grotesk 18px/700</td><td>"Passenger 1 (Adult)" or "Passenger 2 (Child)"</td></tr>
+                            <tr><td class="property">â”œâ”€ Saved Selector</td><td>right of header</td><td>W: 200px, H: 40px</td><td>14px/500</td><td>Dropdown: "Select saved passenger"</td></tr>
+                            <tr><td class="property">â”œâ”€ Name Row</td><td>â€”</td><td>grid: 1fr 2fr 2fr, gap: 16px</td><td>â€”</td><td>Title, First Name, Last Name</td></tr>
+                            <tr><td class="property">â”œâ”€ Details Row</td><td>â€”</td><td>grid: 1fr 1fr 1fr, gap: 16px</td><td>â€”</td><td>DOB, Gender, Nationality</td></tr>
+                            <tr><td class="property">â””â”€ Passport Row</td><td>â€”</td><td>grid: 2fr 1fr, gap: 16px</td><td>â€”</td><td>Passport Number, Expiry Date</td></tr>
+                            <tr><td class="property">Contact Section</td><td>below passengers</td><td>W: 100%, H: auto</td><td>â€”</td><td>Separate card, "Contact Details"</td></tr>
+                            <tr><td class="property">â”œâ”€ Email</td><td>â€”</td><td>W: 100%, H: 56px</td><td>â€”</td><td>Required for booking confirmation</td></tr>
+                            <tr><td class="property">â”œâ”€ Phone</td><td>â€”</td><td>grid: 100px 1fr</td><td>â€”</td><td>Country code dropdown + number</td></tr>
+                            <tr><td class="property">â””â”€ Emergency Contact</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>Optional, collapsible</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Input Field Specifications -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">ðŸ”¤ Input Field Specifications</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Property</th><th>Desktop</th><th>Tablet</th><th>Mobile</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Input Height</td><td>56px</td><td>52px</td><td>52px</td></tr>
+                            <tr><td class="property">Border Radius</td><td>14px</td><td>12px</td><td>12px</td></tr>
+                            <tr><td class="property">Padding</td><td>0 20px</td><td>0 16px</td><td>0 16px</td></tr>
+                            <tr><td class="property">Font Size</td><td>16px</td><td>16px</td><td>16px (prevent iOS zoom)</td></tr>
+                            <tr><td class="property">Label Position</td><td>Above, 8px gap</td><td>Above, 6px gap</td><td>Above, 6px gap</td></tr>
+                            <tr><td class="property">Label Typography</td><td>11px/600, uppercase</td><td>11px/600</td><td>11px/600</td></tr>
+                            <tr><td class="property">Label Color</td><td>n600</td><td>n600</td><td>n600</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Input States -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">Input Field States</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Default</div>
+                            <div class="state-preview" style="flex-direction: column; align-items: stretch;">
+                                <div style="font-size: 10px; color: var(--n600); text-transform: uppercase; margin-bottom: 4px;">First Name</div>
+                                <div style="background: var(--n100); border: 1px solid var(--n300); border-radius: 10px; height: 40px; display: flex; align-items: center; padding: 0 12px; color: var(--n500); font-size: 14px;">Enter first name</div>
+                            </div>
+                            <div class="state-specs"><code>bg: n100</code><br><code>border: 1px n300</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Focus</div>
+                            <div class="state-preview" style="flex-direction: column; align-items: stretch;">
+                                <div style="font-size: 10px; color: var(--mint-500); text-transform: uppercase; margin-bottom: 4px;">First Name</div>
+                                <div style="background: var(--n100); border: 2px solid var(--mint-500); border-radius: 10px; height: 40px; display: flex; align-items: center; padding: 0 12px; color: var(--n1000); font-size: 14px; box-shadow: 0 0 0 3px rgba(0,245,160,0.12);">John|</div>
+                            </div>
+                            <div class="state-specs"><code>border: 2px mint-500</code><br><code>shadow: mint-dim</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Filled Valid</div>
+                            <div class="state-preview" style="flex-direction: column; align-items: stretch;">
+                                <div style="font-size: 10px; color: var(--n600); text-transform: uppercase; margin-bottom: 4px;">First Name</div>
+                                <div style="background: var(--n100); border: 1px solid var(--n300); border-radius: 10px; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; font-size: 14px;"><span style="color: var(--n1000);">John</span><span style="color: var(--mint-500);">âœ“</span></div>
+                            </div>
+                            <div class="state-specs"><code>Check icon: mint-500</code><br><code>Right side of input</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Error</div>
+                            <div class="state-preview" style="flex-direction: column; align-items: stretch;">
+                                <div style="font-size: 10px; color: var(--error); text-transform: uppercase; margin-bottom: 4px;">First Name</div>
+                                <div style="background: var(--error-dim); border: 2px solid var(--error); border-radius: 10px; height: 40px; display: flex; align-items: center; padding: 0 12px; color: var(--n1000); font-size: 14px;">J</div>
+                                <div style="font-size: 10px; color: var(--error); margin-top: 4px;">Name must be at least 2 characters</div>
+                            </div>
+                            <div class="state-specs"><code>bg: error-dim</code><br><code>border: 2px error</code></div>
+                        </div>
+                    </div>
+
+                    <!-- Validation Rules -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--error); margin: 24px 0 12px;">âš ï¸ Field Validation Rules</h4>
+                    <table class="validation-table">
+                        <thead>
+                            <tr><th>Field</th><th>Rules</th><th>Error Message</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="field">Title</td><td class="rule">Required, one of: Mr, Mrs, Ms, Dr</td><td class="error">"Please select a title"</td></tr>
+                            <tr><td class="field">First Name</td><td class="rule">Required, 2-50 chars, letters/spaces/hyphens only, must match passport</td><td class="error">"Enter first name as shown on passport"</td></tr>
+                            <tr><td class="field">Last Name</td><td class="rule">Required, 2-50 chars, letters/spaces/hyphens only, must match passport</td><td class="error">"Enter last name as shown on passport"</td></tr>
+                            <tr><td class="field">Date of Birth</td><td class="rule">Required, valid date, not future, age matches passenger type</td><td class="error">"Invalid date" / "Age doesn't match passenger type"</td></tr>
+                            <tr><td class="field">Gender</td><td class="rule">Required, Male/Female (as per airline requirements)</td><td class="error">"Please select gender"</td></tr>
+                            <tr><td class="field">Nationality</td><td class="rule">Required, valid country from list</td><td class="error">"Please select nationality"</td></tr>
+                            <tr><td class="field">Passport Number</td><td class="rule">Required for international, 5-20 alphanumeric</td><td class="error">"Enter valid passport number"</td></tr>
+                            <tr><td class="field">Passport Expiry</td><td class="rule">Required for international, must be 6+ months after travel</td><td class="error">"Passport expires within 6 months of travel"</td></tr>
+                            <tr><td class="field">Email</td><td class="rule">Required, valid email format</td><td class="error">"Enter a valid email address"</td></tr>
+                            <tr><td class="field">Phone</td><td class="rule">Required, valid format for selected country</td><td class="error">"Enter valid phone number"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="warning-box">
+                        <p><strong>âš ï¸ PASSPORT NAME MATCHING:</strong> Show prominent warning: "Names must match passport exactly. Incorrect names may result in denied boarding." â€” Display above first name field with icon.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S3.3: EXTRAS & ADD-ONS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S3.3</div>
+                <h2 class="section-title">Extras & Add-ons</h2>
+                <p class="section-desc">Optional upsells. Baggage, seats, insurance. Non-pushy design. "Skip All" prominent. Running total visible.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="spec-id">S3.3</span>
+                        <span class="spec-name">Extras Selection</span>
+                    </div>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Typography</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Skip All Button</td><td>Top right, prominent</td><td>W: auto, H: 44px</td><td>DM Sans 15px/600</td><td>color: mint-500, "Skip extras â†’" â€” MUST be easy to find</td></tr>
+                            <tr><td class="property">Extras Sections</td><td>Stacked</td><td>W: 100%, gap: 24px</td><td>â€”</td><td>Collapsible sections</td></tr>
+                            <tr><td class="property">â”œâ”€ Baggage Section</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>Default expanded</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Section Header</td><td>â€”</td><td>W: 100%, H: 56px</td><td>Space Grotesk 18px/700</td><td>Icon + Title + "Included: 7kg cabin"</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Options Grid</td><td>â€”</td><td>grid: repeat(3, 1fr), gap: 12px</td><td>â€”</td><td>Per-passenger baggage cards</td></tr>
+                            <tr><td class="property">â”œâ”€ Seat Selection</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>Optional, shows preview</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Seat Map Preview</td><td>â€”</td><td>W: 100%, H: 200px</td><td>â€”</td><td>Mini seat map, "Select seats" CTA</td></tr>
+                            <tr><td class="property">â””â”€ Travel Insurance</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>Clear pricing, what's covered</td></tr>
+                            <tr><td class="property">Running Total Bar</td><td>Sticky bottom (desktop sidebar)</td><td>W: 400px, H: auto</td><td>â€”</td><td>Shows base + extras = total</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Baggage Option Card -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">ðŸ§³ Baggage Option Card</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Not Selected</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px;">
+                                <div style="font-size: 11px; color: var(--n600);">Checked Bag</div>
+                                <div style="font-size: 16px; font-weight: 700; color: var(--n1000);">20kg</div>
+                                <div style="font-size: 13px; color: var(--mint-500); font-weight: 600;">+ RM 85</div>
+                            </div>
+                            <div class="state-specs"><code>bg: n100</code><br><code>border: 1px n300</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Selected</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px; background: var(--mint-dim); border: 2px solid var(--mint-500); border-radius: 8px;">
+                                <div style="font-size: 11px; color: var(--mint-500);">Checked Bag</div>
+                                <div style="font-size: 16px; font-weight: 700; color: var(--n1000);">20kg</div>
+                                <div style="font-size: 13px; color: var(--mint-500); font-weight: 600;">+ RM 85 âœ“</div>
+                            </div>
+                            <div class="state-specs"><code>bg: mint-dim</code><br><code>border: 2px mint-500</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Included</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px; background: var(--n150);">
+                                <div style="font-size: 11px; color: var(--n600);">Cabin Bag</div>
+                                <div style="font-size: 16px; font-weight: 700; color: var(--n1000);">7kg</div>
+                                <div style="font-size: 13px; color: var(--n600);">Included</div>
+                            </div>
+                            <div class="state-specs"><code>bg: n150</code><br><code>Non-interactive</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Hover</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px; border: 1px solid var(--n400); transform: translateY(-2px);">
+                                <div style="font-size: 11px; color: var(--n600);">Checked Bag</div>
+                                <div style="font-size: 16px; font-weight: 700; color: var(--n1000);">20kg</div>
+                                <div style="font-size: 13px; color: var(--mint-500); font-weight: 600;">+ RM 85</div>
+                            </div>
+                            <div class="state-specs"><code>border: n400</code><br><code>translateY(-2px)</code></div>
+                        </div>
+                    </div>
+
+                    <div class="success-box">
+                        <p><strong>âœ“ ETHICAL DESIGN:</strong> Unlike competitors, VAYA does NOT pre-select extras. All add-ons start unselected. "Skip" is always prominent. No dark patterns.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S3.4: BAGGAGE SELECTION DETAIL -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S3.4</div>
+                <h2 class="section-title">Baggage Selection Detail</h2>
+                <p class="section-desc">Per-segment baggage options. Weight and size guidelines. Per-passenger selection.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S3.4</span>
+                    <span class="spec-name">Baggage Selection</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Specification</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Segment Tabs</td><td>Horizontal tabs: "KUL â†’ TYO" | "TYO â†’ KUL"</td><td>If round trip, per-segment selection</td></tr>
+                            <tr><td class="property">Passenger Selector</td><td>Dropdown or tabs: "Passenger 1" | "All passengers"</td><td>Can apply to all or individual</td></tr>
+                            <tr><td class="property">Cabin Baggage</td><td>Shows included allowance, can't change</td><td>"7kg included" with dimensions</td></tr>
+                            <tr><td class="property">Checked Baggage Grid</td><td>Options: None, 15kg, 20kg, 25kg, 30kg</td><td>Price varies by weight and segment</td></tr>
+                            <tr><td class="property">Size Guidelines</td><td>Visual diagram of bag dimensions</td><td>Inline or expandable</td></tr>
+                            <tr><td class="property">Total for Segment</td><td>Sum of selections for this segment</td><td>Updates in real-time</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S3.5: ORDER REVIEW -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S3.5</div>
+                <h2 class="section-title">Order Review</h2>
+                <p class="section-desc">Final review before payment. Complete itinerary. All passengers. All extras. Full price breakdown. Terms acceptance.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span class="spec-id">S3.5</span>
+                        <span class="spec-name">Order Review</span>
+                    </div>
+                    <span class="spec-badge spec-badge-critical">CRITICAL</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Section</th><th>Content</th><th>Actions</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Flight Summary</td><td>Full itinerary with all segments</td><td>"Edit" â†’ back to S1</td><td>Collapsible, expanded by default</td></tr>
+                            <tr><td class="property">Passenger List</td><td>All passengers with details</td><td>"Edit" â†’ back to S3.2</td><td>Name, DOB, Passport (masked)</td></tr>
+                            <tr><td class="property">Extras Summary</td><td>All selected add-ons</td><td>"Edit" â†’ back to S3.3</td><td>Baggage, seats, insurance</td></tr>
+                            <tr><td class="property">Contact Details</td><td>Email, Phone</td><td>"Edit" â†’ back to S3.2</td><td>Where confirmation sent</td></tr>
+                            <tr><td class="property">Price Breakdown</td><td>Full itemized breakdown</td><td>â€”</td><td>Cannot be collapsed</td></tr>
+                            <tr><td class="property">â”œâ”€ Base Fare</td><td>Per passenger type Ã— count</td><td>â€”</td><td>â€”</td></tr>
+                            <tr><td class="property">â”œâ”€ Taxes</td><td>Expandable to show each tax</td><td>â€”</td><td>Airport tax, fuel surcharge, etc.</td></tr>
+                            <tr><td class="property">â”œâ”€ Extras</td><td>All selected extras</td><td>â€”</td><td>â€”</td></tr>
+                            <tr><td class="property">â”œâ”€ VAYA Fee</td><td>Service fee (transparent)</td><td>â€”</td><td>"Why this fee?" tooltip</td></tr>
+                            <tr><td class="property">â””â”€ Total</td><td>Final amount</td><td>â€”</td><td>Space Grotesk 32px/800, mint-500</td></tr>
+                            <tr><td class="property">Policies Section</td><td>Cancellation, change, refund rules</td><td>"View full terms"</td><td>Summary with expandable details</td></tr>
+                            <tr><td class="property">Terms Checkbox</td><td>"I agree to Terms and Conditions"</td><td>â€”</td><td>Required before payment</td></tr>
+                            <tr><td class="property">Continue CTA</td><td>"Proceed to Payment"</td><td>â€”</td><td>Disabled until terms accepted</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Terms Checkbox States -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">â˜‘ï¸ Terms Checkbox States</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Unchecked</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 24px; height: 24px; border: 2px solid var(--n400); border-radius: 6px;"></div>
+                                    <span style="font-size: 13px; color: var(--n700);">I agree to the Terms</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>border: 2px n400</code><br><code>CTA disabled</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Checked</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 24px; height: 24px; background: var(--mint-500); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--n0); font-size: 14px;">âœ“</div>
+                                    <span style="font-size: 13px; color: var(--n1000);">I agree to the Terms</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>bg: mint-500</code><br><code>CTA enabled</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Error (tried to proceed)</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 24px; height: 24px; border: 2px solid var(--error); border-radius: 6px; animation: shake 0.3s;"></div>
+                                    <span style="font-size: 13px; color: var(--error);">Please accept terms to continue</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>border: 2px error</code><br><code>shake animation</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Focus</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="width: 24px; height: 24px; border: 2px solid var(--mint-500); border-radius: 6px; box-shadow: 0 0 0 3px rgba(0,245,160,0.2);"></div>
+                                    <span style="font-size: 13px; color: var(--n700);">I agree to the Terms</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>border: mint-500</code><br><code>focus ring</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S3.6: PRICE LOCK EXPIRED -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S3.6</div>
+                <h2 class="section-title">Price Lock Expired</h2>
+                <p class="section-desc">Handle timeout scenario. Check new price. Option to continue or search again.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S3.6</span>
+                    <span class="spec-name">Price Lock Expired</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Scenario</th><th>Display</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Price Unchanged</td><td>"Good news! The price is still the same."</td><td>Single CTA: "Continue Booking" â€” auto-extend lock</td></tr>
+                            <tr><td class="property">Price Increased</td><td>"Price has changed" + Old vs New + Difference</td><td>"Continue at RM X,XXX" | "Search Again"</td></tr>
+                            <tr><td class="property">Price Decreased</td><td>"Great news! Price dropped!" + Savings</td><td>"Continue at RM X,XXX" â€” celebratory UI</td></tr>
+                            <tr><td class="property">Flight Unavailable</td><td>"This flight is no longer available"</td><td>"View Alternatives" | "Search Again"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="error-box">
+                        <p><strong>âŒ PRICE INCREASED SCENARIO:</strong> Show clear comparison. Old price (strikethrough) â†’ New price. Difference highlighted in red. "Why did this happen?" expandable explanation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INTEGRATION -->
+        <!-- ================================================================ -->
+        <div class="integration-box">
+            <div class="integration-title">ðŸ”— VAYA Architecture Integration â€” Flow 3</div>
+            <div class="integration-grid">
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-book</div>
+                    <div class="integration-desc">Booking state machine, session management, price lock, passenger validation</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-api</div>
+                    <div class="integration-desc">POST /bookings/initiate, PUT /bookings/{id}/passengers, GET /bookings/{id}/extras</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-auth</div>
+                    <div class="integration-desc">Session tokens, guest checkout, saved passenger retrieval</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-db</div>
+                    <div class="integration-desc">Booking sessions, passenger profiles, extras catalog</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-cache</div>
+                    <div class="integration-desc">Price lock storage (15 min TTL), session data</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-collect</div>
+                    <div class="integration-desc">Real-time price verification, availability check</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- SUMMARY -->
+        <!-- ================================================================ -->
+        <div class="summary-box">
+            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--gold); margin-bottom: 20px;">FLOW 3 COMPLETE: BOOKING FLOW</h3>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: 24px 0;">
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--gold);">6</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Screens</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--mint-500);">24</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Device Variants</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--cyan-500);">28</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Form Fields</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--error);">47</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Validation Rules</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple);">100%</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Specified</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

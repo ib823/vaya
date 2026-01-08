@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Integration Specification v1.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0; --mint-dim: rgba(0,245,160,0.12);
+            --cyan: #00D9FF; --cyan-dim: rgba(0,217,255,0.12);
+            --white: #FFFFFF;
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n200: #1A1A1D; --n300: #232326;
+            --n600: #5C5C63; --n700: #7A7A82; --n800: #9999A1;
+            --error: #FF4757; --warning: #FFB800; --purple: #A855F7; --blue: #3B82F6;
+            --orange: #FF6B35;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--white); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--orange); margin-bottom: 48px; background: linear-gradient(180deg, rgba(255,107,53,0.1) 0%, transparent 100%); }
+        .logo { font-family: var(--font-display); font-size: 56px; font-weight: 800; }
+        .logo span:first-child { color: var(--mint); }
+        .logo span:last-child { color: var(--cyan); }
+        .title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--orange); margin-top: 16px; }
+        .section { margin-bottom: 48px; }
+        .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--n100); border-left: 4px solid var(--orange); margin-bottom: 20px; }
+        .section-id { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 4px 8px; border-radius: 4px; color: var(--n600); }
+        .section-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+        .subsection { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .subsection h4 { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--cyan); margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+        th { background: var(--n100); padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--n600); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--n200); vertical-align: top; }
+        .code { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 2px 6px; border-radius: 4px; }
+        .code-block { background: var(--n100); border-radius: 8px; padding: 16px; font-family: var(--font-mono); font-size: 11px; overflow-x: auto; margin: 12px 0; white-space: pre; line-height: 1.5; }
+        .supplier-card { background: var(--n100); border-radius: 12px; padding: 20px; margin: 12px 0; display: flex; align-items: flex-start; gap: 16px; }
+        .supplier-logo { width: 60px; height: 60px; background: var(--n200); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .supplier-info { flex: 1; }
+        .supplier-name { font-family: var(--font-display); font-weight: 700; font-size: 16px; }
+        .supplier-type { font-size: 11px; color: var(--n600); margin-top: 2px; }
+        .supplier-desc { font-size: 12px; color: var(--n700); margin-top: 8px; }
+        .supplier-stats { display: flex; gap: 16px; margin-top: 12px; }
+        .stat { text-align: center; }
+        .stat-value { font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+        .stat-label { font-size: 9px; color: var(--n600); }
+        .priority-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+        .priority-primary { background: var(--mint); color: black; }
+        .priority-secondary { background: var(--cyan); color: black; }
+        .priority-tertiary { background: var(--n300); color: var(--n700); }
+        .flow-diagram { background: var(--n100); border-radius: 12px; padding: 20px; margin: 16px 0; font-family: var(--font-mono); font-size: 10px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span>VA</span><span>YA</span></div>
+            <h1 class="title">ðŸ”Œ Integration Specification</h1>
+            <p style="color: var(--n600); margin-top: 12px;">Supplier APIs & External Service Integrations</p>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- INT-01: SUPPLIER LANDSCAPE -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INT-01</span>
+                <span class="section-title">Supplier Landscape</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸŒ Flight Data Suppliers</h4>
+                
+                <!-- Kiwi.com -->
+                <div class="supplier-card">
+                    <div class="supplier-logo">ðŸ¥</div>
+                    <div class="supplier-info">
+                        <div class="supplier-name">Kiwi.com <span class="priority-badge priority-primary">PRIMARY</span></div>
+                        <div class="supplier-type">Meta-Search Affiliate API</div>
+                        <div class="supplier-desc">
+                            Global flight aggregator with Virtual Interlining technology. Best coverage for budget carriers and multi-city routes. 
+                            Strong ASEAN coverage including AirAsia, Scoot, Cebu Pacific.
+                        </div>
+                        <div class="supplier-stats">
+                            <div class="stat"><div class="stat-value" style="color: var(--mint);">750+</div><div class="stat-label">Airlines</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--cyan);">Global</div><div class="stat-label">Coverage</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--purple);">3-5%</div><div class="stat-label">Commission</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--warning);">&lt;2s</div><div class="stat-label">Avg Response</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Travelpayouts -->
+                <div class="supplier-card">
+                    <div class="supplier-logo">âœˆï¸</div>
+                    <div class="supplier-info">
+                        <div class="supplier-name">Travelpayouts <span class="priority-badge priority-primary">PRIMARY</span></div>
+                        <div class="supplier-type">White-Label Affiliate Platform</div>
+                        <div class="supplier-desc">
+                            Travel affiliate network aggregating 50+ OTAs and GDS sources. Excellent for price comparison across multiple booking engines.
+                            Provides Aviasales, JetRadar, and direct airline inventory.
+                        </div>
+                        <div class="supplier-stats">
+                            <div class="stat"><div class="stat-value" style="color: var(--mint);">50+</div><div class="stat-label">OTA Sources</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--cyan);">Global</div><div class="stat-label">Coverage</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--purple);">50-70%</div><div class="stat-label">Rev Share</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--warning);">&lt;3s</div><div class="stat-label">Avg Response</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amadeus -->
+                <div class="supplier-card">
+                    <div class="supplier-logo">ðŸŒ</div>
+                    <div class="supplier-info">
+                        <div class="supplier-name">Amadeus for Developers <span class="priority-badge priority-secondary">SECONDARY</span></div>
+                        <div class="supplier-type">GDS API (Direct)</div>
+                        <div class="supplier-desc">
+                            Direct GDS access for premium carriers and complex itineraries. Best for full-service airlines (MAS, Singapore Airlines, Cathay).
+                            Higher commission rates but more reliable inventory for premium cabins.
+                        </div>
+                        <div class="supplier-stats">
+                            <div class="stat"><div class="stat-value" style="color: var(--mint);">400+</div><div class="stat-label">Airlines</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--cyan);">Premium</div><div class="stat-label">Focus</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--purple);">$0.01-0.05</div><div class="stat-label">Per Search</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--warning);">&lt;1s</div><div class="stat-label">Avg Response</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duffel -->
+                <div class="supplier-card">
+                    <div class="supplier-logo">ðŸ“¦</div>
+                    <div class="supplier-info">
+                        <div class="supplier-name">Duffel <span class="priority-badge priority-secondary">SECONDARY</span></div>
+                        <div class="supplier-type">NDC Aggregator API</div>
+                        <div class="supplier-desc">
+                            Modern NDC-native API with direct airline connections. Growing inventory of NDC-enabled carriers.
+                            Best for airlines with strong NDC programs (British Airways, Lufthansa, United).
+                        </div>
+                        <div class="supplier-stats">
+                            <div class="stat"><div class="stat-value" style="color: var(--mint);">30+</div><div class="stat-label">NDC Airlines</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--cyan);">Growing</div><div class="stat-label">Coverage</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--purple);">1-3%</div><div class="stat-label">Commission</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--warning);">&lt;2s</div><div class="stat-label">Avg Response</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skyscanner -->
+                <div class="supplier-card">
+                    <div class="supplier-logo">ðŸ”</div>
+                    <div class="supplier-info">
+                        <div class="supplier-name">Skyscanner Affiliate API <span class="priority-badge priority-tertiary">FALLBACK</span></div>
+                        <div class="supplier-type">Meta-Search Affiliate</div>
+                        <div class="supplier-desc">
+                            Global meta-search with strong brand recognition. Redirect-based model with CPA commission.
+                            Used as fallback for price verification and discovery.
+                        </div>
+                        <div class="supplier-stats">
+                            <div class="stat"><div class="stat-value" style="color: var(--mint);">1200+</div><div class="stat-label">Partners</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--cyan);">Global</div><div class="stat-label">Coverage</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--purple);">CPA</div><div class="stat-label">Model</div></div>
+                            <div class="stat"><div class="stat-value" style="color: var(--warning);">&lt;3s</div><div class="stat-label">Avg Response</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Supplier Selection Strategy</h4>
+                <table>
+                    <tr><th>Route Type</th><th>Primary Supplier</th><th>Secondary</th><th>Reason</th></tr>
+                    <tr><td>Malaysia Domestic (KUL-PEN, KUL-BKI)</td><td>Kiwi.com</td><td>Travelpayouts</td><td>Best AirAsia/MAS coverage</td></tr>
+                    <tr><td>ASEAN Regional (KUL-SIN, KUL-BKK)</td><td>Kiwi.com</td><td>Duffel</td><td>Budget carrier dominance</td></tr>
+                    <tr><td>Long-haul Economy (KUL-LHR, KUL-MEL)</td><td>Travelpayouts</td><td>Amadeus</td><td>Price competition focus</td></tr>
+                    <tr><td>Long-haul Premium (Business/First)</td><td>Amadeus</td><td>Duffel</td><td>Reliable premium inventory</td></tr>
+                    <tr><td>Multi-city Complex</td><td>Kiwi.com</td><td>â€”</td><td>Virtual Interlining</td></tr>
+                    <tr><td>Last-minute (&lt;7 days)</td><td>Amadeus</td><td>Kiwi.com</td><td>Real-time availability</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INT-02: KIWI.COM INTEGRATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INT-02</span>
+                <span class="section-title">Kiwi.com Integration</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”‘ API Configuration</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th></tr>
+                    <tr><td>Base URL</td><td><span class="code">https://api.tequila.kiwi.com</span></td></tr>
+                    <tr><td>Auth Method</td><td>API Key (apikey header)</td></tr>
+                    <tr><td>Rate Limit</td><td>1000 requests/minute</td></tr>
+                    <tr><td>Response Format</td><td>JSON</td></tr>
+                    <tr><td>Commission Model</td><td>Revenue share (negotiated)</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Search API</h4>
+                <div class="code-block"># Kiwi.com Search Request
+GET /v2/search
+Headers:
+  apikey: {KIWI_API_KEY}
+  
+Query Parameters:
+  fly_from: KUL              # Origin IATA
+  fly_to: NRT                # Destination IATA
+  date_from: 15/03/2024      # DD/MM/YYYY
+  date_to: 15/03/2024        # Search range end
+  return_from: 22/03/2024    # Return date (optional)
+  return_to: 22/03/2024
+  adults: 2
+  children: 1
+  infants: 0
+  selected_cabins: M         # M=Economy, W=Premium, C=Business, F=First
+  curr: MYR                  # Currency
+  locale: en                 # Language
+  max_stopovers: 2
+  limit: 50                  # Results per page
+  sort: price                # price, duration, quality
+
+# Response (simplified)
+{
+  "data": [
+    {
+      "id": "0f3e...",                    # Booking token
+      "price": 1234.56,
+      "deep_link": "https://...",         # Booking URL
+      "route": [
+        {
+          "id": "seg1",
+          "flyFrom": "KUL",
+          "flyTo": "NRT",
+          "airline": "AK",
+          "flight_no": 123,
+          "local_departure": "2024-03-15T23:55:00",
+          "local_arrival": "2024-03-16T07:30:00",
+          "operating_carrier": "D7"
+        }
+      ],
+      "duration": {
+        "departure": 25200,               # Seconds
+        "return": 26100
+      },
+      "bags_price": {
+        "1": 80.00,
+        "2": 150.00
+      },
+      "availability": {
+        "seats": 5
+      }
+    }
+  ],
+  "search_id": "abc123"
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Booking Flow</h4>
+                <div class="code-block"># Step 1: Check Booking (verify price & availability)
+GET /v2/booking/check_flights
+  booking_token: {token_from_search}
+  bnum: 2                    # Number of bags
+  adults: 2
+  children: 1
+
+# Step 2: Save Booking (hold the fare)
+POST /v2/booking/save_booking
+{
+  "booking_token": "{token}",
+  "passengers": [
+    {
+      "name": "Ahmad",
+      "surname": "Abdullah",
+      "nationality": "MY",
+      "birthday": "1990-05-15",
+      "document_number": "A12345678",
+      "document_expiry": "2028-05-15"
+    }
+  ],
+  "contact": {
+    "email": "ahmad@example.com",
+    "phone": "+60123456789"
+  }
+}
+
+# Step 3: Confirm & Pay
+POST /v2/booking/confirm_payment
+{
+  "booking_id": "{booking_id}",
+  "payment_method": "card",
+  "card_token": "{stripe_token}"
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Data Mapping</h4>
+                <table>
+                    <tr><th>Kiwi Field</th><th>VAYA Field</th><th>Transformation</th></tr>
+                    <tr><td>data[].id</td><td>booking_token</td><td>Direct mapping</td></tr>
+                    <tr><td>data[].price</td><td>total_price</td><td>Convert to sen (Ã—100)</td></tr>
+                    <tr><td>data[].route[]</td><td>journey.segments[]</td><td>Map each segment</td></tr>
+                    <tr><td>route[].airline</td><td>segment.marketing_carrier</td><td>Direct mapping</td></tr>
+                    <tr><td>route[].operating_carrier</td><td>segment.operating_carrier</td><td>Direct mapping</td></tr>
+                    <tr><td>route[].local_departure</td><td>segment.departure_time</td><td>Parse to ISO 8601 with TZ</td></tr>
+                    <tr><td>duration.departure</td><td>journey.duration_minutes</td><td>seconds / 60</td></tr>
+                    <tr><td>bags_price</td><td>baggage_options[]</td><td>Map to add-on structure</td></tr>
+                    <tr><td>availability.seats</td><td>seats_available</td><td>Direct mapping</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INT-03: TRAVELPAYOUTS INTEGRATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INT-03</span>
+                <span class="section-title">Travelpayouts Integration</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”‘ API Configuration</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th></tr>
+                    <tr><td>Base URL (Flights)</td><td><span class="code">https://api.travelpayouts.com/v1</span></td></tr>
+                    <tr><td>Base URL (Aviasales)</td><td><span class="code">https://api.travelpayouts.com/aviasales/v3</span></td></tr>
+                    <tr><td>Auth Method</td><td>Token (X-Access-Token header)</td></tr>
+                    <tr><td>Rate Limit</td><td>200 requests/minute</td></tr>
+                    <tr><td>Commission Model</td><td>Revenue share 50-70%</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Search APIs</h4>
+                <div class="code-block"># Aviasales Search (cached prices)
+GET /aviasales/v3/prices_for_dates
+Headers:
+  X-Access-Token: {TRAVELPAYOUTS_TOKEN}
+
+Query Parameters:
+  origin: KUL
+  destination: NRT
+  departure_at: 2024-03
+  return_at: 2024-03
+  currency: MYR
+  sorting: price
+  limit: 30
+
+# Response
+{
+  "data": [
+    {
+      "origin": "KUL",
+      "destination": "NRT",
+      "price": 1150,
+      "airline": "AK",
+      "flight_number": 720,
+      "departure_at": "2024-03-15T23:55:00+08:00",
+      "return_at": "2024-03-22T10:30:00+09:00",
+      "transfers": 1,
+      "duration_to": 720,      # Minutes
+      "duration_back": 680,
+      "link": "/search/KUL1503NRT2203..."
+    }
+  ]
+}
+
+# Flight Search (real-time)
+GET /v1/flight_search
+  marker: {YOUR_MARKER}
+  host: vaya.my
+  user_ip: {USER_IP}
+  locale: en
+  trip_class: Y
+  passengers[adults]: 2
+  passengers[children]: 1
+  segments[0][origin]: KUL
+  segments[0][destination]: NRT
+  segments[0][date]: 2024-03-15</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’° Price Calendar API</h4>
+                <div class="code-block"># Get cheapest prices for a month (for Oracle training data)
+GET /aviasales/v3/prices_for_dates
+  origin: KUL
+  destination: NRT
+  departure_at: 2024-03       # Month
+  one_way: false
+  currency: MYR
+
+# Calendar Matrix (for flexible date display)
+GET /v2/prices/month-matrix
+  origin: KUL
+  destination: NRT
+  month: 2024-03
+  currency: MYR
+
+# Response: Cheapest price for each day pair
+{
+  "data": {
+    "2024-03-01": {"2024-03-08": 950, "2024-03-09": 980, ...},
+    "2024-03-02": {"2024-03-09": 920, "2024-03-10": 940, ...},
+    ...
+  }
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INT-04: AMADEUS INTEGRATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INT-04</span>
+                <span class="section-title">Amadeus for Developers Integration</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”‘ API Configuration</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th></tr>
+                    <tr><td>Base URL (Production)</td><td><span class="code">https://api.amadeus.com</span></td></tr>
+                    <tr><td>Auth Method</td><td>OAuth 2.0 (Client Credentials)</td></tr>
+                    <tr><td>Token Endpoint</td><td><span class="code">/v1/security/oauth2/token</span></td></tr>
+                    <tr><td>Token Lifetime</td><td>1799 seconds (~30 min)</td></tr>
+                    <tr><td>Pricing Model</td><td>Pay-per-use ($0.01-0.05/search)</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Authentication</h4>
+                <div class="code-block"># Get Access Token
+POST /v1/security/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
+&client_id={AMADEUS_API_KEY}
+&client_secret={AMADEUS_API_SECRET}
+
+# Response
+{
+  "type": "amadeusOAuth2Token",
+  "username": "...",
+  "application_name": "VAYA",
+  "client_id": "...",
+  "token_type": "Bearer",
+  "access_token": "eyJhbG...",
+  "expires_in": 1799,
+  "state": "approved"
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Flight Offers Search</h4>
+                <div class="code-block"># Search for flight offers
+GET /v2/shopping/flight-offers
+Authorization: Bearer {access_token}
+
+Query Parameters:
+  originLocationCode: KUL
+  destinationLocationCode: NRT
+  departureDate: 2024-03-15
+  returnDate: 2024-03-22
+  adults: 2
+  children: 1
+  infants: 0
+  travelClass: ECONOMY        # ECONOMY, PREMIUM_ECONOMY, BUSINESS, FIRST
+  nonStop: false
+  currencyCode: MYR
+  max: 50
+
+# Response (simplified)
+{
+  "data": [
+    {
+      "type": "flight-offer",
+      "id": "1",
+      "source": "GDS",
+      "instantTicketingRequired": false,
+      "nonHomogeneous": false,
+      "oneWay": false,
+      "lastTicketingDate": "2024-03-10",
+      "numberOfBookableSeats": 9,
+      "itineraries": [
+        {
+          "duration": "PT7H30M",
+          "segments": [
+            {
+              "departure": {
+                "iataCode": "KUL",
+                "terminal": "M",
+                "at": "2024-03-15T23:55:00"
+              },
+              "arrival": {
+                "iataCode": "NRT",
+                "terminal": "3",
+                "at": "2024-03-16T07:25:00"
+              },
+              "carrierCode": "MH",
+              "number": "88",
+              "aircraft": {"code": "359"},
+              "operating": {"carrierCode": "MH"},
+              "duration": "PT7H30M",
+              "numberOfStops": 0
+            }
+          ]
+        }
+      ],
+      "price": {
+        "currency": "MYR",
+        "total": "2456.00",
+        "base": "2100.00",
+        "fees": [...],
+        "grandTotal": "2456.00"
+      },
+      "pricingOptions": {
+        "fareType": ["PUBLISHED"],
+        "includedCheckedBagsOnly": true
+      },
+      "validatingAirlineCodes": ["MH"],
+      "travelerPricings": [...]
+    }
+  ],
+  "dictionaries": {
+    "carriers": {"MH": "Malaysia Airlines"},
+    "aircraft": {"359": "AIRBUS A350-900"}
+  }
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Booking Flow (Amadeus)</h4>
+                <div class="code-block"># Step 1: Price Flight Offer (confirm pricing)
+POST /v1/shopping/flight-offers/pricing
+{
+  "data": {
+    "type": "flight-offers-pricing",
+    "flightOffers": [/* selected offer from search */]
+  }
+}
+
+# Step 2: Create Order (book)
+POST /v1/booking/flight-orders
+{
+  "data": {
+    "type": "flight-order",
+    "flightOffers": [/* priced offer */],
+    "travelers": [
+      {
+        "id": "1",
+        "dateOfBirth": "1990-05-15",
+        "name": {
+          "firstName": "AHMAD",
+          "lastName": "ABDULLAH"
+        },
+        "gender": "MALE",
+        "contact": {
+          "emailAddress": "ahmad@example.com",
+          "phones": [{"number": "60123456789"}]
+        },
+        "documents": [
+          {
+            "documentType": "PASSPORT",
+            "number": "A12345678",
+            "expiryDate": "2028-05-15",
+            "issuanceCountry": "MY",
+            "nationality": "MY",
+            "holder": true
+          }
+        ]
+      }
+    ],
+    "remarks": {
+      "general": [{"subType": "GENERAL_MISCELLANEOUS", "text": "VAYA BOOKING"}]
+    }
+  }
+}
+
+# Response includes PNR
+{
+  "data": {
+    "type": "flight-order",
+    "id": "eJzTd9...",
+    "associatedRecords": [
+      {"reference": "ABC123", "originSystemCode": "GDS"}  # This is the PNR
+    ]
+  }
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INT-05: AGGREGATION ENGINE -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INT-05</span>
+                <span class="section-title">Search Aggregation Engine</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Parallel Search Flow</h4>
+                <div class="flow-diagram">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                        VAYA SEARCH AGGREGATION ENGINE                            â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                                  â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                                                              â”‚
+â”‚   â”‚ Search       â”‚                                                              â”‚
+â”‚   â”‚ Request      â”‚                                                              â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜                                                              â”‚
+â”‚          â”‚                                                                       â”‚
+â”‚          â–¼                                                                       â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚   â”‚  VayaSearch  â”‚â”€â”€â”€â”€â–¶â”‚              PARALLEL SUPPLIER CALLS                 â”‚ â”‚
+â”‚   â”‚  Orchestratorâ”‚     â”‚                                                      â”‚ â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”          â”‚ â”‚
+â”‚                        â”‚  â”‚ Kiwi.com â”‚  â”‚Travelo   â”‚  â”‚ Amadeus  â”‚ ...      â”‚ â”‚
+â”‚                        â”‚  â”‚ Adapter  â”‚  â”‚payouts   â”‚  â”‚ Adapter  â”‚          â”‚ â”‚
+â”‚                        â”‚  â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”˜          â”‚ â”‚
+â”‚                        â”‚       â”‚             â”‚             â”‚                 â”‚ â”‚
+â”‚                        â”‚       â–¼             â–¼             â–¼                 â”‚ â”‚
+â”‚                        â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚ â”‚
+â”‚                        â”‚  â”‚           RESPONSE COLLECTOR                  â”‚  â”‚ â”‚
+â”‚                        â”‚  â”‚    (Wait up to 5s, or first 3 responses)     â”‚  â”‚ â”‚
+â”‚                        â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚ â”‚
+â”‚                        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                              â”‚                                  â”‚
+â”‚                                              â–¼                                  â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚   â”‚                         NORMALIZATION LAYER                               â”‚ â”‚
+â”‚   â”‚  â€¢ Convert all prices to MYR sen                                         â”‚ â”‚
+â”‚   â”‚  â€¢ Standardize segment structure                                         â”‚ â”‚
+â”‚   â”‚  â€¢ Map airline codes to canonical form                                   â”‚ â”‚
+â”‚   â”‚  â€¢ Calculate total duration                                              â”‚ â”‚
+â”‚   â”‚  â€¢ Extract baggage info                                                  â”‚ â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                              â”‚                                  â”‚
+â”‚                                              â–¼                                  â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚   â”‚                         DEDUPLICATION ENGINE                              â”‚ â”‚
+â”‚   â”‚  â€¢ Hash: route + times + carrier + cabin                                 â”‚ â”‚
+â”‚   â”‚  â€¢ Keep lowest price per duplicate                                       â”‚ â”‚
+â”‚   â”‚  â€¢ Track supplier for each offer                                         â”‚ â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                              â”‚                                  â”‚
+â”‚                                              â–¼                                  â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚   â”‚                           ORACLE ENRICHMENT                               â”‚ â”‚
+â”‚   â”‚  â€¢ Generate prediction for each offer                                    â”‚ â”‚
+â”‚   â”‚  â€¢ Add buy_now / wait / watch recommendation                             â”‚ â”‚
+â”‚   â”‚  â€¢ Calculate confidence score                                            â”‚ â”‚
+â”‚   â”‚  â€¢ Add price position (lowest, average, etc.)                           â”‚ â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                              â”‚                                  â”‚
+â”‚                                              â–¼                                  â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚   â”‚                            RANKING & SORTING                              â”‚ â”‚
+â”‚   â”‚  â€¢ Default: Oracle confidence Ã— price score                              â”‚ â”‚
+â”‚   â”‚  â€¢ User sort: price, duration, departure time                           â”‚ â”‚
+â”‚   â”‚  â€¢ Flag: is_best_price, is_fastest, is_oracle_pick                      â”‚ â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                              â”‚                                  â”‚
+â”‚                                              â–¼                                  â”‚
+â”‚   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚   â”‚                           CACHE & STREAM                                  â”‚ â”‚
+â”‚   â”‚  â€¢ Cache results (30 min TTL)                                           â”‚ â”‚
+â”‚   â”‚  â€¢ Stream to client via WebSocket                                       â”‚ â”‚
+â”‚   â”‚  â€¢ Generate booking tokens                                               â”‚ â”‚
+â”‚   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</div>
+            </div>
+
+            <div class="subsection">
+                <h4>âš™ï¸ Aggregation Configuration</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th><th>Description</th></tr>
+                    <tr><td>Max Wait Time</td><td>5 seconds</td><td>Maximum time to wait for all suppliers</td></tr>
+                    <tr><td>Min Suppliers</td><td>2</td><td>Minimum suppliers before returning results</td></tr>
+                    <tr><td>Stream Interval</td><td>500ms</td><td>WebSocket update frequency</td></tr>
+                    <tr><td>Dedup Hash</td><td>route+times+carrier</td><td>Fields used for deduplication</td></tr>
+                    <tr><td>Max Results</td><td>200</td><td>Maximum results per search</td></tr>
+                    <tr><td>Cache TTL</td><td>30 minutes</td><td>Search results cache duration</td></tr>
+                    <tr><td>Booking Token TTL</td><td>30 minutes</td><td>Token validity for booking</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”€ Deduplication Logic</h4>
+                <div class="code-block">// Deduplication Key Generation (Rust)
+fn generate_dedup_key(offer: &FlightOffer) -> String {
+    let mut hasher = Sha256::new();
+    
+    // Route signature
+    for segment in &offer.segments {
+        hasher.update(segment.departure_airport.as_bytes());
+        hasher.update(segment.arrival_airport.as_bytes());
+        hasher.update(segment.departure_time.format("%Y%m%d%H%M").to_string().as_bytes());
+        hasher.update(segment.marketing_carrier.as_bytes());
+        hasher.update(segment.flight_number.to_string().as_bytes());
+    }
+    
+    // Cabin class
+    hasher.update(offer.cabin_class.as_bytes());
+    
+    hex::encode(hasher.finalize())
+}
+
+// Deduplication with price comparison
+fn deduplicate(offers: Vec<FlightOffer>) -> Vec<FlightOffer> {
+    let mut dedup_map: HashMap<String, FlightOffer> = HashMap::new();
+    
+    for offer in offers {
+        let key = generate_dedup_key(&offer);
+        
+        match dedup_map.get(&key) {
+            Some(existing) if existing.price <= offer.price => {
+                // Keep existing (lower price)
+                continue;
+            }
+            _ => {
+                dedup_map.insert(key, offer);
+            }
+        }
+    }
+    
+    dedup_map.into_values().collect()
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INT-06: EXTERNAL SERVICES -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INT-06</span>
+                <span class="section-title">External Service Integrations</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“§ SendGrid (Email)</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th></tr>
+                    <tr><td>API Version</td><td>v3</td></tr>
+                    <tr><td>Base URL</td><td><span class="code">https://api.sendgrid.com/v3</span></td></tr>
+                    <tr><td>Auth</td><td>Bearer token</td></tr>
+                    <tr><td>Templates</td><td>Dynamic Templates (Handlebars)</td></tr>
+                    <tr><td>Webhooks</td><td>Bounce, spam report, unsubscribe</td></tr>
+                </table>
+
+                <p style="font-size: 12px; color: var(--n700); margin-top: 12px;"><strong>Email Types:</strong></p>
+                <table>
+                    <tr><th>Template</th><th>Trigger</th><th>Priority</th></tr>
+                    <tr><td>welcome</td><td>User registration</td><td>Normal</td></tr>
+                    <tr><td>email_verification</td><td>Verify email</td><td>High</td></tr>
+                    <tr><td>password_reset</td><td>Password reset request</td><td>High</td></tr>
+                    <tr><td>booking_confirmation</td><td>Booking confirmed</td><td>High</td></tr>
+                    <tr><td>booking_cancelled</td><td>Booking cancelled</td><td>High</td></tr>
+                    <tr><td>payment_receipt</td><td>Payment successful</td><td>High</td></tr>
+                    <tr><td>price_alert</td><td>Alert triggered</td><td>Normal</td></tr>
+                    <tr><td>pool_update</td><td>Pool status change</td><td>Normal</td></tr>
+                    <tr><td>flight_reminder</td><td>24h before departure</td><td>Normal</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“± Twilio (SMS)</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th></tr>
+                    <tr><td>API</td><td>Programmable SMS</td></tr>
+                    <tr><td>Sender ID</td><td>"VAYA" (alphanumeric)</td></tr>
+                    <tr><td>Country</td><td>Malaysia (+60)</td></tr>
+                    <tr><td>Cost</td><td>~RM 0.15/SMS</td></tr>
+                </table>
+
+                <p style="font-size: 12px; color: var(--n700); margin-top: 12px;"><strong>SMS Use Cases:</strong></p>
+                <ul style="font-size: 12px; color: var(--n700); margin-left: 20px;">
+                    <li>OTP for phone verification</li>
+                    <li>Booking confirmation (opt-in)</li>
+                    <li>Flight status changes (delays, cancellations)</li>
+                    <li>Price alert triggers (premium users only)</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”” Firebase Cloud Messaging (Push)</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th></tr>
+                    <tr><td>Service</td><td>Firebase Cloud Messaging (FCM)</td></tr>
+                    <tr><td>Platforms</td><td>iOS (APNs via FCM), Android, Web</td></tr>
+                    <tr><td>Auth</td><td>Service Account JSON</td></tr>
+                    <tr><td>Topics</td><td>User-specific, broadcast</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’± Open Exchange Rates</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th></tr>
+                    <tr><td>Base URL</td><td><span class="code">https://openexchangerates.org/api</span></td></tr>
+                    <tr><td>Plan</td><td>Developer ($12/mo)</td></tr>
+                    <tr><td>Calls</td><td>1000/month</td></tr>
+                    <tr><td>Refresh</td><td>Every 15 minutes</td></tr>
+                    <tr><td>Base Currency</td><td>USD (convert to MYR)</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸŒ IP Geolocation (MaxMind)</h4>
+                <table>
+                    <tr><th>Parameter</th><th>Value</th></tr>
+                    <tr><td>Service</td><td>GeoIP2 City Database</td></tr>
+                    <tr><td>Deployment</td><td>Local database (updated weekly)</td></tr>
+                    <tr><td>Use Cases</td><td>Default airport, fraud detection, analytics</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- INT-07: WEBHOOK SPECIFICATIONS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">INT-07</span>
+                <span class="section-title">Webhook Specifications</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“¥ Inbound Webhooks (VAYA receives)</h4>
+                <table>
+                    <tr><th>Source</th><th>Events</th><th>Endpoint</th><th>Verification</th></tr>
+                    <tr><td>Stripe</td><td>payment_intent.succeeded, charge.refunded, etc.</td><td>/webhooks/stripe</td><td>Signature (webhook secret)</td></tr>
+                    <tr><td>iPay88</td><td>Payment callback</td><td>/webhooks/ipay88</td><td>Signature + IP whitelist</td></tr>
+                    <tr><td>SendGrid</td><td>bounce, spam_report, unsubscribe</td><td>/webhooks/sendgrid</td><td>Signature</td></tr>
+                    <tr><td>Kiwi.com</td><td>Booking status updates</td><td>/webhooks/kiwi</td><td>Signature</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Webhook Security</h4>
+                <div class="code-block">// Stripe Webhook Verification (Rust)
+async fn verify_stripe_webhook(
+    payload: &[u8],
+    signature: &str,
+    secret: &str,
+) -> Result<stripe::Event, WebhookError> {
+    let event = stripe::Webhook::construct_event(
+        payload,
+        signature,
+        secret,
+    )?;
+    
+    Ok(event)
+}
+
+// iPay88 Signature Verification
+fn verify_ipay88_signature(params: &IPay88Callback, merchant_key: &str) -> bool {
+    let signature_string = format!(
+        "{}{}{}{}{}{}",
+        merchant_key,
+        params.merchant_code,
+        params.payment_id,
+        params.ref_no,
+        format!("{:.2}", params.amount),
+        params.currency
+    );
+    
+    let computed = sha256(signature_string);
+    computed == params.signature
+}
+
+// IP Whitelist Check
+fn verify_source_ip(ip: &IpAddr, whitelist: &[IpNet]) -> bool {
+    whitelist.iter().any(|net| net.contains(ip))
+}</div>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <div style="background: linear-gradient(135deg, var(--n100), var(--n200)); border: 2px solid var(--orange); border-radius: 20px; padding: 40px; margin-top: 48px; text-align: center;">
+            <h2 style="font-family: var(--font-display); font-size: 28px; font-weight: 800; margin-bottom: 16px;">ðŸ”Œ INTEGRATION SPECIFICATION COMPLETE</h2>
+            <p style="color: var(--n700); margin-bottom: 24px;">Domain 7 (Integration Design) â€” INT-01 through INT-07 âœ“</p>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-width: 700px; margin: 0 auto;">
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--mint);">5</div>
+                    <div style="font-size: 10px; color: var(--n600);">Flight Suppliers</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--cyan);">750+</div>
+                    <div style="font-size: 10px; color: var(--n600);">Airlines</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple);">6</div>
+                    <div style="font-size: 10px; color: var(--n600);">External Services</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--warning);">&lt;5s</div>
+                    <div style="font-size: 10px; color: var(--n600);">Search Aggregation</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

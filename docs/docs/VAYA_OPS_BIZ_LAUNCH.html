@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Operations, Business & Launch Specifications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0; --cyan: #00D9FF; --white: #FFFFFF;
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n200: #1A1A1D;
+            --n600: #5C5C63; --n700: #7A7A82;
+            --error: #FF4757; --warning: #FFB800; --purple: #A855F7; --blue: #3B82F6;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--white); line-height: 1.6; font-size: 13px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .header { text-align: center; padding: 48px 0; border-bottom: 2px solid var(--purple); margin-bottom: 48px; }
+        .logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .logo span:first-child { color: var(--mint); }
+        .logo span:last-child { color: var(--cyan); }
+        h1 { font-family: var(--font-display); font-size: 24px; color: var(--purple); margin-top: 16px; }
+        .section { margin-bottom: 48px; }
+        .section-header { background: var(--n100); padding: 16px 20px; border-left: 4px solid; margin-bottom: 20px; }
+        .section-header.ops { border-color: var(--warning); }
+        .section-header.biz { border-color: var(--blue); }
+        .section-header.launch { border-color: var(--mint); }
+        .section-id { font-family: var(--font-mono); font-size: 10px; color: var(--n600); }
+        .section-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-top: 4px; }
+        .subsection { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .subsection h4 { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--cyan); margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 11px; }
+        th { background: var(--n100); padding: 8px 10px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--n600); }
+        td { padding: 8px 10px; border-bottom: 1px solid var(--n200); vertical-align: top; }
+        .code-block { background: var(--n100); border-radius: 8px; padding: 16px; font-family: var(--font-mono); font-size: 10px; overflow-x: auto; margin: 12px 0; white-space: pre; }
+        .severity-critical { color: var(--error); font-weight: 700; }
+        .severity-high { color: var(--warning); font-weight: 700; }
+        .severity-medium { color: var(--cyan); }
+        .severity-low { color: var(--n600); }
+        .checklist { list-style: none; }
+        .checklist li { padding: 8px 0; border-bottom: 1px solid var(--n200); display: flex; align-items: center; gap: 12px; }
+        .checklist li:before { content: "â˜"; font-size: 16px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+        .badge-p0 { background: var(--error); color: var(--white); }
+        .badge-p1 { background: var(--warning); color: var(--n0); }
+        .badge-p2 { background: var(--cyan); color: var(--n0); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span>VA</span><span>YA</span></div>
+            <h1>âš™ï¸ Operations, Business & Launch Specifications</h1>
+            <p style="color: var(--n600); margin-top: 12px;">OPS-03, OPS-04, BIZ-01, BIZ-02, BIZ-03, LAUNCH-01, LAUNCH-02</p>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- OPS-03: LOGGING SPECIFICATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header ops">
+                <span class="section-id">OPS-03</span>
+                <div class="section-title">Logging Specification</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Log Format (Structured JSON)</h4>
+                <div class="code-block">{
+  "timestamp": "2026-01-08T14:23:45.123Z",
+  "level": "INFO",
+  "service": "vaya-api",
+  "instance": "api-prod-01",
+  "trace_id": "abc123def456",
+  "span_id": "789xyz",
+  "message": "Request completed",
+  "context": {
+    "method": "POST",
+    "path": "/api/v1/search",
+    "status": 200,
+    "duration_ms": 234,
+    "user_id": "usr_xxx",
+    "request_id": "req_yyy"
+  }
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Log Levels</h4>
+                <table>
+                    <tr><th>Level</th><th>Usage</th><th>Example</th><th>Retention</th></tr>
+                    <tr>
+                        <td class="severity-critical">ERROR</td>
+                        <td>Unhandled errors, system failures</td>
+                        <td>Database connection failed, Payment processing error</td>
+                        <td>90 days</td>
+                    </tr>
+                    <tr>
+                        <td class="severity-high">WARN</td>
+                        <td>Recoverable issues, degraded performance</td>
+                        <td>Supplier timeout (retried), Rate limit approaching</td>
+                        <td>30 days</td>
+                    </tr>
+                    <tr>
+                        <td class="severity-medium">INFO</td>
+                        <td>Normal operations, business events</td>
+                        <td>Booking created, User registered, Search completed</td>
+                        <td>14 days</td>
+                    </tr>
+                    <tr>
+                        <td class="severity-low">DEBUG</td>
+                        <td>Detailed debugging (dev/staging only)</td>
+                        <td>SQL queries, Cache hits/misses, Request payloads</td>
+                        <td>3 days</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--n700);">TRACE</td>
+                        <td>Extreme detail (local dev only)</td>
+                        <td>Function entry/exit, Variable values</td>
+                        <td>Not stored</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”’ Sensitive Data Handling</h4>
+                <table>
+                    <tr><th>Data Type</th><th>Logging Rule</th><th>Example</th></tr>
+                    <tr><td>Passwords</td><td>NEVER log</td><td>password: "[REDACTED]"</td></tr>
+                    <tr><td>API Keys</td><td>NEVER log</td><td>api_key: "[REDACTED]"</td></tr>
+                    <tr><td>Credit Card</td><td>NEVER log full PAN</td><td>card: "****1234"</td></tr>
+                    <tr><td>Email</td><td>Partial mask</td><td>email: "u***@example.com"</td></tr>
+                    <tr><td>Phone</td><td>Partial mask</td><td>phone: "+60***789"</td></tr>
+                    <tr><td>Passport</td><td>NEVER log</td><td>passport: "[REDACTED]"</td></tr>
+                    <tr><td>User ID</td><td>OK to log</td><td>user_id: "usr_abc123"</td></tr>
+                    <tr><td>Booking Ref</td><td>OK to log</td><td>booking_id: "VAY-ABC123"</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ Log Storage Architecture</h4>
+                <div class="code-block">â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                        VayaLog Pipeline                          â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                   â”‚
+â”‚  Services â”€â”€â–º stdout â”€â”€â–º VayaAgent â”€â”€â–º VayaLog Collector         â”‚
+â”‚                              â”‚                                    â”‚
+â”‚                              â–¼                                    â”‚
+â”‚                     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                            â”‚
+â”‚                     â”‚  Local Buffer â”‚  (10MB ring buffer)        â”‚
+â”‚                     â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜                            â”‚
+â”‚                             â”‚                                     â”‚
+â”‚                             â–¼                                     â”‚
+â”‚                     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                            â”‚
+â”‚                     â”‚ VayaLog Store â”‚  (LSM-tree, compressed)    â”‚
+â”‚                     â””â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜                            â”‚
+â”‚                             â”‚                                     â”‚
+â”‚                     â”Œâ”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”                            â”‚
+â”‚                     â–¼               â–¼                             â”‚
+â”‚              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                        â”‚
+â”‚              â”‚ Hot Tier â”‚    â”‚Cold Tier â”‚                        â”‚
+â”‚              â”‚  (SSD)   â”‚    â”‚  (S3)    â”‚                        â”‚
+â”‚              â”‚ 14 days  â”‚    â”‚ 90 days  â”‚                        â”‚
+â”‚              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜                        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Log Search (VayaLog Query)</h4>
+                <div class="code-block"># Search by trace ID
+vayalog search --trace-id abc123def456
+
+# Search by service and level
+vayalog search --service vaya-api --level ERROR --since 1h
+
+# Search by user
+vayalog search --context.user_id usr_xxx --since 24h
+
+# Search by path pattern
+vayalog search --context.path "/api/v1/bookings/*" --level WARN</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- OPS-04: INCIDENT RESPONSE RUNBOOK -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header ops">
+                <span class="section-id">OPS-04</span>
+                <div class="section-title">Incident Response Runbook</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸš¨ Incident Severity Classification</h4>
+                <table>
+                    <tr><th>Severity</th><th>Definition</th><th>Response Time</th><th>Update Frequency</th><th>Escalation</th></tr>
+                    <tr>
+                        <td class="severity-critical">SEV-1 CRITICAL</td>
+                        <td>Complete service outage, data loss risk, security breach</td>
+                        <td>&lt;15 minutes</td>
+                        <td>Every 15 min</td>
+                        <td>Immediate to CEO/CTO</td>
+                    </tr>
+                    <tr>
+                        <td class="severity-high">SEV-2 HIGH</td>
+                        <td>Major feature broken, payment failures, significant degradation</td>
+                        <td>&lt;30 minutes</td>
+                        <td>Every 30 min</td>
+                        <td>CTO within 1 hour</td>
+                    </tr>
+                    <tr>
+                        <td class="severity-medium">SEV-3 MEDIUM</td>
+                        <td>Minor feature issues, slow performance, isolated errors</td>
+                        <td>&lt;2 hours</td>
+                        <td>Every 2 hours</td>
+                        <td>Team lead within 4 hours</td>
+                    </tr>
+                    <tr>
+                        <td class="severity-low">SEV-4 LOW</td>
+                        <td>Cosmetic issues, minor bugs, non-urgent requests</td>
+                        <td>Next business day</td>
+                        <td>Daily</td>
+                        <td>Normal sprint process</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ž On-Call Rotation</h4>
+                <table>
+                    <tr><th>Role</th><th>Primary Contact</th><th>Secondary Contact</th><th>Escalation Path</th></tr>
+                    <tr><td>On-Call Engineer</td><td>Weekly rotation</td><td>Previous week's on-call</td><td>Team Lead â†’ CTO</td></tr>
+                    <tr><td>Security Incidents</td><td>Security Lead</td><td>CTO</td><td>CEO + Legal</td></tr>
+                    <tr><td>Payment Issues</td><td>Finance Lead</td><td>CTO</td><td>CEO</td></tr>
+                    <tr><td>PR/Communications</td><td>Marketing Lead</td><td>CEO</td><td>External PR Agency</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”¥ Incident Response Procedure</h4>
+                <table>
+                    <tr><th>Phase</th><th>Actions</th><th>Owner</th><th>Duration</th></tr>
+                    <tr>
+                        <td><strong>1. DETECT</strong></td>
+                        <td>
+                            â€¢ Alert triggered or user report received<br>
+                            â€¢ Acknowledge alert within SLA<br>
+                            â€¢ Initial assessment of scope
+                        </td>
+                        <td>On-Call</td>
+                        <td>0-15 min</td>
+                    </tr>
+                    <tr>
+                        <td><strong>2. TRIAGE</strong></td>
+                        <td>
+                            â€¢ Classify severity<br>
+                            â€¢ Create incident channel (#incident-YYYYMMDD-XXX)<br>
+                            â€¢ Notify stakeholders<br>
+                            â€¢ Begin investigation
+                        </td>
+                        <td>On-Call</td>
+                        <td>15-30 min</td>
+                    </tr>
+                    <tr>
+                        <td><strong>3. MITIGATE</strong></td>
+                        <td>
+                            â€¢ Implement immediate fix or workaround<br>
+                            â€¢ Enable feature flags/circuit breakers<br>
+                            â€¢ Scale resources if needed<br>
+                            â€¢ Rollback if deployment-related
+                        </td>
+                        <td>Engineering</td>
+                        <td>30 min - 2 hours</td>
+                    </tr>
+                    <tr>
+                        <td><strong>4. RESOLVE</strong></td>
+                        <td>
+                            â€¢ Implement permanent fix<br>
+                            â€¢ Verify fix in production<br>
+                            â€¢ Monitor for recurrence<br>
+                            â€¢ Update status page
+                        </td>
+                        <td>Engineering</td>
+                        <td>Variable</td>
+                    </tr>
+                    <tr>
+                        <td><strong>5. POST-MORTEM</strong></td>
+                        <td>
+                            â€¢ Document timeline<br>
+                            â€¢ Identify root cause<br>
+                            â€¢ Create action items<br>
+                            â€¢ Share learnings
+                        </td>
+                        <td>Incident Lead</td>
+                        <td>Within 48 hours</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Common Incident Playbooks</h4>
+                
+                <p><strong>PLAYBOOK: API Latency Spike</strong></p>
+                <ol>
+                    <li>Check VayaMetrics dashboard for affected endpoints</li>
+                    <li>Review recent deployments (rollback if correlation)</li>
+                    <li>Check database query performance</li>
+                    <li>Check cache hit rates</li>
+                    <li>Check supplier API response times</li>
+                    <li>Scale horizontally if load-related</li>
+                </ol>
+
+                <p style="margin-top: 16px;"><strong>PLAYBOOK: Payment Failures</strong></p>
+                <ol>
+                    <li>Check payment processor status pages</li>
+                    <li>Review error codes in logs</li>
+                    <li>Check if specific payment method affected</li>
+                    <li>Contact payment processor if their issue</li>
+                    <li>Enable backup payment processor if available</li>
+                    <li>Notify affected users with ETA</li>
+                </ol>
+
+                <p style="margin-top: 16px;"><strong>PLAYBOOK: Database Issues</strong></p>
+                <ol>
+                    <li>Check VayaDB health metrics</li>
+                    <li>Check disk space and I/O</li>
+                    <li>Review slow queries</li>
+                    <li>Check replication lag</li>
+                    <li>Consider failover to replica if primary issues</li>
+                    <li>Enable read-only mode if write issues</li>
+                </ol>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“¢ Communication Templates</h4>
+                <div class="code-block">STATUS PAGE - INVESTIGATING:
+"We are currently investigating reports of [ISSUE DESCRIPTION]. 
+Some users may experience [SYMPTOMS]. Our team is working to resolve this.
+Last updated: [TIME]"
+
+STATUS PAGE - IDENTIFIED:
+"We have identified the cause of [ISSUE] and are implementing a fix.
+[BRIEF EXPLANATION]. Expected resolution: [ETA].
+Last updated: [TIME]"
+
+STATUS PAGE - RESOLVED:
+"The issue affecting [SERVICE] has been resolved. 
+All systems are operating normally. 
+We apologize for any inconvenience caused.
+A detailed post-mortem will be published within 48 hours."
+
+USER EMAIL (SEV-1/SEV-2):
+Subject: [RESOLVED] Service Disruption on [DATE]
+Dear [NAME],
+We experienced a service disruption on [DATE] from [TIME] to [TIME] 
+that may have affected your [SPECIFIC IMPACT].
+[EXPLANATION + APOLOGY + ANY COMPENSATION]
+Thank you for your patience.</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- BIZ-01: PRICING MODEL -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header biz">
+                <span class="section-id">BIZ-01</span>
+                <div class="section-title">Pricing Model & Tier Matrix</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’° User Tier Pricing</h4>
+                <table>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Free</th>
+                        <th>Plus (RM 19/mo)</th>
+                        <th>Pro (RM 49/mo)</th>
+                        <th>Business (RM 199/mo)</th>
+                    </tr>
+                    <tr>
+                        <td>Searches per day</td>
+                        <td>10</td>
+                        <td>50</td>
+                        <td>Unlimited</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td>Price alerts</td>
+                        <td>3</td>
+                        <td>10</td>
+                        <td>50</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td>Oracle predictions</td>
+                        <td>Basic (3-day)</td>
+                        <td>Standard (7-day)</td>
+                        <td>Advanced (30-day)</td>
+                        <td>Advanced + API</td>
+                    </tr>
+                    <tr>
+                        <td>Pool participation</td>
+                        <td>1 active</td>
+                        <td>3 active</td>
+                        <td>10 active</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td>ATA (Auto booking)</td>
+                        <td>â€”</td>
+                        <td>1 route</td>
+                        <td>5 routes</td>
+                        <td>Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td>Historical data</td>
+                        <td>30 days</td>
+                        <td>90 days</td>
+                        <td>1 year</td>
+                        <td>3 years</td>
+                    </tr>
+                    <tr>
+                        <td>Support</td>
+                        <td>Email (48h)</td>
+                        <td>Email (24h)</td>
+                        <td>Priority (4h)</td>
+                        <td>Dedicated manager</td>
+                    </tr>
+                    <tr>
+                        <td>Service fee per booking</td>
+                        <td>RM 15</td>
+                        <td>RM 10</td>
+                        <td>RM 5</td>
+                        <td>RM 0</td>
+                    </tr>
+                    <tr>
+                        <td>Annual discount</td>
+                        <td>â€”</td>
+                        <td>2 months free</td>
+                        <td>2 months free</td>
+                        <td>3 months free</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Service Fee Structure</h4>
+                <table>
+                    <tr><th>Booking Type</th><th>Base Fee</th><th>Notes</th></tr>
+                    <tr><td>Domestic (one-way)</td><td>RM 8</td><td>Within Malaysia</td></tr>
+                    <tr><td>Domestic (return)</td><td>RM 12</td><td>Within Malaysia</td></tr>
+                    <tr><td>Regional (one-way)</td><td>RM 12</td><td>SEA destinations</td></tr>
+                    <tr><td>Regional (return)</td><td>RM 18</td><td>SEA destinations</td></tr>
+                    <tr><td>International (one-way)</td><td>RM 15</td><td>Outside SEA</td></tr>
+                    <tr><td>International (return)</td><td>RM 25</td><td>Outside SEA</td></tr>
+                    <tr><td>Multi-city</td><td>RM 35</td><td>3+ segments</td></tr>
+                    <tr><td>Pool booking</td><td>RM 20</td><td>Includes pool coordination</td></tr>
+                </table>
+                <p style="margin-top: 12px; font-size: 11px; color: var(--n600);">* Tier discounts apply on top of base fees</p>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- BIZ-02: COMMISSION STRUCTURES -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header biz">
+                <span class="section-id">BIZ-02</span>
+                <div class="section-title">Commission Structures</div>
+            </div>
+
+            <div class="subsection">
+                <h4>âœˆï¸ Affiliate Commission Rates</h4>
+                <table>
+                    <tr><th>Supplier</th><th>Commission Type</th><th>Rate</th><th>Payment Terms</th></tr>
+                    <tr>
+                        <td>Kiwi.com</td>
+                        <td>Revenue share</td>
+                        <td>3-5% of booking value</td>
+                        <td>NET 30</td>
+                    </tr>
+                    <tr>
+                        <td>Travelpayouts</td>
+                        <td>CPA + Revenue share</td>
+                        <td>$2-5 CPA + 1-2% rev share</td>
+                        <td>NET 45</td>
+                    </tr>
+                    <tr>
+                        <td>Amadeus (GDS)</td>
+                        <td>Per-segment</td>
+                        <td>$1-3 per segment</td>
+                        <td>NET 30</td>
+                    </tr>
+                    <tr>
+                        <td>Duffel</td>
+                        <td>Revenue share</td>
+                        <td>1-2% of booking value</td>
+                        <td>NET 30</td>
+                    </tr>
+                    <tr>
+                        <td>Direct Airlines</td>
+                        <td>Negotiated</td>
+                        <td>5-10% (volume-based)</td>
+                        <td>NET 30-60</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ’µ Revenue Model Summary</h4>
+                <table>
+                    <tr><th>Revenue Stream</th><th>Estimated %</th><th>Notes</th></tr>
+                    <tr><td>Booking service fees</td><td>40%</td><td>Primary revenue</td></tr>
+                    <tr><td>Affiliate commissions</td><td>30%</td><td>Per-booking from suppliers</td></tr>
+                    <tr><td>Subscription tiers</td><td>20%</td><td>Recurring revenue</td></tr>
+                    <tr><td>Pool coordination fees</td><td>5%</td><td>Premium on group savings</td></tr>
+                    <tr><td>Ancillary (insurance, etc.)</td><td>5%</td><td>Future expansion</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- BIZ-03: CUSTOMER SUPPORT PLAYBOOK -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header biz">
+                <span class="section-id">BIZ-03</span>
+                <div class="section-title">Customer Support Playbook</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ž Support Channels</h4>
+                <table>
+                    <tr><th>Channel</th><th>Hours</th><th>Response SLA</th><th>Use Cases</th></tr>
+                    <tr>
+                        <td>In-app chat</td>
+                        <td>24/7 (bot) + 9am-9pm (human)</td>
+                        <td>Bot: instant, Human: 5 min</td>
+                        <td>Quick questions, booking help</td>
+                    </tr>
+                    <tr>
+                        <td>Email (support@vaya.my)</td>
+                        <td>24/7 receipt, business hours response</td>
+                        <td>Free: 48h, Plus: 24h, Pro: 4h</td>
+                        <td>Complex issues, documentation</td>
+                    </tr>
+                    <tr>
+                        <td>Emergency line</td>
+                        <td>24/7</td>
+                        <td>15 min</td>
+                        <td>Travel within 24h, urgent changes</td>
+                    </tr>
+                    <tr>
+                        <td>Social media</td>
+                        <td>9am-6pm</td>
+                        <td>2 hours</td>
+                        <td>Public inquiries, PR</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Common Issue Scripts</h4>
+                
+                <p><strong>SCRIPT: Booking Not Confirmed</strong></p>
+                <div class="code-block">1. Apologize for the inconvenience
+2. Verify booking reference and email
+3. Check booking status in system
+4. If payment successful but no confirmation:
+   - Check supplier booking status
+   - If confirmed: resend confirmation email
+   - If pending: escalate to supplier
+   - If failed: initiate refund + offer rebooking
+5. Document interaction and resolution</div>
+
+                <p style="margin-top: 16px;"><strong>SCRIPT: Refund Request</strong></p>
+                <div class="code-block">1. Verify identity and booking details
+2. Check fare rules and refund eligibility
+3. Explain refund amount calculation
+4. If eligible: initiate refund, provide timeline
+5. If not eligible: explain why, offer alternatives
+   - VAYA Credit with bonus
+   - Date change (if cheaper than cancel)
+6. Confirm customer understanding
+7. Document interaction</div>
+
+                <p style="margin-top: 16px;"><strong>SCRIPT: Oracle Prediction Wrong</strong></p>
+                <div class="code-block">1. Acknowledge their frustration
+2. Explain predictions are estimates, not guarantees
+3. Review their specific case:
+   - What was predicted vs actual?
+   - Were there market events?
+4. Offer goodwill gesture if appropriate:
+   - Free month of Plus
+   - VAYA Credit
+5. Log feedback for ML team
+6. Thank them for helping improve our predictions</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸŽ Compensation Guidelines</h4>
+                <table>
+                    <tr><th>Issue</th><th>VAYA Fault</th><th>Compensation</th></tr>
+                    <tr>
+                        <td>System error causing double booking</td>
+                        <td>Yes</td>
+                        <td>Full refund + RM 50 credit</td>
+                    </tr>
+                    <tr>
+                        <td>Wrong price displayed (honored)</td>
+                        <td>Yes</td>
+                        <td>Honor price + apologize</td>
+                    </tr>
+                    <tr>
+                        <td>Delayed refund (>30 days)</td>
+                        <td>Yes</td>
+                        <td>10% extra on refund amount</td>
+                    </tr>
+                    <tr>
+                        <td>Airline cancellation</td>
+                        <td>No</td>
+                        <td>Assist with rebooking, waive change fee</td>
+                    </tr>
+                    <tr>
+                        <td>User error (wrong dates)</td>
+                        <td>No</td>
+                        <td>Best effort assistance, no compensation</td>
+                    </tr>
+                    <tr>
+                        <td>Unhappy with Oracle prediction</td>
+                        <td>No</td>
+                        <td>Goodwill: 1 month Plus free</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- LAUNCH-01: LAUNCH CHECKLIST -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header launch">
+                <span class="section-id">LAUNCH-01</span>
+                <div class="section-title">Launch Checklist</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸš€ T-30 Days: Pre-Launch</h4>
+                <ul class="checklist">
+                    <li><span class="badge badge-p0">P0</span> All supplier API integrations tested in production</li>
+                    <li><span class="badge badge-p0">P0</span> Payment processing tested with real transactions</li>
+                    <li><span class="badge badge-p0">P0</span> Security audit completed and issues resolved</li>
+                    <li><span class="badge badge-p0">P0</span> Legal documents reviewed and published</li>
+                    <li><span class="badge badge-p1">P1</span> Load testing completed (10x expected traffic)</li>
+                    <li><span class="badge badge-p1">P1</span> Disaster recovery tested</li>
+                    <li><span class="badge badge-p1">P1</span> Support team trained</li>
+                    <li><span class="badge badge-p1">P1</span> Monitoring and alerting configured</li>
+                    <li><span class="badge badge-p2">P2</span> Marketing materials ready</li>
+                    <li><span class="badge badge-p2">P2</span> App store listings prepared</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸš€ T-7 Days: Final Prep</h4>
+                <ul class="checklist">
+                    <li><span class="badge badge-p0">P0</span> Final code freeze (no new features)</li>
+                    <li><span class="badge badge-p0">P0</span> Production database migrated and verified</li>
+                    <li><span class="badge badge-p0">P0</span> SSL certificates valid and auto-renewing</li>
+                    <li><span class="badge badge-p0">P0</span> DNS configured and propagated</li>
+                    <li><span class="badge badge-p1">P1</span> On-call schedule confirmed</li>
+                    <li><span class="badge badge-p1">P1</span> Rollback procedure documented and tested</li>
+                    <li><span class="badge badge-p1">P1</span> Status page configured</li>
+                    <li><span class="badge badge-p2">P2</span> Press release ready</li>
+                    <li><span class="badge badge-p2">P2</span> Social media scheduled</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸš€ T-1 Day: Launch Eve</h4>
+                <ul class="checklist">
+                    <li><span class="badge badge-p0">P0</span> All systems green in monitoring</li>
+                    <li><span class="badge badge-p0">P0</span> War room scheduled for launch day</li>
+                    <li><span class="badge badge-p0">P0</span> Emergency contacts list distributed</li>
+                    <li><span class="badge badge-p1">P1</span> Test booking completed end-to-end</li>
+                    <li><span class="badge badge-p1">P1</span> Cache warmed up</li>
+                    <li><span class="badge badge-p1">P1</span> Team briefed on launch procedures</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸš€ Launch Day (T-0)</h4>
+                <ul class="checklist">
+                    <li><span class="badge badge-p0">P0</span> Remove maintenance mode / enable public access</li>
+                    <li><span class="badge badge-p0">P0</span> Verify all endpoints accessible</li>
+                    <li><span class="badge badge-p0">P0</span> Complete test transaction</li>
+                    <li><span class="badge badge-p0">P0</span> Monitor error rates (threshold: &lt;0.1%)</li>
+                    <li><span class="badge badge-p1">P1</span> Publish app to stores</li>
+                    <li><span class="badge badge-p1">P1</span> Send launch announcement</li>
+                    <li><span class="badge badge-p1">P1</span> Monitor social media</li>
+                    <li><span class="badge badge-p2">P2</span> Celebrate! ðŸŽ‰</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸš€ T+1 to T+7: Post-Launch</h4>
+                <ul class="checklist">
+                    <li><span class="badge badge-p0">P0</span> Daily metrics review</li>
+                    <li><span class="badge badge-p0">P0</span> Address any SEV-1/SEV-2 issues immediately</li>
+                    <li><span class="badge badge-p1">P1</span> Collect and triage user feedback</li>
+                    <li><span class="badge badge-p1">P1</span> Monitor conversion rates</li>
+                    <li><span class="badge badge-p1">P1</span> Optimize based on real usage patterns</li>
+                    <li><span class="badge badge-p2">P2</span> Plan first iteration based on feedback</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”™ Rollback Procedure</h4>
+                <div class="code-block"># If critical issues detected during launch:
+
+1. DECISION: CTO makes rollback call within 30 min of issue detection
+
+2. EXECUTE:
+   vaya-fleet rollback --service all --to-version previous
+   
+3. VERIFY:
+   - All services healthy
+   - Test transaction succeeds
+   - Error rates normalized
+
+4. COMMUNICATE:
+   - Update status page
+   - Notify users if transactions affected
+   - Internal post-mortem
+
+5. PLAN:
+   - Fix issues
+   - Schedule new launch window</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- LAUNCH-02: BETA TESTING PLAN -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header launch">
+                <span class="section-id">LAUNCH-02</span>
+                <div class="section-title">Beta Testing Plan</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ‘¥ Beta User Selection</h4>
+                <table>
+                    <tr><th>Phase</th><th>Users</th><th>Duration</th><th>Focus</th></tr>
+                    <tr>
+                        <td>Alpha (Internal)</td>
+                        <td>10-20 (team + family)</td>
+                        <td>2 weeks</td>
+                        <td>Critical bugs, core flows</td>
+                    </tr>
+                    <tr>
+                        <td>Closed Beta</td>
+                        <td>100-200 (waitlist)</td>
+                        <td>4 weeks</td>
+                        <td>UX feedback, edge cases</td>
+                    </tr>
+                    <tr>
+                        <td>Open Beta</td>
+                        <td>1,000-5,000</td>
+                        <td>4 weeks</td>
+                        <td>Scale testing, real bookings</td>
+                    </tr>
+                    <tr>
+                        <td>Soft Launch</td>
+                        <td>Unlimited (limited marketing)</td>
+                        <td>2 weeks</td>
+                        <td>Gradual ramp-up</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Beta User Criteria (Closed Beta)</h4>
+                <ul>
+                    <li>Mix of frequent and occasional travelers</li>
+                    <li>50% Klang Valley, 30% other MY, 20% international</li>
+                    <li>Mix of age groups (25-34 primary, 18-24 and 35-44 secondary)</li>
+                    <li>Mix of device types (iOS, Android, Desktop)</li>
+                    <li>Some tech-savvy, some mainstream users</li>
+                    <li>Willing to provide feedback and report issues</li>
+                </ul>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ Feedback Collection</h4>
+                <table>
+                    <tr><th>Method</th><th>Frequency</th><th>Purpose</th></tr>
+                    <tr><td>In-app feedback button</td><td>Always available</td><td>Bug reports, quick feedback</td></tr>
+                    <tr><td>NPS survey</td><td>After each booking</td><td>Satisfaction tracking</td></tr>
+                    <tr><td>Weekly survey</td><td>Every Friday</td><td>Feature feedback, UX insights</td></tr>
+                    <tr><td>User interviews</td><td>5/week during beta</td><td>Deep qualitative insights</td></tr>
+                    <tr><td>Session recordings</td><td>Opt-in</td><td>UX analysis</td></tr>
+                    <tr><td>Beta Discord/Telegram</td><td>Ongoing</td><td>Community discussion</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>âœ… Beta Success Metrics</h4>
+                <table>
+                    <tr><th>Metric</th><th>Target (Closed)</th><th>Target (Open)</th><th>Launch Gate</th></tr>
+                    <tr><td>Crash rate</td><td>&lt;1%</td><td>&lt;0.5%</td><td>&lt;0.1%</td></tr>
+                    <tr><td>Search success rate</td><td>&gt;90%</td><td>&gt;95%</td><td>&gt;98%</td></tr>
+                    <tr><td>Booking completion rate</td><td>&gt;50%</td><td>&gt;60%</td><td>&gt;70%</td></tr>
+                    <tr><td>NPS score</td><td>&gt;30</td><td>&gt;40</td><td>&gt;50</td></tr>
+                    <tr><td>Critical bugs (P0)</td><td>0</td><td>0</td><td>0</td></tr>
+                    <tr><td>High bugs (P1)</td><td>&lt;10</td><td>&lt;5</td><td>0 open</td></tr>
+                    <tr><td>Support tickets/user</td><td>&lt;0.5</td><td>&lt;0.3</td><td>&lt;0.1</td></tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸŽ Beta User Incentives</h4>
+                <ul>
+                    <li>Free Pro tier for 6 months post-launch</li>
+                    <li>RM 50 booking credit</li>
+                    <li>"Founding User" badge on profile</li>
+                    <li>Early access to new features</li>
+                    <li>Priority support forever</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div style="background: linear-gradient(135deg, var(--n100), var(--n200)); border: 2px solid var(--mint); border-radius: 20px; padding: 40px; text-align: center; margin-top: 48px;">
+            <h2 style="font-family: var(--font-display); font-size: 24px; color: var(--mint); margin-bottom: 16px;">âœ“ OPERATIONS, BUSINESS & LAUNCH COMPLETE</h2>
+            <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                <span style="background: var(--warning); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">OPS-03 Logging</span>
+                <span style="background: var(--warning); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">OPS-04 Incident Response</span>
+                <span style="background: var(--blue); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">BIZ-01 Pricing</span>
+                <span style="background: var(--blue); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">BIZ-02 Commissions</span>
+                <span style="background: var(--blue); color: var(--white); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">BIZ-03 Support</span>
+                <span style="background: var(--mint); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">LAUNCH-01 Checklist</span>
+                <span style="background: var(--mint); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">LAUNCH-02 Beta Plan</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

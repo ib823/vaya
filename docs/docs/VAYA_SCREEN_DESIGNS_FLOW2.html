@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Screen Design Specification: Flow 2 - Prediction Results & Action</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-500: #00F5A0;
+            --mint-600: #00CC85;
+            --mint-dim: rgba(0, 245, 160, 0.12);
+            --mint-muted: rgba(0, 245, 160, 0.24);
+            --cyan-500: #00D9FF;
+            --cyan-dim: rgba(0, 217, 255, 0.12);
+            --n0: #000000;
+            --n50: #0A0A0B;
+            --n100: #111113;
+            --n150: #161618;
+            --n200: #1A1A1D;
+            --n300: #232326;
+            --n400: #2D2D31;
+            --n500: #3D3D42;
+            --n600: #5C5C63;
+            --n700: #7A7A82;
+            --n800: #9999A1;
+            --n900: #CCCCCC;
+            --n1000: #FFFFFF;
+            --warning: #FFB800;
+            --warning-dim: rgba(255, 184, 0, 0.12);
+            --error: #FF4757;
+            --error-dim: rgba(255, 71, 87, 0.12);
+            --success: #00F5A0;
+            --purple: #A855F7;
+            --blue: #3B82F6;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --glow-sm: 0 0 16px rgba(0, 245, 160, 0.3);
+            --glow-md: 0 0 24px rgba(0, 245, 160, 0.4);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.5);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--n1000); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--cyan-500); margin-bottom: 48px; background: linear-gradient(180deg, rgba(0,217,255,0.08) 0%, transparent 100%); }
+        .doc-logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .doc-logo span:first-child { color: var(--mint-500); }
+        .doc-logo span:last-child { color: var(--cyan-500); }
+        .doc-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-top: 16px; }
+        .doc-subtitle { font-size: 15px; color: var(--n700); margin-top: 8px; }
+        .section { margin-bottom: 64px; }
+        .section-header { background: var(--n100); border: 1px solid var(--n200); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .section-num { font-family: var(--font-mono); font-size: 11px; color: var(--cyan-500); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .section-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .section-desc { color: var(--n700); font-size: 14px; }
+        .spec-card { background: var(--n50); border: 1px solid var(--n200); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+        .spec-card-header { background: var(--n100); padding: 16px 20px; border-bottom: 1px solid var(--n200); display: flex; align-items: center; gap: 12px; }
+        .spec-id { font-family: var(--font-mono); font-size: 11px; color: var(--cyan-500); background: var(--cyan-dim); padding: 4px 10px; border-radius: 4px; }
+        .spec-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+        .spec-card-body { padding: 20px; }
+        .pixel-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+        .pixel-table th { background: var(--n150); padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--n300); }
+        .pixel-table td { padding: 10px 12px; border-bottom: 1px solid var(--n200); color: var(--n800); vertical-align: top; }
+        .pixel-table .property { font-family: var(--font-mono); color: var(--cyan-500); font-weight: 500; }
+        .pixel-table .desktop { color: var(--cyan-500); }
+        .pixel-table .tablet { color: var(--warning); }
+        .pixel-table .mobile { color: var(--mint-500); }
+        .pixel-table .watch { color: var(--purple); }
+        .state-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+        .state-card { background: var(--n150); border: 1px solid var(--n300); border-radius: 8px; padding: 12px; }
+        .state-name { font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; margin-bottom: 8px; }
+        .state-preview { background: var(--n0); border-radius: 6px; padding: 12px; min-height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+        .state-specs { font-size: 10px; color: var(--n700); }
+        .state-specs code { font-family: var(--font-mono); color: var(--cyan-500); font-size: 9px; }
+        .integration-box { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.05)); border: 1px solid var(--mint-500); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .integration-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--mint-500); margin-bottom: 12px; }
+        .integration-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .integration-item { background: var(--n150); border-radius: 6px; padding: 10px; }
+        .integration-crate { font-family: var(--font-mono); font-size: 11px; color: var(--cyan-500); margin-bottom: 2px; }
+        .integration-desc { font-size: 10px; color: var(--n600); }
+        .animation-box { background: linear-gradient(135deg, var(--n100), rgba(168,85,247,0.05)); border: 1px solid var(--purple); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .animation-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 12px; }
+        .a11y-box { background: linear-gradient(135deg, var(--n100), rgba(59,130,246,0.05)); border: 1px solid var(--blue); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .a11y-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 12px; }
+        .warning-box { background: var(--warning-dim); border: 1px solid var(--warning); border-radius: 8px; padding: 12px; margin: 12px 0; }
+        .warning-box p { color: var(--n800); font-size: 12px; }
+        .warning-box strong { color: var(--warning); }
+        .summary-box { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.05)); border: 2px solid var(--mint-500); border-radius: 20px; padding: 40px; text-align: center; margin-top: 48px; }
+        @media (max-width: 1200px) { .state-grid { grid-template-columns: repeat(2, 1fr); } .integration-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="doc-header">
+            <div class="doc-logo"><span>VA</span><span>YA</span></div>
+            <h1 class="doc-title">Screen Design Specification</h1>
+            <p class="doc-subtitle">Flow 2: Prediction Results & Action â€” 6 Screens Ã— 4 Devices = 24 Variants</p>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- S2.1: PREDICTION CARD - BOOK NOW -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S2.1</div>
+                <h2 class="section-title">Prediction Card â€” Book Now Variant</h2>
+                <p class="section-desc">Oracle recommends immediate booking. High confidence. Price at or below optimal. Primary CTA: "Book This Flight"</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S2.1-DESKTOP</span>
+                    <span class="spec-name">Book Now Prediction Card â€” Desktop (1280px+)</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Typography</th><th>Colors/Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Card Container</td><td>Left column of 2-col layout</td><td>W: 100%, H: auto, padding: 32px</td><td>â€”</td><td>bg: linear-gradient(135deg, n100, mint-dim), border: 2px mint-500, radius: 24px, shadow: shadow-lg</td></tr>
+                            <tr><td class="property">â”œâ”€ Verdict Badge</td><td>top: 0, left: 0 (inside padding)</td><td>W: auto, H: 40px, padding: 0 20px</td><td>Space Grotesk 14px/700</td><td>bg: mint-500, color: n0, radius: 99px, text: "âœ“ BOOK NOW"</td></tr>
+                            <tr><td class="property">â”œâ”€ Confidence Meter</td><td>top: 0, right: 0</td><td>W: 88px, H: 88px</td><td>Center: Space Grotesk 28px/800</td><td>SVG circle progress, stroke: mint-500 (4px), bg-stroke: n300</td></tr>
+                            <tr><td class="property">â”œâ”€ Confidence Label</td><td>below meter</td><td>W: 88px, H: auto</td><td>DM Sans 11px/500, center</td><td>color: n600, text: "confidence"</td></tr>
+                            <tr><td class="property">â”œâ”€ Flight Summary Block</td><td>below badge, margin-top: 24px</td><td>W: 100%, H: auto</td><td>â€”</td><td>Contains airline, route, price</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Airline Row</td><td>â€”</td><td>W: 100%, H: 56px</td><td>â€”</td><td>flex, align-center, gap: 16px</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â”œâ”€ Logo</td><td>left</td><td>W: 48px, H: 48px</td><td>â€”</td><td>radius: 12px, bg: n200 if no image</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â”œâ”€ Airline Name</td><td>â€”</td><td>W: auto, H: auto</td><td>DM Sans 18px/600</td><td>color: n1000</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â””â”€ Flight Code</td><td>â€”</td><td>W: auto, H: auto</td><td>JetBrains Mono 13px/500</td><td>color: n600</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Route Row</td><td>margin-top: 20px</td><td>W: 100%, H: auto</td><td>â€”</td><td>flex, justify-between, align-center</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â”œâ”€ Departure</td><td>left</td><td>W: 120px, H: auto</td><td>Time: Space Grotesk 36px/700, Airport: DM Sans 14px/400</td><td>time: n1000, airport: n600</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â”œâ”€ Duration Line</td><td>center</td><td>W: flex-1, H: 2px</td><td>Above: DM Sans 13px/500</td><td>line: n300, dots: mint-500 (10px circles at ends)</td></tr>
+                            <tr><td class="property">â”‚ â”‚ â””â”€ Arrival</td><td>right</td><td>W: 120px, H: auto</td><td>Same as departure</td><td>text-align: right</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Price Block</td><td>margin-top: 24px</td><td>W: 100%, H: auto</td><td>â€”</td><td>flex, justify-between, align-end</td></tr>
+                            <tr><td class="property">â”‚   â”œâ”€ Price</td><td>left</td><td>W: auto, H: auto</td><td>Space Grotesk 52px/800</td><td>color: mint-500</td></tr>
+                            <tr><td class="property">â”‚   â”œâ”€ Currency</td><td>before price</td><td>W: auto, H: auto</td><td>Space Grotesk 28px/600</td><td>color: mint-500, vertical-align: top</td></tr>
+                            <tr><td class="property">â”‚   â”œâ”€ Per Person</td><td>below price</td><td>W: auto, H: auto</td><td>DM Sans 13px/400</td><td>color: n600, text: "/person"</td></tr>
+                            <tr><td class="property">â”‚   â””â”€ Savings Badge</td><td>right</td><td>W: auto, H: 32px</td><td>DM Sans 13px/700</td><td>bg: mint-dim, color: mint-500, radius: 99px, text: "â†“ RM 234 below avg"</td></tr>
+                            <tr><td class="property">â”œâ”€ Divider</td><td>margin: 24px 0</td><td>W: 100%, H: 1px</td><td>â€”</td><td>bg: n200</td></tr>
+                            <tr><td class="property">â”œâ”€ Why Section</td><td>â€”</td><td>W: 100%, H: auto</td><td>â€”</td><td>â€”</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Title</td><td>â€”</td><td>W: auto, H: auto</td><td>Space Grotesk 16px/700</td><td>color: n1000, text: "Why Book Now"</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Reasons List</td><td>margin-top: 12px</td><td>W: 100%, H: auto</td><td>DM Sans 14px/400</td><td>color: n700, bullet: mint-500 (6px circle), gap: 8px between items</td></tr>
+                            <tr><td class="property">â”œâ”€ Primary CTA</td><td>margin-top: 24px</td><td>W: 100%, H: 64px</td><td>Space Grotesk 18px/700</td><td>bg: mint-500, color: n0, radius: 16px, shadow: glow-sm, text: "Book This Flight"</td></tr>
+                            <tr><td class="property">â””â”€ Secondary CTA</td><td>margin-top: 12px</td><td>W: 100%, H: 52px</td><td>DM Sans 15px/600</td><td>bg: transparent, color: n700, border: 1px n300, radius: 14px, text: "See Alternatives"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- States -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 20px 0 12px;">Primary CTA Button States</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Default</div>
+                            <div class="state-preview"><span style="background: var(--mint-500); color: var(--n0); padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px;">Book This Flight</span></div>
+                            <div class="state-specs"><code>bg: mint-500</code><br><code>shadow: glow-sm</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Hover</div>
+                            <div class="state-preview"><span style="background: var(--mint-600); color: var(--n0); padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; transform: translateY(-2px); box-shadow: 0 0 24px rgba(0,245,160,0.4);">Book This Flight</span></div>
+                            <div class="state-specs"><code>bg: mint-600</code><br><code>transform: translateY(-2px)</code><br><code>shadow: glow-md</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Active/Press</div>
+                            <div class="state-preview"><span style="background: var(--mint-600); color: var(--n0); padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; transform: scale(0.98);">Book This Flight</span></div>
+                            <div class="state-specs"><code>transform: scale(0.98)</code><br><code>shadow: none</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Loading</div>
+                            <div class="state-preview"><span style="background: var(--mint-500); color: var(--n0); padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; opacity: 0.7;">âŸ³ Checking...</span></div>
+                            <div class="state-specs"><code>opacity: 0.7</code><br><code>spinner animation</code><br><code>pointer-events: none</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Spec -->
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S2.1-MOBILE</span>
+                    <span class="spec-name">Book Now Prediction Card â€” Mobile (320-428px)</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Dimensions</th><th>Typography</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Card Container</td><td>W: calc(100%-32px), H: auto, padding: 20px</td><td>â€”</td><td>margin: 0 16px, radius: 20px</td></tr>
+                            <tr><td class="property">Verdict Badge</td><td>W: auto, H: 32px</td><td>Space Grotesk 12px/700</td><td>Same styling as desktop</td></tr>
+                            <tr><td class="property">Confidence Meter</td><td>W: 64px, H: 64px</td><td>Center: 20px/800</td><td>Smaller on mobile</td></tr>
+                            <tr><td class="property">Flight Times</td><td>W: 100%, H: auto</td><td>Time: 28px/700</td><td>Reduced from desktop</td></tr>
+                            <tr><td class="property">Price</td><td>W: auto, H: auto</td><td>Space Grotesk 40px/800</td><td>Reduced from 52px</td></tr>
+                            <tr><td class="property">Primary CTA</td><td>W: 100%, H: 56px</td><td>Space Grotesk 17px/700</td><td>touch target â‰¥44px</td></tr>
+                            <tr><td class="property">Secondary CTA</td><td>W: 100%, H: 48px</td><td>DM Sans 15px/600</td><td>â€”</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tablet + Watch -->
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S2.1-TABLET/WATCH</span>
+                    <span class="spec-name">Tablet & Watch Variants</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Property</th><th class="tablet">Tablet (744-1366px)</th><th class="watch">Watch (162-198px)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Layout</td><td class="tablet">Same as desktop, max-width: 600px</td><td class="watch">Simplified card, no alternatives</td></tr>
+                            <tr><td class="property">Card Padding</td><td class="tablet">28px</td><td class="watch">12px</td></tr>
+                            <tr><td class="property">Price Size</td><td class="tablet">48px/800</td><td class="watch">28px/700</td></tr>
+                            <tr><td class="property">Confidence Meter</td><td class="tablet">80px Ã— 80px</td><td class="watch">Hidden (show % text only)</td></tr>
+                            <tr><td class="property">Why Section</td><td class="tablet">Full (same as desktop)</td><td class="watch">Hidden</td></tr>
+                            <tr><td class="property">CTA</td><td class="tablet">W: 100%, H: 60px</td><td class="watch">W: 100%, H: 40px, "Book" text only</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S2.2: PREDICTION CARD - WAIT -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S2.2</div>
+                <h2 class="section-title">Prediction Card â€” Wait Variant</h2>
+                <p class="section-desc">Oracle recommends waiting. Predicted price drop. Shows countdown, expected savings. Primary CTA: "Set Price Alert"</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S2.2-ALL</span>
+                    <span class="spec-name">Wait Prediction Card â€” Key Differences</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Change from Book Now</th><th>Specification</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Verdict Badge</td><td>Different color + text</td><td>bg: warning, color: n0, text: "â³ WAIT 3 DAYS"</td></tr>
+                            <tr><td class="property">Card Border</td><td>Warning color</td><td>border: 2px warning</td></tr>
+                            <tr><td class="property">Card Gradient</td><td>Warning tint</td><td>bg: linear-gradient(135deg, n100, warning-dim)</td></tr>
+                            <tr><td class="property">Predicted Price Block</td><td>NEW: Shows predicted future price</td><td>Current: strikethrough n600 | Predicted: mint-500</td></tr>
+                            <tr><td class="property">â”œâ”€ Current Price</td><td>â€”</td><td>Space Grotesk 24px/600, color: n600, text-decoration: line-through</td></tr>
+                            <tr><td class="property">â”œâ”€ Arrow</td><td>â€”</td><td>"â†’" DM Sans 20px, color: mint-500</td></tr>
+                            <tr><td class="property">â””â”€ Predicted Price</td><td>â€”</td><td>Space Grotesk 44px/800, color: mint-500</td></tr>
+                            <tr><td class="property">Countdown Timer</td><td>NEW</td><td>Space Grotesk 20px/700, format: "2d 14h 23m", bg: n150, radius: 12px, padding: 12px 20px</td></tr>
+                            <tr><td class="property">Why Section Title</td><td>Different text</td><td>"Why Wait"</td></tr>
+                            <tr><td class="property">Primary CTA</td><td>Different text + color</td><td>bg: warning, text: "Set Price Alert"</td></tr>
+                            <tr><td class="property">Secondary CTA</td><td>Different text</td><td>text: "Book Anyway"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="warning-box">
+                        <p><strong>âš ï¸ RISK DISCLOSURE:</strong> Below countdown timer, show: "Prediction confidence: {X}%. If wrong, price may increase up to RM {Y}." â€” Font: DM Sans 12px/400, color: n600</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S2.3: PREDICTION CARD - POOL -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S2.3</div>
+                <h2 class="section-title">Prediction Card â€” Pool Opportunity Variant</h2>
+                <p class="section-desc">Active pool available for route. Shows potential savings, member count, time remaining. Primary CTA: "Join Pool"</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S2.3-ALL</span>
+                    <span class="spec-name">Pool Prediction Card â€” Key Differences</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Specification</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Verdict Badge</td><td>bg: purple, text: "ðŸ‘¥ JOIN POOL -23%"</td><td>Shows savings percentage</td></tr>
+                            <tr><td class="property">Card Border</td><td>border: 2px purple</td><td>â€”</td></tr>
+                            <tr><td class="property">Pool Progress Bar</td><td>W: 100%, H: 8px, radius: 4px</td><td>bg-track: n300, bg-fill: purple, shows % to activation</td></tr>
+                            <tr><td class="property">Pool Stats Row</td><td>flex, justify-between</td><td>Members, Time Left, Target</td></tr>
+                            <tr><td class="property">â”œâ”€ Members</td><td>Icon + "87/100 joined"</td><td>DM Sans 14px/600</td></tr>
+                            <tr><td class="property">â”œâ”€ Time Left</td><td>Icon + "2d 6h left"</td><td>DM Sans 14px/600</td></tr>
+                            <tr><td class="property">â””â”€ Savings</td><td>"Up to RM 450 savings"</td><td>color: purple, 14px/700</td></tr>
+                            <tr><td class="property">Price Display</td><td>Shows range: "RM 980 - RM 1,120"</td><td>Final price depends on pool fill</td></tr>
+                            <tr><td class="property">Primary CTA</td><td>bg: purple, text: "Join Pool"</td><td>â€”</td></tr>
+                            <tr><td class="property">Secondary CTA</td><td>text: "Book Individually"</td><td>Shows individual price</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S2.4: ALTERNATIVE FLIGHTS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S2.4</div>
+                <h2 class="section-title">Alternative Flights View</h2>
+                <p class="section-desc">User expands to see other options. Limited to 5 results max. Each has Oracle rating. Comparison view available.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S2.4-DESKTOP</span>
+                    <span class="spec-name">Alternative Flights â€” Desktop Layout</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Typography</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Section Title</td><td>above list</td><td>W: auto, H: auto</td><td>Space Grotesk 20px/700</td></tr>
+                            <tr><td class="property">Sort/Filter Row</td><td>below title</td><td>W: 100%, H: 48px</td><td>DM Sans 14px/500</td></tr>
+                            <tr><td class="property">Flight Card (list item)</td><td>stacked</td><td>W: 100%, H: 120px, gap: 12px</td><td>â€”</td></tr>
+                            <tr><td class="property">â”œâ”€ Oracle Rating</td><td>left badge</td><td>W: 48px, H: 100%</td><td>Space Grotesk 16px/700</td></tr>
+                            <tr><td class="property">â”œâ”€ Airline + Route</td><td>center</td><td>W: flex, H: auto</td><td>Times: 24px/700, Airline: 14px/500</td></tr>
+                            <tr><td class="property">â”œâ”€ Price</td><td>right</td><td>W: 140px, H: auto</td><td>Space Grotesk 28px/700</td></tr>
+                            <tr><td class="property">â””â”€ Select Button</td><td>right</td><td>W: 100px, H: 40px</td><td>DM Sans 14px/600</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 20px 0 12px;">Oracle Rating Badge</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Best (90-100)</div>
+                            <div class="state-preview"><span style="background: var(--mint-500); color: var(--n0); padding: 8px 12px; border-radius: 8px; font-weight: 700;">95</span></div>
+                            <div class="state-specs"><code>bg: mint-500</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Good (75-89)</div>
+                            <div class="state-preview"><span style="background: var(--mint-dim); color: var(--mint-500); padding: 8px 12px; border-radius: 8px; font-weight: 700; border: 1px solid var(--mint-500);">82</span></div>
+                            <div class="state-specs"><code>bg: mint-dim, border: mint</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Average (60-74)</div>
+                            <div class="state-preview"><span style="background: var(--warning-dim); color: var(--warning); padding: 8px 12px; border-radius: 8px; font-weight: 700; border: 1px solid var(--warning);">68</span></div>
+                            <div class="state-specs"><code>bg: warning-dim</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Poor (&lt;60)</div>
+                            <div class="state-preview"><span style="background: var(--n200); color: var(--n600); padding: 8px 12px; border-radius: 8px; font-weight: 700;">54</span></div>
+                            <div class="state-specs"><code>bg: n200, color: n600</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S2.5: FLIGHT DETAIL -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S2.5</div>
+                <h2 class="section-title">Flight Detail View</h2>
+                <p class="section-desc">Full flight information. Itinerary, baggage, fare rules, Oracle assessment. Modal on desktop, full screen on mobile.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S2.5-ALL</span>
+                    <span class="spec-name">Flight Detail â€” All Devices</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Section</th><th>Content</th><th>Typography</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Header</td><td>Airline logo, name, flight code, price</td><td>Name: 24px/700, Code: 14px/500, Price: 36px/800</td></tr>
+                            <tr><td class="property">Itinerary Timeline</td><td>Visual timeline with segments</td><td>Times: 20px/700, Airports: 14px/400</td></tr>
+                            <tr><td class="property">â”œâ”€ Segment Card</td><td>Departure/Arrival, Duration, Aircraft</td><td>â€”</td></tr>
+                            <tr><td class="property">â”œâ”€ Layover Card</td><td>Duration, Airport, Terminal</td><td>bg: warning-dim if &gt;3h</td></tr>
+                            <tr><td class="property">Baggage Info</td><td>Cabin, Checked, Dimensions</td><td>14px/400, icons 20px</td></tr>
+                            <tr><td class="property">Fare Rules</td><td>Cancellation, Change, Refund</td><td>14px/400, colored badges</td></tr>
+                            <tr><td class="property">Oracle Assessment</td><td>Rating, Pros, Cons</td><td>Rating: 32px/800, List: 13px/400</td></tr>
+                            <tr><td class="property">Select CTA</td><td>"Select This Flight"</td><td>Space Grotesk 17px/700</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S2.6: WHY WAIT EXPLAINER -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S2.6</div>
+                <h2 class="section-title">Why Wait Explainer</h2>
+                <p class="section-desc">Detailed prediction reasoning. Historical chart, seasonal patterns, demand forecast, risk factors. Builds trust through transparency.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S2.6-ALL</span>
+                    <span class="spec-name">Why Wait Explainer â€” Components</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Component</th><th>Description</th><th>Specifications</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Price History Chart</td><td>30-day price history with prediction overlay</td><td>Chart.js or custom SVG, H: 200px (desktop) / 160px (mobile), colors: actual=n600, predicted=mint-500 dashed</td></tr>
+                            <tr><td class="property">Seasonal Pattern Card</td><td>Shows historical patterns for this route</td><td>"Prices typically drop 12% in the week before departure for this route"</td></tr>
+                            <tr><td class="property">Demand Indicator</td><td>Current demand level (Low/Med/High)</td><td>Visual meter, 3 segments, current highlighted</td></tr>
+                            <tr><td class="property">Confidence Breakdown</td><td>Factors contributing to prediction</td><td>List with weight bars: Historical (35%), Seasonality (25%), Demand (20%), Events (20%)</td></tr>
+                            <tr><td class="property">Risk Factors</td><td>What could make prediction wrong</td><td>bg: error-dim, list of risks with impact scores</td></tr>
+                            <tr><td class="property">"What If Wrong" Card</td><td>Worst case scenario</td><td>"If our prediction is wrong, price may increase up to RM 340 (15% risk)"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <div class="integration-box">
+                        <div class="integration-title">ðŸ”— VAYA Architecture Integration</div>
+                        <div class="integration-grid">
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-oracle</div>
+                                <div class="integration-desc">GET /api/v1/oracle/explain/{prediction_id} â€” Full explanation payload</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-ml</div>
+                                <div class="integration-desc">Feature importance scores, SHAP values for explainability</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-db</div>
+                                <div class="integration-desc">Historical prices, seasonal patterns, demand metrics</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- FLOW 2 SUMMARY -->
+        <!-- ================================================================ -->
+        <div class="summary-box">
+            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--cyan-500); margin-bottom: 20px;">FLOW 2 COMPLETE: PREDICTION RESULTS & ACTION</h3>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 24px 0;">
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--cyan-500);">6</div>
+                    <div style="font-size: 11px; color: var(--n600); text-transform: uppercase;">Screens</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--mint-500);">24</div>
+                    <div style="font-size: 11px; color: var(--n600); text-transform: uppercase;">Device Variants</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--warning);">4</div>
+                    <div style="font-size: 11px; color: var(--n600); text-transform: uppercase;">Verdict Types</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--purple);">100%</div>
+                    <div style="font-size: 11px; color: var(--n600); text-transform: uppercase;">Pixel Specified</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Screen Design Specification: Flow 6 - Price Alert System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-500: #00F5A0;
+            --mint-600: #00CC85;
+            --mint-dim: rgba(0, 245, 160, 0.12);
+            --cyan-500: #00D9FF;
+            --cyan-dim: rgba(0, 217, 255, 0.12);
+            --n0: #000000;
+            --n50: #0A0A0B;
+            --n100: #111113;
+            --n150: #161618;
+            --n200: #1A1A1D;
+            --n300: #232326;
+            --n400: #2D2D31;
+            --n500: #3D3D42;
+            --n600: #5C5C63;
+            --n700: #7A7A82;
+            --n800: #9999A1;
+            --n900: #CCCCCC;
+            --n1000: #FFFFFF;
+            --warning: #FFB800;
+            --warning-dim: rgba(255, 184, 0, 0.12);
+            --error: #FF4757;
+            --error-dim: rgba(255, 71, 87, 0.12);
+            --success: #00F5A0;
+            --purple: #A855F7;
+            --blue: #3B82F6;
+            --orange: #FF6B35;
+            --orange-dim: rgba(255, 107, 53, 0.12);
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--n1000); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--orange); margin-bottom: 48px; background: linear-gradient(180deg, rgba(255,107,53,0.08) 0%, transparent 100%); }
+        .doc-logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .doc-logo span:first-child { color: var(--mint-500); }
+        .doc-logo span:last-child { color: var(--cyan-500); }
+        .doc-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-top: 16px; }
+        .doc-subtitle { font-size: 15px; color: var(--n700); margin-top: 8px; }
+        .section { margin-bottom: 64px; }
+        .section-header { background: var(--n100); border: 1px solid var(--n200); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+        .section-num { font-family: var(--font-mono); font-size: 11px; color: var(--orange); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .section-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .section-desc { color: var(--n700); font-size: 14px; }
+        .spec-card { background: var(--n50); border: 1px solid var(--n200); border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+        .spec-card-header { background: var(--n100); padding: 16px 20px; border-bottom: 1px solid var(--n200); display: flex; align-items: center; gap: 12px; }
+        .spec-id { font-family: var(--font-mono); font-size: 11px; color: var(--orange); background: var(--orange-dim); padding: 4px 10px; border-radius: 4px; }
+        .spec-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+        .spec-card-body { padding: 20px; }
+        .pixel-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; }
+        .pixel-table th { background: var(--n150); padding: 10px 12px; text-align: left; font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--n300); }
+        .pixel-table td { padding: 10px 12px; border-bottom: 1px solid var(--n200); color: var(--n800); vertical-align: top; }
+        .pixel-table .property { font-family: var(--font-mono); color: var(--cyan-500); font-weight: 500; }
+        .state-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+        .state-card { background: var(--n150); border: 1px solid var(--n300); border-radius: 8px; padding: 12px; }
+        .state-name { font-size: 10px; font-weight: 700; color: var(--n600); text-transform: uppercase; margin-bottom: 8px; }
+        .state-preview { background: var(--n0); border-radius: 6px; padding: 12px; min-height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+        .state-specs { font-size: 10px; color: var(--n700); }
+        .state-specs code { font-family: var(--font-mono); color: var(--cyan-500); font-size: 9px; }
+        .integration-box { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.05)); border: 1px solid var(--mint-500); border-radius: 12px; padding: 16px; margin: 16px 0; }
+        .integration-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--mint-500); margin-bottom: 12px; }
+        .integration-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .integration-item { background: var(--n150); border-radius: 6px; padding: 10px; }
+        .integration-crate { font-family: var(--font-mono); font-size: 11px; color: var(--cyan-500); margin-bottom: 2px; }
+        .integration-desc { font-size: 10px; color: var(--n600); }
+        .summary-box { background: linear-gradient(135deg, var(--n100), rgba(255,107,53,0.08)); border: 2px solid var(--orange); border-radius: 20px; padding: 40px; text-align: center; margin-top: 48px; }
+        @media (max-width: 1200px) { .state-grid { grid-template-columns: repeat(2, 1fr); } .integration-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="doc-header">
+            <div class="doc-logo"><span>VA</span><span>YA</span></div>
+            <h1 class="doc-title">Screen Design Specification</h1>
+            <p class="doc-subtitle">Flow 6: Price Alert System â€” Never Miss a Deal</p>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- S6.1: CREATE ALERT -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S6.1</div>
+                <h2 class="section-title">Create Price Alert</h2>
+                <p class="section-desc">Set up monitoring for a route. Define target price, date flexibility, notification preferences.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S6.1</span>
+                    <span class="spec-name">Create Price Alert Form</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Desktop</th><th>Mobile</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Container</td><td>Modal: W: 500px, center</td><td>Full screen sheet</td><td>bg: n100, radius: 24px</td></tr>
+                            <tr><td class="property">Header</td><td>H: 64px, "Create Price Alert"</td><td>H: 56px + safe area</td><td>Close X button right</td></tr>
+                            <tr><td class="property">Route Display</td><td>H: 80px, KUL âŸ· TYO visual</td><td>H: 72px</td><td>Pre-filled from search context</td></tr>
+                            <tr><td class="property">Date Range</td><td>Date picker, W: 100%</td><td>Native date picker</td><td>"Any dates" toggle available</td></tr>
+                            <tr><td class="property">Flexibility Slider</td><td>Â±0 to Â±7 days slider</td><td>Same</td><td>Shows date range preview</td></tr>
+                            <tr><td class="property">Target Price</td><td>Currency input, H: 56px</td><td>H: 52px</td><td>Pre-filled with Oracle suggestion</td></tr>
+                            <tr><td class="property">â”œâ”€ Current Price</td><td>Above input, reference</td><td>Same</td><td>"Current lowest: RM 1,234"</td></tr>
+                            <tr><td class="property">â”œâ”€ Oracle Suggestion</td><td>Below input, mint badge</td><td>Same</td><td>"Oracle suggests: RM 1,100"</td></tr>
+                            <tr><td class="property">Notification Method</td><td>Checkbox group</td><td>Toggle group</td><td>Email, Push, SMS options</td></tr>
+                            <tr><td class="property">Alert Duration</td><td>Dropdown: 7d, 14d, 30d, 90d</td><td>Picker</td><td>Default: 30 days</td></tr>
+                            <tr><td class="property">Create CTA</td><td>W: 100%, H: 56px</td><td>Fixed bottom, H: 56px</td><td>bg: orange, "Create Alert"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Target Price Input States -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">ðŸ’° Target Price Input States</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Empty</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px;">
+                                <div style="font-size: 10px; color: var(--n600); margin-bottom: 4px;">TARGET PRICE</div>
+                                <div style="background: var(--n100); border: 1px solid var(--n300); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 4px;">
+                                    <span style="color: var(--n600); font-size: 14px;">RM</span>
+                                    <span style="color: var(--n500); font-size: 14px;">Enter target price</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>placeholder visible</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">With Suggestion</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px;">
+                                <div style="font-size: 10px; color: var(--n600); margin-bottom: 4px;">TARGET PRICE</div>
+                                <div style="background: var(--n100); border: 1px solid var(--n300); border-radius: 8px; padding: 8px 12px; font-family: var(--font-mono); font-size: 14px;">RM 1,100</div>
+                                <div style="font-size: 10px; color: var(--mint-500); margin-top: 4px;">ðŸ”® Oracle suggests this target</div>
+                            </div>
+                            <div class="state-specs"><code>Oracle-suggested value</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Aggressive</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px;">
+                                <div style="font-size: 10px; color: var(--n600); margin-bottom: 4px;">TARGET PRICE</div>
+                                <div style="background: var(--n100); border: 1px solid var(--warning); border-radius: 8px; padding: 8px 12px; font-family: var(--font-mono); font-size: 14px;">RM 800</div>
+                                <div style="font-size: 10px; color: var(--warning); margin-top: 4px;">âš ï¸ Very ambitious - may not trigger</div>
+                            </div>
+                            <div class="state-specs"><code>Warning if unlikely</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Already Below</div>
+                            <div class="state-preview" style="flex-direction: column; padding: 8px;">
+                                <div style="font-size: 10px; color: var(--n600); margin-bottom: 4px;">TARGET PRICE</div>
+                                <div style="background: var(--mint-dim); border: 1px solid var(--mint-500); border-radius: 8px; padding: 8px 12px; font-family: var(--font-mono); font-size: 14px;">RM 1,300</div>
+                                <div style="font-size: 10px; color: var(--mint-500); margin-top: 4px;">âœ“ Current price already below!</div>
+                            </div>
+                            <div class="state-specs"><code>Immediate opportunity</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S6.2: ALERTS LIST -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S6.2</div>
+                <h2 class="section-title">My Alerts</h2>
+                <p class="section-desc">View all active alerts. Status indicators. Quick actions. Price trend mini-charts.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S6.2</span>
+                    <span class="spec-name">Alerts List View</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Position</th><th>Dimensions</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Page Header</td><td>top</td><td>W: 100%, H: 80px</td><td>"My Price Alerts" + count badge</td></tr>
+                            <tr><td class="property">â”œâ”€ Filter Tabs</td><td>below title</td><td>H: 44px</td><td>All | Active | Triggered | Expired</td></tr>
+                            <tr><td class="property">â””â”€ + New Alert</td><td>right</td><td>H: 44px, W: auto</td><td>bg: orange, opens S6.1</td></tr>
+                            <tr><td class="property">Alert Card</td><td>list item</td><td>W: 100%, H: 140px</td><td>bg: n100, radius: 16px</td></tr>
+                            <tr><td class="property">â”œâ”€ Status Dot</td><td>top left</td><td>W: 12px, H: 12px</td><td>Green=active, Yellow=close, Red=expired</td></tr>
+                            <tr><td class="property">â”œâ”€ Route</td><td>â€”</td><td>W: auto</td><td>Space Grotesk 20px/700</td></tr>
+                            <tr><td class="property">â”œâ”€ Dates</td><td>below route</td><td>W: auto</td><td>DM Sans 13px/400, n700</td></tr>
+                            <tr><td class="property">â”œâ”€ Price Comparison</td><td>center</td><td>W: 200px</td><td>Target vs Current visual</td></tr>
+                            <tr><td class="property">â”‚ â”œâ”€ Target Line</td><td>â€”</td><td>H: 2px dashed</td><td>color: orange</td></tr>
+                            <tr><td class="property">â”‚ â””â”€ Current Price</td><td>â€”</td><td>â€”</td><td>Shows above/below target</td></tr>
+                            <tr><td class="property">â”œâ”€ Mini Sparkline</td><td>right</td><td>W: 100px, H: 40px</td><td>7-day price trend</td></tr>
+                            <tr><td class="property">â”œâ”€ Expires In</td><td>bottom left</td><td>W: auto</td><td>"23 days left"</td></tr>
+                            <tr><td class="property">â””â”€ Actions</td><td>bottom right</td><td>â€”</td><td>Edit, Pause, Delete icons</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Alert Status States -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">ðŸ”” Alert Status States</h4>
+                    <div class="state-grid">
+                        <div class="state-card">
+                            <div class="state-name">Active - Watching</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 10px; height: 10px; background: var(--mint-500); border-radius: 50%;"></div>
+                                    <span style="font-size: 12px; color: var(--n800);">Monitoring</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>dot: mint-500</code><br><code>Normal active state</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Getting Close</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 10px; height: 10px; background: var(--warning); border-radius: 50%; animation: pulse 1s infinite;"></div>
+                                    <span style="font-size: 12px; color: var(--warning);">Price dropping!</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>dot: warning, pulsing</code><br><code>Within 10% of target</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Triggered!</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 10px; height: 10px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--mint-500);"></div>
+                                    <span style="font-size: 12px; color: var(--mint-500); font-weight: 600;">Target reached!</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>dot: success + glow</code><br><code>Book now CTA appears</code></div>
+                        </div>
+                        <div class="state-card">
+                            <div class="state-name">Expired</div>
+                            <div class="state-preview">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 10px; height: 10px; background: var(--n500); border-radius: 50%;"></div>
+                                    <span style="font-size: 12px; color: var(--n600);">Expired</span>
+                                </div>
+                            </div>
+                            <div class="state-specs"><code>dot: n500</code><br><code>Grayed out, renew option</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S6.3: ALERT TRIGGERED -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S6.3</div>
+                <h2 class="section-title">Alert Triggered</h2>
+                <p class="section-desc">Notification that target price reached. Urgency messaging. Direct booking path.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S6.3</span>
+                    <span class="spec-name">Alert Triggered Notification</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Channel</th><th>Content</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Push Notification</td><td>"ðŸŽ‰ KULâ†’TYO dropped to RM 1,089! Your target: RM 1,100"</td><td>Tap â†’ Opens S6.4</td></tr>
+                            <tr><td class="property">Email</td><td>Full details, price history, book button</td><td>CTA â†’ Booking flow</td></tr>
+                            <tr><td class="property">SMS</td><td>"VAYA: KUL-TYO now RM1,089 (target RM1,100). Book: vaya.my/b/xxx"</td><td>Link â†’ Booking</td></tr>
+                            <tr><td class="property">In-App Modal</td><td>Celebration UI, full details</td><td>Book Now, Snooze, Dismiss</td></tr>
+                            <tr><td class="property">Watch Complication</td><td>Route + Price + "Tap to book"</td><td>Opens on phone</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- In-App Modal Spec -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--orange); margin: 24px 0 12px;">ðŸŽ‰ In-App Triggered Modal</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Desktop</th><th>Mobile</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Modal Size</td><td>W: 480px, H: auto</td><td>Bottom sheet, 70vh</td></tr>
+                            <tr><td class="property">Celebration Icon</td><td>W: 80px, animated</td><td>W: 64px</td></tr>
+                            <tr><td class="property">Title</td><td>Space Grotesk 28px/800</td><td>24px/800</td></tr>
+                            <tr><td class="property">Price Display</td><td>48px/800, mint-500</td><td>40px/800</td></tr>
+                            <tr><td class="property">Savings Badge</td><td>H: 36px</td><td>H: 32px</td></tr>
+                            <tr><td class="property">Urgency Timer</td><td>"Price valid for 2h 45m"</td><td>Same, prominent</td></tr>
+                            <tr><td class="property">Book Now CTA</td><td>W: 100%, H: 60px</td><td>Fixed bottom, H: 56px</td></tr>
+                            <tr><td class="property">Snooze Option</td><td>Text link below CTA</td><td>Same</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S6.4: ALERT DETAIL -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S6.4</div>
+                <h2 class="section-title">Alert Detail</h2>
+                <p class="section-desc">Full alert information. Price history chart. Edit settings. Activity log.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S6.4</span>
+                    <span class="spec-name">Alert Detail View</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Section</th><th>Content</th><th>Notes</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Header</td><td>Route, Status badge, Actions menu</td><td>Edit, Pause, Delete, Share</td></tr>
+                            <tr><td class="property">Price Chart</td><td>30-day price history with target line</td><td>H: 200px desktop, 160px mobile</td></tr>
+                            <tr><td class="property">â”œâ”€ Current Price</td><td>Dot on chart, labeled</td><td>Real-time update</td></tr>
+                            <tr><td class="property">â”œâ”€ Target Line</td><td>Horizontal dashed line</td><td>color: orange</td></tr>
+                            <tr><td class="property">â””â”€ Historical Range</td><td>Min/Max markers</td><td>Shows potential</td></tr>
+                            <tr><td class="property">Alert Settings Card</td><td>Target, Dates, Notifications, Duration</td><td>Editable inline</td></tr>
+                            <tr><td class="property">Oracle Insight</td><td>Prediction for this route</td><td>"Prices typically drop 15% in March"</td></tr>
+                            <tr><td class="property">Activity Log</td><td>Price checks, notifications sent</td><td>Collapsible, shows last 10</td></tr>
+                            <tr><td class="property">Similar Alerts</td><td>Suggest related routes</td><td>"Also watch TYOâ†’OSA?"</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- S6.5: SMART SUGGESTIONS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S6.5</div>
+                <h2 class="section-title">Smart Alert Suggestions</h2>
+                <p class="section-desc">AI-suggested alerts based on search history, trends, and deals. Proactive engagement.</p>
+            </div>
+
+            <div class="spec-card">
+                <div class="spec-card-header">
+                    <span class="spec-id">S6.5</span>
+                    <span class="spec-name">Smart Suggestions</span>
+                </div>
+                <div class="spec-card-body">
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Suggestion Type</th><th>Trigger</th><th>Display</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Based on Search</td><td>User searched but didn't book</td><td>"Still interested in KULâ†’TYO? Set an alert!"</td></tr>
+                            <tr><td class="property">Price Drop Detected</td><td>Route user viewed is now cheaper</td><td>"Good news! KULâ†’TYO dropped 12%"</td></tr>
+                            <tr><td class="property">Seasonal Opportunity</td><td>Oracle predicts upcoming deals</td><td>"Prices to Tokyo typically drop in Jan"</td></tr>
+                            <tr><td class="property">Similar Routes</td><td>User has alerts, suggest related</td><td>"Watching TYO? Also consider Osaka, Kyoto"</td></tr>
+                            <tr><td class="property">Error Fare Alert</td><td>Unusual pricing detected</td><td>"âš¡ Possible error fare: KULâ†’LHR RM 800!"</td></tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Suggestion Card Component -->
+                    <h4 style="font-family: var(--font-display); font-size: 14px; color: var(--cyan-500); margin: 24px 0 12px;">ðŸ’¡ Suggestion Card Component</h4>
+                    <table class="pixel-table">
+                        <thead>
+                            <tr><th>Element</th><th>Specification</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="property">Container</td><td>W: 100%, H: auto, bg: gradient(n100 â†’ orange-dim), border: 1px orange, radius: 16px</td></tr>
+                            <tr><td class="property">Icon</td><td>W: 40px, H: 40px, left side, contextual (bell, trend, spark)</td></tr>
+                            <tr><td class="property">Title</td><td>Space Grotesk 16px/700, e.g., "Price Drop Detected!"</td></tr>
+                            <tr><td class="property">Description</td><td>DM Sans 14px/400, color: n700</td></tr>
+                            <tr><td class="property">Route Badge</td><td>bg: n200, radius: 8px, JetBrains Mono 12px</td></tr>
+                            <tr><td class="property">Create Alert CTA</td><td>bg: orange, H: 40px, "Create Alert"</td></tr>
+                            <tr><td class="property">Dismiss</td><td>X icon, top right, subtle</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Integration -->
+        <div class="integration-box">
+            <div class="integration-title">ðŸ”— VAYA Architecture Integration â€” Flow 6</div>
+            <div class="integration-grid">
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-alert</div>
+                    <div class="integration-desc">Alert CRUD, target matching, trigger logic</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-oracle</div>
+                    <div class="integration-desc">Smart target suggestions, price predictions</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-notify</div>
+                    <div class="integration-desc">Push, email, SMS delivery</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-collect</div>
+                    <div class="integration-desc">Price monitoring, real-time checks</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-db</div>
+                    <div class="integration-desc">Alert storage, history, user preferences</div>
+                </div>
+                <div class="integration-item">
+                    <div class="integration-crate">vaya-stream</div>
+                    <div class="integration-desc">Real-time price updates to UI</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-box">
+            <h3 style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--orange); margin-bottom: 20px;">FLOW 6 COMPLETE: PRICE ALERT SYSTEM</h3>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px 0;">
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--orange);">5</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Screens</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--mint-500);">20</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Device Variants</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--cyan-500);">5</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Channels</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--purple);">AI</div>
+                    <div style="font-size: 10px; color: var(--n600); text-transform: uppercase;">Powered</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

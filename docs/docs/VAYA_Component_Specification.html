@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Component Specification: Strategy â†’ Design Bridge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #050507;
+            --bg-primary: #0a0a0d;
+            --bg-secondary: #0f0f14;
+            --bg-card: #12121a;
+            --bg-elevated: #18182a;
+            --border-subtle: #1f1f2e;
+            --border-accent: #2a2a44;
+            --text-primary: #f5f5f7;
+            --text-secondary: #9898a8;
+            --text-muted: #5c5c6e;
+            --accent-primary: #00d4aa;
+            --accent-secondary: #00f0c0;
+            --accent-glow: rgba(0, 212, 170, 0.12);
+            --danger: #ff4757;
+            --danger-glow: rgba(255, 71, 87, 0.12);
+            --warning: #ffa502;
+            --warning-glow: rgba(255, 165, 2, 0.12);
+            --gold: #f0c674;
+            --purple: #9b59b6;
+            --blue: #3498db;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg-void);
+            color: var(--text-primary);
+            line-height: 1.75;
+            font-size: 16px;
+        }
+
+        ::selection {
+            background: var(--accent-primary);
+            color: var(--bg-void);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+        /* Header */
+        .header {
+            padding: 80px 0 60px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-accent);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .header-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+        }
+
+        .header h1 span {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(5, 5, 7, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            z-index: 100;
+            padding: 16px 0;
+        }
+
+        nav ul {
+            display: flex;
+            gap: 8px;
+            list-style: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px;
+            overflow-x: auto;
+        }
+
+        nav a {
+            display: block;
+            padding: 10px 18px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 8px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        nav a:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        nav a.active {
+            background: var(--accent-glow);
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+        }
+
+        /* Section */
+        section {
+            padding: 80px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .section-header {
+            margin-bottom: 48px;
+        }
+
+        .section-number {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .section-intro {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+        }
+
+        /* Component Block */
+        .component {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        .component-header {
+            padding: 28px 32px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .component-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--accent-glow);
+            border: 1px solid var(--border-accent);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .component-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .component-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .component-body {
+            padding: 32px;
+        }
+
+        .component-section {
+            margin-bottom: 32px;
+        }
+
+        .component-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .component-section h4 {
+            color: var(--accent-primary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        /* Strategic Note */
+        .strategic-note {
+            background: linear-gradient(135deg, var(--accent-glow), transparent);
+            border-left: 3px solid var(--accent-primary);
+            padding: 20px 24px;
+            margin: 20px 0;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .strategic-note p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .strategic-note strong {
+            color: var(--accent-primary);
+        }
+
+        /* Spec Table */
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .spec-table th,
+        .spec-table td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .spec-table th {
+            background: var(--bg-secondary);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+        }
+
+        .spec-table td {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .spec-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .spec-table code {
+            background: var(--bg-elevated);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--gold);
+        }
+
+        /* State Tags */
+        .state-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .state-default { background: var(--bg-elevated); color: var(--text-muted); }
+        .state-active { background: var(--accent-glow); color: var(--accent-primary); border: 1px solid var(--accent-primary); }
+        .state-loading { background: var(--warning-glow); color: var(--warning); border: 1px solid var(--warning); }
+        .state-success { background: rgba(0, 212, 170, 0.2); color: #00ff9d; border: 1px solid #00ff9d; }
+        .state-error { background: var(--danger-glow); color: var(--danger); border: 1px solid var(--danger); }
+
+        /* Flow Diagram */
+        .flow {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .flow-step {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-accent);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .flow-step.highlight {
+            background: var(--accent-glow);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .flow-arrow {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        /* Grid */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+
+        /* Feature Card */
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .feature-card h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Copy Block */
+        .copy-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+
+        .copy-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+        }
+
+        .copy-text {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .copy-text.large {
+            font-size: 1.4rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #0d0d12;
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            line-height: 1.6;
+            margin: 16px 0;
+        }
+
+        .code-comment { color: var(--text-muted); }
+        .code-key { color: var(--purple); }
+        .code-value { color: var(--accent-primary); }
+        .code-string { color: var(--gold); }
+
+        /* Priority Tag */
+        .priority {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .priority-p0 {
+            background: var(--danger-glow);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .priority-p1 {
+            background: var(--warning-glow);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .priority-p2 {
+            background: var(--accent-glow);
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+        }
+
+        /* Phase Badge */
+        .phase-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-accent);
+            border-radius: 50px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: 12px;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 24px;
+            border-radius: 12px;
+            margin: 24px 0;
+        }
+
+        .alert-critical {
+            background: var(--danger-glow);
+            border: 1px solid var(--danger);
+        }
+
+        .alert-critical h5 { color: var(--danger); }
+
+        .alert-insight {
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .alert-insight h5 { color: var(--accent-primary); }
+
+        .alert h5 {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .alert p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Wireframe Sketch */
+        .wireframe {
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border-accent);
+            border-radius: 16px;
+            padding: 32px;
+            margin: 24px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: var(--text-muted);
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .wireframe .highlight { color: var(--accent-primary); }
+        .wireframe .action { color: var(--gold); }
+        .wireframe .label { color: var(--purple); }
+
+        /* Principle Box */
+        .principle-box {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            border: 2px solid var(--accent-primary);
+            border-radius: 16px;
+            padding: 32px;
+            margin: 32px 0;
+            position: relative;
+        }
+
+        .principle-box::before {
+            content: 'DESIGN PRINCIPLE';
+            position: absolute;
+            top: -10px;
+            left: 24px;
+            background: var(--bg-void);
+            padding: 0 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            letter-spacing: 0.15em;
+        }
+
+        .principle-box h3 {
+            margin-bottom: 12px;
+        }
+
+        .principle-box p {
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .footer-meta {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .component-header { flex-direction: column; text-align: center; }
+            .component-body { padding: 24px; }
+            nav ul { justify-content: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-badge">Component Specification v1.0</div>
+            <h1><span>VAYA</span> Design Components</h1>
+            <p class="header-subtitle">Strategy â†’ Design Bridge: Every component specification derived from strategic vision. 
+            No retrofitting. Born revolutionary.</p>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#philosophy" class="active">Philosophy</a></li>
+            <li><a href="#oracle">Oracle Engine</a></li>
+            <li><a href="#search">Search Paradigm</a></li>
+            <li><a href="#predictions">Predictions</a></li>
+            <li><a href="#demand-pools">Demand Pools</a></li>
+            <li><a href="#booking">Booking Flow</a></li>
+            <li><a href="#autonomous">Autonomous Agent</a></li>
+            <li><a href="#alerts">Alerts System</a></li>
+            <li><a href="#trust">Trust Signals</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- Philosophy -->
+        <section id="philosophy">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-number">Foundation</div>
+                    <h2>Design Philosophy: Strategy Made Visual</h2>
+                    <p class="section-intro">
+                        Every pixel, every word, every interaction must reinforce the core thesis: 
+                        <strong>"You don't search. VAYA knows."</strong> This isn't a travel search engine with fancy features. 
+                        It's a paradigm shift made tangible.
+                    </p>
+                </div>
+
+                <div class="principle-box">
+                    <h3>The Cardinal Rule</h3>
+                    <p>
+                        If any screen, component, or flow makes the user feel like they're "searching for flights," 
+                        <strong>it has failed.</strong> VAYA's UI should make users feel like they're receiving 
+                        intelligence from a system that already did the work.
+                    </p>
+                </div>
+
+                <div class="grid-3">
+                    <div class="feature-card">
+                        <h5>ðŸ”® Intelligence First</h5>
+                        <p>Every screen opens with what VAYA knows, not what user needs to input. 
+                        Predictions, recommendations, and insights lead. Search is secondary.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h5>âš¡ Speed = Trust</h5>
+                        <p>Results in &lt;500ms or users think we're searching. We're not. 
+                        We already have the answer. Show it instantly.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h5>ðŸŽ¯ Confidence Over Options</h5>
+                        <p>Don't show 47 flights. Show "This is the one" with why. 
+                        Options are for uncertainty. VAYA is certain.</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-critical" style="margin-top: 32px;">
+                    <h5>â›” Anti-Patterns To Avoid</h5>
+                    <p>
+                        <strong>Never use:</strong> "Search flights" (use "Find my flight"), 
+                        "Compare prices" (we already did), "Check availability" (we know it's available), 
+                        "Best time to book" (we'll tell you when), Loading spinners with "Searching..." 
+                        (use "Preparing your intelligence").
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Oracle Engine -->
+        <section id="oracle" style="background: var(--bg-secondary);">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-number">Core System</div>
+                    <h2>The Oracle Engine <span class="phase-badge">Year 1 Priority</span></h2>
+                    <p class="section-intro">
+                        The prediction and intelligence system that makes VAYA revolutionary. 
+                        This is the beating heart â€” everything else is visualization of Oracle's knowledge.
+                    </p>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸ”®</div>
+                        <div>
+                            <div class="component-title">Price Intelligence Card</div>
+                            <div class="component-subtitle">The primary display of Oracle's predictions</div>
+                        </div>
+                        <span class="priority priority-p0">P0 â€” MVP</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-section">
+                            <h4>Strategic Purpose</h4>
+                            <p style="color: var(--text-secondary);">
+                                This card is the first thing users see. It must immediately communicate: 
+                                "VAYA knows something you don't." The prediction isn't a feature â€” it's the product.
+                            </p>
+                        </div>
+
+                        <div class="component-section">
+                            <h4>Component Structure</h4>
+                            <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="label">ORACLE PREDICTION</span>                                         â”‚
+â”‚                                                             â”‚
+â”‚  <span class="highlight">KUL â†’ Tokyo</span>                                              â”‚
+â”‚  March 15-22, 2026                                          â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚  Current: <span class="action">$847</span>  â†’  Predicted: <span class="highlight">$612</span> (in 4 days)     â”‚   â”‚
+â”‚  â”‚  â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘  <span class="highlight">â†“ 28% drop expected</span>          â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">WHY:</span> SQ lost Accenture corporate contract. 40 seats/day  â”‚
+â”‚        now available. Price adjustment imminent.            â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚  <span class="action">â° WAIT 4 DAYS</span>   â”‚  â”‚  ðŸ“Š See Price History       â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">Confidence:</span> 87% accurate  â€¢  Updated 12 min ago           â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                            </div>
+                        </div>
+
+                        <div class="component-section">
+                            <h4>Required Elements</h4>
+                            <table class="spec-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Purpose</th>
+                                        <th>Copy Pattern</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Prediction Badge</td>
+                                        <td>Immediate signal this is intelligence, not search</td>
+                                        <td><code>ORACLE PREDICTION</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Price Trajectory</td>
+                                        <td>Visual proof VAYA knows the future</td>
+                                        <td><code>$847 â†’ $612 (in 4 days)</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Reason Block</td>
+                                        <td>Build trust by explaining WHY</td>
+                                        <td><code>WHY: [Specific, data-backed reason]</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Action Button</td>
+                                        <td>Clear directive, not suggestion</td>
+                                        <td><code>â° WAIT 4 DAYS</code> or <code>BOOK NOW</code></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Confidence Score</td>
+                                        <td>Transparency builds trust</td>
+                                        <td><code>87% accurate</code></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="strategic-note">
+                            <p><strong>Strategic Insight:</strong> The "WHY" section is critical. Generic predictions 
+                            ("prices usually drop on Tuesdays") are worthless. VAYA's predictions must include 
+                            SPECIFIC causes: "SQ lost Accenture contract" or "Hari Raya travel window ending." 
+                            This is what makes competitors unable to copy us â€” they don't have this data.</p>
+                        </div>
+
+                        <div class="component-section">
+                            <h4>States</h4>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                <span class="state-tag state-active">â†“ Price Drop Expected</span>
+                                <span class="state-tag state-error">â†‘ Price Rising â€” Book Now</span>
+                                <span class="state-tag state-success">âœ“ Optimal Price â€” Book Now</span>
+                                <span class="state-tag state-loading">Analyzing Market...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸ“ˆ</div>
+                        <div>
+                            <div class="component-title">Price History Chart</div>
+                            <div class="component-subtitle">Visual proof of Oracle accuracy</div>
+                        </div>
+                        <span class="priority priority-p1">P1 â€” Post-MVP</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-section">
+                            <h4>Strategic Purpose</h4>
+                            <p style="color: var(--text-secondary);">
+                                Show VAYA's past predictions vs actual prices. "We said wait. You waited. You saved $400." 
+                                This is proof that builds unshakeable trust.
+                            </p>
+                        </div>
+
+                        <div class="component-section">
+                            <h4>Data Points</h4>
+                            <table class="spec-table">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Visualization</th>
+                                        <th>Purpose</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Historical Prices</td>
+                                        <td>Line chart (last 60 days)</td>
+                                        <td>Context</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Past VAYA Predictions</td>
+                                        <td>Overlay with markers</td>
+                                        <td>Accuracy proof</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Future Prediction</td>
+                                        <td>Dashed line with confidence band</td>
+                                        <td>Actionable intelligence</td>
+                                    </tr>
+                                    <tr>
+                                        <td>"You Would Have Saved"</td>
+                                        <td>Callout bubble</td>
+                                        <td>Emotional hook</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="copy-block">
+                            <div class="copy-label">Sample Copy â€” Past Accuracy</div>
+                            <div class="copy-text">"3 weeks ago, we said wait. Prices dropped 32%. Users who listened saved an average of $287."</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search Paradigm -->
+        <section id="search">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-number">Core Experience</div>
+                    <h2>The "Search" That Isn't Search</h2>
+                    <p class="section-intro">
+                        Users still need to tell VAYA where they want to go. But this isn't "search." 
+                        It's "intent declaration." The language, flow, and feedback must reflect this shift.
+                    </p>
+                </div>
+
+                <div class="principle-box">
+                    <h3>The Paradigm Shift</h3>
+                    <p>
+                        <strong>Old:</strong> User searches â†’ Platform queries airlines â†’ Shows results â†’ User compares<br>
+                        <strong>VAYA:</strong> User declares intent â†’ VAYA already knows the answer â†’ Shows THE option â†’ User confirms
+                    </p>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸŽ¯</div>
+                        <div>
+                            <div class="component-title">Intent Declaration Bar</div>
+                            <div class="component-subtitle">Replaces traditional search box</div>
+                        </div>
+                        <span class="priority priority-p0">P0 â€” MVP</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-section">
+                            <h4>Strategic Purpose</h4>
+                            <p style="color: var(--text-secondary);">
+                                The moment a user touches this input, VAYA should already be thinking. 
+                                Autocomplete isn't suggestions â€” it's VAYA showing it knows what you want before you finish typing.
+                            </p>
+                        </div>
+
+                        <div class="component-section">
+                            <h4>Flow</h4>
+                            <div class="flow">
+                                <div class="flow-step">User starts typing</div>
+                                <span class="flow-arrow">â†’</span>
+                                <div class="flow-step highlight">VAYA predicts destination</div>
+                                <span class="flow-arrow">â†’</span>
+                                <div class="flow-step">Shows prediction + price in dropdown</div>
+                                <span class="flow-arrow">â†’</span>
+                                <div class="flow-step highlight">User confirms (1 click)</div>
+                            </div>
+                        </div>
+
+                        <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="label">Where do you want to go?</span>                                  â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚  tok_                                               â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚  <span class="highlight">Tokyo, Japan (NRT/HND)</span>                              â”‚   â”‚
+â”‚  â”‚  <span class="action">VAYA predicts: $612 in 4 days</span> â€” Wait recommended    â”‚   â”‚
+â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤   â”‚
+â”‚  â”‚  Toronto, Canada (YYZ)                              â”‚   â”‚
+â”‚  â”‚  <span class="highlight">$892</span> â€” Book now (optimal price)                    â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                        </div>
+
+                        <div class="strategic-note">
+                            <p><strong>Key Innovation:</strong> Autocomplete shows PRICE + PREDICTION, not just destination. 
+                            Before the user even finishes typing, they see "Tokyo: $612 in 4 days." 
+                            This is VAYA showing intelligence before being asked.</p>
+                        </div>
+
+                        <div class="component-section">
+                            <h4>Copy Guidelines</h4>
+                            <table class="spec-table">
+                                <thead>
+                                    <tr>
+                                        <th>Never Say</th>
+                                        <th>Say Instead</th>
+                                        <th>Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>"Search flights"</td>
+                                        <td>"Where do you want to go?"</td>
+                                        <td>Search implies work. VAYA does the work.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>"Find cheap flights"</td>
+                                        <td>"Tell VAYA your destination"</td>
+                                        <td>We already found them. User just declares.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>"Searching 500+ airlines..."</td>
+                                        <td>"Preparing your intelligence..."</td>
+                                        <td>We're not searching. We already know.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>"Compare prices"</td>
+                                        <td>"Here's the best option"</td>
+                                        <td>Comparison is user work. VAYA already compared.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸ“…</div>
+                        <div>
+                            <div class="component-title">Date Intelligence Picker</div>
+                            <div class="component-subtitle">Calendar that shows price intelligence per date</div>
+                        </div>
+                        <span class="priority priority-p0">P0 â€” MVP</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-section">
+                            <h4>Strategic Purpose</h4>
+                            <p style="color: var(--text-secondary);">
+                                Traditional date pickers show dates. VAYA's date picker shows PRICES per date 
+                                with color-coded intelligence. User sees cheapest dates without clicking.
+                            </p>
+                        </div>
+
+                        <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="label">March 2026</span>                                    â—€  â–¶   â”‚
+â”œâ”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”¤
+â”‚ Sun â”‚ Mon â”‚ Tue â”‚ Wed â”‚ Thu â”‚ Fri â”‚ Sat â”‚
+â”œâ”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¤
+â”‚     â”‚     â”‚     â”‚     â”‚     â”‚     â”‚  1  â”‚
+â”‚     â”‚     â”‚     â”‚     â”‚     â”‚     â”‚<span class="action">$720</span>â”‚
+â”œâ”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¤
+â”‚  2  â”‚  3  â”‚  4  â”‚  5  â”‚  6  â”‚  7  â”‚  8  â”‚
+â”‚$695 â”‚$680 â”‚<span class="highlight">$612</span>â”‚<span class="highlight">$598</span>â”‚$640 â”‚$710 â”‚$750 â”‚
+â”‚     â”‚     â”‚ <span class="highlight">â˜…</span>   â”‚ <span class="highlight">â˜…</span>   â”‚     â”‚     â”‚     â”‚
+â”œâ”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”¤
+â”‚  9  â”‚ 10  â”‚ 11  â”‚ 12  â”‚ 13  â”‚ 14  â”‚ 15  â”‚
+â”‚$780 â”‚$810 â”‚$820 â”‚$830 â”‚$840 â”‚$890 â”‚$920 â”‚
+â””â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”˜
+â”‚                                                             â”‚
+â”‚  <span class="highlight">â˜… = VAYA Recommended</span> â€” Best value dates for your trip   â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">Price Range:</span> <span class="highlight">$598</span> (Mar 5) â€” $920 (Mar 15)                â”‚
+â”‚  <span class="label">Recommendation:</span> Fly Mar 4-5 for <span class="highlight">36% savings</span>            â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                        </div>
+
+                        <div class="component-section">
+                            <h4>Color Coding</h4>
+                            <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 12px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 16px; height: 16px; background: #00d4aa; border-radius: 4px;"></div>
+                                    <span style="color: var(--text-secondary); font-size: 0.9rem;">Lowest price (recommended)</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 16px; height: 16px; background: #f0c674; border-radius: 4px;"></div>
+                                    <span style="color: var(--text-secondary); font-size: 0.9rem;">Moderate price</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 16px; height: 16px; background: #ff4757; border-radius: 4px;"></div>
+                                    <span style="color: var(--text-secondary); font-size: 0.9rem;">Premium pricing</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Predictions -->
+        <section id="predictions" style="background: var(--bg-secondary);">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-number">Intelligence Display</div>
+                    <h2>Prediction Components</h2>
+                    <p class="section-intro">
+                        The visual language of VAYA's predictions. Every component must communicate 
+                        certainty, specificity, and actionability.
+                    </p>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">â°</div>
+                        <div>
+                            <div class="component-title">Wait/Book Directive</div>
+                            <div class="component-subtitle">The primary action recommendation</div>
+                        </div>
+                        <span class="priority priority-p0">P0 â€” MVP</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-section">
+                            <h4>Strategic Purpose</h4>
+                            <p style="color: var(--text-secondary);">
+                                This is the single most important UI element. It answers THE question every user has: 
+                                "Should I book now or wait?" VAYA gives a clear, confident directive â€” not a wishy-washy suggestion.
+                            </p>
+                        </div>
+
+                        <div class="component-section">
+                            <h4>States & Copy</h4>
+                            <div class="grid-2">
+                                <div class="copy-block">
+                                    <div class="copy-label">State: Wait</div>
+                                    <div class="copy-text large">â° Wait 4 Days</div>
+                                    <p style="color: var(--text-secondary); margin-top: 12px; font-size: 0.9rem;">
+                                        "Prices expected to drop 28%. We'll notify you when to book."
+                                    </p>
+                                </div>
+                                <div class="copy-block" style="border-color: var(--danger);">
+                                    <div class="copy-label">State: Book Now (Urgency)</div>
+                                    <div class="copy-text large" style="color: var(--danger);">ðŸ”¥ Book Now</div>
+                                    <p style="color: var(--text-secondary); margin-top: 12px; font-size: 0.9rem;">
+                                        "Price rising fast. Expected to increase 23% by tomorrow."
+                                    </p>
+                                </div>
+                                <div class="copy-block" style="border-color: var(--accent-primary);">
+                                    <div class="copy-label">State: Book Now (Optimal)</div>
+                                    <div class="copy-text large" style="color: var(--accent-primary);">âœ“ Book Now â€” Optimal Price</div>
+                                    <p style="color: var(--text-secondary); margin-top: 12px; font-size: 0.9rem;">
+                                        "This is the lowest this route typically goes. Lock it in."
+                                    </p>
+                                </div>
+                                <div class="copy-block" style="border-color: var(--gold);">
+                                    <div class="copy-label">State: Error Fare Detected</div>
+                                    <div class="copy-text large" style="color: var(--gold);">âš¡ Error Fare â€” Book Immediately</div>
+                                    <p style="color: var(--text-secondary); margin-top: 12px; font-size: 0.9rem;">
+                                        "72% below normal. Will be corrected within hours."
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-insight">
+                            <h5>ðŸ’¡ Competitor Differentiator</h5>
+                            <p>
+                                Hopper's "Watch" button is passive. User watches. VAYA's directive is ACTIVE. 
+                                We don't say "Watch this price." We say "Wait 4 days. We'll tell you when."
+                                The power is with VAYA, not the user.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸ“Š</div>
+                        <div>
+                            <div class="component-title">Confidence Meter</div>
+                            <div class="component-subtitle">Transparency signal for predictions</div>
+                        </div>
+                        <span class="priority priority-p1">P1</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-section">
+                            <h4>Strategic Purpose</h4>
+                            <p style="color: var(--text-secondary);">
+                                Trust requires transparency. Show users how confident VAYA is. 
+                                Paradoxically, admitting uncertainty builds more trust than pretending 100% accuracy.
+                            </p>
+                        </div>
+
+                        <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="label">Prediction Confidence</span>                                    â”‚
+â”‚                                                             â”‚
+â”‚  â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘  <span class="highlight">87%</span>                          â”‚
+â”‚                                                             â”‚
+â”‚  Based on: 3 years of route data â€¢ 12 similar patterns     â”‚
+â”‚  Last 10 predictions on this route: <span class="highlight">9 accurate</span>            â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                        </div>
+
+                        <div class="component-section">
+                            <h4>Confidence Thresholds</h4>
+                            <table class="spec-table">
+                                <thead>
+                                    <tr>
+                                        <th>Score</th>
+                                        <th>Visual</th>
+                                        <th>User Messaging</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>90%+</td>
+                                        <td style="color: var(--accent-primary);">â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ</td>
+                                        <td>"Very high confidence"</td>
+                                    </tr>
+                                    <tr>
+                                        <td>75-89%</td>
+                                        <td style="color: var(--accent-primary);">â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘</td>
+                                        <td>"High confidence"</td>
+                                    </tr>
+                                    <tr>
+                                        <td>60-74%</td>
+                                        <td style="color: var(--warning);">â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘</td>
+                                        <td>"Moderate confidence â€” consider flexibility"</td>
+                                    </tr>
+                                    <tr>
+                                        <td>&lt;60%</td>
+                                        <td style="color: var(--text-muted);">â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘</td>
+                                        <td>"Limited data â€” prediction is uncertain"</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demand Pools -->
+        <section id="demand-pools">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-number">Power Inversion</div>
+                    <h2>Demand Pool Components <span class="phase-badge">Year 2</span></h2>
+                    <p class="section-intro">
+                        The revolutionary feature where airlines bid for users. 
+                        Design must communicate exclusivity, collective power, and savings impossible elsewhere.
+                    </p>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸ‘¥</div>
+                        <div>
+                            <div class="component-title">Demand Pool Card</div>
+                            <div class="component-subtitle">Join/create demand aggregation pools</div>
+                        </div>
+                        <span class="priority priority-p2">P2 â€” Year 2</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-section">
+                            <h4>Strategic Purpose</h4>
+                            <p style="color: var(--text-secondary);">
+                                Show users they're part of something bigger. "2,847 people want this flight. 
+                                Together, we negotiate." This is collective bargaining made visual.
+                            </p>
+                        </div>
+
+                        <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="label">ðŸŠ DEMAND POOL ACTIVE</span>                                     â”‚
+â”‚                                                             â”‚
+â”‚  <span class="highlight">KUL â†’ Tokyo</span>  â€¢  March 2026                               â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚       <span class="highlight">2,847 travelers</span> want this route               â”‚   â”‚
+â”‚  â”‚                                                     â”‚   â”‚
+â”‚  â”‚  â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘  <span class="action">71% to activation</span>       â”‚   â”‚
+â”‚  â”‚                                                     â”‚   â”‚
+â”‚  â”‚  Need 4,000 for airline bidding to begin            â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">Current best individual price:</span> $847                      â”‚
+â”‚  <span class="label">Expected pool price:</span> <span class="highlight">$580-650</span> (31% savings)             â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚  <span class="action">+ JOIN THIS POOL</span>  (No commitment until price set)   â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">Your place in line:</span> Secured if you join now             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                        </div>
+
+                        <div class="component-section">
+                            <h4>Key Copy Elements</h4>
+                            <table class="spec-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Copy Pattern</th>
+                                        <th>Purpose</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Pool Size</td>
+                                        <td>"2,847 travelers want this route"</td>
+                                        <td>Social proof + collective power</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Activation Progress</td>
+                                        <td>"71% to activation â€¢ Need 4,000"</td>
+                                        <td>Urgency + transparency</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Savings Projection</td>
+                                        <td>"Expected pool price: $580-650 (31% savings)"</td>
+                                        <td>Value proposition</td>
+                                    </tr>
+                                    <tr>
+                                        <td>No-Risk Messaging</td>
+                                        <td>"No commitment until price set"</td>
+                                        <td>Remove friction</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="strategic-note">
+                            <p><strong>Design Principle:</strong> The pool should feel like joining a movement, not a shopping cart. 
+                            "You + 2,846 others are telling airlines: WE set the price." 
+                            This is power inversion made emotional.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸŽ¯</div>
+                        <div>
+                            <div class="component-title">Airline Bid Display</div>
+                            <div class="component-subtitle">Show airlines competing for the pool</div>
+                        </div>
+                        <span class="priority priority-p2">P2 â€” Year 2</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="label">ðŸ”¥ AIRLINES BIDDING FOR YOUR POOL</span>                         â”‚
+â”‚                                                             â”‚
+â”‚  <span class="highlight">Pool activated:</span> 4,127 travelers â€¢ KUL â†’ Tokyo â€¢ March   â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚  <span class="highlight">1. AirAsia</span>                         <span class="action">$598/person</span>     â”‚   â”‚
+â”‚  â”‚     2,500 seats available â€¢ Direct flight           â”‚   â”‚
+â”‚  â”‚     â˜…â˜…â˜…â˜…â˜† Pool Rating                              â”‚   â”‚
+â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤   â”‚
+â”‚  â”‚  2. Malaysia Airlines                 $645/person   â”‚   â”‚
+â”‚  â”‚     4,000 seats available â€¢ Business upgrade avail  â”‚   â”‚
+â”‚  â”‚     â˜…â˜…â˜…â˜…â˜… Pool Rating                              â”‚   â”‚
+â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤   â”‚
+â”‚  â”‚  3. Singapore Airlines (via SIN)      $672/person   â”‚   â”‚
+â”‚  â”‚     Unlimited seats â€¢ Lounge access included        â”‚   â”‚
+â”‚  â”‚     â˜…â˜…â˜…â˜…â˜… Pool Rating                              â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">Bidding closes in:</span> 23:47:12                              â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">Without pool, you'd pay:</span> $847 (average)                  â”‚
+â”‚  <span class="highlight">Pool savings:</span> $249-299 per person                        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                        </div>
+
+                        <div class="alert alert-critical">
+                            <h5>âš¡ This Is The Revolutionary Moment</h5>
+                            <p>
+                                This screen is unprecedented. Users have NEVER seen airlines bid for their business. 
+                                The design must make this feel historic: "This is how travel works now. 
+                                You have the power."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Flow -->
+        <section id="booking" style="background: var(--bg-secondary);">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-number">Transaction</div>
+                    <h2>Booking Flow Components</h2>
+                    <p class="section-intro">
+                        The booking flow must reinforce that VAYA found the best option. 
+                        No second-guessing. No "are you sure?" â€” confidence throughout.
+                    </p>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">âœˆï¸</div>
+                        <div>
+                            <div class="component-title">Flight Result Card</div>
+                            <div class="component-subtitle">Single recommended flight display</div>
+                        </div>
+                        <span class="priority priority-p0">P0 â€” MVP</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-section">
+                            <h4>Strategic Purpose</h4>
+                            <p style="color: var(--text-secondary);">
+                                VAYA shows THE option, not 50 options. If we show alternatives, 
+                                it's to prove why the recommended option is best â€” not for comparison shopping.
+                            </p>
+                        </div>
+
+                        <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="highlight">âœ“ VAYA RECOMMENDED</span>                                       â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚  <span class="highlight">Singapore Airlines</span>  SQ117                          â”‚   â”‚
+â”‚  â”‚                                                     â”‚   â”‚
+â”‚  â”‚  KUL  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–¶  NRT   â”‚   â”‚
+â”‚  â”‚  08:15                <span class="label">6h 45m â€¢ Direct</span>          15:00  â”‚   â”‚
+â”‚  â”‚                                                     â”‚   â”‚
+â”‚  â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚   â”‚
+â”‚  â”‚  â”‚  <span class="action">$612</span>                                       â”‚   â”‚   â”‚
+â”‚  â”‚  â”‚  <span class="label">Oracle says:</span> Optimal price â€¢ 87% confidence â”‚   â”‚   â”‚
+â”‚  â”‚  â”‚  <span class="highlight">You're saving $235</span> vs average           â”‚   â”‚   â”‚
+â”‚  â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚              <span class="action">BOOK THIS FLIGHT</span>                       â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">â†“ Show 3 alternatives</span> (and why they're worse)            â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                        </div>
+
+                        <div class="component-section">
+                            <h4>Alternatives Section (Collapsed by Default)</h4>
+                            <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                                If shown, alternatives must explain why they're NOT recommended. 
+                                Not "here are more options" but "here's why we didn't recommend these."
+                            </p>
+                            <table class="spec-table">
+                                <thead>
+                                    <tr>
+                                        <th>Flight</th>
+                                        <th>Price</th>
+                                        <th>Why Not Recommended</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>AirAsia X</td>
+                                        <td>$580</td>
+                                        <td style="color: var(--danger);">"$32 cheaper but 3hr layover in KL. Not worth your time."</td>
+                                    </tr>
+                                    <tr>
+                                        <td>JAL via NRT</td>
+                                        <td>$720</td>
+                                        <td style="color: var(--danger);">"$108 more for same route. No benefit."</td>
+                                    </tr>
+                                    <tr>
+                                        <td>MH + Connecting</td>
+                                        <td>$598</td>
+                                        <td style="color: var(--danger);">"Saves $14 but 8hr connection. Oracle says no."</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">âœ…</div>
+                        <div>
+                            <div class="component-title">Booking Confirmation</div>
+                            <div class="component-subtitle">Post-purchase reinforcement</div>
+                        </div>
+                        <span class="priority priority-p0">P0 â€” MVP</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-section">
+                            <h4>Strategic Purpose</h4>
+                            <p style="color: var(--text-secondary);">
+                                Eliminate buyer's remorse. Show exactly how much they saved and why this was the right choice. 
+                                Turn booking into accomplishment.
+                            </p>
+                        </div>
+
+                        <div class="copy-block">
+                            <div class="copy-label">Confirmation Headline</div>
+                            <div class="copy-text large">You're going to Tokyo! ðŸŽ‰</div>
+                        </div>
+
+                        <div class="copy-block">
+                            <div class="copy-label">Savings Reinforcement</div>
+                            <div class="copy-text">VAYA saved you $235 on this booking. That's 28% below what you would have paid on Google Flights right now.</div>
+                        </div>
+
+                        <div class="copy-block">
+                            <div class="copy-label">Social Proof</div>
+                            <div class="copy-text">423 other VAYA users booked this route today at this price.</div>
+                        </div>
+
+                        <div class="strategic-note">
+                            <p><strong>Viral Hook:</strong> Include a "Share your savings" button that generates: 
+                            "Just booked Tokyo for $612 with @VAYA â€” saved $235. Why are people still using Google Flights?"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Autonomous Agent -->
+        <section id="autonomous">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-number">End State</div>
+                    <h2>Autonomous Travel Agent <span class="phase-badge">Year 5</span></h2>
+                    <p class="section-intro">
+                        The ultimate vision: Users don't search, compare, or book. VAYA handles everything. 
+                        These components make that future tangible.
+                    </p>
+                </div>
+
+                <div class="principle-box">
+                    <h3>The End State Promise</h3>
+                    <p>
+                        "I haven't searched for a flight in 2 years. I just tell VAYA where I need to be, 
+                        and tickets appear in my phone when it's time to travel."
+                    </p>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸ¤–</div>
+                        <div>
+                            <div class="component-title">ATA Onboarding Flow</div>
+                            <div class="component-subtitle">Setup autonomous preferences</div>
+                        </div>
+                        <span class="priority priority-p2">P2 â€” Year 5</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-section">
+                            <h4>User Input Requirements</h4>
+                            <table class="spec-table">
+                                <thead>
+                                    <tr>
+                                        <th>Preference</th>
+                                        <th>Input Type</th>
+                                        <th>Example</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Annual Budget</td>
+                                        <td>Slider</td>
+                                        <td>"$5,000/year for flights"</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Preferred Airlines</td>
+                                        <td>Multi-select</td>
+                                        <td>"Any Oneworld, prefer SQ"</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Seat Preferences</td>
+                                        <td>Toggle</td>
+                                        <td>"Window, aisle OK, never middle"</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Connection Tolerance</td>
+                                        <td>Slider</td>
+                                        <td>"Max 2hr connections"</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Calendar Sync</td>
+                                        <td>OAuth</td>
+                                        <td>Google Calendar / Outlook</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Loyalty Programs</td>
+                                        <td>Input</td>
+                                        <td>"KrisFlyer: xxx, Enrich: xxx"</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Autonomy Level</td>
+                                        <td>Radio</td>
+                                        <td>"Book automatically" vs "Confirm first"</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="copy-block">
+                            <div class="copy-label">Onboarding Promise</div>
+                            <div class="copy-text large">"Set it once. Travel forever."</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸ“¬</div>
+                        <div>
+                            <div class="component-title">Auto-Book Notification</div>
+                            <div class="component-subtitle">VAYA booked without asking</div>
+                        </div>
+                        <span class="priority priority-p2">P2 â€” Year 5</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="label">ðŸ“¬ VAYA NOTIFICATION</span>                                      â”‚
+â”‚                                                             â”‚
+â”‚  <span class="highlight">âœ“ Your Tokyo trip is booked</span>                              â”‚
+â”‚                                                             â”‚
+â”‚  We found SQ117 for $598 â€” $402 below your max budget.      â”‚
+â”‚  Your calendar showed March 5-12 was free.                  â”‚
+â”‚  We booked it.                                              â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚  KUL â†’ NRT  â€¢  March 5  â€¢  08:15                    â”‚   â”‚
+â”‚  â”‚  Singapore Airlines SQ117 â€¢ Direct                  â”‚   â”‚
+â”‚  â”‚                                                     â”‚   â”‚
+â”‚  â”‚  Confirmation: <span class="action">VAYA-TYO-9847</span>                     â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">Why we booked now:</span>                                        â”‚
+â”‚  â€¢ Price 32% below your historical average for this route  â”‚
+â”‚  â€¢ Oracle predicted 18% increase next week                  â”‚
+â”‚  â€¢ Your calendar was clear                                  â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚  View Details  â”‚  â”‚  <span class="label">Change dates (fees may apply)</span>  â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                        </div>
+
+                        <div class="strategic-note">
+                            <p><strong>This is the end of flight search.</strong> User wakes up, sees this notification, 
+                            and their trip is handled. No decisions. No anxiety. Just: "You're going to Tokyo."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alerts -->
+        <section id="alerts" style="background: var(--bg-secondary);">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-number">Engagement</div>
+                    <h2>Alert & Notification Components</h2>
+                    <p class="section-intro">
+                        VAYA doesn't wait for users to come back. VAYA reaches out with intelligence. 
+                        Alerts must be valuable enough that users WANT them.
+                    </p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="component" style="margin-bottom: 0;">
+                        <div class="component-header">
+                            <div class="component-icon">ðŸ””</div>
+                            <div>
+                                <div class="component-title">Price Drop Alert</div>
+                                <div class="component-subtitle">Predicted drop happened</div>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="copy-block">
+                                <div class="copy-label">Push Notification</div>
+                                <div class="copy-text">ðŸ”® We were right. Tokyo dropped to $598. Book now before it rebounds.</div>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                <strong>Key:</strong> "We were right" â€” reinforces trust in Oracle.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="component" style="margin-bottom: 0;">
+                        <div class="component-header">
+                            <div class="component-icon">âš¡</div>
+                            <div>
+                                <div class="component-title">Error Fare Alert</div>
+                                <div class="component-subtitle">Anomaly detected</div>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="copy-block">
+                                <div class="copy-label">Push Notification</div>
+                                <div class="copy-text">âš¡ ERROR FARE: Business class to London for $847 (usually $4,200). Book in next 2 hours.</div>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                <strong>Key:</strong> Urgency + specific savings = action.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="component" style="margin-bottom: 0;">
+                        <div class="component-header">
+                            <div class="component-icon">â°</div>
+                            <div>
+                                <div class="component-title">Wait Timer Complete</div>
+                                <div class="component-subtitle">Time to book</div>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="copy-block">
+                                <div class="copy-label">Push Notification</div>
+                                <div class="copy-text">â° 4 days ago we said wait. Now we say: Book Tokyo now. $612 â€” lowest it'll go.</div>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                <strong>Key:</strong> Callback to original prediction builds trust.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="component" style="margin-bottom: 0;">
+                        <div class="component-header">
+                            <div class="component-icon">ðŸ‘¥</div>
+                            <div>
+                                <div class="component-title">Pool Update</div>
+                                <div class="component-subtitle">Demand pool status</div>
+                            </div>
+                        </div>
+                        <div class="component-body">
+                            <div class="copy-block">
+                                <div class="copy-label">Push Notification</div>
+                                <div class="copy-text">ðŸŠ Your Tokyo pool hit 4,000! Airlines are now bidding. Check current offers.</div>
+                            </div>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                                <strong>Key:</strong> Excitement + call to action.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trust Signals -->
+        <section id="trust">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-number">Foundation</div>
+                    <h2>Trust Signal Components</h2>
+                    <p class="section-intro">
+                        VAYA asks users to trust predictions and sometimes book without comparing. 
+                        Trust must be built systematically through every interaction.
+                    </p>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸ“Š</div>
+                        <div>
+                            <div class="component-title">Track Record Display</div>
+                            <div class="component-subtitle">Show Oracle's historical accuracy</div>
+                        </div>
+                        <span class="priority priority-p1">P1</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="label">ðŸ”® ORACLE TRACK RECORD</span>                                    â”‚
+â”‚                                                             â”‚
+â”‚  <span class="highlight">87.3%</span> prediction accuracy (last 90 days)                 â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚  <span class="highlight">12,847 predictions made</span>                            â”‚   â”‚
+â”‚  â”‚  11,214 were accurate (within 10% of predicted)     â”‚   â”‚
+â”‚  â”‚                                                     â”‚   â”‚
+â”‚  â”‚  Average savings for users who followed advice:     â”‚   â”‚
+â”‚  â”‚  <span class="action">$247 per booking</span>                                 â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">This route (KUL â†’ Tokyo):</span>                                 â”‚
+â”‚  â€¢ 94% accuracy (last 50 predictions)                       â”‚
+â”‚  â€¢ Average prediction: Â±$38 from actual                     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸ’¬</div>
+                        <div>
+                            <div class="component-title">User Testimonial Cards</div>
+                            <div class="component-subtitle">Real stories, real savings</div>
+                        </div>
+                        <span class="priority priority-p1">P1</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="copy-block">
+                            <div class="copy-label">Testimonial Format</div>
+                            <div class="copy-text">"VAYA told me to wait 5 days for my Bali trip. I was skeptical. The price dropped from $420 to $289. I'm never using Google Flights again."</div>
+                            <p style="color: var(--text-muted); margin-top: 8px; font-size: 0.85rem;">
+                                â€” Sarah M., saved $131 on KUL â†’ DPS
+                            </p>
+                        </div>
+
+                        <div class="strategic-note">
+                            <p><strong>Key:</strong> Testimonials must include specific numbers and routes. 
+                            "Great app!" is worthless. "$131 saved on KUL â†’ DPS" is proof.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component">
+                    <div class="component-header">
+                        <div class="component-icon">ðŸ†</div>
+                        <div>
+                            <div class="component-title">User Savings Dashboard</div>
+                            <div class="component-subtitle">Personal savings history</div>
+                        </div>
+                        <span class="priority priority-p1">P1</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="label">YOUR VAYA SAVINGS</span>                                         â”‚
+â”‚                                                             â”‚
+â”‚  <span class="highlight">$1,847</span>                                                   â”‚
+â”‚  Total saved since joining (Feb 2025)                       â”‚
+â”‚                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚  Bookings:  7                                       â”‚   â”‚
+â”‚  â”‚  Avg savings per booking: <span class="action">$264</span>                     â”‚   â”‚
+â”‚  â”‚  Predictions followed: 6/7 (86%)                    â”‚   â”‚
+â”‚  â”‚  Time saved (no comparison shopping): ~14 hours     â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                             â”‚
+â”‚  <span class="label">SAVINGS BREAKDOWN:</span>                                        â”‚
+â”‚  â€¢ Tokyo trip (Mar 2025): $298 saved                        â”‚
+â”‚  â€¢ Bali trip (Apr 2025): $187 saved                         â”‚
+â”‚  â€¢ London error fare (May 2025): $1,102 saved              â”‚
+â”‚  ...                                                        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <section style="background: linear-gradient(135deg, var(--bg-secondary), var(--bg-void));">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-number">Summary</div>
+                    <h2>Implementation Priority</h2>
+                    <p class="section-intro">
+                        Components ordered by strategic priority and launch timeline.
+                    </p>
+                </div>
+
+                <table class="spec-table">
+                    <thead>
+                        <tr>
+                            <th>Priority</th>
+                            <th>Component</th>
+                            <th>Strategic Purpose</th>
+                            <th>Phase</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="priority priority-p0">P0</span></td>
+                            <td>Price Intelligence Card</td>
+                            <td>Core differentiator â€” the product IS predictions</td>
+                            <td>MVP</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p0">P0</span></td>
+                            <td>Intent Declaration Bar</td>
+                            <td>Replaces search â€” paradigm shift visible immediately</td>
+                            <td>MVP</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p0">P0</span></td>
+                            <td>Wait/Book Directive</td>
+                            <td>The answer to "should I book now?" â€” core value</td>
+                            <td>MVP</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p0">P0</span></td>
+                            <td>Date Intelligence Picker</td>
+                            <td>Shows intelligence before user asks</td>
+                            <td>MVP</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p0">P0</span></td>
+                            <td>Flight Result Card</td>
+                            <td>Recommended option, not comparison list</td>
+                            <td>MVP</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p1">P1</span></td>
+                            <td>Price History Chart</td>
+                            <td>Proof of accuracy â€” builds trust</td>
+                            <td>Post-MVP</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p1">P1</span></td>
+                            <td>Confidence Meter</td>
+                            <td>Transparency = trust</td>
+                            <td>Post-MVP</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p1">P1</span></td>
+                            <td>Track Record Display</td>
+                            <td>Social proof of system accuracy</td>
+                            <td>Post-MVP</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p1">P1</span></td>
+                            <td>User Savings Dashboard</td>
+                            <td>Personal proof â€” retention driver</td>
+                            <td>Post-MVP</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p2">P2</span></td>
+                            <td>Demand Pool Card</td>
+                            <td>Power inversion â€” airlines bid for users</td>
+                            <td>Year 2</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p2">P2</span></td>
+                            <td>Airline Bid Display</td>
+                            <td>Visual proof airlines compete for YOU</td>
+                            <td>Year 2</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p2">P2</span></td>
+                            <td>ATA Onboarding</td>
+                            <td>End state â€” autonomous travel</td>
+                            <td>Year 5</td>
+                        </tr>
+                        <tr>
+                            <td><span class="priority priority-p2">P2</span></td>
+                            <td>Auto-Book Notification</td>
+                            <td>The ultimate promise â€” no search needed</td>
+                            <td>Year 5</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-insight" style="margin-top: 48px;">
+                    <h5>ðŸŽ¯ Integration Instruction</h5>
+                    <p>
+                        Take this component specification to your design chat. Every screen, every flow, 
+                        every micro-interaction should be built FROM these components. 
+                        The strategic vision is now design requirements. No retrofitting. Born revolutionary.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">VAYA</div>
+            <p class="footer-meta">Component Specification v1.0 â€¢ Strategy â†’ Design Bridge</p>
+        </div>
+    </footer>
+</body>
+</html>

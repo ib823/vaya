@@ -1,0 +1,11 @@
+[package]
+name = "vaya-cache"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "VayaCache - Custom sharded LRU cache with TTL support"
+
+[dependencies]
+vaya-common = { workspace = true }
+parking_lot = "0.12"

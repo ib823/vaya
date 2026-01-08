@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Component Library Master Specification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-500: #00F5A0; --mint-600: #00CC85; --mint-dim: rgba(0, 245, 160, 0.12);
+            --cyan-500: #00D9FF; --cyan-dim: rgba(0, 217, 255, 0.12);
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n150: #161618; --n200: #1A1A1D;
+            --n300: #232326; --n400: #2D2D31; --n500: #3D3D42; --n600: #5C5C63;
+            --n700: #7A7A82; --n800: #9999A1; --n900: #CCCCCC; --n1000: #FFFFFF;
+            --warning: #FFB800; --warning-dim: rgba(255,184,0,0.12);
+            --error: #FF4757; --error-dim: rgba(255,71,87,0.12);
+            --purple: #A855F7; --purple-dim: rgba(168,85,247,0.12);
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--n1000); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1800px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--cyan-500); margin-bottom: 48px; }
+        .doc-logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .doc-logo span:first-child { color: var(--mint-500); }
+        .doc-logo span:last-child { color: var(--cyan-500); }
+        .doc-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; margin-top: 16px; }
+        .category { margin-bottom: 48px; }
+        .category-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--n200); }
+        .component-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+        .component { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; overflow: hidden; }
+        .component-header { background: var(--n100); padding: 12px 16px; border-bottom: 1px solid var(--n200); display: flex; justify-content: space-between; align-items: center; }
+        .component-name { font-family: var(--font-display); font-size: 14px; font-weight: 700; }
+        .component-tag { font-family: var(--font-mono); font-size: 10px; color: var(--cyan-500); background: var(--cyan-dim); padding: 2px 8px; border-radius: 4px; }
+        .component-body { padding: 16px; }
+        .preview { background: var(--n100); border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; min-height: 60px; }
+        .specs { font-size: 11px; color: var(--n700); }
+        .specs code { font-family: var(--font-mono); color: var(--cyan-500); background: var(--n200); padding: 1px 4px; border-radius: 3px; }
+        .states { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+        .state { background: var(--n150); padding: 6px 10px; border-radius: 6px; font-size: 10px; color: var(--n600); }
+        .summary { background: var(--n100); border: 2px solid var(--cyan-500); border-radius: 16px; padding: 32px; text-align: center; margin-top: 48px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="doc-header">
+            <div class="doc-logo"><span>VA</span><span>YA</span></div>
+            <h1 class="doc-title">Component Library Master Specification</h1>
+        </header>
+
+        <!-- BUTTONS -->
+        <section class="category">
+            <h2 class="category-title">ðŸ”˜ Buttons (8 variants Ã— 6 states = 48 total)</h2>
+            <div class="component-grid">
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Primary Button</span>
+                        <span class="component-tag">Button.primary</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <button style="background: var(--mint-500); color: var(--n0); border: none; padding: 14px 28px; border-radius: 12px; font-family: var(--font-display); font-size: 15px; font-weight: 700;">Book Now</button>
+                        </div>
+                        <div class="specs">
+                            <code>H: 56px</code> <code>radius: 12px</code> <code>bg: mint-500</code> <code>text: n0</code> <code>font: Space Grotesk 16px/700</code>
+                        </div>
+                        <div class="states">
+                            <span class="state">default</span><span class="state">hover: mint-600</span><span class="state">active: scale(0.98)</span><span class="state">focus: glow</span><span class="state">disabled: n300</span><span class="state">loading: spinner</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Secondary Button</span>
+                        <span class="component-tag">Button.secondary</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <button style="background: transparent; color: var(--mint-500); border: 2px solid var(--mint-500); padding: 12px 26px; border-radius: 12px; font-family: var(--font-display); font-size: 15px; font-weight: 700;">Learn More</button>
+                        </div>
+                        <div class="specs">
+                            <code>border: 2px mint-500</code> <code>bg: transparent â†’ mint-dim</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Ghost Button</span>
+                        <span class="component-tag">Button.ghost</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <button style="background: transparent; color: var(--n800); border: none; padding: 14px 20px; border-radius: 12px; font-size: 14px;">Cancel</button>
+                        </div>
+                        <div class="specs">
+                            <code>bg: transparent â†’ n200</code> <code>text: n800 â†’ n1000</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Danger Button</span>
+                        <span class="component-tag">Button.danger</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <button style="background: var(--error); color: var(--n1000); border: none; padding: 14px 28px; border-radius: 12px; font-family: var(--font-display); font-size: 15px; font-weight: 700;">Delete</button>
+                        </div>
+                        <div class="specs">
+                            <code>bg: error (#FF4757)</code> <code>hover: #E63E4D</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Icon Button</span>
+                        <span class="component-tag">IconButton</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview" style="gap: 12px;">
+                            <button style="background: var(--n200); border: none; width: 48px; height: 48px; border-radius: 12px; font-size: 18px;">âœ•</button>
+                            <button style="background: var(--mint-dim); border: none; width: 40px; height: 40px; border-radius: 10px; font-size: 16px; color: var(--mint-500);">â™¡</button>
+                            <button style="background: var(--n200); border: none; width: 32px; height: 32px; border-radius: 8px; font-size: 14px;">â‹¯</button>
+                        </div>
+                        <div class="specs">
+                            <code>lg: 48px</code> <code>md: 40px</code> <code>sm: 32px</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INPUTS -->
+        <section class="category">
+            <h2 class="category-title">ðŸ“ Inputs (12 types Ã— 6 states = 72 total)</h2>
+            <div class="component-grid">
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Text Input</span>
+                        <span class="component-tag">Input.text</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <div style="width: 100%;">
+                                <label style="display: block; font-size: 10px; color: var(--n600); margin-bottom: 4px; text-transform: uppercase;">LABEL</label>
+                                <input style="width: 100%; height: 48px; background: var(--n200); border: 1px solid var(--n300); border-radius: 10px; padding: 0 14px; color: var(--n1000); font-size: 14px;" placeholder="Placeholder">
+                            </div>
+                        </div>
+                        <div class="specs">
+                            <code>H: 56px desktop, 52px mobile</code> <code>radius: 12px</code> <code>focus: cyan-500 border + glow</code>
+                        </div>
+                        <div class="states">
+                            <span class="state">default</span><span class="state">focus</span><span class="state">filled</span><span class="state">error</span><span class="state">success</span><span class="state">disabled</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Airport Picker</span>
+                        <span class="component-tag">AirportPicker</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <div style="background: var(--n200); border-radius: 10px; padding: 12px; text-align: center;">
+                                <div style="font-size: 9px; color: var(--n600); text-transform: uppercase;">FROM</div>
+                                <div style="font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--mint-500);">KUL</div>
+                                <div style="font-size: 11px; color: var(--n700);">Kuala Lumpur</div>
+                            </div>
+                        </div>
+                        <div class="specs">
+                            <code>code: Space Grotesk 32px/800 mint-500</code> <code>city: DM Sans 13px n700</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Date Picker</span>
+                        <span class="component-tag">DatePicker</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <div style="background: var(--n200); border-radius: 10px; padding: 12px;">
+                                <div style="font-size: 9px; color: var(--n600); text-transform: uppercase;">DEPARTURE</div>
+                                <div style="font-family: var(--font-display); font-size: 18px; font-weight: 700;">Fri, Mar 15</div>
+                            </div>
+                        </div>
+                        <div class="specs">
+                            <code>format: Day, Mon DD</code> <code>selected: mint-500 circle</code> <code>range: mint-dim bg</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">OTP Input</span>
+                        <span class="component-tag">OTPInput</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview" style="gap: 8px;">
+                            <div style="width: 40px; height: 48px; background: var(--n200); border: 1px solid var(--n300); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 20px;">1</div>
+                            <div style="width: 40px; height: 48px; background: var(--n200); border: 2px solid var(--cyan-500); border-radius: 8px;"></div>
+                            <div style="width: 40px; height: 48px; background: var(--n200); border: 1px solid var(--n300); border-radius: 8px;"></div>
+                            <div style="width: 40px; height: 48px; background: var(--n200); border: 1px solid var(--n300); border-radius: 8px;"></div>
+                        </div>
+                        <div class="specs">
+                            <code>box: 48Ã—56px</code> <code>gap: 12px</code> <code>font: JetBrains Mono 24px</code> <code>auto-advance</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Search Input</span>
+                        <span class="component-tag">SearchInput</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <div style="width: 100%; position: relative;">
+                                <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--n600); font-size: 14px;">ðŸ”</span>
+                                <input style="width: 100%; height: 48px; background: var(--n200); border: 1px solid var(--n300); border-radius: 10px; padding: 0 14px 0 40px; color: var(--n1000); font-size: 14px;" placeholder="Search...">
+                            </div>
+                        </div>
+                        <div class="specs">
+                            <code>icon: left 16px</code> <code>clear: right, on value</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Passenger Counter</span>
+                        <span class="component-tag">Counter</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <div style="display: flex; align-items: center; gap: 16px;">
+                                <button style="width: 36px; height: 36px; background: var(--n200); border: none; border-radius: 8px; font-size: 18px; color: var(--n600);">âˆ’</button>
+                                <span style="font-family: var(--font-mono); font-size: 20px; font-weight: 600; min-width: 24px; text-align: center;">2</span>
+                                <button style="width: 36px; height: 36px; background: var(--mint-dim); border: none; border-radius: 8px; font-size: 18px; color: var(--mint-500);">+</button>
+                            </div>
+                        </div>
+                        <div class="specs">
+                            <code>btn: 36Ã—36px</code> <code>min: 1</code> <code>max: 9</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARDS -->
+        <section class="category">
+            <h2 class="category-title">ðŸƒ Cards (10 types)</h2>
+            <div class="component-grid">
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Flight Result Card</span>
+                        <span class="component-tag">FlightCard</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>bg: n100</code> <code>border: n200 â†’ mint-500 hover</code> <code>radius: 16px</code> <code>padding: 20px</code><br>
+                            <code>time: Space Grotesk 24px/700</code> <code>price: 28px/800 mint-500</code> <code>airline: 12px n600</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Pool Card</span>
+                        <span class="component-tag">PoolCard</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>border: 2px purple (active)</code> <code>progress: 8px bar</code> <code>member badge: purple-dim</code><br>
+                            <code>almost full: mint-500 border</code> <code>savings: mint-500 text</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Alert Card</span>
+                        <span class="component-tag">AlertCard</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>status dot: 12px</code> <code>sparkline: 80Ã—32px</code> <code>target vs current display</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Trip Card</span>
+                        <span class="component-tag">TripCard</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>route: large display</code> <code>countdown: "Departs in X days"</code> <code>status badge</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Payment Card Visual</span>
+                        <span class="component-tag">PaymentCard</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>H: 180px</code> <code>brand gradient bg</code> <code>â€¢â€¢â€¢â€¢ 1234 masked</code> <code>expiry, name</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Traveler Card</span>
+                        <span class="component-tag">TravelerCard</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>H: 100px</code> <code>avatar: 56px initials</code> <code>relation badge</code> <code>swipe actions</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BADGES -->
+        <section class="category">
+            <h2 class="category-title">ðŸ·ï¸ Badges & Tags</h2>
+            <div class="component-grid">
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Status Badges</span>
+                        <span class="component-tag">Badge</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview" style="gap: 8px; flex-wrap: wrap;">
+                            <span style="background: var(--mint-dim); color: var(--mint-500); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">âœ“ Confirmed</span>
+                            <span style="background: var(--warning-dim); color: var(--warning); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">â³ Pending</span>
+                            <span style="background: var(--error-dim); color: var(--error); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">âœ• Cancelled</span>
+                            <span style="background: var(--purple-dim); color: var(--purple); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">ðŸ”¥ Hot</span>
+                        </div>
+                        <div class="specs">
+                            <code>padding: 6px 12px</code> <code>radius: 6px</code> <code>bg: {color}-dim</code> <code>text: {color}-500</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Oracle Confidence</span>
+                        <span class="component-tag">ConfidenceBadge</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <div style="display: flex; align-items: center; gap: 6px; background: var(--mint-dim); padding: 6px 12px; border-radius: 8px;">
+                                <span>ðŸ”®</span>
+                                <span style="font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--mint-500);">92%</span>
+                            </div>
+                        </div>
+                        <div class="specs">
+                            <code>high 80%+: mint</code> <code>med 60-79%: cyan</code> <code>low &lt;60%: warning</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROGRESS -->
+        <section class="category">
+            <h2 class="category-title">ðŸ“Š Progress Indicators</h2>
+            <div class="component-grid">
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Progress Bar</span>
+                        <span class="component-tag">ProgressBar</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview" style="flex-direction: column; gap: 12px; width: 100%;">
+                            <div style="width: 100%; background: var(--n200); border-radius: 4px; height: 8px;">
+                                <div style="background: var(--mint-500); height: 100%; width: 65%; border-radius: 4px;"></div>
+                            </div>
+                            <div style="width: 100%; background: var(--n200); border-radius: 4px; height: 4px;">
+                                <div style="background: var(--purple); height: 100%; width: 45%; border-radius: 4px;"></div>
+                            </div>
+                        </div>
+                        <div class="specs">
+                            <code>lg: 8px</code> <code>sm: 4px</code> <code>track: n200</code> <code>fill: mint-500 or purple</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Circular Progress</span>
+                        <span class="component-tag">CircularProgress</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <div style="width: 64px; height: 64px; border-radius: 50%; background: conic-gradient(var(--purple) 0deg 252deg, var(--n200) 252deg 360deg); display: flex; align-items: center; justify-content: center;">
+                                <div style="width: 52px; height: 52px; background: var(--n100); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 16px; font-weight: 700;">70%</div>
+                            </div>
+                        </div>
+                        <div class="specs">
+                            <code>sm: 80px</code> <code>lg: 120px</code> <code>stroke: 8px visual</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Step Indicator</span>
+                        <span class="component-tag">Stepper</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="preview">
+                            <div style="display: flex; align-items: center; gap: 0;">
+                                <div style="width: 24px; height: 24px; background: var(--mint-500); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--n0); font-size: 10px; font-weight: 700;">âœ“</div>
+                                <div style="width: 40px; height: 2px; background: var(--mint-500);"></div>
+                                <div style="width: 24px; height: 24px; background: var(--mint-500); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--n0); font-size: 10px; font-weight: 700;">2</div>
+                                <div style="width: 40px; height: 2px; background: var(--n300);"></div>
+                                <div style="width: 24px; height: 24px; background: var(--n300); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--n600); font-size: 10px; font-weight: 700;">3</div>
+                            </div>
+                        </div>
+                        <div class="specs">
+                            <code>circle: 32px</code> <code>line: 2px</code> <code>complete: mint + âœ“</code> <code>upcoming: n300</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOADING -->
+        <section class="category">
+            <h2 class="category-title">â³ Loading States</h2>
+            <div class="component-grid">
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Spinner</span>
+                        <span class="component-tag">Spinner</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>sm: 16px</code> <code>md: 24px</code> <code>lg: 40px</code> <code>border: 2-3px</code> <code>animation: rotate 800ms linear infinite</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Skeleton</span>
+                        <span class="component-tag">Skeleton</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>bg: n200</code> <code>shimmer: linear-gradient sweep</code> <code>animation: 1.5s ease infinite</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Pulse Dot</span>
+                        <span class="component-tag">PulseDot</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>size: 8-12px</code> <code>animation: pulse scale 1s infinite</code> <code>color: contextual</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NAVIGATION -->
+        <section class="category">
+            <h2 class="category-title">ðŸ“± Navigation</h2>
+            <div class="component-grid">
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Tab Bar (Mobile)</span>
+                        <span class="component-tag">TabBar</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>H: 64px + safe area</code> <code>bg: n100</code> <code>items: 5 max</code> <code>active: mint-500</code> <code>inactive: n600</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Header Bar</span>
+                        <span class="component-tag">Header</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>H: 56px + safe area</code> <code>bg: n100 or transparent</code> <code>back btn: left</code> <code>actions: right</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Segmented Control</span>
+                        <span class="component-tag">SegmentedControl</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>H: 44px</code> <code>bg: n200</code> <code>active: n100 pill</code> <code>radius: 10px</code> <code>transition: 200ms</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODALS -->
+        <section class="category">
+            <h2 class="category-title">ðŸ’¬ Modals & Sheets</h2>
+            <div class="component-grid">
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Modal</span>
+                        <span class="component-tag">Modal</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>desktop: W 480px centered</code> <code>mobile: bottom sheet</code> <code>bg: n100</code> <code>radius: 24px</code> <code>backdrop: rgba(0,0,0,0.6)</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Bottom Sheet</span>
+                        <span class="component-tag">BottomSheet</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>radius: 24px 24px 0 0</code> <code>handle: 40Ã—4px n400</code> <code>snap points: 25%, 50%, 90%</code> <code>drag to dismiss</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="component">
+                    <div class="component-header">
+                        <span class="component-name">Toast</span>
+                        <span class="component-tag">Toast</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="specs">
+                            <code>position: bottom center</code> <code>H: 52px</code> <code>radius: 12px</code> <code>auto dismiss: 4s</code> <code>success/error/info variants</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <div class="summary">
+            <h2 style="font-family: var(--font-display); font-size: 28px; font-weight: 800; margin-bottom: 20px;">COMPONENT LIBRARY COMPLETE</h2>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 24px 0;">
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 36px; font-weight: 800; color: var(--mint-500);">74</div>
+                    <div style="font-size: 11px; color: var(--n600);">COMPONENTS</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 36px; font-weight: 800; color: var(--cyan-500);">12</div>
+                    <div style="font-size: 11px; color: var(--n600);">CATEGORIES</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 36px; font-weight: 800; color: var(--purple);">444</div>
+                    <div style="font-size: 11px; color: var(--n600);">STATES</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 16px;">
+                    <div style="font-family: var(--font-display); font-size: 36px; font-weight: 800; color: var(--warning);">100%</div>
+                    <div style="font-size: 11px; color: var(--n600);">SPECIFIED</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

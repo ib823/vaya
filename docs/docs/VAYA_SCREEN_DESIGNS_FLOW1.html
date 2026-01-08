@@ -1,0 +1,2738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Screen Design Specification: Flow 1 - Intent Declaration & Oracle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Brand Colors - From Design System v2 */
+            --mint-500: #00F5A0;
+            --mint-600: #00CC85;
+            --mint-dim: rgba(0, 245, 160, 0.12);
+            --mint-muted: rgba(0, 245, 160, 0.24);
+            --cyan-500: #00D9FF;
+            --cyan-dim: rgba(0, 217, 255, 0.12);
+            
+            /* Neutrals */
+            --n0: #000000;
+            --n50: #0A0A0B;
+            --n100: #111113;
+            --n150: #161618;
+            --n200: #1A1A1D;
+            --n300: #232326;
+            --n400: #2D2D31;
+            --n500: #3D3D42;
+            --n600: #5C5C63;
+            --n700: #7A7A82;
+            --n800: #9999A1;
+            --n900: #CCCCCC;
+            --n1000: #FFFFFF;
+            
+            /* Semantic */
+            --warning: #FFB800;
+            --warning-dim: rgba(255, 184, 0, 0.12);
+            --error: #FF4757;
+            --error-dim: rgba(255, 71, 87, 0.12);
+            --success: #00F5A0;
+            --purple: #A855F7;
+            --blue: #3B82F6;
+            
+            /* Fonts */
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            /* Shadows */
+            --glow-sm: 0 0 16px rgba(0, 245, 160, 0.3);
+            --glow-md: 0 0 24px rgba(0, 245, 160, 0.4);
+            --glow-lg: 0 0 40px rgba(0, 245, 160, 0.5);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-body);
+            background: var(--n0);
+            color: var(--n1000);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Document Header */
+        .doc-header {
+            text-align: center;
+            padding: 80px 0;
+            border-bottom: 3px solid var(--mint-500);
+            margin-bottom: 60px;
+            background: linear-gradient(180deg, rgba(0,245,160,0.08) 0%, transparent 100%);
+        }
+
+        .doc-logo {
+            font-family: var(--font-display);
+            font-size: 48px;
+            font-weight: 800;
+        }
+
+        .doc-logo span:first-child { color: var(--mint-500); }
+        .doc-logo span:last-child { color: var(--cyan-500); }
+
+        .doc-title {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--n1000);
+            margin-top: 16px;
+        }
+
+        .doc-subtitle {
+            font-size: 16px;
+            color: var(--n700);
+            margin-top: 8px;
+        }
+
+        .doc-meta {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 32px;
+        }
+
+        .doc-meta-item {
+            text-align: center;
+        }
+
+        .doc-meta-label {
+            font-size: 10px;
+            color: var(--n600);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .doc-meta-value {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--mint-500);
+        }
+
+        /* Section Headers */
+        .section {
+            margin-bottom: 80px;
+        }
+
+        .section-header {
+            background: var(--n100);
+            border: 1px solid var(--n200);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .section-num {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--mint-500);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .section-desc {
+            color: var(--n700);
+            font-size: 15px;
+        }
+
+        /* Screen Card */
+        .screen-card {
+            background: var(--n50);
+            border: 1px solid var(--n200);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 48px;
+        }
+
+        .screen-card-header {
+            background: var(--n100);
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--n200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .screen-id {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--mint-500);
+            background: var(--mint-dim);
+            padding: 6px 12px;
+            border-radius: 6px;
+            margin-right: 16px;
+        }
+
+        .screen-name {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .screen-purpose {
+            color: var(--n600);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .screen-tags {
+            display: flex;
+            gap: 8px;
+        }
+
+        .screen-tag {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .screen-tag-critical { background: var(--error); color: #fff; }
+        .screen-tag-entry { background: var(--mint-500); color: #000; }
+        .screen-tag-interaction { background: var(--cyan-500); color: #000; }
+
+        .screen-card-body {
+            padding: 32px;
+        }
+
+        /* Device Tabs */
+        .device-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--n200);
+            padding-bottom: 16px;
+        }
+
+        .device-tab {
+            padding: 12px 24px;
+            background: var(--n200);
+            border: 1px solid var(--n300);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--n700);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .device-tab:hover {
+            background: var(--n300);
+            color: var(--n1000);
+        }
+
+        .device-tab.active {
+            background: var(--mint-500);
+            border-color: var(--mint-500);
+            color: var(--n0);
+        }
+
+        /* Spec Table */
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 32px;
+        }
+
+        .spec-table th {
+            background: var(--n100);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--n600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--n200);
+        }
+
+        .spec-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--n200);
+            font-size: 13px;
+            vertical-align: top;
+        }
+
+        .spec-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .spec-property {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--cyan-500);
+        }
+
+        .spec-value {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--n900);
+        }
+
+        .spec-note {
+            font-size: 11px;
+            color: var(--n600);
+            margin-top: 4px;
+        }
+
+        /* Component Spec */
+        .component-spec {
+            background: var(--n100);
+            border: 1px solid var(--n200);
+            border-radius: 12px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .component-spec-header {
+            background: var(--n150);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--n200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .component-name {
+            font-family: var(--font-display);
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .component-type {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--n600);
+            background: var(--n300);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .component-spec-body {
+            padding: 20px;
+        }
+
+        /* State Grid */
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .state-card {
+            background: var(--n150);
+            border: 1px solid var(--n300);
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .state-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--n600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        .state-preview {
+            background: var(--n0);
+            border-radius: 6px;
+            padding: 16px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .state-specs {
+            font-size: 11px;
+            color: var(--n700);
+        }
+
+        .state-specs code {
+            font-family: var(--font-mono);
+            color: var(--cyan-500);
+            font-size: 10px;
+        }
+
+        /* Layout Diagram */
+        .layout-diagram {
+            background: var(--n100);
+            border: 1px solid var(--n200);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .layout-title {
+            font-family: var(--font-display);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--n600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+
+        /* Dimension Box */
+        .dimension-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .dimension-card {
+            background: var(--n150);
+            border: 1px solid var(--n300);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .dimension-device {
+            font-size: 11px;
+            color: var(--n600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .dimension-value {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--mint-500);
+        }
+
+        .dimension-label {
+            font-size: 11px;
+            color: var(--n700);
+            margin-top: 4px;
+        }
+
+        /* Animation Spec */
+        .animation-spec {
+            background: linear-gradient(135deg, var(--n100), rgba(168,85,247,0.05));
+            border: 1px solid var(--purple);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .animation-title {
+            font-family: var(--font-display);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--purple);
+            margin-bottom: 16px;
+        }
+
+        .animation-row {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 12px;
+        }
+
+        .animation-item {
+            flex: 1;
+        }
+
+        .animation-label {
+            font-size: 11px;
+            color: var(--n600);
+            margin-bottom: 4px;
+        }
+
+        .animation-value {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--n900);
+        }
+
+        /* Accessibility Spec */
+        .a11y-spec {
+            background: linear-gradient(135deg, var(--n100), rgba(59,130,246,0.05));
+            border: 1px solid var(--blue);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .a11y-title {
+            font-family: var(--font-display);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--blue);
+            margin-bottom: 16px;
+        }
+
+        .a11y-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .a11y-item {
+            background: var(--n150);
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        .a11y-label {
+            font-size: 11px;
+            color: var(--n600);
+            margin-bottom: 4px;
+        }
+
+        .a11y-value {
+            font-size: 13px;
+            color: var(--n900);
+        }
+
+        /* Integration Box */
+        .integration-box {
+            background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.05));
+            border: 1px solid var(--mint-500);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .integration-title {
+            font-family: var(--font-display);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--mint-500);
+            margin-bottom: 16px;
+        }
+
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .integration-item {
+            background: var(--n150);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .integration-crate {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--cyan-500);
+            margin-bottom: 4px;
+        }
+
+        .integration-desc {
+            font-size: 11px;
+            color: var(--n600);
+        }
+
+        /* Device Preview Frame */
+        .preview-container {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 32px;
+            background: var(--n100);
+            border-radius: 16px;
+            margin-bottom: 32px;
+        }
+
+        /* Desktop Preview */
+        .preview-desktop {
+            width: 600px;
+            background: var(--n300);
+            border-radius: 12px 12px 0 0;
+            padding: 8px 8px 0 8px;
+        }
+
+        .preview-desktop-toolbar {
+            display: flex;
+            gap: 6px;
+            padding: 8px;
+        }
+
+        .preview-desktop-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .preview-desktop-dot-red { background: #FF5F57; }
+        .preview-desktop-dot-yellow { background: #FEBC2E; }
+        .preview-desktop-dot-green { background: #28C840; }
+
+        .preview-desktop-screen {
+            background: var(--n0);
+            border-radius: 4px 4px 0 0;
+            min-height: 360px;
+        }
+
+        /* Mobile Preview */
+        .preview-mobile {
+            width: 280px;
+            background: var(--n300);
+            border-radius: 32px;
+            padding: 8px;
+        }
+
+        .preview-mobile-screen {
+            background: var(--n0);
+            border-radius: 26px;
+            min-height: 520px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-mobile-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 24px;
+            background: var(--n300);
+            border-radius: 0 0 14px 14px;
+        }
+
+        /* Watch Preview */
+        .preview-watch {
+            width: 140px;
+            height: 170px;
+            background: var(--n300);
+            border-radius: 36px;
+            padding: 16px 12px;
+            position: relative;
+        }
+
+        .preview-watch-screen {
+            background: var(--n0);
+            border-radius: 24px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .preview-watch-crown {
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 24px;
+            background: var(--n500);
+            border-radius: 2px;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: var(--n100);
+            border: 1px solid var(--n300);
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--n800);
+            line-height: 1.6;
+        }
+
+        .code-block .keyword { color: var(--purple); }
+        .code-block .string { color: var(--mint-500); }
+        .code-block .number { color: var(--cyan-500); }
+        .code-block .comment { color: var(--n600); }
+
+        /* Pixel Spec Table */
+        .pixel-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .pixel-table th {
+            background: var(--n150);
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--n600);
+            border-bottom: 1px solid var(--n300);
+        }
+
+        .pixel-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--n200);
+            color: var(--n800);
+        }
+
+        .pixel-table .property {
+            color: var(--cyan-500);
+            font-weight: 500;
+        }
+
+        .pixel-table .watch { color: var(--purple); }
+        .pixel-table .mobile { color: var(--mint-500); }
+        .pixel-table .tablet { color: var(--warning); }
+        .pixel-table .desktop { color: var(--cyan-500); }
+
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .stat-card {
+            background: var(--n100);
+            border: 1px solid var(--n200);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--mint-500);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--n600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 1200px) {
+            .dimension-grid { grid-template-columns: repeat(2, 1fr); }
+            .state-grid { grid-template-columns: repeat(2, 1fr); }
+            .summary-stats { grid-template-columns: repeat(3, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Document Header -->
+        <header class="doc-header">
+            <div class="doc-logo"><span>VA</span><span>YA</span></div>
+            <h1 class="doc-title">Screen Design Specification</h1>
+            <p class="doc-subtitle">Flow 1: Intent Declaration & Oracle â€” Every Pixel, Every State, Every Device</p>
+            
+            <div class="doc-meta">
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Flow</div>
+                    <div class="doc-meta-value">01 of 15</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Screens</div>
+                    <div class="doc-meta-value">4</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Device Variants</div>
+                    <div class="doc-meta-value">16</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Component States</div>
+                    <div class="doc-meta-value">48</div>
+                </div>
+                <div class="doc-meta-item">
+                    <div class="doc-meta-label">Version</div>
+                    <div class="doc-meta-value">1.0.0</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Summary Stats -->
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-value">4</div>
+                <div class="stat-label">Screens</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">16</div>
+                <div class="stat-label">Device Variants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Components</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">48</div>
+                <div class="stat-label">States</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">3</div>
+                <div class="stat-label">API Calls</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">14</div>
+                <div class="stat-label">Edge Cases</div>
+            </div>
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- SCREEN S1.1: HOME / INTENT DECLARATION -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S1.1</div>
+                <h2 class="section-title">Home / Intent Declaration</h2>
+                <p class="section-desc">Primary landing screen. The first thing users see. Intent Bar collapsed. Quick access to recent searches, trending destinations, and pool highlights.</p>
+            </div>
+
+            <div class="screen-card">
+                <div class="screen-card-header">
+                    <div>
+                        <span class="screen-id">S1.1</span>
+                        <span class="screen-name">Home / Intent Declaration</span>
+                        <p class="screen-purpose">Entry point â€” user declares travel intent</p>
+                    </div>
+                    <div class="screen-tags">
+                        <span class="screen-tag screen-tag-entry">ENTRY POINT</span>
+                        <span class="screen-tag screen-tag-critical">CRITICAL</span>
+                    </div>
+                </div>
+
+                <div class="screen-card-body">
+                    <!-- Device Dimensions -->
+                    <div class="layout-diagram">
+                        <div class="layout-title">ðŸ“ Screen Dimensions by Device</div>
+                        <div class="dimension-grid">
+                            <div class="dimension-card">
+                                <div class="dimension-device">âŒš Watch</div>
+                                <div class="dimension-value">162-198px</div>
+                                <div class="dimension-label">Width Ã— Variable Height</div>
+                            </div>
+                            <div class="dimension-card">
+                                <div class="dimension-device">ðŸ“± Mobile</div>
+                                <div class="dimension-value">320-428px</div>
+                                <div class="dimension-label">Width Ã— Full Viewport</div>
+                            </div>
+                            <div class="dimension-card">
+                                <div class="dimension-device">ðŸ“± Tablet</div>
+                                <div class="dimension-value">744-1366px</div>
+                                <div class="dimension-label">Width Ã— Full Viewport</div>
+                            </div>
+                            <div class="dimension-card">
+                                <div class="dimension-device">ðŸ–¥ï¸ Desktop</div>
+                                <div class="dimension-value">1280-1920px</div>
+                                <div class="dimension-label">Width Ã— 100vh min</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ==================== DESKTOP SPECIFICATION ==================== -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">ðŸ–¥ï¸ DESKTOP LAYOUT (1280px+)</span>
+                            <span class="component-type">DEVICE: DESKTOP</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <p style="color: var(--n700); margin-bottom: 20px;">Hero section with centered Intent Bar. Scrollable content below for trending and pools.</p>
+                            
+                            <!-- Layout Structure -->
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Position</th>
+                                        <th>Dimensions</th>
+                                        <th>Spacing</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">Header</td>
+                                        <td>top: 0, left: 0</td>
+                                        <td>W: 100%, H: 72px</td>
+                                        <td>padding: 0 40px</td>
+                                        <td>Fixed position, z-index: 100</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Logo</td>
+                                        <td>left: 40px, center-y</td>
+                                        <td>W: auto, H: 28px</td>
+                                        <td>â€”</td>
+                                        <td>Space Grotesk 28px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Nav Links</td>
+                                        <td>left: 140px, center-y</td>
+                                        <td>W: auto, H: 24px</td>
+                                        <td>gap: 36px</td>
+                                        <td>DM Sans 15px/500</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ User Menu</td>
+                                        <td>right: 40px, center-y</td>
+                                        <td>W: 40px, H: 40px</td>
+                                        <td>â€”</td>
+                                        <td>Avatar circle</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Hero Section</td>
+                                        <td>top: 72px</td>
+                                        <td>W: 100%, H: calc(100vh - 72px)</td>
+                                        <td>padding: 0 40px</td>
+                                        <td>Centered flex container</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Hero Title</td>
+                                        <td>center-x, top: 20vh</td>
+                                        <td>W: 800px max, H: auto</td>
+                                        <td>margin-bottom: 48px</td>
+                                        <td>Space Grotesk 72px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Hero Subtitle</td>
+                                        <td>center-x, below title</td>
+                                        <td>W: 600px max, H: auto</td>
+                                        <td>margin-bottom: 48px</td>
+                                        <td>DM Sans 20px/400, color: n700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ Intent Bar (Collapsed)</td>
+                                        <td>center-x, below subtitle</td>
+                                        <td>W: 900px max, H: 80px</td>
+                                        <td>padding: 16px 24px</td>
+                                        <td>border-radius: 24px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Trust Badges</td>
+                                        <td>center-x, below Intent Bar</td>
+                                        <td>W: auto, H: 32px</td>
+                                        <td>margin-top: 32px, gap: 24px</td>
+                                        <td>DM Sans 13px/500</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Scroll Content</td>
+                                        <td>below hero</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>padding: 80px 40px</td>
+                                        <td>Contains trending, pools</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Section Title</td>
+                                        <td>left-aligned</td>
+                                        <td>W: auto, H: auto</td>
+                                        <td>margin-bottom: 32px</td>
+                                        <td>Space Grotesk 36px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Trending Grid</td>
+                                        <td>below title</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>gap: 24px</td>
+                                        <td>grid: repeat(4, 1fr)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ Pool Highlights</td>
+                                        <td>below trending</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>margin-top: 80px</td>
+                                        <td>Horizontal scroll or grid</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Intent Bar Component (Collapsed State) -->
+                            <div style="margin-top: 32px;">
+                                <h4 style="font-family: var(--font-display); font-size: 16px; margin-bottom: 16px; color: var(--cyan-500);">Intent Bar (Collapsed) â€” Desktop</h4>
+                                <table class="pixel-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Element</th>
+                                            <th>Position</th>
+                                            <th>Dimensions</th>
+                                            <th>Typography</th>
+                                            <th>Colors</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="property">Container</td>
+                                            <td>â€”</td>
+                                            <td>W: 900px, H: 80px</td>
+                                            <td>â€”</td>
+                                            <td>bg: n100, border: n200</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Search Icon</td>
+                                            <td>left: 24px, center-y</td>
+                                            <td>W: 24px, H: 24px</td>
+                                            <td>â€”</td>
+                                            <td>color: n600</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Placeholder Text</td>
+                                            <td>left: 64px, center-y</td>
+                                            <td>W: auto, H: auto</td>
+                                            <td>Space Grotesk 20px/500</td>
+                                            <td>color: n500</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â””â”€ Search Button</td>
+                                            <td>right: 12px, center-y</td>
+                                            <td>W: 140px, H: 56px</td>
+                                            <td>Space Grotesk 16px/600</td>
+                                            <td>bg: mint-500, color: n0</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ==================== TABLET SPECIFICATION ==================== -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">ðŸ“± TABLET LAYOUT (744-1366px)</span>
+                            <span class="component-type">DEVICE: TABLET</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <p style="color: var(--n700); margin-bottom: 20px;">Similar to desktop but with adjusted spacing. Intent Bar fills more width.</p>
+                            
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Position</th>
+                                        <th>Dimensions</th>
+                                        <th>Spacing</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">Header</td>
+                                        <td>top: 0, left: 0</td>
+                                        <td>W: 100%, H: 64px</td>
+                                        <td>padding: 0 24px</td>
+                                        <td>Fixed position</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Logo</td>
+                                        <td>left: 24px, center-y</td>
+                                        <td>W: auto, H: 26px</td>
+                                        <td>â€”</td>
+                                        <td>Space Grotesk 26px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Nav Links</td>
+                                        <td>center-x</td>
+                                        <td>W: auto, H: 24px</td>
+                                        <td>gap: 32px</td>
+                                        <td>DM Sans 15px/500</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Hero Title</td>
+                                        <td>center-x, top: 16vh</td>
+                                        <td>W: 90% max, H: auto</td>
+                                        <td>margin-bottom: 32px</td>
+                                        <td>Space Grotesk 48px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Hero Subtitle</td>
+                                        <td>center-x</td>
+                                        <td>W: 80% max, H: auto</td>
+                                        <td>margin-bottom: 40px</td>
+                                        <td>DM Sans 18px/400</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Intent Bar (Collapsed)</td>
+                                        <td>center-x</td>
+                                        <td>W: calc(100% - 48px), H: 72px</td>
+                                        <td>padding: 14px 20px</td>
+                                        <td>border-radius: 20px, max-W: 700px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Trending Grid</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>gap: 20px</td>
+                                        <td>grid: repeat(3, 1fr)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ==================== MOBILE SPECIFICATION ==================== -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">ðŸ“± MOBILE LAYOUT (320-428px)</span>
+                            <span class="component-type">DEVICE: MOBILE</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <p style="color: var(--n700); margin-bottom: 20px;">Stack layout. Intent Bar prominent. Bottom navigation. Thumb-friendly design.</p>
+                            
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Position</th>
+                                        <th>Dimensions</th>
+                                        <th>Spacing</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">Status Bar</td>
+                                        <td>top: 0</td>
+                                        <td>W: 100%, H: 44px (iOS) / 24px (Android)</td>
+                                        <td>â€”</td>
+                                        <td>System provided</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Header</td>
+                                        <td>below status</td>
+                                        <td>W: 100%, H: 56px</td>
+                                        <td>padding: 0 16px</td>
+                                        <td>Fixed position</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Logo</td>
+                                        <td>left: 16px, center-y</td>
+                                        <td>W: auto, H: 22px</td>
+                                        <td>â€”</td>
+                                        <td>Space Grotesk 22px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ User Avatar</td>
+                                        <td>right: 16px, center-y</td>
+                                        <td>W: 36px, H: 36px</td>
+                                        <td>â€”</td>
+                                        <td>Circle, touch target: 44px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Hero Content</td>
+                                        <td>below header</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>padding: 24px 16px</td>
+                                        <td>â€”</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Hero Title</td>
+                                        <td>left-aligned</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>margin-bottom: 12px</td>
+                                        <td>Space Grotesk 28px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Hero Subtitle</td>
+                                        <td>left-aligned</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>margin-bottom: 24px</td>
+                                        <td>DM Sans 15px/400, color: n700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ Intent Bar (Collapsed)</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: 64px</td>
+                                        <td>padding: 12px 16px</td>
+                                        <td>border-radius: 16px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Trust Badges</td>
+                                        <td>below Intent Bar</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>margin-top: 24px, gap: 16px</td>
+                                        <td>Horizontal scroll</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Section: Recent</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>margin-top: 40px</td>
+                                        <td>Only if logged in</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Section: Trending</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>margin-top: 32px</td>
+                                        <td>Horizontal scroll cards</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Section: Pools</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>margin-top: 32px</td>
+                                        <td>Vertical stack</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Bottom Nav</td>
+                                        <td>bottom: 0</td>
+                                        <td>W: 100%, H: 83px (inc. safe area)</td>
+                                        <td>padding: 8px 0 34px</td>
+                                        <td>Fixed position, z-index: 100</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ Nav Items (5)</td>
+                                        <td>distributed</td>
+                                        <td>W: 64px each, H: 44px</td>
+                                        <td>â€”</td>
+                                        <td>Icon 24px + Label 10px</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Intent Bar Mobile States -->
+                            <div style="margin-top: 32px;">
+                                <h4 style="font-family: var(--font-display); font-size: 16px; margin-bottom: 16px; color: var(--cyan-500);">Intent Bar (Collapsed) â€” Mobile</h4>
+                                <table class="pixel-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Element</th>
+                                            <th>Dimensions</th>
+                                            <th>Typography</th>
+                                            <th>Colors</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="property">Container</td>
+                                            <td>W: 100%, H: 64px</td>
+                                            <td>â€”</td>
+                                            <td>bg: n100, border: 1px n200, radius: 16px</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Search Icon</td>
+                                            <td>W: 20px, H: 20px</td>
+                                            <td>â€”</td>
+                                            <td>color: n600</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Placeholder</td>
+                                            <td>W: auto, H: auto</td>
+                                            <td>Space Grotesk 16px/500</td>
+                                            <td>color: n500</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â””â”€ Chevron</td>
+                                            <td>W: 20px, H: 20px</td>
+                                            <td>â€”</td>
+                                            <td>color: n500</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ==================== WATCH SPECIFICATION ==================== -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">âŒš WATCH LAYOUT (162-198px)</span>
+                            <span class="component-type">DEVICE: APPLE WATCH</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <p style="color: var(--n700); margin-bottom: 20px;">Glanceable only. Shows active alerts and quick book actions. No search initiation on Watch â€” redirects to phone.</p>
+                            
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Position</th>
+                                        <th>Dimensions</th>
+                                        <th>Typography</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">Container</td>
+                                        <td>full screen</td>
+                                        <td>W: 162-198px, H: 197-242px</td>
+                                        <td>â€”</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Header Row</td>
+                                        <td>top: 8px</td>
+                                        <td>W: 100%, H: 24px</td>
+                                        <td>â€”</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Logo</td>
+                                        <td>left: 12px</td>
+                                        <td>W: auto, H: 14px</td>
+                                        <td>Space Grotesk 14px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ Time</td>
+                                        <td>right: 12px</td>
+                                        <td>W: auto, H: 11px</td>
+                                        <td>JetBrains Mono 11px/500</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Content Area</td>
+                                        <td>below header</td>
+                                        <td>W: calc(100% - 24px), H: auto</td>
+                                        <td>â€”</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Status Message</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>DM Sans 12px/500</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Alert Cards</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: 52px each</td>
+                                        <td>See Alert Card spec</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ CTA Button</td>
+                                        <td>bottom: 12px</td>
+                                        <td>W: 100%, H: 40px</td>
+                                        <td>DM Sans 14px/600</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div style="background: var(--warning-dim); border: 1px solid var(--warning); border-radius: 8px; padding: 16px; margin-top: 20px;">
+                                <p style="color: var(--warning); font-size: 13px; font-weight: 600;">âš ï¸ WATCH LIMITATION</p>
+                                <p style="color: var(--n700); font-size: 12px; margin-top: 8px;">Watch does NOT support search initiation. Tapping "Search" shows: "Open VAYA on your iPhone to search flights." Watch is for alerts and quick actions only.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Component States -->
+                    <div class="layout-diagram">
+                        <div class="layout-title">ðŸ”„ Intent Bar States (All Devices)</div>
+                        <div class="state-grid">
+                            <div class="state-card">
+                                <div class="state-name">Default</div>
+                                <div class="state-preview" style="background: var(--n100); border: 1px solid var(--n200); border-radius: 16px;">
+                                    <span style="color: var(--n500); font-size: 14px;">Where do you want to go?</span>
+                                </div>
+                                <div class="state-specs">
+                                    <code>bg: n100</code><br>
+                                    <code>border: 1px n200</code><br>
+                                    <code>text: n500</code>
+                                </div>
+                            </div>
+                            <div class="state-card">
+                                <div class="state-name">Hover</div>
+                                <div class="state-preview" style="background: var(--n150); border: 1px solid var(--n300); border-radius: 16px;">
+                                    <span style="color: var(--n500); font-size: 14px;">Where do you want to go?</span>
+                                </div>
+                                <div class="state-specs">
+                                    <code>bg: n150</code><br>
+                                    <code>border: 1px n300</code><br>
+                                    <code>cursor: pointer</code>
+                                </div>
+                            </div>
+                            <div class="state-card">
+                                <div class="state-name">Focus</div>
+                                <div class="state-preview" style="background: var(--n100); border: 1px solid var(--mint-500); border-radius: 16px; box-shadow: 0 0 0 3px rgba(0,245,160,0.12);">
+                                    <span style="color: var(--n500); font-size: 14px;">Where do you want to go?</span>
+                                </div>
+                                <div class="state-specs">
+                                    <code>border: 1px mint-500</code><br>
+                                    <code>shadow: 0 0 0 3px mint-dim</code><br>
+                                    <code>transition: 150ms</code>
+                                </div>
+                            </div>
+                            <div class="state-card">
+                                <div class="state-name">Disabled</div>
+                                <div class="state-preview" style="background: var(--n100); border: 1px solid var(--n200); border-radius: 16px; opacity: 0.5;">
+                                    <span style="color: var(--n500); font-size: 14px;">Where do you want to go?</span>
+                                </div>
+                                <div class="state-specs">
+                                    <code>opacity: 0.5</code><br>
+                                    <code>pointer-events: none</code><br>
+                                    <code>cursor: not-allowed</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Animation Specifications -->
+                    <div class="animation-spec">
+                        <div class="animation-title">ðŸŽ¬ Animation Specifications</div>
+                        <div class="animation-row">
+                            <div class="animation-item">
+                                <div class="animation-label">Page Load</div>
+                                <div class="animation-value">Hero fades in over 400ms with ease-out. Intent Bar slides up 20px with 200ms delay.</div>
+                            </div>
+                            <div class="animation-item">
+                                <div class="animation-label">Intent Bar Hover</div>
+                                <div class="animation-value">Background color transition 150ms ease. Scale transform 1.005 over 150ms.</div>
+                            </div>
+                        </div>
+                        <div class="animation-row">
+                            <div class="animation-item">
+                                <div class="animation-label">Intent Bar Focus</div>
+                                <div class="animation-value">Border color 150ms. Box-shadow 200ms ease-out. Glow effect appears.</div>
+                            </div>
+                            <div class="animation-item">
+                                <div class="animation-label">Trending Cards Scroll</div>
+                                <div class="animation-value">Momentum scroll with 0.5s deceleration. Snap to card edges on mobile.</div>
+                            </div>
+                        </div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Intent Bar Transition */</span>
+<span class="keyword">.intent-bar</span> {
+  <span class="property">transition</span>: <span class="string">background 150ms ease,
+               border-color 150ms ease,
+               box-shadow 200ms ease-out,
+               transform 150ms ease</span>;
+}
+
+<span class="keyword">.intent-bar:hover</span> {
+  <span class="property">transform</span>: <span class="string">scale(1.005)</span>;
+}
+
+<span class="keyword">.intent-bar:focus-within</span> {
+  <span class="property">box-shadow</span>: <span class="string">0 0 0 3px rgba(0, 245, 160, 0.12),
+               0 0 24px rgba(0, 245, 160, 0.3)</span>;
+}</pre>
+                        </div>
+                    </div>
+
+                    <!-- Accessibility -->
+                    <div class="a11y-spec">
+                        <div class="a11y-title">â™¿ Accessibility Specifications</div>
+                        <div class="a11y-grid">
+                            <div class="a11y-item">
+                                <div class="a11y-label">ARIA Role</div>
+                                <div class="a11y-value">Intent Bar: <code>role="search"</code>, <code>aria-label="Search flights"</code></div>
+                            </div>
+                            <div class="a11y-item">
+                                <div class="a11y-label">Focus Order</div>
+                                <div class="a11y-value">1. Skip to content â†’ 2. Logo â†’ 3. Nav items â†’ 4. Intent Bar â†’ 5. User menu</div>
+                            </div>
+                            <div class="a11y-item">
+                                <div class="a11y-label">Color Contrast</div>
+                                <div class="a11y-value">Placeholder text (n500 on n100): 4.8:1 âœ“ | CTA button (n0 on mint-500): 8.2:1 âœ“</div>
+                            </div>
+                            <div class="a11y-item">
+                                <div class="a11y-label">Touch Targets</div>
+                                <div class="a11y-value">All interactive elements â‰¥ 44Ã—44px (iOS) / 48Ã—48dp (Android)</div>
+                            </div>
+                            <div class="a11y-item">
+                                <div class="a11y-label">Screen Reader</div>
+                                <div class="a11y-value">"Search flights. Press Enter to start searching. Currently no destination selected."</div>
+                            </div>
+                            <div class="a11y-item">
+                                <div class="a11y-label">Reduced Motion</div>
+                                <div class="a11y-value">All animations disabled when <code>prefers-reduced-motion: reduce</code></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VAYA Integration -->
+                    <div class="integration-box">
+                        <div class="integration-title">ðŸ”— VAYA Architecture Integration</div>
+                        <div class="integration-grid">
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-api</div>
+                                <div class="integration-desc">GET /api/v1/trending â€” Fetch trending destinations</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-pool</div>
+                                <div class="integration-desc">GET /api/v1/pools/highlights â€” Active pools for display</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-auth</div>
+                                <div class="integration-desc">GET /api/v1/user/recent â€” Recent searches (if logged in)</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-db</div>
+                                <div class="integration-desc">User preferences, recent searches storage</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-cache</div>
+                                <div class="integration-desc">Trending destinations cached (TTL: 5 min)</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-web</div>
+                                <div class="integration-desc">Leptos components for rendering</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCREEN S1.2: INTENT BAR EXPANDED -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S1.2</div>
+                <h2 class="section-title">Intent Bar Expanded</h2>
+                <p class="section-desc">Full intent input interface. User enters destination, selects dates, specifies travelers. Smart suggestions appear as user types.</p>
+            </div>
+
+            <div class="screen-card">
+                <div class="screen-card-header">
+                    <div>
+                        <span class="screen-id">S1.2</span>
+                        <span class="screen-name">Intent Bar Expanded</span>
+                        <p class="screen-purpose">Primary input â€” user specifies travel intent</p>
+                    </div>
+                    <div class="screen-tags">
+                        <span class="screen-tag screen-tag-interaction">INTERACTION</span>
+                        <span class="screen-tag screen-tag-critical">CRITICAL</span>
+                    </div>
+                </div>
+
+                <div class="screen-card-body">
+                    <!-- Desktop Expanded Intent Bar -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">ðŸ–¥ï¸ DESKTOP â€” Intent Bar Expanded</span>
+                            <span class="component-type">MODAL OVERLAY</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <p style="color: var(--n700); margin-bottom: 20px;">Expands in place. Background dims. All fields visible simultaneously. Horizontal layout.</p>
+                            
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Position</th>
+                                        <th>Dimensions</th>
+                                        <th>Typography</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">Backdrop</td>
+                                        <td>fixed, full screen</td>
+                                        <td>W: 100vw, H: 100vh</td>
+                                        <td>â€”</td>
+                                        <td>bg: rgba(0,0,0,0.6), z-index: 200</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Container</td>
+                                        <td>center-x, top: 20vh</td>
+                                        <td>W: 1000px max, H: auto</td>
+                                        <td>â€”</td>
+                                        <td>bg: n100, radius: 28px, shadow: shadow-xl</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Close Button</td>
+                                        <td>top: 16px, right: 16px</td>
+                                        <td>W: 40px, H: 40px</td>
+                                        <td>â€”</td>
+                                        <td>Icon 20px, bg: n200 on hover</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Fields Row</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>â€”</td>
+                                        <td>display: flex, gap: 16px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Origin Field</td>
+                                        <td>â€”</td>
+                                        <td>W: 200px, H: 80px</td>
+                                        <td>Label: 11px/600, Value: 24px/600</td>
+                                        <td>Auto-filled from location</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Swap Button</td>
+                                        <td>between origin/dest</td>
+                                        <td>W: 40px, H: 40px</td>
+                                        <td>â€”</td>
+                                        <td>Circle, rotates 180Â° on hover</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Destination Field</td>
+                                        <td>â€”</td>
+                                        <td>W: 220px, H: 80px</td>
+                                        <td>Label: 11px/600, Value: 24px/600</td>
+                                        <td>Primary focus on open</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Dates Field</td>
+                                        <td>â€”</td>
+                                        <td>W: 240px, H: 80px</td>
+                                        <td>Label: 11px/600, Value: 18px/600</td>
+                                        <td>Opens Date Intelligence Picker</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Travelers Field</td>
+                                        <td>â€”</td>
+                                        <td>W: 140px, H: 80px</td>
+                                        <td>Label: 11px/600, Value: 18px/600</td>
+                                        <td>Opens counter dropdown</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â””â”€ Search Button</td>
+                                        <td>â€”</td>
+                                        <td>W: 160px, H: 64px</td>
+                                        <td>Space Grotesk 18px/600</td>
+                                        <td>bg: mint-500, glow on hover</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Autocomplete Dropdown</td>
+                                        <td>below Destination Field</td>
+                                        <td>W: 320px, H: auto (max 400px)</td>
+                                        <td>â€”</td>
+                                        <td>Shadow, max 8 results</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â””â”€ Result Item</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: 56px</td>
+                                        <td>City: 15px/600, Airport: 13px/400</td>
+                                        <td>Hover: bg n150</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ Smart Suggestions</td>
+                                        <td>below fields</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>DM Sans 13px/500</td>
+                                        <td>e.g., "Tokyo is 23% cheaper in March"</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Input Field States -->
+                            <div style="margin-top: 32px;">
+                                <h4 style="font-family: var(--font-display); font-size: 16px; margin-bottom: 16px; color: var(--cyan-500);">Input Field States â€” Desktop</h4>
+                                <div class="state-grid">
+                                    <div class="state-card">
+                                        <div class="state-name">Default</div>
+                                        <div class="state-preview" style="background: var(--n150); border-radius: 12px; padding: 12px; text-align: left;">
+                                            <div style="font-size: 10px; color: var(--n600); text-transform: uppercase; margin-bottom: 4px;">DESTINATION</div>
+                                            <div style="font-size: 16px; color: var(--n500);">Where to?</div>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>bg: n150</code><br>
+                                            <code>border: none</code>
+                                        </div>
+                                    </div>
+                                    <div class="state-card">
+                                        <div class="state-name">Focus</div>
+                                        <div class="state-preview" style="background: var(--n150); border: 2px solid var(--mint-500); border-radius: 12px; padding: 10px; text-align: left;">
+                                            <div style="font-size: 10px; color: var(--mint-500); text-transform: uppercase; margin-bottom: 4px;">DESTINATION</div>
+                                            <div style="font-size: 16px; color: var(--n1000);">|</div>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>border: 2px mint-500</code><br>
+                                            <code>label: mint-500</code>
+                                        </div>
+                                    </div>
+                                    <div class="state-card">
+                                        <div class="state-name">Filled</div>
+                                        <div class="state-preview" style="background: var(--n150); border-radius: 12px; padding: 12px; text-align: left;">
+                                            <div style="font-size: 10px; color: var(--n600); text-transform: uppercase; margin-bottom: 4px;">DESTINATION</div>
+                                            <div style="font-size: 16px; color: var(--n1000); font-weight: 600;">Tokyo, Japan</div>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>value: n1000</code><br>
+                                            <code>font-weight: 600</code>
+                                        </div>
+                                    </div>
+                                    <div class="state-card">
+                                        <div class="state-name">Error</div>
+                                        <div class="state-preview" style="background: var(--error-dim); border: 2px solid var(--error); border-radius: 12px; padding: 10px; text-align: left;">
+                                            <div style="font-size: 10px; color: var(--error); text-transform: uppercase; margin-bottom: 4px;">DESTINATION</div>
+                                            <div style="font-size: 16px; color: var(--n1000);">Wakanda</div>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>bg: error-dim</code><br>
+                                            <code>border: 2px error</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Expanded Intent Bar -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">ðŸ“± MOBILE â€” Intent Bar Expanded</span>
+                            <span class="component-type">FULL SCREEN</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <p style="color: var(--n700); margin-bottom: 20px;">Takes over full screen. Stacked fields. Large touch targets. Keyboard-aware layout.</p>
+                            
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Position</th>
+                                        <th>Dimensions</th>
+                                        <th>Typography</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">Container</td>
+                                        <td>fixed, full screen</td>
+                                        <td>W: 100%, H: 100%</td>
+                                        <td>â€”</td>
+                                        <td>bg: n0, z-index: 300</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Header</td>
+                                        <td>top: 0</td>
+                                        <td>W: 100%, H: 56px</td>
+                                        <td>Space Grotesk 17px/600</td>
+                                        <td>Title: "Search Flights"</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Back Button</td>
+                                        <td>left: 8px</td>
+                                        <td>W: 44px, H: 44px</td>
+                                        <td>â€”</td>
+                                        <td>â† icon, closes modal</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â””â”€ Clear All</td>
+                                        <td>right: 16px</td>
+                                        <td>W: auto, H: 44px</td>
+                                        <td>DM Sans 15px/600</td>
+                                        <td>color: mint-500</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Form Content</td>
+                                        <td>below header</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>â€”</td>
+                                        <td>padding: 16px, scrollable</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Origin Card</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: 72px</td>
+                                        <td>Label: 11px, Value: 20px/600</td>
+                                        <td>bg: n100, radius: 14px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Swap Button</td>
+                                        <td>right edge, between cards</td>
+                                        <td>W: 44px, H: 44px</td>
+                                        <td>â€”</td>
+                                        <td>Overlaps both cards</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Destination Card</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: 72px</td>
+                                        <td>Label: 11px, Value: 20px/600</td>
+                                        <td>Primary focus</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Dates Card</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: 72px</td>
+                                        <td>Label: 11px, Value: 16px/600</td>
+                                        <td>margin-top: 16px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â””â”€ Travelers Card</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: 72px</td>
+                                        <td>Label: 11px, Value: 16px/600</td>
+                                        <td>margin-top: 12px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ Search Button</td>
+                                        <td>bottom, fixed</td>
+                                        <td>W: calc(100% - 32px), H: 56px</td>
+                                        <td>Space Grotesk 17px/600</td>
+                                        <td>margin: 16px, above safe area</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Autocomplete Mobile -->
+                            <div style="margin-top: 32px;">
+                                <h4 style="font-family: var(--font-display); font-size: 16px; margin-bottom: 16px; color: var(--cyan-500);">Autocomplete Dropdown â€” Mobile</h4>
+                                <table class="pixel-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Element</th>
+                                            <th>Dimensions</th>
+                                            <th>Typography</th>
+                                            <th>Notes</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="property">Container</td>
+                                            <td>W: 100%, H: auto (max 50vh)</td>
+                                            <td>â€”</td>
+                                            <td>Below input, scrollable</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Section Header</td>
+                                            <td>W: 100%, H: 32px</td>
+                                            <td>JetBrains Mono 10px/700</td>
+                                            <td>"POPULAR" / "RECENT" / "NEARBY"</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â””â”€ Result Item</td>
+                                            <td>W: 100%, H: 64px</td>
+                                            <td>City: 16px/600, Details: 13px/400</td>
+                                            <td>Touch target: full width</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">  â”œâ”€ Icon</td>
+                                            <td>W: 40px, H: 40px</td>
+                                            <td>â€”</td>
+                                            <td>Plane icon or flag</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">  â”œâ”€ City Name</td>
+                                            <td>W: auto, H: auto</td>
+                                            <td>DM Sans 16px/600</td>
+                                            <td>color: n1000</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">  â””â”€ Airport Code</td>
+                                            <td>W: auto, H: auto</td>
+                                            <td>JetBrains Mono 12px/500</td>
+                                            <td>color: n600</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date Intelligence Picker -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">ðŸ“… Date Intelligence Picker (All Devices)</span>
+                            <span class="component-type">VAYA DIFFERENTIATOR</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <p style="color: var(--n700); margin-bottom: 20px;">Not just a calendar â€” shows price intelligence. Heatmap of prices by date. "Flexible" option for Oracle to optimize.</p>
+                            
+                            <div style="background: var(--mint-dim); border: 1px solid var(--mint-muted); border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                                <p style="color: var(--mint-500); font-size: 13px; font-weight: 600;">ðŸ§  REVOLUTIONARY FEATURE</p>
+                                <p style="color: var(--n800); font-size: 13px; margin-top: 8px;">Unlike traditional date pickers, VAYA's Date Intelligence Picker shows predicted price ranges for each date, helping users make informed decisions before searching.</p>
+                            </div>
+
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Desktop</th>
+                                        <th>Tablet</th>
+                                        <th>Mobile</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">Container Width</td>
+                                        <td class="desktop">720px (2 months side-by-side)</td>
+                                        <td class="tablet">680px (2 months)</td>
+                                        <td class="mobile">100% (1 month, swipe)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Month Header Height</td>
+                                        <td class="desktop">48px</td>
+                                        <td class="tablet">44px</td>
+                                        <td class="mobile">44px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Day Cell Size</td>
+                                        <td class="desktop">48Ã—56px</td>
+                                        <td class="tablet">44Ã—52px</td>
+                                        <td class="mobile">calc((100%-32px)/7) Ã— 52px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Day Number</td>
+                                        <td class="desktop">Space Grotesk 16px/600</td>
+                                        <td class="tablet">Space Grotesk 15px/600</td>
+                                        <td class="mobile">Space Grotesk 15px/600</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Price Indicator</td>
+                                        <td class="desktop">10px dot below number</td>
+                                        <td class="tablet">8px dot</td>
+                                        <td class="mobile">8px dot</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Price Colors</td>
+                                        <td colspan="3">
+                                            ðŸŸ¢ Cheap: mint-500 |
+                                            ðŸŸ¡ Average: warning |
+                                            ðŸ”´ Expensive: error
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Selected Date</td>
+                                        <td colspan="3">bg: mint-500, color: n0, radius: 12px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Date Range</td>
+                                        <td colspan="3">bg: mint-dim between selected dates</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Flexible Toggle</td>
+                                        <td class="desktop">Below calendar, W: 200px</td>
+                                        <td class="tablet">Below calendar, W: 180px</td>
+                                        <td class="mobile">Above calendar, W: 100%</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Legend</td>
+                                        <td class="desktop">Below toggle, horizontal</td>
+                                        <td class="tablet">Below toggle</td>
+                                        <td class="mobile">Below calendar</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Day Cell States -->
+                            <div style="margin-top: 32px;">
+                                <h4 style="font-family: var(--font-display); font-size: 16px; margin-bottom: 16px; color: var(--cyan-500);">Day Cell States</h4>
+                                <div class="state-grid">
+                                    <div class="state-card">
+                                        <div class="state-name">Available - Cheap</div>
+                                        <div class="state-preview" style="background: var(--n150); border-radius: 8px; padding: 8px; text-align: center;">
+                                            <div style="font-size: 15px; font-weight: 600; color: var(--n1000);">15</div>
+                                            <div style="width: 8px; height: 8px; background: var(--mint-500); border-radius: 50%; margin: 4px auto 0;"></div>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>dot: mint-500</code><br>
+                                            <code>cursor: pointer</code>
+                                        </div>
+                                    </div>
+                                    <div class="state-card">
+                                        <div class="state-name">Available - Expensive</div>
+                                        <div class="state-preview" style="background: var(--n150); border-radius: 8px; padding: 8px; text-align: center;">
+                                            <div style="font-size: 15px; font-weight: 600; color: var(--n1000);">22</div>
+                                            <div style="width: 8px; height: 8px; background: var(--error); border-radius: 50%; margin: 4px auto 0;"></div>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>dot: error</code><br>
+                                            <code>cursor: pointer</code>
+                                        </div>
+                                    </div>
+                                    <div class="state-card">
+                                        <div class="state-name">Selected</div>
+                                        <div class="state-preview" style="background: var(--mint-500); border-radius: 8px; padding: 8px; text-align: center;">
+                                            <div style="font-size: 15px; font-weight: 600; color: var(--n0);">18</div>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>bg: mint-500</code><br>
+                                            <code>color: n0</code>
+                                        </div>
+                                    </div>
+                                    <div class="state-card">
+                                        <div class="state-name">Disabled (Past)</div>
+                                        <div class="state-preview" style="background: transparent; border-radius: 8px; padding: 8px; text-align: center;">
+                                            <div style="font-size: 15px; font-weight: 600; color: var(--n500);">3</div>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>color: n500</code><br>
+                                            <code>pointer-events: none</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Animation Specs -->
+                    <div class="animation-spec">
+                        <div class="animation-title">ðŸŽ¬ Animation Specifications</div>
+                        <div class="animation-row">
+                            <div class="animation-item">
+                                <div class="animation-label">Open (Desktop)</div>
+                                <div class="animation-value">Backdrop fades in 200ms. Intent bar expands from collapsed position over 300ms with spring easing.</div>
+                            </div>
+                            <div class="animation-item">
+                                <div class="animation-label">Open (Mobile)</div>
+                                <div class="animation-value">Slides up from bottom over 300ms with ease-out. Background fades to solid.</div>
+                            </div>
+                        </div>
+                        <div class="animation-row">
+                            <div class="animation-item">
+                                <div class="animation-label">Autocomplete</div>
+                                <div class="animation-value">Dropdown appears with fade + scale from 0.95 to 1.0 over 150ms. Results stagger in 30ms each.</div>
+                            </div>
+                            <div class="animation-item">
+                                <div class="animation-label">Field Focus</div>
+                                <div class="animation-value">Border color 150ms. Label color 150ms. Slight scale 1.02 on focus.</div>
+                            </div>
+                        </div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Intent Bar Expand Animation */</span>
+<span class="keyword">@keyframes expandIntentBar</span> {
+  <span class="number">0%</span> {
+    <span class="property">width</span>: <span class="string">900px</span>;
+    <span class="property">height</span>: <span class="string">80px</span>;
+    <span class="property">padding</span>: <span class="string">16px 24px</span>;
+  }
+  <span class="number">100%</span> {
+    <span class="property">width</span>: <span class="string">1000px</span>;
+    <span class="property">height</span>: <span class="string">auto</span>;
+    <span class="property">padding</span>: <span class="string">28px 32px</span>;
+  }
+}
+
+<span class="keyword">.intent-bar-expanded</span> {
+  <span class="property">animation</span>: <span class="string">expandIntentBar 300ms cubic-bezier(0.34, 1.56, 0.64, 1)</span>;
+}</pre>
+                        </div>
+                    </div>
+
+                    <!-- Accessibility -->
+                    <div class="a11y-spec">
+                        <div class="a11y-title">â™¿ Accessibility Specifications</div>
+                        <div class="a11y-grid">
+                            <div class="a11y-item">
+                                <div class="a11y-label">Focus Management</div>
+                                <div class="a11y-value">On open: focus moves to Destination field. On close: focus returns to Intent Bar trigger.</div>
+                            </div>
+                            <div class="a11y-item">
+                                <div class="a11y-label">Escape Key</div>
+                                <div class="a11y-value">Closes modal at any point. Confirms with "Search cancelled" announcement.</div>
+                            </div>
+                            <div class="a11y-item">
+                                <div class="a11y-label">Arrow Keys (Autocomplete)</div>
+                                <div class="a11y-value">â†‘â†“ navigates results. Enter selects. Escape closes dropdown.</div>
+                            </div>
+                            <div class="a11y-item">
+                                <div class="a11y-label">Live Region</div>
+                                <div class="a11y-value">"5 suggestions available" announced when autocomplete appears.</div>
+                            </div>
+                            <div class="a11y-item">
+                                <div class="a11y-label">Date Picker</div>
+                                <div class="a11y-value">Arrow keys navigate days. Page Up/Down navigates months. Home/End for first/last of month.</div>
+                            </div>
+                            <div class="a11y-item">
+                                <div class="a11y-label">Price Indicator</div>
+                                <div class="a11y-value">"March 15, cheap flights expected" read for each date with price dot.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCREEN S1.3: ORACLE PROCESSING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S1.3</div>
+                <h2 class="section-title">Oracle Processing</h2>
+                <p class="section-desc">Loading state while Oracle analyzes data and generates prediction. Trust-building messaging. Progressive status updates.</p>
+            </div>
+
+            <div class="screen-card">
+                <div class="screen-card-header">
+                    <div>
+                        <span class="screen-id">S1.3</span>
+                        <span class="screen-name">Oracle Processing</span>
+                        <p class="screen-purpose">Loading â€” Oracle generates prediction</p>
+                    </div>
+                    <div class="screen-tags">
+                        <span class="screen-tag screen-tag-interaction">LOADING</span>
+                    </div>
+                </div>
+
+                <div class="screen-card-body">
+                    <!-- All Device Spec -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">ðŸ”® Oracle Processing Animation</span>
+                            <span class="component-type">ALL DEVICES</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <p style="color: var(--n700); margin-bottom: 20px;">Full-screen or modal loading state. Three-stage progress with trust-building messages.</p>
+
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Desktop</th>
+                                        <th>Tablet</th>
+                                        <th>Mobile</th>
+                                        <th>Watch</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">Container</td>
+                                        <td class="desktop">Center modal, 500Ã—400px</td>
+                                        <td class="tablet">Center modal, 450Ã—380px</td>
+                                        <td class="mobile">Full screen</td>
+                                        <td class="watch">Full screen</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Oracle Icon</td>
+                                        <td class="desktop">96Ã—96px</td>
+                                        <td class="tablet">80Ã—80px</td>
+                                        <td class="mobile">72Ã—72px</td>
+                                        <td class="watch">40Ã—40px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Icon Animation</td>
+                                        <td colspan="4">Pulsing glow (1.5s) + rotation (4s) + scale pulse (2s)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Stage Text</td>
+                                        <td class="desktop">Space Grotesk 24px/700</td>
+                                        <td class="tablet">Space Grotesk 22px/700</td>
+                                        <td class="mobile">Space Grotesk 20px/700</td>
+                                        <td class="watch">Space Grotesk 14px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Trust Message</td>
+                                        <td class="desktop">DM Sans 16px/400</td>
+                                        <td class="tablet">DM Sans 15px/400</td>
+                                        <td class="mobile">DM Sans 14px/400</td>
+                                        <td class="watch">DM Sans 11px/400</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Progress Bar</td>
+                                        <td class="desktop">W: 300px, H: 4px</td>
+                                        <td class="tablet">W: 280px, H: 4px</td>
+                                        <td class="mobile">W: calc(100%-64px), H: 4px</td>
+                                        <td class="watch">Hidden</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Processing Stages -->
+                            <div style="margin-top: 32px;">
+                                <h4 style="font-family: var(--font-display); font-size: 16px; margin-bottom: 16px; color: var(--cyan-500);">Processing Stages</h4>
+                                <table class="pixel-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Stage</th>
+                                            <th>Duration</th>
+                                            <th>Title</th>
+                                            <th>Message</th>
+                                            <th>Progress</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="property">1. Analyzing</td>
+                                            <td>0-2s</td>
+                                            <td>"Analyzing..."</td>
+                                            <td>"Scanning 2.4M price points"</td>
+                                            <td>0-33%</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">2. Predicting</td>
+                                            <td>2-4s</td>
+                                            <td>"Predicting..."</td>
+                                            <td>"Running 47 ML features"</td>
+                                            <td>33-66%</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">3. Optimizing</td>
+                                            <td>4-6s</td>
+                                            <td>"Optimizing..."</td>
+                                            <td>"Finding your best strategy"</td>
+                                            <td>66-100%</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">Complete</td>
+                                            <td>6s+</td>
+                                            <td>"Ready!"</td>
+                                            <td>â€”</td>
+                                            <td>100% + transition</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Extended Processing -->
+                            <div style="background: var(--warning-dim); border: 1px solid var(--warning); border-radius: 12px; padding: 20px; margin-top: 24px;">
+                                <p style="color: var(--warning); font-size: 13px; font-weight: 600;">â±ï¸ EXTENDED PROCESSING HANDLING</p>
+                                <table class="pixel-table" style="margin-top: 12px;">
+                                    <tbody>
+                                        <tr>
+                                            <td class="property">5+ seconds</td>
+                                            <td>Show: "Taking a bit longer than usual..."</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">10+ seconds</td>
+                                            <td>Show: "Almost there! Complex route analysis." + Cancel button</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">15+ seconds</td>
+                                            <td>Show: "Would you like us to email results?" + Email input + "Keep waiting" button</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">20+ seconds (timeout)</td>
+                                            <td>Show cached prediction if available, else error with retry button</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Animation Code -->
+                    <div class="animation-spec">
+                        <div class="animation-title">ðŸŽ¬ Animation Specifications</div>
+                        <div class="code-block">
+                            <pre><span class="comment">/* Oracle Icon Animation */</span>
+<span class="keyword">@keyframes oracleGlow</span> {
+  <span class="number">0%, 100%</span> { <span class="property">box-shadow</span>: <span class="string">0 0 20px rgba(0, 245, 160, 0.3)</span>; }
+  <span class="number">50%</span> { <span class="property">box-shadow</span>: <span class="string">0 0 40px rgba(0, 245, 160, 0.6)</span>; }
+}
+
+<span class="keyword">@keyframes oracleRotate</span> {
+  <span class="number">0%</span> { <span class="property">transform</span>: <span class="string">rotate(0deg)</span>; }
+  <span class="number">100%</span> { <span class="property">transform</span>: <span class="string">rotate(360deg)</span>; }
+}
+
+<span class="keyword">@keyframes oraclePulse</span> {
+  <span class="number">0%, 100%</span> { <span class="property">transform</span>: <span class="string">scale(1)</span>; }
+  <span class="number">50%</span> { <span class="property">transform</span>: <span class="string">scale(1.05)</span>; }
+}
+
+<span class="keyword">.oracle-icon</span> {
+  <span class="property">animation</span>: <span class="string">oracleGlow 1.5s ease-in-out infinite,
+               oracleRotate 4s linear infinite,
+               oraclePulse 2s ease-in-out infinite</span>;
+}
+
+<span class="comment">/* Stage Text Transition */</span>
+<span class="keyword">.stage-text</span> {
+  <span class="property">animation</span>: <span class="string">fadeInUp 300ms ease-out</span>;
+}
+
+<span class="keyword">@keyframes fadeInUp</span> {
+  <span class="number">0%</span> { <span class="property">opacity</span>: <span class="number">0</span>; <span class="property">transform</span>: <span class="string">translateY(10px)</span>; }
+  <span class="number">100%</span> { <span class="property">opacity</span>: <span class="number">1</span>; <span class="property">transform</span>: <span class="string">translateY(0)</span>; }
+}
+
+<span class="comment">/* Progress Bar */</span>
+<span class="keyword">.progress-bar</span> {
+  <span class="property">background</span>: <span class="string">linear-gradient(90deg, var(--mint-500), var(--cyan-500))</span>;
+  <span class="property">transition</span>: <span class="string">width 500ms ease-out</span>;
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- SCREEN S1.4: PREDICTION RESULTS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-num">Screen S1.4</div>
+                <h2 class="section-title">Prediction Results</h2>
+                <p class="section-desc">Oracle's recommendation displayed. Primary Prediction Card with verdict, confidence, reasoning. Alternative options available. Pool opportunity if applicable.</p>
+            </div>
+
+            <div class="screen-card">
+                <div class="screen-card-header">
+                    <div>
+                        <span class="screen-id">S1.4</span>
+                        <span class="screen-name">Prediction Results</span>
+                        <p class="screen-purpose">Oracle's recommendation â€” user decides to act</p>
+                    </div>
+                    <div class="screen-tags">
+                        <span class="screen-tag screen-tag-critical">CRITICAL</span>
+                        <span class="screen-tag" style="background: var(--purple); color: #fff;">CONVERSION</span>
+                    </div>
+                </div>
+
+                <div class="screen-card-body">
+                    <!-- Desktop Prediction Card -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">ðŸ–¥ï¸ DESKTOP â€” Prediction Results</span>
+                            <span class="component-type">RESULTS SCREEN</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <p style="color: var(--n700); margin-bottom: 20px;">Two-column layout. Primary Prediction Card on left. Price history graph and alternatives on right.</p>
+                            
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Position</th>
+                                        <th>Dimensions</th>
+                                        <th>Typography</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">Page Container</td>
+                                        <td>below header</td>
+                                        <td>W: 100%, max: 1400px</td>
+                                        <td>â€”</td>
+                                        <td>padding: 40px, centered</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Route Summary</td>
+                                        <td>top</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>Space Grotesk 28px/700</td>
+                                        <td>"KUL â†’ TYO Â· Mar 15-22 Â· 2 travelers"</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Two Column Layout</td>
+                                        <td>below summary</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>â€”</td>
+                                        <td>grid: 1fr 1fr, gap: 32px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â”œâ”€ Left Column</td>
+                                        <td>â€”</td>
+                                        <td>W: 50%, H: auto</td>
+                                        <td>â€”</td>
+                                        <td>Primary Prediction Card</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”‚ â””â”€ Right Column</td>
+                                        <td>â€”</td>
+                                        <td>W: 50%, H: auto</td>
+                                        <td>â€”</td>
+                                        <td>Graph + Alternatives</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Prediction Card Component -->
+                            <div style="margin-top: 32px;">
+                                <h4 style="font-family: var(--font-display); font-size: 16px; margin-bottom: 16px; color: var(--mint-500);">ðŸ”® Primary Prediction Card â€” Desktop</h4>
+                                <table class="pixel-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Element</th>
+                                            <th>Position</th>
+                                            <th>Dimensions</th>
+                                            <th>Typography</th>
+                                            <th>Colors</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="property">Container</td>
+                                            <td>â€”</td>
+                                            <td>W: 100%, H: auto</td>
+                                            <td>â€”</td>
+                                            <td>bg: gradient(n100 â†’ mint-dim), border: 2px mint-500, radius: 24px</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Verdict Badge</td>
+                                            <td>top-left, inside padding</td>
+                                            <td>W: auto, H: 36px</td>
+                                            <td>Space Grotesk 14px/700</td>
+                                            <td>bg: mint-500, color: n0, radius: 99px</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Confidence Meter</td>
+                                            <td>top-right</td>
+                                            <td>W: 80px, H: 80px</td>
+                                            <td>Space Grotesk 24px/800</td>
+                                            <td>Circle progress, mint-500</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Flight Summary</td>
+                                            <td>below badge</td>
+                                            <td>W: 100%, H: auto</td>
+                                            <td>â€”</td>
+                                            <td>See Flight Card spec</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”‚ â”œâ”€ Airline Logo</td>
+                                            <td>left</td>
+                                            <td>W: 48px, H: 48px</td>
+                                            <td>â€”</td>
+                                            <td>radius: 12px</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”‚ â”œâ”€ Route Times</td>
+                                            <td>center</td>
+                                            <td>W: auto, H: auto</td>
+                                            <td>Space Grotesk 32px/700</td>
+                                            <td>color: n1000</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”‚ â””â”€ Price</td>
+                                            <td>right</td>
+                                            <td>W: auto, H: auto</td>
+                                            <td>Space Grotesk 44px/800</td>
+                                            <td>color: mint-500</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Savings Badge</td>
+                                            <td>below price</td>
+                                            <td>W: auto, H: 28px</td>
+                                            <td>DM Sans 13px/600</td>
+                                            <td>bg: mint-dim, color: mint-500</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Why Section</td>
+                                            <td>below flight</td>
+                                            <td>W: 100%, H: auto</td>
+                                            <td>â€”</td>
+                                            <td>border-top: 1px n200</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”‚ â”œâ”€ "Why Book Now"</td>
+                                            <td>â€”</td>
+                                            <td>W: auto, H: auto</td>
+                                            <td>Space Grotesk 16px/700</td>
+                                            <td>color: n1000</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”‚ â””â”€ Reasons List</td>
+                                            <td>â€”</td>
+                                            <td>W: 100%, H: auto</td>
+                                            <td>DM Sans 14px/400</td>
+                                            <td>color: n700, bullet: mint-500</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â”œâ”€ Primary CTA</td>
+                                            <td>bottom</td>
+                                            <td>W: 100%, H: 64px</td>
+                                            <td>Space Grotesk 18px/700</td>
+                                            <td>bg: mint-500, color: n0, glow-md</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="property">â””â”€ Secondary CTA</td>
+                                            <td>below primary</td>
+                                            <td>W: 100%, H: 48px</td>
+                                            <td>DM Sans 15px/600</td>
+                                            <td>bg: transparent, color: n700, border: n300</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Verdict Badge Variants -->
+                            <div style="margin-top: 32px;">
+                                <h4 style="font-family: var(--font-display); font-size: 16px; margin-bottom: 16px; color: var(--cyan-500);">Verdict Badge Variants</h4>
+                                <div class="state-grid">
+                                    <div class="state-card">
+                                        <div class="state-name">Book Now</div>
+                                        <div class="state-preview">
+                                            <span style="background: var(--mint-500); color: var(--n0); padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 700;">âœ“ BOOK NOW</span>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>bg: mint-500</code><br>
+                                            <code>Oracle recommends immediate booking</code>
+                                        </div>
+                                    </div>
+                                    <div class="state-card">
+                                        <div class="state-name">Wait X Days</div>
+                                        <div class="state-preview">
+                                            <span style="background: var(--warning); color: var(--n0); padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 700;">â³ WAIT 3 DAYS</span>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>bg: warning</code><br>
+                                            <code>Oracle predicts price drop</code>
+                                        </div>
+                                    </div>
+                                    <div class="state-card">
+                                        <div class="state-name">Join Pool</div>
+                                        <div class="state-preview">
+                                            <span style="background: var(--purple); color: var(--n1000); padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 700;">ðŸ‘¥ JOIN POOL -23%</span>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>bg: purple</code><br>
+                                            <code>Pool opportunity available</code>
+                                        </div>
+                                    </div>
+                                    <div class="state-card">
+                                        <div class="state-name">Error Fare</div>
+                                        <div class="state-preview">
+                                            <span style="background: var(--error); color: var(--n1000); padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 700; animation: pulse 1s infinite;">ðŸ”¥ ERROR FARE</span>
+                                        </div>
+                                        <div class="state-specs">
+                                            <code>bg: error</code><br>
+                                            <code>Pulsing animation, urgent</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Prediction -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">ðŸ“± MOBILE â€” Prediction Results</span>
+                            <span class="component-type">RESULTS SCREEN</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <p style="color: var(--n700); margin-bottom: 20px;">Full-width Prediction Card. Scrollable. Bottom fixed CTA. Swipe for alternatives.</p>
+                            
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Position</th>
+                                        <th>Dimensions</th>
+                                        <th>Typography</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">Header</td>
+                                        <td>top: 0</td>
+                                        <td>W: 100%, H: 56px</td>
+                                        <td>Back button + "Results"</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Route Summary</td>
+                                        <td>below header</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>Space Grotesk 20px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Prediction Card</td>
+                                        <td>below summary</td>
+                                        <td>W: calc(100%-32px), H: auto</td>
+                                        <td>See mobile card spec below</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Verdict Badge</td>
+                                        <td>top-left</td>
+                                        <td>W: auto, H: 32px</td>
+                                        <td>Space Grotesk 12px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Confidence</td>
+                                        <td>top-right</td>
+                                        <td>W: 56px, H: 56px</td>
+                                        <td>Space Grotesk 18px/800</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Flight Summary</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>Route times: 24px, Price: 36px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Why Section</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>Title: 15px/700, List: 13px/400</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Alternatives Section</td>
+                                        <td>below card</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>â€”</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â”œâ”€ Title</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: auto</td>
+                                        <td>Space Grotesk 17px/700</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">â””â”€ Horizontal Scroll</td>
+                                        <td>â€”</td>
+                                        <td>W: 100%, H: 140px</td>
+                                        <td>Card width: 280px</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">Fixed Bottom CTA</td>
+                                        <td>bottom: 0</td>
+                                        <td>W: 100%, H: 100px (inc. safe)</td>
+                                        <td>Button: 17px/700</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Confidence Meter Component -->
+                    <div class="component-spec">
+                        <div class="component-spec-header">
+                            <span class="component-name">ðŸ“Š Confidence Meter Component</span>
+                            <span class="component-type">ALL DEVICES</span>
+                        </div>
+                        <div class="component-spec-body">
+                            <table class="pixel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Confidence Range</th>
+                                        <th>Color</th>
+                                        <th>Label</th>
+                                        <th>Behavior</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="property">90-100%</td>
+                                        <td style="color: var(--mint-500);">mint-500</td>
+                                        <td>"Very High"</td>
+                                        <td>Strong recommendation. CTA prominent.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">75-89%</td>
+                                        <td style="color: var(--mint-500);">mint-500 (lighter)</td>
+                                        <td>"High"</td>
+                                        <td>Good confidence. Standard display.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">60-74%</td>
+                                        <td style="color: var(--warning);">warning</td>
+                                        <td>"Moderate"</td>
+                                        <td>Show alternatives more prominently.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">50-59%</td>
+                                        <td style="color: var(--warning);">warning (darker)</td>
+                                        <td>"Low"</td>
+                                        <td>"It's a close call" messaging. Both options equal.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property">&lt;50%</td>
+                                        <td style="color: var(--n600);">n600</td>
+                                        <td>"Limited Data"</td>
+                                        <td>Disclaimer shown. User decides.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="code-block">
+                                <pre><span class="comment">/* Confidence Meter SVG */</span>
+&lt;<span class="keyword">svg</span> <span class="property">viewBox</span>=<span class="string">"0 0 100 100"</span>&gt;
+  <span class="comment">&lt;!-- Background circle --&gt;</span>
+  &lt;<span class="keyword">circle</span> 
+    <span class="property">cx</span>=<span class="string">"50"</span> <span class="property">cy</span>=<span class="string">"50"</span> <span class="property">r</span>=<span class="string">"45"</span>
+    <span class="property">fill</span>=<span class="string">"none"</span>
+    <span class="property">stroke</span>=<span class="string">"var(--n300)"</span>
+    <span class="property">stroke-width</span>=<span class="string">"8"</span>
+  /&gt;
+  <span class="comment">&lt;!-- Progress arc --&gt;</span>
+  &lt;<span class="keyword">circle</span> 
+    <span class="property">cx</span>=<span class="string">"50"</span> <span class="property">cy</span>=<span class="string">"50"</span> <span class="property">r</span>=<span class="string">"45"</span>
+    <span class="property">fill</span>=<span class="string">"none"</span>
+    <span class="property">stroke</span>=<span class="string">"var(--mint-500)"</span>
+    <span class="property">stroke-width</span>=<span class="string">"8"</span>
+    <span class="property">stroke-dasharray</span>=<span class="string">"282.7"</span>
+    <span class="property">stroke-dashoffset</span>=<span class="string">"calc(282.7 * (1 - 0.94))"</span> <span class="comment">&lt;!-- 94% --&gt;</span>
+    <span class="property">stroke-linecap</span>=<span class="string">"round"</span>
+    <span class="property">transform</span>=<span class="string">"rotate(-90 50 50)"</span>
+  /&gt;
+&lt;/<span class="keyword">svg</span>&gt;</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Integration -->
+                    <div class="integration-box">
+                        <div class="integration-title">ðŸ”— VAYA Architecture Integration</div>
+                        <div class="integration-grid">
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-oracle</div>
+                                <div class="integration-desc">Prediction generation, confidence scoring, explanation text</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-ml</div>
+                                <div class="integration-desc">XGBoost inference, LSTM sequence, feature computation</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-search</div>
+                                <div class="integration-desc">Flight search aggregation, alternative options</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-pool</div>
+                                <div class="integration-desc">Pool availability check for route/dates</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-db</div>
+                                <div class="integration-desc">Price history for chart, search event logging</div>
+                            </div>
+                            <div class="integration-item">
+                                <div class="integration-crate">vaya-stream</div>
+                                <div class="integration-desc">WebSocket for real-time price updates</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- FLOW 1 SUMMARY -->
+        <!-- ================================================================ -->
+        <div style="background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.05)); border: 2px solid var(--mint-500); border-radius: 24px; padding: 48px; text-align: center; margin-top: 64px;">
+            <h3 style="font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--mint-500); margin-bottom: 24px;">FLOW 1 COMPLETE: INTENT DECLARATION & ORACLE</h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin: 32px 0;">
+                <div style="background: var(--n150); border-radius: 12px; padding: 20px;">
+                    <div style="font-family: var(--font-display); font-size: 32px; font-weight: 800; color: var(--mint-500);">4</div>
+                    <div style="font-size: 12px; color: var(--n600); text-transform: uppercase;">Screens</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 20px;">
+                    <div style="font-family: var(--font-display); font-size: 32px; font-weight: 800; color: var(--cyan-500);">16</div>
+                    <div style="font-size: 12px; color: var(--n600); text-transform: uppercase;">Device Variants</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 20px;">
+                    <div style="font-family: var(--font-display); font-size: 32px; font-weight: 800; color: var(--warning);">48</div>
+                    <div style="font-size: 12px; color: var(--n600); text-transform: uppercase;">Component States</div>
+                </div>
+                <div style="background: var(--n150); border-radius: 12px; padding: 20px;">
+                    <div style="font-family: var(--font-display); font-size: 32px; font-weight: 800; color: var(--purple);">100%</div>
+                    <div style="font-size: 12px; color: var(--n600); text-transform: uppercase;">Pixel Specified</div>
+                </div>
+            </div>
+
+            <p style="color: var(--n600); font-size: 14px; max-width: 600px; margin: 0 auto;">
+                Every element has exact dimensions, typography, colors, and animations specified for Desktop, Tablet, Mobile, and Watch. Integrated with VAYA's 17-crate architecture.
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

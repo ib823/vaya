@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Legal Documentation Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0; --cyan: #00D9FF; --white: #FFFFFF;
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n200: #1A1A1D;
+            --n600: #5C5C63; --n700: #7A7A82;
+            --error: #FF4757; --warning: #FFB800; --purple: #A855F7;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--white); line-height: 1.7; font-size: 14px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px; }
+        .header { text-align: center; padding: 48px 0; border-bottom: 2px solid var(--mint); margin-bottom: 48px; }
+        .logo { font-family: var(--font-display); font-size: 48px; font-weight: 800; }
+        .logo span:first-child { color: var(--mint); }
+        .logo span:last-child { color: var(--cyan); }
+        h1 { font-family: var(--font-display); font-size: 28px; color: var(--mint); margin-top: 16px; }
+        .section { margin-bottom: 48px; }
+        .section-header { background: var(--n100); padding: 20px 24px; border-left: 4px solid var(--purple); margin-bottom: 24px; }
+        .section-id { font-family: var(--font-mono); font-size: 11px; color: var(--n600); }
+        .section-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; margin-top: 4px; }
+        .doc-box { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; padding: 32px; margin-bottom: 24px; }
+        .doc-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--cyan); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--n200); }
+        h3 { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--mint); margin: 24px 0 12px 0; }
+        h4 { font-size: 13px; font-weight: 600; color: var(--white); margin: 16px 0 8px 0; }
+        p { margin-bottom: 12px; color: var(--n700); }
+        ul, ol { margin: 12px 0 12px 24px; color: var(--n700); }
+        li { margin-bottom: 8px; }
+        .highlight { background: var(--n100); padding: 16px; border-radius: 8px; margin: 16px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12px; }
+        th { background: var(--n100); padding: 10px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--n600); }
+        td { padding: 10px; border-bottom: 1px solid var(--n200); }
+        .effective-date { font-family: var(--font-mono); font-size: 11px; color: var(--warning); margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span>VA</span><span>YA</span></div>
+            <h1>âš–ï¸ Legal Documentation Suite</h1>
+            <p style="color: var(--n600); margin-top: 12px;">LEGAL-01 through LEGAL-04 â€” Complete Legal Framework</p>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- LEGAL-01: TERMS OF SERVICE -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">LEGAL-01</span>
+                <div class="section-title">Terms of Service</div>
+            </div>
+
+            <div class="doc-box">
+                <div class="doc-title">VAYA TERMS OF SERVICE</div>
+                <p class="effective-date">Effective Date: [LAUNCH_DATE] | Last Updated: [LAUNCH_DATE]</p>
+
+                <h3>1. ACCEPTANCE OF TERMS</h3>
+                <p>By accessing or using VAYA ("Service"), operated by VAYA Technologies Sdn Bhd ("Company," "we," "us," or "our"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the Service.</p>
+
+                <h3>2. DEFINITIONS</h3>
+                <ul>
+                    <li><strong>"User"</strong> means any individual who accesses or uses the Service</li>
+                    <li><strong>"Account"</strong> means a registered user account on the Service</li>
+                    <li><strong>"Booking"</strong> means a flight reservation made through the Service</li>
+                    <li><strong>"Pool"</strong> means a demand aggregation group for collective flight booking</li>
+                    <li><strong>"Oracle"</strong> means our price prediction and recommendation system</li>
+                    <li><strong>"ATA"</strong> means Automated Travel Agent, our automated booking service</li>
+                    <li><strong>"Content"</strong> means all information, data, text, and materials on the Service</li>
+                </ul>
+
+                <h3>3. SERVICE DESCRIPTION</h3>
+                <p>VAYA provides:</p>
+                <ul>
+                    <li>Flight search and price comparison across multiple providers</li>
+                    <li>Price prediction and booking recommendations</li>
+                    <li>Demand pooling for group discounts</li>
+                    <li>Price alerts and automated booking</li>
+                    <li>Booking management and itinerary services</li>
+                </ul>
+
+                <h3>4. USER ACCOUNTS</h3>
+                <h4>4.1 Registration</h4>
+                <p>To access certain features, you must create an Account. You agree to:</p>
+                <ul>
+                    <li>Provide accurate, current, and complete information</li>
+                    <li>Maintain and update your information</li>
+                    <li>Keep your password secure and confidential</li>
+                    <li>Accept responsibility for all activities under your Account</li>
+                    <li>Notify us immediately of any unauthorized use</li>
+                </ul>
+
+                <h4>4.2 Account Termination</h4>
+                <p>We may suspend or terminate your Account if you:</p>
+                <ul>
+                    <li>Violate these Terms</li>
+                    <li>Provide false information</li>
+                    <li>Engage in fraudulent activity</li>
+                    <li>Abuse the Service or other users</li>
+                </ul>
+
+                <h3>5. BOOKING TERMS</h3>
+                <h4>5.1 Agency Relationship</h4>
+                <p>VAYA acts as an <strong>intermediary</strong> between you and airlines/travel providers. Your contract for air travel is with the airline, not VAYA. We facilitate the booking process but are not the service provider.</p>
+
+                <h4>5.2 Booking Accuracy</h4>
+                <p>You are responsible for:</p>
+                <ul>
+                    <li>Verifying all booking details before confirmation</li>
+                    <li>Ensuring passenger names match travel documents exactly</li>
+                    <li>Reviewing fare rules, baggage allowances, and restrictions</li>
+                    <li>Confirming flight times and dates</li>
+                </ul>
+
+                <h4>5.3 Price Changes</h4>
+                <p>Flight prices may change at any time before payment completion. The final price is confirmed only upon successful payment. Our price predictions are estimates and not guarantees.</p>
+
+                <h3>6. POOL PARTICIPATION</h3>
+                <h4>6.1 Pool Rules</h4>
+                <ul>
+                    <li>Pool participation is binding once the pool activates</li>
+                    <li>Withdrawal before activation: Full refund</li>
+                    <li>Withdrawal after activation: Subject to cancellation fees</li>
+                    <li>Pool success depends on reaching minimum participants</li>
+                    <li>Final pricing depends on airline bids</li>
+                </ul>
+
+                <h4>6.2 Pool Failure</h4>
+                <p>If a pool fails to activate or receive bids, all participants receive full refunds within 7 business days.</p>
+
+                <h3>7. PAYMENT TERMS</h3>
+                <ul>
+                    <li>All prices displayed in Malaysian Ringgit (MYR) unless otherwise stated</li>
+                    <li>Payment must be made in full at time of booking</li>
+                    <li>We accept: Credit/Debit cards, FPX, GrabPay, Touch'n Go, Boost, ShopeePay</li>
+                    <li>Currency conversion fees may apply for non-MYR transactions</li>
+                    <li>Prices include all applicable taxes and fees unless stated otherwise</li>
+                </ul>
+
+                <h3>8. CANCELLATION AND REFUNDS</h3>
+                <p>Cancellation and refund policies are governed by:</p>
+                <ul>
+                    <li>Airline fare rules (primary)</li>
+                    <li>VAYA service fees (non-refundable except in specific circumstances)</li>
+                    <li>See our separate Refund Policy for full details</li>
+                </ul>
+
+                <h3>9. ORACLE PREDICTIONS DISCLAIMER</h3>
+                <div class="highlight">
+                    <p><strong>IMPORTANT:</strong> Our Oracle price predictions are based on historical data and machine learning algorithms. They are:</p>
+                    <ul>
+                        <li>Estimates only, not guarantees</li>
+                        <li>Subject to market conditions and airline pricing decisions</li>
+                        <li>Provided for informational purposes</li>
+                        <li>Not financial or investment advice</li>
+                    </ul>
+                    <p>VAYA is not liable for any losses resulting from reliance on predictions.</p>
+                </div>
+
+                <h3>10. INTELLECTUAL PROPERTY</h3>
+                <p>All content, trademarks, logos, and intellectual property on the Service are owned by VAYA or our licensors. You may not:</p>
+                <ul>
+                    <li>Copy, modify, or distribute our content without permission</li>
+                    <li>Use our trademarks without written consent</li>
+                    <li>Reverse engineer or decompile our software</li>
+                    <li>Scrape or harvest data from the Service</li>
+                </ul>
+
+                <h3>11. PROHIBITED CONDUCT</h3>
+                <p>You agree not to:</p>
+                <ul>
+                    <li>Use the Service for any illegal purpose</li>
+                    <li>Provide false or misleading information</li>
+                    <li>Interfere with the Service's operation</li>
+                    <li>Attempt unauthorized access</li>
+                    <li>Use automated systems without permission</li>
+                    <li>Resell or commercially exploit the Service</li>
+                    <li>Harass or harm other users</li>
+                </ul>
+
+                <h3>12. LIMITATION OF LIABILITY</h3>
+                <div class="highlight">
+                    <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW:</p>
+                    <ul>
+                        <li>VAYA's total liability shall not exceed the amount you paid for the specific booking in question</li>
+                        <li>We are not liable for indirect, incidental, special, or consequential damages</li>
+                        <li>We are not liable for airline cancellations, delays, or service failures</li>
+                        <li>We are not liable for losses due to force majeure events</li>
+                    </ul>
+                </div>
+
+                <h3>13. INDEMNIFICATION</h3>
+                <p>You agree to indemnify and hold harmless VAYA, its officers, directors, employees, and agents from any claims, damages, losses, or expenses arising from your use of the Service or violation of these Terms.</p>
+
+                <h3>14. DISPUTE RESOLUTION</h3>
+                <h4>14.1 Governing Law</h4>
+                <p>These Terms are governed by the laws of Malaysia.</p>
+
+                <h4>14.2 Dispute Process</h4>
+                <ol>
+                    <li>Contact our customer support first</li>
+                    <li>If unresolved, submit a formal complaint</li>
+                    <li>Mediation through the Malaysian Aviation Consumer Protection Code</li>
+                    <li>Legal proceedings in Malaysian courts if necessary</li>
+                </ol>
+
+                <h3>15. MODIFICATIONS</h3>
+                <p>We may modify these Terms at any time. Changes will be posted on this page with an updated effective date. Continued use after changes constitutes acceptance.</p>
+
+                <h3>16. CONTACT</h3>
+                <p>For questions about these Terms:</p>
+                <ul>
+                    <li>Email: legal@vaya.my</li>
+                    <li>Address: [Registered Address]</li>
+                    <li>Phone: [Support Number]</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- LEGAL-02: PRIVACY POLICY -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">LEGAL-02</span>
+                <div class="section-title">Privacy Policy</div>
+            </div>
+
+            <div class="doc-box">
+                <div class="doc-title">VAYA PRIVACY POLICY</div>
+                <p class="effective-date">Effective Date: [LAUNCH_DATE] | Last Updated: [LAUNCH_DATE]</p>
+
+                <h3>1. INTRODUCTION</h3>
+                <p>VAYA Technologies Sdn Bhd ("VAYA," "we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our flight booking platform ("Service").</p>
+                <p>This policy complies with the Malaysian Personal Data Protection Act 2010 (PDPA).</p>
+
+                <h3>2. INFORMATION WE COLLECT</h3>
+                
+                <h4>2.1 Information You Provide</h4>
+                <table>
+                    <tr><th>Category</th><th>Data Types</th><th>Purpose</th></tr>
+                    <tr>
+                        <td>Account Information</td>
+                        <td>Name, email, phone number, password</td>
+                        <td>Account creation and authentication</td>
+                    </tr>
+                    <tr>
+                        <td>Traveler Information</td>
+                        <td>Full name, date of birth, gender, nationality, passport details</td>
+                        <td>Flight booking and airline requirements</td>
+                    </tr>
+                    <tr>
+                        <td>Payment Information</td>
+                        <td>Card details (tokenized), billing address, FPX bank selection</td>
+                        <td>Payment processing</td>
+                    </tr>
+                    <tr>
+                        <td>Preferences</td>
+                        <td>Home airport, preferred airlines, notification settings</td>
+                        <td>Personalization and recommendations</td>
+                    </tr>
+                    <tr>
+                        <td>Communications</td>
+                        <td>Support tickets, feedback, survey responses</td>
+                        <td>Customer support and improvement</td>
+                    </tr>
+                </table>
+
+                <h4>2.2 Information Collected Automatically</h4>
+                <table>
+                    <tr><th>Category</th><th>Data Types</th><th>Purpose</th></tr>
+                    <tr>
+                        <td>Device Information</td>
+                        <td>Device type, OS, browser, screen resolution</td>
+                        <td>Service optimization</td>
+                    </tr>
+                    <tr>
+                        <td>Usage Data</td>
+                        <td>Pages viewed, searches performed, features used</td>
+                        <td>Analytics and improvement</td>
+                    </tr>
+                    <tr>
+                        <td>Location Data</td>
+                        <td>IP address, approximate location</td>
+                        <td>Fraud prevention, localization</td>
+                    </tr>
+                    <tr>
+                        <td>Search History</td>
+                        <td>Routes searched, dates, passenger counts</td>
+                        <td>Personalization, price alerts</td>
+                    </tr>
+                </table>
+
+                <h3>3. HOW WE USE YOUR INFORMATION</h3>
+                <ul>
+                    <li><strong>Service Delivery:</strong> Process bookings, send confirmations, manage your account</li>
+                    <li><strong>Personalization:</strong> Customize recommendations, remember preferences</li>
+                    <li><strong>Price Predictions:</strong> Train ML models to improve predictions (anonymized data only)</li>
+                    <li><strong>Communication:</strong> Send booking updates, price alerts, marketing (with consent)</li>
+                    <li><strong>Security:</strong> Detect fraud, protect against unauthorized access</li>
+                    <li><strong>Legal Compliance:</strong> Meet regulatory requirements, respond to legal requests</li>
+                    <li><strong>Improvement:</strong> Analyze usage patterns, improve features</li>
+                </ul>
+
+                <h3>4. DATA SHARING</h3>
+                <h4>4.1 We Share Data With:</h4>
+                <table>
+                    <tr><th>Recipient</th><th>Data Shared</th><th>Purpose</th></tr>
+                    <tr>
+                        <td>Airlines & Suppliers</td>
+                        <td>Traveler details, booking info</td>
+                        <td>Flight booking fulfillment</td>
+                    </tr>
+                    <tr>
+                        <td>Payment Processors</td>
+                        <td>Payment details (tokenized)</td>
+                        <td>Transaction processing</td>
+                    </tr>
+                    <tr>
+                        <td>Cloud Infrastructure</td>
+                        <td>All data (encrypted)</td>
+                        <td>Service hosting</td>
+                    </tr>
+                    <tr>
+                        <td>Analytics Partners</td>
+                        <td>Anonymized usage data</td>
+                        <td>Service improvement</td>
+                    </tr>
+                    <tr>
+                        <td>Legal Authorities</td>
+                        <td>As required by law</td>
+                        <td>Legal compliance</td>
+                    </tr>
+                </table>
+
+                <h4>4.2 We Do NOT:</h4>
+                <ul>
+                    <li>Sell your personal data to third parties</li>
+                    <li>Share data for unrelated marketing without consent</li>
+                    <li>Store full credit card numbers (tokenization only)</li>
+                </ul>
+
+                <h3>5. DATA RETENTION</h3>
+                <table>
+                    <tr><th>Data Type</th><th>Retention Period</th><th>Reason</th></tr>
+                    <tr><td>Account Data</td><td>Account lifetime + 7 years</td><td>Legal/tax requirements</td></tr>
+                    <tr><td>Booking Records</td><td>7 years from travel date</td><td>Legal/tax requirements</td></tr>
+                    <tr><td>Payment Records</td><td>7 years</td><td>Financial regulations</td></tr>
+                    <tr><td>Search History</td><td>2 years</td><td>Personalization</td></tr>
+                    <tr><td>Support Tickets</td><td>3 years from resolution</td><td>Quality assurance</td></tr>
+                    <tr><td>Marketing Preferences</td><td>Until withdrawn</td><td>Consent management</td></tr>
+                    <tr><td>Anonymous Analytics</td><td>Indefinitely</td><td>Aggregated, no PII</td></tr>
+                </table>
+
+                <h3>6. DATA SECURITY</h3>
+                <p>We implement robust security measures:</p>
+                <ul>
+                    <li><strong>Encryption:</strong> TLS 1.3 for data in transit, AES-256-GCM for data at rest</li>
+                    <li><strong>Authentication:</strong> Argon2id password hashing, optional MFA</li>
+                    <li><strong>Access Control:</strong> Role-based access, principle of least privilege</li>
+                    <li><strong>Monitoring:</strong> 24/7 security monitoring, intrusion detection</li>
+                    <li><strong>Compliance:</strong> PCI DSS for payment data</li>
+                </ul>
+
+                <h3>7. YOUR RIGHTS (PDPA)</h3>
+                <p>Under the Malaysian PDPA, you have the right to:</p>
+                <ul>
+                    <li><strong>Access:</strong> Request a copy of your personal data</li>
+                    <li><strong>Correction:</strong> Request correction of inaccurate data</li>
+                    <li><strong>Withdrawal:</strong> Withdraw consent for data processing</li>
+                    <li><strong>Deletion:</strong> Request deletion (subject to legal retention requirements)</li>
+                    <li><strong>Portability:</strong> Receive your data in a portable format</li>
+                </ul>
+                <p>To exercise these rights, contact: privacy@vaya.my</p>
+
+                <h3>8. COOKIES AND TRACKING</h3>
+                <h4>8.1 Types of Cookies</h4>
+                <table>
+                    <tr><th>Type</th><th>Purpose</th><th>Duration</th></tr>
+                    <tr><td>Essential</td><td>Authentication, security</td><td>Session</td></tr>
+                    <tr><td>Functional</td><td>Preferences, language</td><td>1 year</td></tr>
+                    <tr><td>Analytics</td><td>Usage statistics</td><td>2 years</td></tr>
+                    <tr><td>Marketing</td><td>Personalized ads (with consent)</td><td>90 days</td></tr>
+                </table>
+
+                <h4>8.2 Cookie Control</h4>
+                <p>You can manage cookies through browser settings or our cookie preference center.</p>
+
+                <h3>9. INTERNATIONAL TRANSFERS</h3>
+                <p>Your data may be transferred to servers outside Malaysia. We ensure adequate protection through:</p>
+                <ul>
+                    <li>Data processing agreements with all providers</li>
+                    <li>Encryption of all data in transit and at rest</li>
+                    <li>Selection of providers with appropriate certifications</li>
+                </ul>
+
+                <h3>10. CHILDREN'S PRIVACY</h3>
+                <p>Our Service is not intended for children under 13. We do not knowingly collect data from children under 13. If you believe we have collected such data, contact us immediately.</p>
+
+                <h3>11. CHANGES TO THIS POLICY</h3>
+                <p>We may update this policy periodically. Changes will be posted with an updated effective date. Material changes will be notified via email or in-app notification.</p>
+
+                <h3>12. CONTACT US</h3>
+                <p>Data Protection Officer: privacy@vaya.my</p>
+                <p>General Inquiries: support@vaya.my</p>
+                <p>Address: [Registered Address]</p>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- LEGAL-03: BOOKING CONDITIONS -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">LEGAL-03</span>
+                <div class="section-title">Booking Conditions</div>
+            </div>
+
+            <div class="doc-box">
+                <div class="doc-title">VAYA BOOKING CONDITIONS</div>
+                <p class="effective-date">Effective Date: [LAUNCH_DATE]</p>
+
+                <h3>1. BOOKING PROCESS</h3>
+                <h4>1.1 Search and Selection</h4>
+                <ol>
+                    <li>Enter travel details (origin, destination, dates, passengers)</li>
+                    <li>Review search results and Oracle recommendations</li>
+                    <li>Select preferred flight option</li>
+                    <li>Review fare rules and conditions</li>
+                </ol>
+
+                <h4>1.2 Booking Confirmation</h4>
+                <ol>
+                    <li>Enter traveler details (must match passport exactly)</li>
+                    <li>Review booking summary</li>
+                    <li>Complete payment</li>
+                    <li>Receive confirmation email with booking reference</li>
+                </ol>
+
+                <h3>2. FARE RULES</h3>
+                <div class="highlight">
+                    <p><strong>Each booking is subject to the specific fare rules set by the airline.</strong> These rules determine:</p>
+                    <ul>
+                        <li>Change fees and conditions</li>
+                        <li>Cancellation fees and refund eligibility</li>
+                        <li>Baggage allowance</li>
+                        <li>Seat selection options</li>
+                        <li>Mileage accrual</li>
+                    </ul>
+                    <p>Fare rules are displayed before booking confirmation. Please review carefully.</p>
+                </div>
+
+                <h3>3. PASSENGER INFORMATION</h3>
+                <h4>3.1 Name Requirements</h4>
+                <ul>
+                    <li>Passenger names must match travel documents <strong>exactly</strong></li>
+                    <li>Format: SURNAME/FIRSTNAME (as on passport)</li>
+                    <li>Middle names should be entered in the first name field</li>
+                    <li>Name changes after booking may incur fees or require rebooking</li>
+                </ul>
+
+                <h4>3.2 Travel Documents</h4>
+                <ul>
+                    <li>Valid passport required for all international travel</li>
+                    <li>Passport must be valid for at least 6 months beyond travel date</li>
+                    <li>Visa requirements are the passenger's responsibility</li>
+                    <li>IC/MyKad acceptable for domestic Malaysian flights</li>
+                </ul>
+
+                <h3>4. PRICING</h3>
+                <h4>4.1 Price Inclusions</h4>
+                <table>
+                    <tr><th>Included</th><th>May Be Extra</th></tr>
+                    <tr>
+                        <td>
+                            â€¢ Base fare<br>
+                            â€¢ Airport taxes<br>
+                            â€¢ Fuel surcharges<br>
+                            â€¢ Government fees<br>
+                            â€¢ VAYA service fee
+                        </td>
+                        <td>
+                            â€¢ Checked baggage (budget carriers)<br>
+                            â€¢ Seat selection<br>
+                            â€¢ Meals<br>
+                            â€¢ Travel insurance<br>
+                            â€¢ Change/cancellation fees
+                        </td>
+                    </tr>
+                </table>
+
+                <h4>4.2 Price Guarantee</h4>
+                <p>The price is guaranteed only upon successful payment completion. Prices may change during the booking process due to airline pricing updates.</p>
+
+                <h3>5. CHANGES AND CANCELLATIONS</h3>
+                <h4>5.1 Passenger-Initiated Changes</h4>
+                <table>
+                    <tr><th>Action</th><th>VAYA Fee</th><th>Airline Fee</th></tr>
+                    <tr><td>Date change</td><td>RM 30</td><td>Per fare rules</td></tr>
+                    <tr><td>Name correction (minor)</td><td>RM 50</td><td>Per fare rules</td></tr>
+                    <tr><td>Route change</td><td>RM 50</td><td>Usually requires rebooking</td></tr>
+                    <tr><td>Cancellation</td><td>RM 50</td><td>Per fare rules</td></tr>
+                </table>
+
+                <h4>5.2 Airline-Initiated Changes</h4>
+                <p>If the airline changes or cancels your flight:</p>
+                <ul>
+                    <li>We will notify you immediately</li>
+                    <li>Options: Accept new itinerary, rebook, or refund</li>
+                    <li>No VAYA fees for airline-initiated changes</li>
+                </ul>
+
+                <h3>6. CHECK-IN AND BOARDING</h3>
+                <ul>
+                    <li>Online check-in typically opens 24-48 hours before departure</li>
+                    <li>Arrive at airport at least 2 hours (domestic) or 3 hours (international) before departure</li>
+                    <li>Bring printed or digital boarding pass</li>
+                    <li>Carry valid travel documents</li>
+                </ul>
+
+                <h3>7. BAGGAGE</h3>
+                <h4>7.1 Carry-On</h4>
+                <p>Most airlines allow 7kg carry-on. Check specific airline policies.</p>
+
+                <h4>7.2 Checked Baggage</h4>
+                <ul>
+                    <li>Full-service carriers: Usually 20-30kg included</li>
+                    <li>Budget carriers: Often sold separately</li>
+                    <li>Purchase baggage during booking for best rates</li>
+                </ul>
+
+                <h3>8. POOL BOOKING CONDITIONS</h3>
+                <h4>8.1 Pool Lifecycle</h4>
+                <ol>
+                    <li><strong>Forming:</strong> Pool is open for members to join</li>
+                    <li><strong>Activated:</strong> Minimum threshold reached, bidding begins</li>
+                    <li><strong>Bidding Closed:</strong> Best bid selected</li>
+                    <li><strong>Confirmation:</strong> Members confirm or withdraw</li>
+                    <li><strong>Booked:</strong> Tickets issued</li>
+                </ol>
+
+                <h4>8.2 Pool Commitments</h4>
+                <table>
+                    <tr><th>Stage</th><th>Withdrawal</th><th>Refund</th></tr>
+                    <tr><td>Forming</td><td>Free</td><td>100%</td></tr>
+                    <tr><td>After Activation</td><td>Allowed with fee</td><td>Minus RM 50</td></tr>
+                    <tr><td>After Bid Selection</td><td>Limited</td><td>Per fare rules</td></tr>
+                    <tr><td>After Ticketing</td><td>Per airline rules</td><td>Per fare rules</td></tr>
+                </table>
+
+                <h3>9. SPECIAL REQUESTS</h3>
+                <ul>
+                    <li>Wheelchair assistance</li>
+                    <li>Special meals (vegetarian, halal, kosher, etc.)</li>
+                    <li>Unaccompanied minor service</li>
+                    <li>Pet transport</li>
+                </ul>
+                <p>Special requests must be made at least 48 hours before departure and are subject to airline availability.</p>
+
+                <h3>10. CONTACT FOR BOOKING ISSUES</h3>
+                <p>Email: bookings@vaya.my</p>
+                <p>Emergency (within 24h of travel): [Emergency Number]</p>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- LEGAL-04: REFUND POLICY -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">LEGAL-04</span>
+                <div class="section-title">Refund Policy</div>
+            </div>
+
+            <div class="doc-box">
+                <div class="doc-title">VAYA REFUND POLICY</div>
+                <p class="effective-date">Effective Date: [LAUNCH_DATE]</p>
+
+                <h3>1. REFUND ELIGIBILITY</h3>
+                <h4>1.1 Refundable Scenarios</h4>
+                <table>
+                    <tr><th>Scenario</th><th>Refund Amount</th><th>Timeline</th></tr>
+                    <tr>
+                        <td>Airline cancellation (no alternative accepted)</td>
+                        <td>100% including VAYA fee</td>
+                        <td>7-14 business days</td>
+                    </tr>
+                    <tr>
+                        <td>Significant schedule change (>3 hours)</td>
+                        <td>100% including VAYA fee</td>
+                        <td>7-14 business days</td>
+                    </tr>
+                    <tr>
+                        <td>VAYA system error</td>
+                        <td>100% including VAYA fee</td>
+                        <td>3-5 business days</td>
+                    </tr>
+                    <tr>
+                        <td>Pool failure (not activated)</td>
+                        <td>100% including VAYA fee</td>
+                        <td>5-7 business days</td>
+                    </tr>
+                    <tr>
+                        <td>Refundable fare (passenger cancellation)</td>
+                        <td>Per fare rules minus VAYA fee (RM 50)</td>
+                        <td>14-30 business days</td>
+                    </tr>
+                    <tr>
+                        <td>Non-refundable fare (taxes only)</td>
+                        <td>Taxes only minus VAYA fee</td>
+                        <td>14-30 business days</td>
+                    </tr>
+                </table>
+
+                <h4>1.2 Non-Refundable</h4>
+                <ul>
+                    <li>No-show without prior cancellation</li>
+                    <li>Missed connections due to passenger delay</li>
+                    <li>Denied boarding due to invalid documents</li>
+                    <li>Non-refundable fares cancelled by passenger (except taxes)</li>
+                </ul>
+
+                <h3>2. VAYA SERVICE FEE</h3>
+                <table>
+                    <tr><th>Condition</th><th>VAYA Fee Refund</th></tr>
+                    <tr><td>Airline cancellation</td><td>âœ“ Refunded</td></tr>
+                    <tr><td>VAYA error</td><td>âœ“ Refunded</td></tr>
+                    <tr><td>Pool failure</td><td>âœ“ Refunded</td></tr>
+                    <tr><td>Passenger cancellation</td><td>âœ— Non-refundable</td></tr>
+                    <tr><td>Change request</td><td>âœ— Non-refundable</td></tr>
+                </table>
+
+                <h3>3. REFUND PROCESS</h3>
+                <h4>3.1 How to Request</h4>
+                <ol>
+                    <li>Log into your VAYA account</li>
+                    <li>Go to "My Bookings"</li>
+                    <li>Select the booking</li>
+                    <li>Click "Request Refund"</li>
+                    <li>Select reason and submit</li>
+                    <li>Or email: refunds@vaya.my with booking reference</li>
+                </ol>
+
+                <h4>3.2 Required Information</h4>
+                <ul>
+                    <li>Booking reference number</li>
+                    <li>Reason for refund request</li>
+                    <li>Supporting documents (if applicable)</li>
+                    <li>Preferred refund method</li>
+                </ul>
+
+                <h3>4. REFUND METHODS</h3>
+                <table>
+                    <tr><th>Original Payment</th><th>Refund Method</th><th>Timeline</th></tr>
+                    <tr><td>Credit/Debit Card</td><td>Same card</td><td>5-14 business days</td></tr>
+                    <tr><td>FPX</td><td>Bank transfer</td><td>7-14 business days</td></tr>
+                    <tr><td>GrabPay/Touch'n Go/etc.</td><td>Same wallet</td><td>3-7 business days</td></tr>
+                    <tr><td>VAYA Credit</td><td>VAYA Credit (instant)</td><td>Instant</td></tr>
+                </table>
+
+                <h3>5. PARTIAL REFUNDS</h3>
+                <p>Partial refunds may apply when:</p>
+                <ul>
+                    <li>Only some passengers cancel</li>
+                    <li>Only some segments are refundable</li>
+                    <li>Baggage or extras are non-refundable</li>
+                </ul>
+
+                <h3>6. VAYA CREDIT OPTION</h3>
+                <p>Instead of a cash refund, you may opt for VAYA Credit:</p>
+                <ul>
+                    <li>Instant processing (no waiting)</li>
+                    <li>10% bonus on refund amount</li>
+                    <li>Valid for 12 months</li>
+                    <li>Usable for any VAYA booking</li>
+                </ul>
+
+                <h3>7. DISPUTE RESOLUTION</h3>
+                <p>If you disagree with a refund decision:</p>
+                <ol>
+                    <li>Contact support within 30 days of decision</li>
+                    <li>Provide additional documentation</li>
+                    <li>Our team will review within 5 business days</li>
+                    <li>Final decision communicated in writing</li>
+                </ol>
+
+                <h3>8. CONTACT</h3>
+                <p>Refund inquiries: refunds@vaya.my</p>
+                <p>Include your booking reference in all communications.</p>
+            </div>
+        </section>
+
+        <!-- SUMMARY -->
+        <div style="background: linear-gradient(135deg, var(--n100), var(--n200)); border: 2px solid var(--mint); border-radius: 20px; padding: 40px; text-align: center; margin-top: 48px;">
+            <h2 style="font-family: var(--font-display); font-size: 24px; color: var(--mint); margin-bottom: 16px;">âœ“ LEGAL DOCUMENTATION COMPLETE</h2>
+            <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+                <span style="background: var(--mint); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">LEGAL-01 Terms of Service</span>
+                <span style="background: var(--mint); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">LEGAL-02 Privacy Policy</span>
+                <span style="background: var(--mint); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">LEGAL-03 Booking Conditions</span>
+                <span style="background: var(--mint); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700;">LEGAL-04 Refund Policy</span>
+            </div>
+            <p style="color: var(--n600); margin-top: 16px; font-size: 11px;">PDPA Compliant â€¢ Malaysian Law â€¢ Ready for Legal Review</p>
+        </div>
+    </div>
+</body>
+</html>

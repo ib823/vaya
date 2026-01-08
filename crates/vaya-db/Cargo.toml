@@ -1,0 +1,23 @@
+[package]
+name = "vaya-db"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "VayaDB - Custom LSM-tree storage engine for VAYA"
+
+[dependencies]
+vaya-common = { workspace = true }
+rkyv = { workspace = true }
+lz4_flex = { workspace = true }
+tracing = { workspace = true }
+
+# Memory-mapped files for zero-copy reads
+memmap2 = "0.9"
+
+# Lock-free data structures
+crossbeam-skiplist = "0.1"
+parking_lot = "0.12"
+
+[dev-dependencies]
+tempfile = "3"

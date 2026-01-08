@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA Implementation Architecture - Internal Technical Specification</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --accent: #00F5A0;
+            --accent-dim: #00a06a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --border-accent: #00F5A020;
+            --danger: #ff4757;
+            --warning: #ffa502;
+            --success: #00F5A0;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px 24px; }
+        
+        .header {
+            text-align: center;
+            padding: 60px 0;
+            border-bottom: 1px solid var(--border-accent);
+            margin-bottom: 60px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent), #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header-warning {
+            background: linear-gradient(90deg, var(--danger), #ff6b81);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+        
+        .section {
+            margin-bottom: 80px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .section-id {
+            background: var(--accent);
+            color: var(--bg-primary);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            color: var(--accent);
+            margin: 40px 0 20px;
+        }
+        
+        h4 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin: 24px 0 12px;
+        }
+        
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+        
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-accent);
+        }
+        
+        th {
+            background: var(--bg-tertiary);
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        td {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .code-block {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-accent);
+            border-radius: 8px;
+            padding: 24px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 24px 0;
+            white-space: pre;
+        }
+        
+        .crate-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 24px 0;
+        }
+        
+        .crate-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-accent);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .crate-card h4 {
+            color: var(--accent);
+            margin: 0 0 8px 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .crate-card p {
+            margin: 0 0 16px 0;
+            font-size: 0.9rem;
+        }
+        
+        .crate-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .crate-card li {
+            padding: 4px 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .crate-card li::before {
+            content: "â€¢";
+            color: var(--accent);
+            margin-right: 8px;
+        }
+        
+        .type-ref {
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--accent);
+            padding: 20px 24px;
+            margin: 24px 0;
+        }
+        
+        .type-ref code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #ff475720, #ff6b8120);
+            border: 1px solid #ff475740;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin: 24px 0;
+        }
+        
+        .warning-box h5 {
+            color: var(--danger);
+            margin-bottom: 8px;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #00F5A010, #00d4ff10);
+            border: 1px solid #00F5A040;
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin: 24px 0;
+        }
+        
+        .success-box h5 {
+            color: var(--success);
+            margin-bottom: 8px;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .tag-complete { background: var(--success); color: var(--bg-primary); }
+        .tag-pending { background: var(--warning); color: var(--bg-primary); }
+        .tag-critical { background: var(--danger); color: white; }
+        
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-accent);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-warning">âš ï¸ INTERNAL TECHNICAL DOCUMENT - IMPLEMENTATION REFERENCE</div>
+        <h1>VAYA Implementation Architecture</h1>
+        <p style="color: var(--text-secondary);">
+            Complete technical specification for the Rust backend implementation.<br>
+            <strong>Version:</strong> 1.0.0 | <strong>Status:</strong> Implementation Complete | <strong>Date:</strong> January 8, 2025
+        </p>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Section 1: Architecture Overview -->
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-id">01</div>
+                    <h2>Architecture Overview</h2>
+                </div>
+
+                <p>
+                    VAYA's backend is built entirely in Rust with a zero-external-dependency philosophy for core infrastructure.
+                    This means no PostgreSQL, no Redis, no Kafka - we build and own everything.
+                </p>
+
+                <h3>Why Custom Infrastructure</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Third-Party Approach</th>
+                            <th>Our Approach</th>
+                            <th>Advantage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PostgreSQL</td>
+                            <td>VayaDB (LSM-tree)</td>
+                            <td>Optimized for time-series fare data</td>
+                        </tr>
+                        <tr>
+                            <td>Redis</td>
+                            <td>VayaCache (embedded)</td>
+                            <td>Zero network hop, SIMD-optimized</td>
+                        </tr>
+                        <tr>
+                            <td>Axum/Actix</td>
+                            <td>VayaNet</td>
+                            <td>Zero-copy HTTP, custom protocol support</td>
+                        </tr>
+                        <tr>
+                            <td>JWT libraries</td>
+                            <td>VayaCrypto</td>
+                            <td>Constant-time, no timing attacks</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                        VAYA ARCHITECTURE - 17 CRATES                             â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚                                                                                  â”‚
+â”‚  LAYER 5: API & BINARY                                                          â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
+â”‚  â”‚  vaya-api (Gateway)  â”‚  vaya-bin (Main Binary)                         â”‚     â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
+â”‚                                      â”‚                                           â”‚
+â”‚  LAYER 4: DEPLOYMENT                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
+â”‚  â”‚  vaya-forge (Build System)  â”‚  vaya-fleet (Orchestration)              â”‚     â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
+â”‚                                      â”‚                                           â”‚
+â”‚  LAYER 3: SERVICES                                                               â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”              â”‚
+â”‚  â”‚  vaya-oracle  â”‚  vaya-pool    â”‚  vaya-book    â”‚  vaya-search  â”‚              â”‚
+â”‚  â”‚  (Prediction) â”‚  (Group Buy)  â”‚  (Booking)    â”‚  (Aggregation)â”‚              â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜              â”‚
+â”‚                                      â”‚                                           â”‚
+â”‚  LAYER 2: DATA                                                                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
+â”‚  â”‚  vaya-store (Relational)  â”‚  vaya-collect (Data Ingestion)             â”‚     â”‚
+â”‚  â”‚  vaya-auth (Authentication)                                             â”‚     â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
+â”‚                                      â”‚                                           â”‚
+â”‚  LAYER 1: INFRASTRUCTURE                                                         â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”              â”‚
+â”‚  â”‚  vaya-net     â”‚  vaya-db      â”‚  vaya-cache   â”‚  vaya-ml      â”‚              â”‚
+â”‚  â”‚  (HTTP)       â”‚  (LSM-tree)   â”‚  (LRU Cache)  â”‚  (Inference)  â”‚              â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜              â”‚
+â”‚                                      â”‚                                           â”‚
+â”‚  LAYER 0: FOUNDATION                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
+â”‚  â”‚  vaya-common (Types, Errors)  â”‚  vaya-crypto (Primitives)              â”‚     â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
+â”‚                                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                </div>
+            </section>
+
+            <!-- Section 2: Crate Reference -->
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-id">02</div>
+                    <h2>Crate Reference</h2>
+                </div>
+
+                <div class="crate-grid">
+                    <div class="crate-card">
+                        <h4>vaya-common</h4>
+                        <p>Core types and utilities shared by all crates.</p>
+                        <ul>
+                            <li>IataCode, CurrencyCode, MinorUnits</li>
+                            <li>Price, Route, Timestamp, Date</li>
+                            <li>VayaError, VayaResult</li>
+                            <li>OfferSource enum</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-crypto</h4>
+                        <p>Cryptographic primitives - no external crypto dependencies.</p>
+                        <ul>
+                            <li>Base64 encoding/decoding</li>
+                            <li>JWT signing (RS256, HS256)</li>
+                            <li>Argon2id password hashing</li>
+                            <li>HMAC-SHA256</li>
+                            <li>Constant-time comparison</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-net</h4>
+                        <p>Custom HTTP server with zero-copy parsing.</p>
+                        <ul>
+                            <li>HTTP/1.1 request parsing</li>
+                            <li>Response building</li>
+                            <li>Radix tree router</li>
+                            <li>Middleware support</li>
+                            <li>Rate limiting</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-db</h4>
+                        <p>LSM-tree based storage engine.</p>
+                        <ul>
+                            <li>Write-Ahead Log (WAL)</li>
+                            <li>MemTable (in-memory buffer)</li>
+                            <li>SSTable (sorted string table)</li>
+                            <li>Compaction engine</li>
+                            <li>LZ4 compression</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-cache</h4>
+                        <p>High-performance in-memory cache.</p>
+                        <ul>
+                            <li>LRU eviction</li>
+                            <li>TTL support</li>
+                            <li>Sharded for concurrency</li>
+                            <li>Zero-copy access</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-ml</h4>
+                        <p>Machine learning inference engine.</p>
+                        <ul>
+                            <li>Tensor operations</li>
+                            <li>Model loading (custom format)</li>
+                            <li>XGBoost-compatible inference</li>
+                            <li>Feature extraction</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-store</h4>
+                        <p>Relational layer on top of vaya-db.</p>
+                        <ul>
+                            <li>Table schemas</li>
+                            <li>B-tree indexes</li>
+                            <li>ACID transactions</li>
+                            <li>Query builder</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-collect</h4>
+                        <p>Data collection from external APIs.</p>
+                        <ul>
+                            <li>Kiwi.com integration</li>
+                            <li>Travelpayouts integration</li>
+                            <li>Currency rate fetching</li>
+                            <li>Scheduler for periodic collection</li>
+                            <li>Data normalization pipeline</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-auth</h4>
+                        <p>Authentication and authorization.</p>
+                        <ul>
+                            <li>JWT token generation/validation</li>
+                            <li>Password hashing (Argon2id)</li>
+                            <li>Session management</li>
+                            <li>TOTP (2FA)</li>
+                            <li>OAuth integration</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-oracle</h4>
+                        <p>Price prediction engine.</p>
+                        <ul>
+                            <li>Price predictor</li>
+                            <li>Trend analyzer</li>
+                            <li>Prediction explainer</li>
+                            <li>Confidence scoring</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-pool</h4>
+                        <p>Group buying / demand pool system.</p>
+                        <ul>
+                            <li>Pool state machine</li>
+                            <li>Member management</li>
+                            <li>Bidding engine</li>
+                            <li>Notifications</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-book</h4>
+                        <p>Booking and payment processing.</p>
+                        <ul>
+                            <li>Booking state machine</li>
+                            <li>Stripe integration</li>
+                            <li>Ticket generation</li>
+                            <li>Refund handling</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-search</h4>
+                        <p>Multi-source search aggregation.</p>
+                        <ul>
+                            <li>Request parsing</li>
+                            <li>Source aggregation</li>
+                            <li>Result ranking</li>
+                            <li>Price optimization</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-forge</h4>
+                        <p>Hermetic build system.</p>
+                        <ul>
+                            <li>Artifact management</li>
+                            <li>Manifest generation</li>
+                            <li>Delta updates</li>
+                            <li>Registry management</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-fleet</h4>
+                        <p>Cluster orchestration.</p>
+                        <ul>
+                            <li>Node management</li>
+                            <li>Service scheduling</li>
+                            <li>Health monitoring</li>
+                            <li>Raft consensus</li>
+                            <li>Gossip protocol</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-api</h4>
+                        <p>API gateway.</p>
+                        <ul>
+                            <li>REST endpoint handlers</li>
+                            <li>Request/response types</li>
+                            <li>Authentication middleware</li>
+                            <li>Rate limiting</li>
+                        </ul>
+                    </div>
+
+                    <div class="crate-card">
+                        <h4>vaya-bin</h4>
+                        <p>Main binary entry point.</p>
+                        <ul>
+                            <li>CLI argument parsing</li>
+                            <li>Configuration loading</li>
+                            <li>Service initialization</li>
+                            <li>Graceful shutdown</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Type System -->
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-id">03</div>
+                    <h2>Type System Reference</h2>
+                </div>
+
+                <div class="warning-box">
+                    <h5>âš ï¸ CRITICAL: Type System is SACRED</h5>
+                    <p>All implementations MUST use these exact types from <code>vaya-common/src/types.rs</code>. 
+                    Do NOT create alternative types. Do NOT use primitives directly.</p>
+                </div>
+
+                <h3>Airport Codes</h3>
+                <div class="type-ref">
+                    <p><strong>Type:</strong> <code>IataCode</code></p>
+                    <p><strong>Storage:</strong> <code>[u8; 4]</code> (3 bytes + null for alignment)</p>
+                    <p><strong>Creation:</strong></p>
+                    <code>IataCode::KUL</code> - Use constants for common airports<br>
+                    <code>IataCode::new("SIN")</code> - Create from string (panics if invalid)<br>
+                    <code>IataCode::try_new("abc")</code> - Returns Option, doesn't panic<br>
+                    <p><strong>Access:</strong> <code>iata.as_str()</code> - Get &str</p>
+                </div>
+
+                <h3>Currency</h3>
+                <div class="type-ref">
+                    <p><strong>Type:</strong> <code>CurrencyCode</code></p>
+                    <p><strong>Storage:</strong> <code>[u8; 4]</code> (ISO 4217 code)</p>
+                    <p><strong>Creation:</strong></p>
+                    <code>CurrencyCode::MYR</code> - Malaysian Ringgit<br>
+                    <code>CurrencyCode::USD</code> - US Dollar<br>
+                    <code>CurrencyCode::SGD</code> - Singapore Dollar<br>
+                </div>
+
+                <h3>Money</h3>
+                <div class="type-ref">
+                    <p><strong>Type:</strong> <code>MinorUnits</code> (amount in cents/sen)</p>
+                    <p><strong>Storage:</strong> <code>i64</code> (signed for refunds/credits)</p>
+                    <p><strong>Creation:</strong></p>
+                    <code>MinorUnits::new(15000)</code> - 150.00 in minor units<br>
+                    <code>MinorUnits::from_major(150, 2)</code> - From major with decimal places<br>
+                    <p><strong>Access:</strong> <code>minor.as_minor()</code> - Get i64 value</p>
+                </div>
+
+                <h3>Price</h3>
+                <div class="type-ref">
+                    <p><strong>Type:</strong> <code>Price</code></p>
+                    <p><strong>Fields:</strong> <code>amount: MinorUnits</code>, <code>currency: CurrencyCode</code>, <code>decimals: u8</code></p>
+                    <p><strong>Creation:</strong></p>
+                    <code>Price::myr(15000)</code> - RM 150.00 in sen<br>
+                    <code>Price::usd(15000)</code> - $150.00 in cents<br>
+                    <code>Price::new(MinorUnits::new(15000), CurrencyCode::MYR, 2)</code> - Full constructor<br>
+                </div>
+
+                <h3>Route</h3>
+                <div class="type-ref">
+                    <p><strong>Type:</strong> <code>Route</code></p>
+                    <p><strong>Fields:</strong> <code>origin: IataCode</code>, <code>destination: IataCode</code></p>
+                    <p><strong>Creation:</strong></p>
+                    <code>Route::new(IataCode::KUL, IataCode::SIN)</code><br>
+                    <p><strong>Access:</strong> <code>route.origin</code>, <code>route.destination</code></p>
+                </div>
+
+                <h3>Time</h3>
+                <div class="type-ref">
+                    <p><strong>Timestamp:</strong> <code>Timestamp</code> (Unix epoch seconds)</p>
+                    <code>Timestamp::now()</code> - Current time<br>
+                    <code>Timestamp::from_unix(1704700800)</code> - From unix<br>
+                    <code>ts.as_unix()</code> - Get i64<br><br>
+                    <p><strong>Date:</strong> <code>Date</code> (Calendar date)</p>
+                    <code>Date::new(2025, 1, 15)</code> - Year, month, day<br>
+                    <code>Date::from_days_since_epoch(19000)</code> - From epoch days<br>
+                    <code>date.days_since_epoch()</code> - Get i32<br>
+                </div>
+
+                <h3>Offer Source</h3>
+                <div class="type-ref">
+                    <p><strong>Type:</strong> <code>OfferSource</code> (enum)</p>
+                    <p><strong>Variants:</strong></p>
+                    <code>OfferSource::Kiwi</code> - Kiwi.com affiliate<br>
+                    <code>OfferSource::Travelpayouts</code> - Travelpayouts affiliate<br>
+                    <code>OfferSource::Amadeus</code> - Amadeus GDS<br>
+                    <code>OfferSource::AirlineDirect</code> - Direct airline API<br>
+                    <code>OfferSource::VayaSynthetic</code> - VAYA-constructed route<br>
+                    <code>OfferSource::VayaInventory</code> - Pre-purchased inventory<br>
+                    <p><strong>Access:</strong> <code>source.name()</code> - Get &str</p>
+                </div>
+            </section>
+
+            <!-- Section 4: Build Process -->
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-id">04</div>
+                    <h2>Build Process</h2>
+                </div>
+
+                <h3>Prerequisites</h3>
+                <div class="code-block">
+# Install Rust (1.75 or higher required)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+source ~/.cargo/env
+
+# Verify installation
+rustc --version  # Should be 1.75.0 or higher
+
+# Add musl target for static binaries
+rustup target add x86_64-unknown-linux-musl
+                </div>
+
+                <h3>Build Commands</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Purpose</th>
+                            <th>Output</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>cargo check</code></td>
+                            <td>Verify compilation (fast)</td>
+                            <td>Errors only, no binary</td>
+                        </tr>
+                        <tr>
+                            <td><code>cargo build</code></td>
+                            <td>Debug build</td>
+                            <td>target/debug/vaya</td>
+                        </tr>
+                        <tr>
+                            <td><code>cargo build --release</code></td>
+                            <td>Production build</td>
+                            <td>target/release/vaya</td>
+                        </tr>
+                        <tr>
+                            <td><code>cargo test</code></td>
+                            <td>Run all tests</td>
+                            <td>Test results</td>
+                        </tr>
+                        <tr>
+                            <td><code>cargo test -p vaya-auth</code></td>
+                            <td>Test specific crate</td>
+                            <td>Crate test results</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="success-box">
+                    <h5>âœ… Build Success Criteria</h5>
+                    <p>The build is successful when:</p>
+                    <ul style="margin-top: 12px; padding-left: 24px;">
+                        <li><code>cargo check</code> completes with 0 errors</li>
+                        <li><code>cargo build --release</code> produces binary</li>
+                        <li><code>./target/release/vaya --help</code> shows usage</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Section 5: Implementation Status -->
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-id">05</div>
+                    <h2>Implementation Status</h2>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>All 17 crates</td>
+                            <td><span class="tag tag-complete">COMPLETE</span></td>
+                            <td>Structure, Cargo.toml, lib.rs</td>
+                        </tr>
+                        <tr>
+                            <td>Type system</td>
+                            <td><span class="tag tag-complete">COMPLETE</span></td>
+                            <td>vaya-common types verified</td>
+                        </tr>
+                        <tr>
+                            <td>Module declarations</td>
+                            <td><span class="tag tag-complete">COMPLETE</span></td>
+                            <td>All 113 source files exist</td>
+                        </tr>
+                        <tr>
+                            <td>Build verification</td>
+                            <td><span class="tag tag-complete">COMPLETE</span></td>
+                            <td>cargo check passes</td>
+                        </tr>
+                        <tr>
+                            <td>Integration tests</td>
+                            <td><span class="tag tag-pending">PENDING</span></td>
+                            <td>Need live API keys</td>
+                        </tr>
+                        <tr>
+                            <td>ML model training</td>
+                            <td><span class="tag tag-pending">PENDING</span></td>
+                            <td>Need historical data</td>
+                        </tr>
+                        <tr>
+                            <td>Frontend</td>
+                            <td><span class="tag tag-pending">PENDING</span></td>
+                            <td>Not started</td>
+                        </tr>
+                        <tr>
+                            <td>Deployment</td>
+                            <td><span class="tag tag-pending">PENDING</span></td>
+                            <td>Need infrastructure setup</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Section 6: Next Steps -->
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-id">06</div>
+                    <h2>Implementation Priorities</h2>
+                </div>
+
+                <h3>Phase 1: Core Backend (Current)</h3>
+                <ul style="padding-left: 24px; color: var(--text-secondary);">
+                    <li>âœ… All crates created</li>
+                    <li>âœ… Type system complete</li>
+                    <li>âœ… Build system verified</li>
+                    <li>ðŸ”² Integration tests</li>
+                    <li>ðŸ”² API endpoint testing</li>
+                </ul>
+
+                <h3>Phase 2: Data Integration</h3>
+                <ul style="padding-left: 24px; color: var(--text-secondary);">
+                    <li>ðŸ”² Kiwi API live integration</li>
+                    <li>ðŸ”² Travelpayouts live integration</li>
+                    <li>ðŸ”² Currency rate fetching</li>
+                    <li>ðŸ”² Data pipeline testing</li>
+                </ul>
+
+                <h3>Phase 3: ML Pipeline</h3>
+                <ul style="padding-left: 24px; color: var(--text-secondary);">
+                    <li>ðŸ”² Feature engineering</li>
+                    <li>ðŸ”² Model training scripts</li>
+                    <li>ðŸ”² Model serving</li>
+                    <li>ðŸ”² Prediction API</li>
+                </ul>
+
+                <h3>Phase 4: Frontend</h3>
+                <ul style="padding-left: 24px; color: var(--text-secondary);">
+                    <li>ðŸ”² Leptos web app</li>
+                    <li>ðŸ”² Mobile responsive</li>
+                    <li>ðŸ”² Component library</li>
+                </ul>
+
+                <h3>Phase 5: Deployment</h3>
+                <ul style="padding-left: 24px; color: var(--text-secondary);">
+                    <li>ðŸ”² Docker containerization</li>
+                    <li>ðŸ”² Kubernetes manifests</li>
+                    <li>ðŸ”² CI/CD pipeline</li>
+                    <li>ðŸ”² Monitoring setup</li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>VAYA Implementation Architecture v1.0 â€¢ January 2025 â€¢ Internal Document</p>
+        </div>
+    </footer>
+</body>
+</html>

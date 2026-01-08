@@ -1,0 +1,2552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VayaPay â€” Revolutionary Payment Intelligence Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #030304;
+            --bg-primary: #070709;
+            --bg-secondary: #0c0c10;
+            --bg-card: #101016;
+            --bg-elevated: #16161f;
+            --border-subtle: #1a1a26;
+            --border-accent: #252538;
+            --border-gold: #d4af37;
+            --text-primary: #f8f8fc;
+            --text-secondary: #a0a0b8;
+            --text-muted: #606078;
+            --accent-mint: #00F5A0;
+            --accent-gold: #FFD700;
+            --accent-emerald: #00D68F;
+            --accent-glow: rgba(0, 245, 160, 0.15);
+            --gold-glow: rgba(255, 215, 0, 0.12);
+            --success: #00E676;
+            --danger: #FF5252;
+            --warning: #FFB300;
+            --info: #40C4FF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg-void);
+            color: var(--text-primary);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        ::selection {
+            background: var(--accent-mint);
+            color: var(--bg-void);
+        }
+
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 40px; }
+
+        /* Header */
+        .header {
+            padding: 100px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -50%;
+            width: 200%;
+            height: 300%;
+            background: radial-gradient(ellipse at center, var(--gold-glow) 0%, transparent 60%);
+            animation: headerPulse 12s ease-in-out infinite;
+        }
+
+        @keyframes headerPulse {
+            0%, 100% { opacity: 0.4; transform: scale(1) rotate(0deg); }
+            50% { opacity: 0.7; transform: scale(1.1) rotate(5deg); }
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated));
+            border: 1px solid var(--border-gold);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .badge::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--accent-gold); }
+            50% { opacity: 0.3; box-shadow: none; }
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3.5rem, 10vw, 7rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 .vaya { color: var(--text-primary); }
+        h1 .pay {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-mint) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 48px;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-mint), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: 8px;
+        }
+
+        /* Navigation */
+        .nav {
+            position: sticky;
+            top: 0;
+            background: rgba(3, 3, 4, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            z-index: 1000;
+            padding: 16px 0;
+        }
+
+        .nav-inner {
+            display: flex;
+            gap: 32px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: color 0.3s;
+        }
+
+        .nav a:hover { color: var(--accent-mint); }
+
+        /* Sections */
+        section {
+            padding: 100px 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .section-header {
+            margin-bottom: 64px;
+        }
+
+        .section-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.4s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-accent);
+            transform: translateY(-4px);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-gold {
+            border-color: var(--border-gold);
+            background: linear-gradient(135deg, var(--bg-card), rgba(212, 175, 55, 0.05));
+        }
+
+        .card-gold:hover {
+            border-color: var(--accent-gold);
+            box-shadow: 0 24px 48px rgba(212, 175, 55, 0.15);
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-glow);
+            border: 1px solid var(--border-accent);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Grids */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+        @media (max-width: 1024px) {
+            .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .hero-stats { flex-direction: column; gap: 32px; }
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: var(--bg-void);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+
+        .code-comment { color: var(--text-muted); }
+        .code-keyword { color: var(--accent-gold); }
+        .code-string { color: var(--accent-mint); }
+        .code-type { color: var(--info); }
+        .code-fn { color: var(--success); }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+
+        th, td {
+            padding: 16px 20px;
+            text-align: left;
+            border: 1px solid var(--border-subtle);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-gold);
+        }
+
+        tr:hover { background: var(--bg-secondary); }
+
+        /* Feature blocks */
+        .feature {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 40px;
+            margin: 32px 0;
+        }
+
+        .feature-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--accent-mint), var(--accent-gold));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .feature-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .feature-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Flow diagrams */
+        .flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 32px;
+            background: var(--bg-void);
+            border-radius: 12px;
+            margin: 24px 0;
+        }
+
+        .flow-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-accent);
+            padding: 16px 24px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .flow-box.highlight {
+            border-color: var(--accent-mint);
+            background: var(--accent-glow);
+        }
+
+        .flow-box.gold {
+            border-color: var(--accent-gold);
+            background: var(--gold-glow);
+        }
+
+        .flow-arrow {
+            color: var(--accent-mint);
+            font-size: 1.5rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--accent-gold), var(--accent-mint));
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 48px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -34px;
+            top: 6px;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            border: 3px solid var(--bg-void);
+        }
+
+        .timeline-phase {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
+        }
+
+        .timeline-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        /* Alert boxes */
+        .alert {
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .alert-success {
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+        }
+
+        .alert-gold {
+            background: var(--gold-glow);
+            border: 1px solid var(--border-gold);
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Checklist */
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 12px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .checklist li:last-child { border-bottom: none; }
+
+        .check {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-mint);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        /* Spec block */
+        .spec-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            margin: 24px 0;
+            overflow: hidden;
+        }
+
+        .spec-header {
+            background: var(--bg-secondary);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .spec-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            background: var(--gold-glow);
+            padding: 4px 12px;
+            border-radius: 6px;
+        }
+
+        .spec-body {
+            padding: 24px;
+        }
+
+        /* Wireframe */
+        .wireframe {
+            background: var(--bg-void);
+            border: 1px solid var(--border-accent);
+            border-radius: 12px;
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            white-space: pre;
+            overflow-x: auto;
+            color: var(--text-secondary);
+        }
+
+        .wireframe .highlight { color: var(--accent-mint); }
+        .wireframe .gold { color: var(--accent-gold); }
+        .wireframe .label { color: var(--text-muted); }
+
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tag-mint { background: var(--accent-glow); color: var(--accent-mint); }
+        .tag-gold { background: var(--gold-glow); color: var(--accent-gold); }
+        .tag-success { background: rgba(0, 230, 118, 0.15); color: var(--success); }
+        .tag-info { background: rgba(64, 196, 255, 0.15); color: var(--info); }
+
+        /* Footer */
+        footer {
+            padding: 60px 0;
+            text-align: center;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .footer-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .footer-logo .pay {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-mint));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Comparison */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin: 32px 0;
+        }
+
+        .comparison-col {
+            padding: 32px;
+            border-radius: 16px;
+        }
+
+        .comparison-old {
+            background: rgba(255, 82, 82, 0.08);
+            border: 1px solid rgba(255, 82, 82, 0.2);
+        }
+
+        .comparison-new {
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-mint);
+        }
+
+        .comparison-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Mobile preview */
+        .mobile-preview {
+            background: #0a0a0a;
+            border: 3px solid #333;
+            border-radius: 32px;
+            width: 320px;
+            padding: 40px 16px 24px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .mobile-preview::before {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+        }
+
+        .mobile-screen {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="badge">Revolutionary Payment Intelligence</div>
+            <h1><span class="vaya">VAYA</span><span class="pay">PAY</span></h1>
+            <p class="subtitle">
+                The payment layer that makes travel dreams come true instantly. 
+                Not another e-wallet. A travel intelligence payment system.
+            </p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value">0</div>
+                    <div class="hero-stat-label">License Needed (Phase 1-3)</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">30s</div>
+                    <div class="hero-stat-label">Instant Refunds</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">100%</div>
+                    <div class="hero-stat-label">Travel-Native</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-inner">
+                <a href="#philosophy">Philosophy</a>
+                <a href="#architecture">Architecture</a>
+                <a href="#features">Features</a>
+                <a href="#travel-fund">Travel Fund</a>
+                <a href="#instant-refund">Instant Refund</a>
+                <a href="#pool-payments">Pool Payments</a>
+                <a href="#split-trip">Split Trip</a>
+                <a href="#credits">VAYA Credits</a>
+                <a href="#technical">Technical Spec</a>
+                <a href="#database">Database</a>
+                <a href="#api">API</a>
+                <a href="#compliance">Compliance</a>
+                <a href="#timeline">Timeline</a>
+                <a href="#execution">Execution</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Philosophy -->
+        <section id="philosophy">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 01</div>
+                    <h2>The VayaPay Philosophy</h2>
+                    <p class="section-desc">
+                        We don't compete with e-wallets. We make them look like they're from 2015.
+                    </p>
+                </div>
+
+                <div class="comparison">
+                    <div class="comparison-col comparison-old">
+                        <div class="comparison-title">
+                            <span style="color: var(--danger);">âœ—</span>
+                            Every Other E-Wallet
+                        </div>
+                        <ul style="color: var(--text-secondary); padding-left: 20px;">
+                            <li style="margin-bottom: 12px;">Generic stored value â€” holds your money, nothing more</li>
+                            <li style="margin-bottom: 12px;">Zero understanding of what you're saving FOR</li>
+                            <li style="margin-bottom: 12px;">Refunds take 7-30 days</li>
+                            <li style="margin-bottom: 12px;">Split bills = send money manually</li>
+                            <li style="margin-bottom: 12px;">No integration with purchase intelligence</li>
+                            <li style="margin-bottom: 12px;">Just another payment method</li>
+                        </ul>
+                    </div>
+                    <div class="comparison-col comparison-new">
+                        <div class="comparison-title">
+                            <span style="color: var(--accent-mint);">âœ“</span>
+                            VayaPay
+                        </div>
+                        <ul style="color: var(--text-primary); padding-left: 20px;">
+                            <li style="margin-bottom: 12px;"><strong>Travel Fund</strong> â€” knows what you're saving for and when</li>
+                            <li style="margin-bottom: 12px;"><strong>Oracle Integration</strong> â€” adjusts targets based on price predictions</li>
+                            <li style="margin-bottom: 12px;"><strong>Instant Refunds</strong> â€” 30 seconds, not 30 days</li>
+                            <li style="margin-bottom: 12px;"><strong>Split Trip</strong> â€” one tap to split with companions</li>
+                            <li style="margin-bottom: 12px;"><strong>Pool Funding</strong> â€” auto-commit to demand pools</li>
+                            <li style="margin-bottom: 12px;"><strong>The last payment layer travel will ever need</strong></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="alert alert-gold">
+                    <div class="alert-title">ðŸ’¡ The Core Insight</div>
+                    <p>Touch 'n Go is a wallet that doesn't know when to book flights. GrabPay is a wallet that doesn't aggregate demand. BigPay is a wallet that doesn't predict prices. <strong>VayaPay is a travel intelligence layer that happens to have payment capabilities.</strong> That's the regulatory arbitrage that makes it work â€” and the product positioning that makes it extraordinary.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Overview -->
+        <section id="architecture">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 02</div>
+                    <h2>Architecture: Four Phases, Zero Excuses</h2>
+                    <p class="section-desc">
+                        Each phase delivers revolutionary features. Each phase is executable NOW.
+                    </p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card card-gold">
+                        <div class="card-title">
+                            <div class="card-icon">ðŸš€</div>
+                            Phase 1: Payment Facilitator
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                            Full payment processing via licensed PSP partners. 
+                            All Malaysian payment methods. Zero license required.
+                        </p>
+                        <table>
+                            <tr>
+                                <td>License</td>
+                                <td><span class="tag tag-success">NONE</span></td>
+                            </tr>
+                            <tr>
+                                <td>Capital</td>
+                                <td>RM 0</td>
+                            </tr>
+                            <tr>
+                                <td>Timeline</td>
+                                <td>Weeks 1-12</td>
+                            </tr>
+                            <tr>
+                                <td>Features</td>
+                                <td>Card, FPX, eWallets, BNPL</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="card card-gold">
+                        <div class="card-title">
+                            <div class="card-icon">ðŸŽ</div>
+                            Phase 2: VAYA Credits
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                            Discount/loyalty system. NOT stored value. 
+                            Referrals, promotions, rewards â€” all as discounts.
+                        </p>
+                        <table>
+                            <tr>
+                                <td>License</td>
+                                <td><span class="tag tag-success">NONE</span></td>
+                            </tr>
+                            <tr>
+                                <td>Capital</td>
+                                <td>RM 0</td>
+                            </tr>
+                            <tr>
+                                <td>Timeline</td>
+                                <td>Weeks 8-16</td>
+                            </tr>
+                            <tr>
+                                <td>Features</td>
+                                <td>Credits, Referrals, Rewards</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="card card-gold">
+                        <div class="card-title">
+                            <div class="card-icon">ðŸ¤</div>
+                            Phase 3: Pool Escrow
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                            Demand pool commitments via licensed trustee partner.
+                            VAYA doesn't hold funds â€” trustee does.
+                        </p>
+                        <table>
+                            <tr>
+                                <td>License</td>
+                                <td><span class="tag tag-success">NONE (Partner)</span></td>
+                            </tr>
+                            <tr>
+                                <td>Capital</td>
+                                <td>RM 0</td>
+                            </tr>
+                            <tr>
+                                <td>Timeline</td>
+                                <td>Weeks 12-24</td>
+                            </tr>
+                            <tr>
+                                <td>Features</td>
+                                <td>Pool funding, Escrow, Refunds</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="card card-gold">
+                        <div class="card-title">
+                            <div class="card-icon">ðŸ‘‘</div>
+                            Phase 4: Full Wallet
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px;">
+                            Optional endgame. BNM Sandbox â†’ Limited â†’ Full license.
+                            OR white-label with existing licensed partner.
+                        </p>
+                        <table>
+                            <tr>
+                                <td>License</td>
+                                <td><span class="tag tag-gold">E-Money</span></td>
+                            </tr>
+                            <tr>
+                                <td>Capital</td>
+                                <td>RM 500K â†’ RM 5M</td>
+                            </tr>
+                            <tr>
+                                <td>Timeline</td>
+                                <td>Year 2-3</td>
+                            </tr>
+                            <tr>
+                                <td>Features</td>
+                                <td>Stored value, P2P, Cross-border</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flow" style="margin-top: 48px;">
+                    <div class="flow-box gold">
+                        <strong>PHASE 1</strong><br>
+                        <small>Payment Facilitator</small>
+                    </div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box gold">
+                        <strong>PHASE 2</strong><br>
+                        <small>VAYA Credits</small>
+                    </div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box gold">
+                        <strong>PHASE 3</strong><br>
+                        <small>Pool Escrow</small>
+                    </div>
+                    <span class="flow-arrow">â†’</span>
+                    <div class="flow-box highlight">
+                        <strong>PHASE 4</strong><br>
+                        <small>Full Wallet</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Revolutionary Features -->
+        <section id="features">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 03</div>
+                    <h2>Revolutionary Features</h2>
+                    <p class="section-desc">
+                        Every feature makes someone's travel dream come true faster.
+                    </p>
+                </div>
+
+                <div class="grid-3" style="margin-bottom: 48px;">
+                    <div class="card">
+                        <div class="card-title">ðŸŽ¯ Travel Fund</div>
+                        <p style="color: var(--text-secondary);">
+                            Save for specific trips with Oracle-powered targets.
+                            Auto-adjusts based on price predictions.
+                        </p>
+                        <div style="margin-top: 16px;">
+                            <span class="tag tag-mint">Phase 2</span>
+                            <span class="tag tag-success">No License</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">âš¡ Instant Refunds</div>
+                        <p style="color: var(--text-secondary);">
+                            30 seconds, not 30 days. VAYA pre-funds, 
+                            recovers from airline later.
+                        </p>
+                        <div style="margin-top: 16px;">
+                            <span class="tag tag-mint">Phase 1</span>
+                            <span class="tag tag-success">No License</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">ðŸ‘¥ Split Trip</div>
+                        <p style="color: var(--text-secondary);">
+                            One tap to split booking with companions.
+                            Booking confirms when all pay.
+                        </p>
+                        <div style="margin-top: 16px;">
+                            <span class="tag tag-mint">Phase 1</span>
+                            <span class="tag tag-success">No License</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">ðŸŠ Pool Commit</div>
+                        <p style="color: var(--text-secondary);">
+                            Secure your spot in demand pools.
+                            Funds held by licensed trustee.
+                        </p>
+                        <div style="margin-top: 16px;">
+                            <span class="tag tag-gold">Phase 3</span>
+                            <span class="tag tag-success">Partner License</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">ðŸŽ VAYA Credits</div>
+                        <p style="color: var(--text-secondary);">
+                            Earn discounts via referrals and rewards.
+                            Not stored value â€” pure discount system.
+                        </p>
+                        <div style="margin-top: 16px;">
+                            <span class="tag tag-mint">Phase 2</span>
+                            <span class="tag tag-success">No License</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">ðŸ’³ Save Cards</div>
+                        <p style="color: var(--text-secondary);">
+                            Tokenized card storage via PSP.
+                            One-tap future payments.
+                        </p>
+                        <div style="margin-top: 16px;">
+                            <span class="tag tag-mint">Phase 1</span>
+                            <span class="tag tag-success">No License</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Travel Fund Feature -->
+        <section id="travel-fund">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 04</div>
+                    <h2>Feature: Travel Fund</h2>
+                    <p class="section-desc">
+                        The only savings feature that knows when you should stop saving and start booking.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-header">
+                        <div class="feature-icon">ðŸŽ¯</div>
+                        <div>
+                            <div class="feature-title">Oracle-Powered Savings</div>
+                            <div class="feature-subtitle">Save smarter, book at the perfect moment</div>
+                        </div>
+                    </div>
+
+                    <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="gold">ðŸŽ¯ TOKYO MARCH 2026 FUND</span>                                          â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="label">Target:</span> <span class="highlight">RM 2,400</span> <span class="label">(Oracle predicted optimal + 20% buffer)</span>           â”‚
+â”‚  <span class="label">Current:</span> <span class="highlight">RM 1,600</span>                                                  â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="highlight">â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘</span> <span class="gold">67%</span>                        â”‚
+â”‚                                                                      â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚  â”‚  <span class="gold">ðŸ”® ORACLE INSIGHT</span>                                              â”‚ â”‚
+â”‚  â”‚                                                                 â”‚ â”‚
+â”‚  â”‚  Prices will DROP <span class="highlight">18%</span> in <span class="highlight">47 days</span>                             â”‚ â”‚
+â”‚  â”‚  Keep saving. We'll book at <span class="highlight">RM 1,950</span> (saves RM 450)          â”‚ â”‚
+â”‚  â”‚                                                                 â”‚ â”‚
+â”‚  â”‚  <span class="label">Confidence:</span> <span class="highlight">â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘</span> 84%                         â”‚ â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="label">Auto-save:</span> RM 200/month from Maybank â€¢â€¢â€¢â€¢4521                      â”‚
+â”‚                                                                      â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
+â”‚  â”‚   ðŸ“Š Adjust    â”‚  â”‚   â¸ï¸  Pause    â”‚  â”‚  âœˆï¸ Book Now Anyway   â”‚  â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="label">â„¹ï¸ This is a savings goal, not stored value. Funds remain in</span>       â”‚
+â”‚  <span class="label">   your linked bank account until you book.</span>                       â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    </div>
+
+                    <div class="grid-2" style="margin-top: 32px;">
+                        <div class="spec-block">
+                            <div class="spec-header">
+                                <span class="spec-id">FUND-01</span>
+                                <span>How It Works</span>
+                            </div>
+                            <div class="spec-body">
+                                <ul class="checklist">
+                                    <li>
+                                        <span class="check">âœ“</span>
+                                        <div>
+                                            <strong>Create Fund</strong>
+                                            <p style="color: var(--text-secondary); margin-top: 4px;">User sets destination + dates â†’ Oracle calculates target</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <span class="check">âœ“</span>
+                                        <div>
+                                            <strong>Link Bank Account</strong>
+                                            <p style="color: var(--text-secondary); margin-top: 4px;">FPX auto-debit authorization (user controls)</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <span class="check">âœ“</span>
+                                        <div>
+                                            <strong>Track Progress</strong>
+                                            <p style="color: var(--text-secondary); margin-top: 4px;">VayaPay tracks balance (shadow account, not stored value)</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <span class="check">âœ“</span>
+                                        <div>
+                                            <strong>Oracle Alerts</strong>
+                                            <p style="color: var(--text-secondary); margin-top: 4px;">Push notifications when price predictions change</p>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <span class="check">âœ“</span>
+                                        <div>
+                                            <strong>Auto-Book Option</strong>
+                                            <p style="color: var(--text-secondary); margin-top: 4px;">User can authorize auto-booking when target + conditions met</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="spec-block">
+                            <div class="spec-header">
+                                <span class="spec-id">FUND-02</span>
+                                <span>Regulatory Position</span>
+                            </div>
+                            <div class="spec-body">
+                                <div class="alert alert-success">
+                                    <div class="alert-title">âœ… NO E-MONEY LICENSE REQUIRED</div>
+                                    <p>Funds remain in user's bank account. VayaPay only tracks progress and facilitates payment when user books. This is a <strong>goal-tracking feature</strong>, not stored value.</p>
+                                </div>
+
+                                <table style="margin-top: 16px;">
+                                    <tr>
+                                        <th>Element</th>
+                                        <th>Classification</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Fund Target</td>
+                                        <td>User preference data</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Progress Tracking</td>
+                                        <td>Account aggregation</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Auto-Debit</td>
+                                        <td>FPX mandate (bank-controlled)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Payment</td>
+                                        <td>Normal FPX/card transaction</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Instant Refund Feature -->
+        <section id="instant-refund">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 05</div>
+                    <h2>Feature: Instant Refunds</h2>
+                    <p class="section-desc">
+                        Your money back in 30 seconds. We absorb the float.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-header">
+                        <div class="feature-icon">âš¡</div>
+                        <div>
+                            <div class="feature-title">30 Seconds, Not 30 Days</div>
+                            <div class="feature-subtitle">VAYA pre-funds refunds while recovering from airlines</div>
+                        </div>
+                    </div>
+
+                    <div class="flow">
+                        <div class="flow-box">
+                            <strong>Flight Cancelled</strong><br>
+                            <small>By airline</small>
+                        </div>
+                        <span class="flow-arrow">â†’</span>
+                        <div class="flow-box highlight">
+                            <strong>VAYA Pre-Funds</strong><br>
+                            <small>30 seconds</small>
+                        </div>
+                        <span class="flow-arrow">â†’</span>
+                        <div class="flow-box">
+                            <strong>User Gets Money</strong><br>
+                            <small>Instant</small>
+                        </div>
+                        <span class="flow-arrow">â†’</span>
+                        <div class="flow-box" style="opacity: 0.6;">
+                            <strong>VAYA Recovers</strong><br>
+                            <small>7-30 days</small>
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="margin-top: 32px;">
+                        <div class="spec-block">
+                            <div class="spec-header">
+                                <span class="spec-id">REFUND-01</span>
+                                <span>How It Works</span>
+                            </div>
+                            <div class="spec-body">
+                                <div class="code-block">
+<span class="code-comment">// Instant Refund Flow</span>
+
+<span class="code-keyword">1.</span> <span class="code-fn">detect_cancellation</span>(booking)
+   <span class="code-comment">// Webhook from GDS or airline status check</span>
+
+<span class="code-keyword">2.</span> <span class="code-fn">verify_refund_eligible</span>(booking)
+   <span class="code-comment">// Check fare rules, cancellation policy</span>
+
+<span class="code-keyword">3.</span> <span class="code-fn">calculate_refund_amount</span>(booking)
+   <span class="code-comment">// Base fare + taxes - applicable fees</span>
+
+<span class="code-keyword">4.</span> <span class="code-fn">vaya_pre_fund</span>(user, amount)
+   <span class="code-comment">// VAYA sends money to user IMMEDIATELY</span>
+   <span class="code-comment">// Via PSP instant payout (Stripe/Adyen)</span>
+
+<span class="code-keyword">5.</span> <span class="code-fn">create_recovery_claim</span>(airline, amount)
+   <span class="code-comment">// VAYA tracks recovery from airline</span>
+   <span class="code-comment">// 7-30 days typical recovery time</span>
+
+<span class="code-keyword">6.</span> <span class="code-fn">reconcile_recovery</span>(claim)
+   <span class="code-comment">// Close loop when airline pays VAYA</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="spec-block">
+                            <div class="spec-header">
+                                <span class="spec-id">REFUND-02</span>
+                                <span>Business Model</span>
+                            </div>
+                            <div class="spec-body">
+                                <table>
+                                    <tr>
+                                        <td><strong>User Experience</strong></td>
+                                        <td>Refund in 30 seconds (vs 30 days industry standard)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>VAYA Cost</strong></td>
+                                        <td>Float cost (~0.5% APR on outstanding)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Risk Mitigation</strong></td>
+                                        <td>Only pre-fund verified cancellations from trusted airlines</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Cap Per User</strong></td>
+                                        <td>RM 10,000 initial (increase with history)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Recovery Rate</strong></td>
+                                        <td>Target 99%+ (airline refunds are contractual)</td>
+                                    </tr>
+                                </table>
+
+                                <div class="alert alert-gold" style="margin-top: 16px;">
+                                    <div class="alert-title">ðŸ’° Competitive Advantage</div>
+                                    <p>This is a <strong>capital efficiency</strong> play, not a product feature. Every competitor could do this â€” none will, because it requires tying up capital. VAYA's willingness to absorb float creates unbeatable UX.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="spec-block" style="margin-top: 24px;">
+                        <div class="spec-header">
+                            <span class="spec-id">REFUND-03</span>
+                            <span>Eligibility Matrix</span>
+                        </div>
+                        <div class="spec-body">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Scenario</th>
+                                        <th>Instant Refund</th>
+                                        <th>Amount</th>
+                                        <th>Conditions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Airline Cancellation</td>
+                                        <td><span class="tag tag-success">YES</span></td>
+                                        <td>100%</td>
+                                        <td>Automatic</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Significant Schedule Change (>4hrs)</td>
+                                        <td><span class="tag tag-success">YES</span></td>
+                                        <td>100%</td>
+                                        <td>User must reject new time</td>
+                                    </tr>
+                                    <tr>
+                                        <td>User Cancellation (Refundable Fare)</td>
+                                        <td><span class="tag tag-success">YES</span></td>
+                                        <td>Per fare rules</td>
+                                        <td>Within 24 hours of request</td>
+                                    </tr>
+                                    <tr>
+                                        <td>User Cancellation (Non-Refundable)</td>
+                                        <td><span class="tag tag-info">NO</span></td>
+                                        <td>Taxes only</td>
+                                        <td>Standard airline timeline</td>
+                                    </tr>
+                                    <tr>
+                                        <td>VAYA Error (Double Charge, etc.)</td>
+                                        <td><span class="tag tag-success">YES</span></td>
+                                        <td>100%</td>
+                                        <td>Immediate</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pool Payments -->
+        <section id="pool-payments">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 06</div>
+                    <h2>Feature: Pool Commitment Payments</h2>
+                    <p class="section-desc">
+                        Secure your spot in demand pools. Funds held by licensed trustee, not VAYA.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-header">
+                        <div class="feature-icon">ðŸŠ</div>
+                        <div>
+                            <div class="feature-title">Escrow-Backed Pool Commitments</div>
+                            <div class="feature-subtitle">100% refundable if pool doesn't activate</div>
+                        </div>
+                    </div>
+
+                    <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="gold">ðŸŠ JOIN DEMAND POOL</span>                                               â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="highlight">KUL â†’ Tokyo</span>  â€¢  March 2026                                         â”‚
+â”‚                                                                      â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚  â”‚  <span class="label">Pool Status:</span> <span class="highlight">2,847 travelers</span> (need 4,000 to activate)          â”‚ â”‚
+â”‚  â”‚  <span class="highlight">â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘</span> 71%                        â”‚ â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="label">Your Commitment:</span>                                                   â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚  â”‚  <span class="highlight">RM 200</span> per person Ã— 2 passengers = <span class="gold">RM 400</span>                    â”‚ â”‚
+â”‚  â”‚                                                                 â”‚ â”‚
+â”‚  â”‚  âœ“ <span class="label">Held by AmanahRaya Trustees Berhad (Licensed)</span>              â”‚ â”‚
+â”‚  â”‚  âœ“ <span class="label">100% refundable if pool doesn't activate</span>                   â”‚ â”‚
+â”‚  â”‚  âœ“ <span class="label">Applied to booking if pool succeeds</span>                        â”‚ â”‚
+â”‚  â”‚  âœ“ <span class="label">Automatic - no further action needed</span>                       â”‚ â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="label">Expected Outcome:</span>                                                  â”‚
+â”‚  Current best price: RM 847/person                                   â”‚
+â”‚  Expected pool price: <span class="highlight">RM 580-650/person</span> (24-31% savings)            â”‚
+â”‚                                                                      â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚  <span class="gold">ðŸ’³ COMMIT RM 400</span>                                            â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="label">Payment options: Card â€¢ FPX â€¢ Touch 'n Go â€¢ GrabPay</span>               â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    </div>
+
+                    <div class="grid-2" style="margin-top: 32px;">
+                        <div class="spec-block">
+                            <div class="spec-header">
+                                <span class="spec-id">POOL-PAY-01</span>
+                                <span>Escrow Flow</span>
+                            </div>
+                            <div class="spec-body">
+                                <div class="flow" style="flex-direction: column; align-items: stretch; gap: 12px;">
+                                    <div class="flow-box" style="text-align: left;">
+                                        <strong>1. User Commits</strong><br>
+                                        <small style="color: var(--text-secondary);">Pays RM 400 via FPX/Card</small>
+                                    </div>
+                                    <div class="flow-box gold" style="text-align: left;">
+                                        <strong>2. Funds â†’ Trustee</strong><br>
+                                        <small style="color: var(--text-secondary);">AmanahRaya Trust Account (not VAYA)</small>
+                                    </div>
+                                    <div class="flow-box" style="text-align: left;">
+                                        <strong>3. Pool Activates</strong><br>
+                                        <small style="color: var(--text-secondary);">4,000+ travelers reached</small>
+                                    </div>
+                                    <div class="flow-box highlight" style="text-align: left;">
+                                        <strong>4. Airline Bids</strong><br>
+                                        <small style="color: var(--text-secondary);">Best price selected</small>
+                                    </div>
+                                    <div class="flow-box" style="text-align: left;">
+                                        <strong>5. User Confirms</strong><br>
+                                        <small style="color: var(--text-secondary);">Accept or reject final price</small>
+                                    </div>
+                                    <div class="flow-box gold" style="text-align: left;">
+                                        <strong>6. Trustee Releases</strong><br>
+                                        <small style="color: var(--text-secondary);">Funds â†’ Airline (or back to user)</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="spec-block">
+                            <div class="spec-header">
+                                <span class="spec-id">POOL-PAY-02</span>
+                                <span>Regulatory Structure</span>
+                            </div>
+                            <div class="spec-body">
+                                <div class="alert alert-success">
+                                    <div class="alert-title">âœ… VAYA HOLDS ZERO FUNDS</div>
+                                    <p>All commitment funds are held by a licensed Malaysian trustee. VAYA is the platform operator, not the fund custodian. No e-money license required.</p>
+                                </div>
+
+                                <table style="margin-top: 16px;">
+                                    <tr>
+                                        <th>Party</th>
+                                        <th>Role</th>
+                                        <th>License</th>
+                                    </tr>
+                                    <tr>
+                                        <td>VAYA</td>
+                                        <td>Platform operator</td>
+                                        <td>None required</td>
+                                    </tr>
+                                    <tr>
+                                        <td>AmanahRaya</td>
+                                        <td>Fund custodian</td>
+                                        <td>Trustee (BNM)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>iPay88</td>
+                                        <td>Payment processor</td>
+                                        <td>PSP (BNM)</td>
+                                    </tr>
+                                </table>
+
+                                <p style="margin-top: 16px; font-size: 0.9rem; color: var(--text-muted);">
+                                    <strong>Trust Agreement Terms:</strong> Funds released to airline on pool confirmation, 
+                                    or returned to user on pool expiry/cancellation. VAYA receives service fee from trustee upon successful booking.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Split Trip -->
+        <section id="split-trip">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 07</div>
+                    <h2>Feature: Split Trip</h2>
+                    <p class="section-desc">
+                        One tap to split a booking with travel companions. Booking confirms when all pay.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-header">
+                        <div class="feature-icon">ðŸ‘¥</div>
+                        <div>
+                            <div class="feature-title">Group Payment Made Effortless</div>
+                            <div class="feature-subtitle">No more "I'll pay first, you pay me back"</div>
+                        </div>
+                    </div>
+
+                    <div class="wireframe">
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  <span class="gold">âœˆï¸ BOOKING: KUL â†’ Tokyo</span>                                           â”‚
+â”‚  March 15-22, 2026  â€¢  4 travelers                                   â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="label">Total:</span> <span class="highlight">RM 4,800</span>                                                    â”‚
+â”‚                                                                      â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚  â”‚  <span class="gold">SPLIT THIS TRIP</span>                                               â”‚ â”‚
+â”‚  â”‚                                                                 â”‚ â”‚
+â”‚  â”‚  <span class="highlight">You</span>                                                         â”‚ â”‚
+â”‚  â”‚  RM 1,200  <span class="highlight">âœ“ PAID</span>                                           â”‚ â”‚
+â”‚  â”‚                                                                 â”‚ â”‚
+â”‚  â”‚  <span class="label">Sarah (+60 12-345 6789)</span>                                     â”‚ â”‚
+â”‚  â”‚  RM 1,200  <span class="gold">â³ Pending</span>  [Send Reminder]                         â”‚ â”‚
+â”‚  â”‚                                                                 â”‚ â”‚
+â”‚  â”‚  <span class="label">Ahmad (+60 11-234 5678)</span>                                     â”‚ â”‚
+â”‚  â”‚  RM 1,200  <span class="gold">â³ Pending</span>  [Send Reminder]                         â”‚ â”‚
+â”‚  â”‚                                                                 â”‚ â”‚
+â”‚  â”‚  <span class="label">Mei Ling (+60 17-890 1234)</span>                                  â”‚ â”‚
+â”‚  â”‚  RM 1,200  <span class="highlight">âœ“ PAID</span>                                           â”‚ â”‚
+â”‚  â”‚                                                                 â”‚ â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="label">Status:</span> 2/4 paid  â€¢  <span class="gold">Expires in 23:47:12</span>                         â”‚
+â”‚                                                                      â”‚
+â”‚  <span class="label">â„¹ï¸ Booking confirms automatically when all companions pay.</span>        â”‚
+â”‚  <span class="label">   Full refund if not completed within 24 hours.</span>                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    </div>
+
+                    <div class="spec-block" style="margin-top: 32px;">
+                        <div class="spec-header">
+                            <span class="spec-id">SPLIT-01</span>
+                            <span>How It Works</span>
+                        </div>
+                        <div class="spec-body">
+                            <div class="code-block">
+<span class="code-comment">// Split Trip Flow</span>
+
+<span class="code-keyword">1.</span> <span class="code-fn">initiate_split</span>(booking, companions[])
+   <span class="code-comment">// Initiator selects "Split Trip" and adds companions</span>
+   <span class="code-comment">// Each companion gets WhatsApp/SMS with payment link</span>
+
+<span class="code-keyword">2.</span> <span class="code-fn">hold_inventory</span>(booking, duration: <span class="code-string">24h</span>)
+   <span class="code-comment">// Seats held via GDS pending completion</span>
+   <span class="code-comment">// No charge until all pay</span>
+
+<span class="code-keyword">3.</span> <span class="code-fn">collect_payments</span>(companions[])
+   <span class="code-comment">// Each companion pays their share</span>
+   <span class="code-comment">// Funds held in escrow (or PSP pending capture)</span>
+
+<span class="code-keyword">4.</span> <span class="code-fn">on_all_paid</span>()
+   <span class="code-comment">// Capture all payments simultaneously</span>
+   <span class="code-comment">// Issue tickets to all travelers</span>
+   <span class="code-comment">// Send confirmations</span>
+
+<span class="code-keyword">5.</span> <span class="code-fn">on_timeout</span>()
+   <span class="code-comment">// 24 hours passed, not all paid</span>
+   <span class="code-comment">// Release inventory</span>
+   <span class="code-comment">// Refund any payments collected</span>
+   <span class="code-comment">// Notify all parties</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-3" style="margin-top: 24px;">
+                        <div class="card">
+                            <div class="card-title">Initiator Pays First</div>
+                            <p style="color: var(--text-secondary);">
+                                Initiator must pay their share to start the split. 
+                                This ensures commitment and prevents spam invites.
+                            </p>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">24-Hour Window</div>
+                            <p style="color: var(--text-secondary);">
+                                Companions have 24 hours to pay. 
+                                Reminders sent at 12h, 6h, 1h remaining.
+                            </p>
+                        </div>
+                        <div class="card">
+                            <div class="card-title">Full Refund Safety</div>
+                            <p style="color: var(--text-secondary);">
+                                If split doesn't complete, everyone gets full refund.
+                                Zero risk for early payers.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VAYA Credits -->
+        <section id="credits">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 08</div>
+                    <h2>Feature: VAYA Credits</h2>
+                    <p class="section-desc">
+                        Earn discounts, not stored value. No license required.
+                    </p>
+                </div>
+
+                <div class="alert alert-gold" style="margin-bottom: 32px;">
+                    <div class="alert-title">âš–ï¸ Legal Classification: DISCOUNT PROGRAM</div>
+                    <p>VAYA Credits are <strong>discount vouchers</strong>, not e-money. They have no cash value, cannot be transferred, and can only be redeemed on the VAYA platform. This is legally equivalent to airline miles or loyalty points â€” no e-money license required.</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="spec-block">
+                        <div class="spec-header">
+                            <span class="spec-id">CREDIT-01</span>
+                            <span>Earning Credits</span>
+                        </div>
+                        <div class="spec-body">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Action</th>
+                                        <th>Credits Earned</th>
+                                        <th>Discount Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Successful Referral</td>
+                                        <td>500 credits</td>
+                                        <td>RM 50</td>
+                                    </tr>
+                                    <tr>
+                                        <td>First Booking</td>
+                                        <td>200 credits</td>
+                                        <td>RM 20</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Booking (1% cashback)</td>
+                                        <td>1 credit per RM 1</td>
+                                        <td>RM 0.10/credit</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pool Participation</td>
+                                        <td>100 credits</td>
+                                        <td>RM 10</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Review Submitted</td>
+                                        <td>50 credits</td>
+                                        <td>RM 5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Birthday Bonus</td>
+                                        <td>300 credits</td>
+                                        <td>RM 30</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="spec-block">
+                        <div class="spec-header">
+                            <span class="spec-id">CREDIT-02</span>
+                            <span>Redeeming Credits</span>
+                        </div>
+                        <div class="spec-body">
+                            <ul class="checklist">
+                                <li>
+                                    <span class="check">âœ“</span>
+                                    <div>
+                                        <strong>Minimum Redemption: 100 credits (RM 10)</strong>
+                                        <p style="color: var(--text-secondary); margin-top: 4px;">Prevents micro-transactions, encourages accumulation</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="check">âœ“</span>
+                                    <div>
+                                        <strong>Maximum Per Booking: 50%</strong>
+                                        <p style="color: var(--text-secondary); margin-top: 4px;">Credits can cover up to half the booking value</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="check">âœ“</span>
+                                    <div>
+                                        <strong>Expiry: 12 Months</strong>
+                                        <p style="color: var(--text-secondary); margin-top: 4px;">From date of earning, encourages usage</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="check">âœ“</span>
+                                    <div>
+                                        <strong>Non-Transferable</strong>
+                                        <p style="color: var(--text-secondary); margin-top: 4px;">Cannot be sent to other users or cashed out</p>
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <div class="code-block" style="margin-top: 16px;">
+<span class="code-comment">// Credit Redemption Example</span>
+
+Flight Price:     RM 500
+Credits Applied:  2,500 credits (<span class="code-string">RM 250 discount</span>)
+Amount to Pay:    <span class="code-highlight">RM 250</span> (via Card/FPX)
+
+<span class="code-comment">// Credits are discount, not payment</span>
+<span class="code-comment">// Regulatory: Loyalty program, not e-money</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Specification -->
+        <section id="technical">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 09</div>
+                    <h2>Technical Specification</h2>
+                    <p class="section-desc">
+                        The exact code architecture. No ambiguity.
+                    </p>
+                </div>
+
+                <div class="spec-block">
+                    <div class="spec-header">
+                        <span class="spec-id">TECH-01</span>
+                        <span>VayaPay Core Engine</span>
+                    </div>
+                    <div class="spec-body">
+                        <div class="code-block">
+<span class="code-comment">// vaya-pay/src/lib.rs</span>
+<span class="code-comment">// VayaPay Core - All regulatory compliance built-in</span>
+
+<span class="code-keyword">pub struct</span> <span class="code-type">VayaPayEngine</span> {
+    <span class="code-comment">// Phase 1: Licensed PSP Integration</span>
+    payment_gateway: Box&lt;<span class="code-keyword">dyn</span> <span class="code-type">PaymentGateway</span>&gt;,
+    
+    <span class="code-comment">// Phase 2: Credit/Discount System</span>
+    credit_ledger: <span class="code-type">CreditLedger</span>,
+    
+    <span class="code-comment">// Phase 3: Escrow Partner Integration</span>
+    escrow_client: <span class="code-type">EscrowClient</span>,
+    
+    <span class="code-comment">// Compliance (Always On)</span>
+    aml_engine: <span class="code-type">AmlEngine</span>,
+    audit_log: <span class="code-type">AuditLog</span>,
+    fraud_detector: <span class="code-type">FraudDetector</span>,
+}
+
+<span class="code-keyword">impl</span> <span class="code-type">VayaPayEngine</span> {
+    <span class="code-comment">/// Process a booking payment</span>
+    <span class="code-keyword">pub async fn</span> <span class="code-fn">process_booking</span>(
+        &amp;self,
+        booking: &amp;<span class="code-type">Booking</span>,
+        method: <span class="code-type">PaymentMethod</span>,
+        credits: <span class="code-type">Option</span>&lt;<span class="code-type">CreditAmount</span>&gt;,
+    ) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">PaymentResult</span>&gt; {
+        <span class="code-comment">// 1. AML/Fraud screening</span>
+        self.aml_engine.<span class="code-fn">screen</span>(&amp;booking).await?;
+        self.fraud_detector.<span class="code-fn">check</span>(&amp;booking, &amp;method).await?;
+        
+        <span class="code-comment">// 2. Apply credits (discount, not payment)</span>
+        <span class="code-keyword">let</span> net_amount = <span class="code-keyword">if let</span> <span class="code-type">Some</span>(c) = credits {
+            self.credit_ledger.<span class="code-fn">apply_discount</span>(booking.user_id, c)?;
+            booking.total - c.<span class="code-fn">as_discount</span>()
+        } <span class="code-keyword">else</span> {
+            booking.total
+        };
+        
+        <span class="code-comment">// 3. Process via licensed PSP</span>
+        <span class="code-keyword">let</span> result = self.payment_gateway
+            .<span class="code-fn">charge</span>(net_amount, &amp;method)
+            .await?;
+        
+        <span class="code-comment">// 4. Audit log (compliance requirement)</span>
+        self.audit_log.<span class="code-fn">record</span>(&amp;result).await?;
+        
+        <span class="code-type">Ok</span>(result)
+    }
+    
+    <span class="code-comment">/// Process pool commitment via escrow</span>
+    <span class="code-keyword">pub async fn</span> <span class="code-fn">commit_to_pool</span>(
+        &amp;self,
+        pool: &amp;<span class="code-type">DemandPool</span>,
+        user: &amp;<span class="code-type">User</span>,
+        amount: <span class="code-type">Money</span>,
+        method: <span class="code-type">PaymentMethod</span>,
+    ) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">CommitmentReceipt</span>&gt; {
+        <span class="code-comment">// Funds go to LICENSED TRUSTEE, not VAYA</span>
+        <span class="code-keyword">let</span> escrow_ref = self.escrow_client
+            .<span class="code-fn">create_escrow</span>(
+                user.id,
+                pool.id,
+                amount,
+                <span class="code-type">EscrowTerms</span> {
+                    release_on: <span class="code-type">PoolActivated</span>,
+                    refund_on: <span class="code-type">PoolFailed</span> | <span class="code-type">PoolExpired</span>,
+                    expiry: pool.expires_at,
+                }
+            ).await?;
+        
+        <span class="code-type">Ok</span>(<span class="code-type">CommitmentReceipt</span> {
+            pool_id: pool.id,
+            user_id: user.id,
+            amount,
+            escrow_reference: escrow_ref,
+            trustee: <span class="code-string">"AmanahRaya Trustees Berhad"</span>,
+        })
+    }
+    
+    <span class="code-comment">/// Process instant refund (VAYA pre-funds)</span>
+    <span class="code-keyword">pub async fn</span> <span class="code-fn">instant_refund</span>(
+        &amp;self,
+        booking: &amp;<span class="code-type">Booking</span>,
+        reason: <span class="code-type">RefundReason</span>,
+    ) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">RefundResult</span>&gt; {
+        <span class="code-comment">// 1. Verify refund eligibility</span>
+        <span class="code-keyword">let</span> amount = self.<span class="code-fn">calculate_refund</span>(booking, reason)?;
+        
+        <span class="code-comment">// 2. VAYA pre-funds immediately</span>
+        <span class="code-keyword">let</span> payout = self.payment_gateway
+            .<span class="code-fn">instant_payout</span>(booking.user_id, amount)
+            .await?;
+        
+        <span class="code-comment">// 3. Create recovery claim from airline</span>
+        self.<span class="code-fn">create_recovery_claim</span>(booking, amount).await?;
+        
+        <span class="code-type">Ok</span>(<span class="code-type">RefundResult</span> {
+            amount,
+            status: <span class="code-type">RefundStatus</span>::<span class="code-type">Completed</span>,
+            payout_id: payout.id,
+            user_received_at: <span class="code-type">Timestamp</span>::<span class="code-fn">now</span>(),
+        })
+    }
+}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spec-block" style="margin-top: 24px;">
+                    <div class="spec-header">
+                        <span class="spec-id">TECH-02</span>
+                        <span>Payment Gateway Abstraction</span>
+                    </div>
+                    <div class="spec-body">
+                        <div class="code-block">
+<span class="code-comment">// vaya-pay/src/gateway.rs</span>
+<span class="code-comment">// Multi-PSP abstraction with automatic failover</span>
+
+<span class="code-keyword">pub trait</span> <span class="code-type">PaymentGateway</span>: <span class="code-type">Send</span> + <span class="code-type">Sync</span> {
+    <span class="code-keyword">async fn</span> <span class="code-fn">charge</span>(&amp;self, amount: <span class="code-type">Money</span>, method: &amp;<span class="code-type">PaymentMethod</span>) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">ChargeResult</span>&gt;;
+    <span class="code-keyword">async fn</span> <span class="code-fn">refund</span>(&amp;self, charge_id: &amp;<span class="code-keyword">str</span>, amount: <span class="code-type">Money</span>) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">RefundResult</span>&gt;;
+    <span class="code-keyword">async fn</span> <span class="code-fn">instant_payout</span>(&amp;self, user_id: <span class="code-type">UserId</span>, amount: <span class="code-type">Money</span>) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">PayoutResult</span>&gt;;
+    <span class="code-keyword">async fn</span> <span class="code-fn">tokenize_card</span>(&amp;self, card: <span class="code-type">CardDetails</span>) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">CardToken</span>&gt;;
+}
+
+<span class="code-comment">/// iPay88 Implementation (Primary - Malaysian)</span>
+<span class="code-keyword">pub struct</span> <span class="code-type">IPay88Gateway</span> { ... }
+
+<span class="code-keyword">impl</span> <span class="code-type">PaymentGateway</span> <span class="code-keyword">for</span> <span class="code-type">IPay88Gateway</span> {
+    <span class="code-keyword">async fn</span> <span class="code-fn">charge</span>(&amp;self, amount: <span class="code-type">Money</span>, method: &amp;<span class="code-type">PaymentMethod</span>) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">ChargeResult</span>&gt; {
+        <span class="code-keyword">match</span> method {
+            <span class="code-type">PaymentMethod</span>::<span class="code-type">Fpx</span>(bank) =&gt; self.<span class="code-fn">charge_fpx</span>(amount, bank).await,
+            <span class="code-type">PaymentMethod</span>::<span class="code-type">Card</span>(token) =&gt; self.<span class="code-fn">charge_card</span>(amount, token).await,
+            <span class="code-type">PaymentMethod</span>::<span class="code-type">EWallet</span>(wallet) =&gt; self.<span class="code-fn">charge_ewallet</span>(amount, wallet).await,
+            <span class="code-type">PaymentMethod</span>::<span class="code-type">Bnpl</span>(provider) =&gt; self.<span class="code-fn">charge_bnpl</span>(amount, provider).await,
+        }
+    }
+}
+
+<span class="code-comment">/// Stripe Implementation (Fallback - International)</span>
+<span class="code-keyword">pub struct</span> <span class="code-type">StripeGateway</span> { ... }
+
+<span class="code-comment">/// Multi-gateway with automatic failover</span>
+<span class="code-keyword">pub struct</span> <span class="code-type">MultiGateway</span> {
+    primary: Box&lt;<span class="code-keyword">dyn</span> <span class="code-type">PaymentGateway</span>&gt;,    <span class="code-comment">// iPay88</span>
+    fallback: Box&lt;<span class="code-keyword">dyn</span> <span class="code-type">PaymentGateway</span>&gt;,   <span class="code-comment">// Stripe</span>
+}
+
+<span class="code-keyword">impl</span> <span class="code-type">PaymentGateway</span> <span class="code-keyword">for</span> <span class="code-type">MultiGateway</span> {
+    <span class="code-keyword">async fn</span> <span class="code-fn">charge</span>(&amp;self, amount: <span class="code-type">Money</span>, method: &amp;<span class="code-type">PaymentMethod</span>) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">ChargeResult</span>&gt; {
+        <span class="code-keyword">match</span> self.primary.<span class="code-fn">charge</span>(amount, method).await {
+            <span class="code-type">Ok</span>(result) =&gt; <span class="code-type">Ok</span>(result),
+            <span class="code-type">Err</span>(e) =&gt; {
+                <span class="code-comment">// Log primary failure</span>
+                tracing::<span class="code-fn">warn!</span>(<span class="code-string">"Primary PSP failed: {}, trying fallback"</span>, e);
+                self.fallback.<span class="code-fn">charge</span>(amount, method).await
+            }
+        }
+    }
+}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spec-block" style="margin-top: 24px;">
+                    <div class="spec-header">
+                        <span class="spec-id">TECH-03</span>
+                        <span>Credit Ledger (Double-Entry)</span>
+                    </div>
+                    <div class="spec-body">
+                        <div class="code-block">
+<span class="code-comment">// vaya-pay/src/credits.rs</span>
+<span class="code-comment">// Double-entry bookkeeping for credit ledger</span>
+
+<span class="code-keyword">pub struct</span> <span class="code-type">CreditLedger</span> {
+    db: <span class="code-type">VayaStore</span>,
+}
+
+<span class="code-keyword">impl</span> <span class="code-type">CreditLedger</span> {
+    <span class="code-comment">/// Award credits to user</span>
+    <span class="code-keyword">pub async fn</span> <span class="code-fn">award</span>(
+        &amp;self,
+        user_id: <span class="code-type">UserId</span>,
+        amount: <span class="code-type">CreditAmount</span>,
+        reason: <span class="code-type">AwardReason</span>,
+    ) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">CreditTransaction</span>&gt; {
+        <span class="code-keyword">let</span> txn = <span class="code-type">CreditTransaction</span> {
+            id: <span class="code-type">TransactionId</span>::<span class="code-fn">new</span>(),
+            user_id,
+            amount,
+            txn_type: <span class="code-type">CreditTxnType</span>::<span class="code-type">Award</span>,
+            reason: reason.<span class="code-fn">to_string</span>(),
+            expires_at: <span class="code-type">Timestamp</span>::<span class="code-fn">now</span>() + <span class="code-type">Duration</span>::<span class="code-fn">days</span>(<span class="code-string">365</span>),
+            created_at: <span class="code-type">Timestamp</span>::<span class="code-fn">now</span>(),
+        };
+        
+        <span class="code-comment">// Double-entry: DEBIT expense, CREDIT user balance</span>
+        self.db.<span class="code-fn">transaction</span>(|tx| {
+            tx.<span class="code-fn">insert</span>(<span class="code-string">"credit_transactions"</span>, &amp;txn)?;
+            tx.<span class="code-fn">increment</span>(<span class="code-string">"user_credit_balances"</span>, user_id, amount)?;
+            tx.<span class="code-fn">increment</span>(<span class="code-string">"credit_expense_account"</span>, <span class="code-string">"SYSTEM"</span>, amount)?;
+            <span class="code-type">Ok</span>(())
+        }).await?;
+        
+        <span class="code-type">Ok</span>(txn)
+    }
+    
+    <span class="code-comment">/// Apply credits as discount (not payment)</span>
+    <span class="code-keyword">pub fn</span> <span class="code-fn">apply_discount</span>(
+        &amp;self,
+        user_id: <span class="code-type">UserId</span>,
+        amount: <span class="code-type">CreditAmount</span>,
+    ) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">DiscountApplied</span>&gt; {
+        <span class="code-comment">// Check balance</span>
+        <span class="code-keyword">let</span> balance = self.<span class="code-fn">get_balance</span>(user_id)?;
+        <span class="code-keyword">if</span> balance &lt; amount {
+            <span class="code-keyword">return</span> <span class="code-type">Err</span>(<span class="code-type">CreditError</span>::<span class="code-type">InsufficientBalance</span>);
+        }
+        
+        <span class="code-comment">// Check minimum (100 credits = RM 10)</span>
+        <span class="code-keyword">if</span> amount.0 &lt; <span class="code-string">100</span> {
+            <span class="code-keyword">return</span> <span class="code-type">Err</span>(<span class="code-type">CreditError</span>::<span class="code-type">BelowMinimum</span>);
+        }
+        
+        <span class="code-comment">// Deduct from balance</span>
+        self.db.<span class="code-fn">transaction</span>(|tx| {
+            tx.<span class="code-fn">decrement</span>(<span class="code-string">"user_credit_balances"</span>, user_id, amount)?;
+            tx.<span class="code-fn">decrement</span>(<span class="code-string">"credit_liability_account"</span>, <span class="code-string">"SYSTEM"</span>, amount)?;
+            <span class="code-type">Ok</span>(())
+        })?;
+        
+        <span class="code-type">Ok</span>(<span class="code-type">DiscountApplied</span> {
+            credits_used: amount,
+            discount_value: amount.<span class="code-fn">as_discount</span>(), <span class="code-comment">// 10 credits = RM 1</span>
+        })
+    }
+}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Database Schema -->
+        <section id="database">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 10</div>
+                    <h2>Database Schema</h2>
+                    <p class="section-desc">
+                        Every table, every field, every constraint.
+                    </p>
+                </div>
+
+                <div class="spec-block">
+                    <div class="spec-header">
+                        <span class="spec-id">DB-01</span>
+                        <span>Core Payment Tables</span>
+                    </div>
+                    <div class="spec-body">
+                        <div class="code-block">
+<span class="code-comment">-- VayaPay Database Schema</span>
+<span class="code-comment">-- All tables use VayaDB (custom LSM-tree)</span>
+
+<span class="code-comment">-- Payment Transactions</span>
+<span class="code-keyword">CREATE TABLE</span> payment_transactions (
+    id              <span class="code-type">UUID</span> <span class="code-keyword">PRIMARY KEY</span>,
+    booking_id      <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> bookings(id),
+    user_id         <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> users(id),
+    amount          <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL</span>,         <span class="code-comment">-- Minor units (sen)</span>
+    currency        <span class="code-type">VARCHAR(3)</span> <span class="code-keyword">NOT NULL</span>,      <span class="code-comment">-- ISO 4217 (MYR)</span>
+    method          <span class="code-type">VARCHAR(20)</span> <span class="code-keyword">NOT NULL</span>,     <span class="code-comment">-- fpx, card, ewallet, bnpl</span>
+    method_detail   <span class="code-type">JSONB</span>,                    <span class="code-comment">-- Bank code, card last4, etc.</span>
+    gateway         <span class="code-type">VARCHAR(20)</span> <span class="code-keyword">NOT NULL</span>,     <span class="code-comment">-- ipay88, stripe</span>
+    gateway_ref     <span class="code-type">VARCHAR(100)</span>,             <span class="code-comment">-- PSP transaction ID</span>
+    status          <span class="code-type">VARCHAR(20)</span> <span class="code-keyword">NOT NULL</span>,     <span class="code-comment">-- pending, completed, failed, refunded</span>
+    credits_applied <span class="code-type">BIGINT</span> <span class="code-keyword">DEFAULT</span> 0,        <span class="code-comment">-- Credits used as discount</span>
+    created_at      <span class="code-type">TIMESTAMP</span> <span class="code-keyword">NOT NULL</span>,
+    updated_at      <span class="code-type">TIMESTAMP</span> <span class="code-keyword">NOT NULL</span>
+);
+<span class="code-keyword">CREATE INDEX</span> idx_payments_user <span class="code-keyword">ON</span> payment_transactions(user_id);
+<span class="code-keyword">CREATE INDEX</span> idx_payments_booking <span class="code-keyword">ON</span> payment_transactions(booking_id);
+<span class="code-keyword">CREATE INDEX</span> idx_payments_status <span class="code-keyword">ON</span> payment_transactions(status);
+
+<span class="code-comment">-- Credit Ledger (Double-Entry)</span>
+<span class="code-keyword">CREATE TABLE</span> credit_transactions (
+    id              <span class="code-type">UUID</span> <span class="code-keyword">PRIMARY KEY</span>,
+    user_id         <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> users(id),
+    amount          <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL</span>,         <span class="code-comment">-- Positive = earn, negative = spend</span>
+    txn_type        <span class="code-type">VARCHAR(20)</span> <span class="code-keyword">NOT NULL</span>,     <span class="code-comment">-- award, redemption, expiry, adjustment</span>
+    reason          <span class="code-type">VARCHAR(100)</span>,             <span class="code-comment">-- referral, booking_cashback, etc.</span>
+    booking_id      <span class="code-type">UUID</span>,                     <span class="code-comment">-- If earned/spent on booking</span>
+    expires_at      <span class="code-type">TIMESTAMP</span>,                <span class="code-comment">-- When credits expire</span>
+    created_at      <span class="code-type">TIMESTAMP</span> <span class="code-keyword">NOT NULL</span>
+);
+<span class="code-keyword">CREATE INDEX</span> idx_credits_user <span class="code-keyword">ON</span> credit_transactions(user_id);
+<span class="code-keyword">CREATE INDEX</span> idx_credits_expiry <span class="code-keyword">ON</span> credit_transactions(expires_at);
+
+<span class="code-comment">-- User Credit Balances (Materialized View)</span>
+<span class="code-keyword">CREATE TABLE</span> user_credit_balances (
+    user_id         <span class="code-type">UUID</span> <span class="code-keyword">PRIMARY KEY REFERENCES</span> users(id),
+    balance         <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL DEFAULT</span> 0,
+    lifetime_earned <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL DEFAULT</span> 0,
+    lifetime_spent  <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL DEFAULT</span> 0,
+    updated_at      <span class="code-type">TIMESTAMP</span> <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- Pool Commitments (Escrow Tracking)</span>
+<span class="code-keyword">CREATE TABLE</span> pool_commitments (
+    id              <span class="code-type">UUID</span> <span class="code-keyword">PRIMARY KEY</span>,
+    pool_id         <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> demand_pools(id),
+    user_id         <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> users(id),
+    amount          <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL</span>,         <span class="code-comment">-- Commitment amount</span>
+    escrow_ref      <span class="code-type">VARCHAR(100)</span> <span class="code-keyword">NOT NULL</span>,   <span class="code-comment">-- Trustee reference</span>
+    escrow_provider <span class="code-type">VARCHAR(50)</span> <span class="code-keyword">NOT NULL</span>,    <span class="code-comment">-- amanahray, cimb_trust</span>
+    status          <span class="code-type">VARCHAR(20)</span> <span class="code-keyword">NOT NULL</span>,     <span class="code-comment">-- held, released, refunded</span>
+    payment_txn_id  <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> payment_transactions(id),
+    created_at      <span class="code-type">TIMESTAMP</span> <span class="code-keyword">NOT NULL</span>,
+    released_at     <span class="code-type">TIMESTAMP</span>
+);
+<span class="code-keyword">CREATE INDEX</span> idx_commitments_pool <span class="code-keyword">ON</span> pool_commitments(pool_id);
+<span class="code-keyword">CREATE INDEX</span> idx_commitments_user <span class="code-keyword">ON</span> pool_commitments(user_id);
+
+<span class="code-comment">-- Travel Funds (Goal Tracking)</span>
+<span class="code-keyword">CREATE TABLE</span> travel_funds (
+    id              <span class="code-type">UUID</span> <span class="code-keyword">PRIMARY KEY</span>,
+    user_id         <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> users(id),
+    name            <span class="code-type">VARCHAR(100)</span> <span class="code-keyword">NOT NULL</span>,   <span class="code-comment">-- "Tokyo March 2026"</span>
+    destination     <span class="code-type">VARCHAR(3)</span> <span class="code-keyword">NOT NULL</span>,      <span class="code-comment">-- IATA code</span>
+    target_date     <span class="code-type">DATE</span> <span class="code-keyword">NOT NULL</span>,
+    target_amount   <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL</span>,         <span class="code-comment">-- Oracle-calculated</span>
+    current_saved   <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL DEFAULT</span> 0,
+    linked_account  <span class="code-type">JSONB</span>,                    <span class="code-comment">-- FPX bank account for auto-debit</span>
+    auto_save       <span class="code-type">JSONB</span>,                    <span class="code-comment">-- Auto-save config</span>
+    auto_book       <span class="code-type">BOOLEAN</span> <span class="code-keyword">DEFAULT</span> <span class="code-keyword">FALSE</span>,   <span class="code-comment">-- Auto-book when target met</span>
+    status          <span class="code-type">VARCHAR(20)</span> <span class="code-keyword">NOT NULL</span>,     <span class="code-comment">-- active, completed, cancelled</span>
+    created_at      <span class="code-type">TIMESTAMP</span> <span class="code-keyword">NOT NULL</span>,
+    updated_at      <span class="code-type">TIMESTAMP</span> <span class="code-keyword">NOT NULL</span>
+);
+<span class="code-keyword">CREATE INDEX</span> idx_funds_user <span class="code-keyword">ON</span> travel_funds(user_id);
+
+<span class="code-comment">-- Split Trip Requests</span>
+<span class="code-keyword">CREATE TABLE</span> split_requests (
+    id              <span class="code-type">UUID</span> <span class="code-keyword">PRIMARY KEY</span>,
+    booking_id      <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> bookings(id),
+    initiator_id    <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> users(id),
+    total_amount    <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL</span>,
+    status          <span class="code-type">VARCHAR(20)</span> <span class="code-keyword">NOT NULL</span>,     <span class="code-comment">-- pending, completed, expired, cancelled</span>
+    expires_at      <span class="code-type">TIMESTAMP</span> <span class="code-keyword">NOT NULL</span>,       <span class="code-comment">-- 24 hours from creation</span>
+    created_at      <span class="code-type">TIMESTAMP</span> <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-keyword">CREATE TABLE</span> split_participants (
+    id              <span class="code-type">UUID</span> <span class="code-keyword">PRIMARY KEY</span>,
+    split_id        <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> split_requests(id),
+    user_id         <span class="code-type">UUID</span>,                     <span class="code-comment">-- NULL if invited by phone</span>
+    phone           <span class="code-type">VARCHAR(20)</span>,              <span class="code-comment">-- For non-users</span>
+    email           <span class="code-type">VARCHAR(100)</span>,
+    amount          <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL</span>,         <span class="code-comment">-- Their share</span>
+    status          <span class="code-type">VARCHAR(20)</span> <span class="code-keyword">NOT NULL</span>,     <span class="code-comment">-- pending, paid, declined</span>
+    payment_txn_id  <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> payment_transactions(id),
+    paid_at         <span class="code-type">TIMESTAMP</span>
+);
+<span class="code-keyword">CREATE INDEX</span> idx_split_parts_split <span class="code-keyword">ON</span> split_participants(split_id);
+
+<span class="code-comment">-- Instant Refund Recovery</span>
+<span class="code-keyword">CREATE TABLE</span> refund_recovery_claims (
+    id              <span class="code-type">UUID</span> <span class="code-keyword">PRIMARY KEY</span>,
+    booking_id      <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> bookings(id),
+    user_refund_id  <span class="code-type">UUID</span> <span class="code-keyword">REFERENCES</span> payment_transactions(id),
+    amount          <span class="code-type">BIGINT</span> <span class="code-keyword">NOT NULL</span>,
+    airline         <span class="code-type">VARCHAR(10)</span> <span class="code-keyword">NOT NULL</span>,
+    pnr             <span class="code-type">VARCHAR(10)</span>,
+    status          <span class="code-type">VARCHAR(20)</span> <span class="code-keyword">NOT NULL</span>,     <span class="code-comment">-- pending, recovered, written_off</span>
+    recovered_at    <span class="code-type">TIMESTAMP</span>,
+    recovered_amount <span class="code-type">BIGINT</span>,
+    created_at      <span class="code-type">TIMESTAMP</span> <span class="code-keyword">NOT NULL</span>
+);
+<span class="code-keyword">CREATE INDEX</span> idx_recovery_status <span class="code-keyword">ON</span> refund_recovery_claims(status);
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Specification -->
+        <section id="api">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 11</div>
+                    <h2>API Specification</h2>
+                    <p class="section-desc">
+                        Every endpoint, every request, every response.
+                    </p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="spec-block">
+                        <div class="spec-header">
+                            <span class="spec-id">API-01</span>
+                            <span>POST /api/v1/pay/process</span>
+                        </div>
+                        <div class="spec-body">
+                            <p style="margin-bottom: 16px; color: var(--text-secondary);">Process a booking payment</p>
+                            <div class="code-block">
+<span class="code-comment">// Request</span>
+{
+  <span class="code-string">"booking_id"</span>: <span class="code-string">"uuid"</span>,
+  <span class="code-string">"method"</span>: {
+    <span class="code-string">"type"</span>: <span class="code-string">"fpx"</span>,
+    <span class="code-string">"bank_code"</span>: <span class="code-string">"MBB0228"</span>
+  },
+  <span class="code-string">"credits_to_apply"</span>: <span class="code-keyword">500</span>
+}
+
+<span class="code-comment">// Response</span>
+{
+  <span class="code-string">"transaction_id"</span>: <span class="code-string">"uuid"</span>,
+  <span class="code-string">"status"</span>: <span class="code-string">"redirect_required"</span>,
+  <span class="code-string">"redirect_url"</span>: <span class="code-string">"https://..."</span>,
+  <span class="code-string">"amount_charged"</span>: <span class="code-keyword">45000</span>,
+  <span class="code-string">"credits_applied"</span>: <span class="code-keyword">500</span>,
+  <span class="code-string">"discount_value"</span>: <span class="code-keyword">5000</span>
+}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="spec-block">
+                        <div class="spec-header">
+                            <span class="spec-id">API-02</span>
+                            <span>POST /api/v1/pay/pool-commit</span>
+                        </div>
+                        <div class="spec-body">
+                            <p style="margin-bottom: 16px; color: var(--text-secondary);">Commit to a demand pool via escrow</p>
+                            <div class="code-block">
+<span class="code-comment">// Request</span>
+{
+  <span class="code-string">"pool_id"</span>: <span class="code-string">"uuid"</span>,
+  <span class="code-string">"passengers"</span>: <span class="code-keyword">2</span>,
+  <span class="code-string">"method"</span>: {
+    <span class="code-string">"type"</span>: <span class="code-string">"card"</span>,
+    <span class="code-string">"token"</span>: <span class="code-string">"tok_xxx"</span>
+  }
+}
+
+<span class="code-comment">// Response</span>
+{
+  <span class="code-string">"commitment_id"</span>: <span class="code-string">"uuid"</span>,
+  <span class="code-string">"escrow_reference"</span>: <span class="code-string">"AR-2026-00001"</span>,
+  <span class="code-string">"trustee"</span>: <span class="code-string">"AmanahRaya"</span>,
+  <span class="code-string">"amount"</span>: <span class="code-keyword">40000</span>,
+  <span class="code-string">"refundable"</span>: <span class="code-keyword">true</span>,
+  <span class="code-string">"pool_status"</span>: {
+    <span class="code-string">"members"</span>: <span class="code-keyword">2848</span>,
+    <span class="code-string">"target"</span>: <span class="code-keyword">4000</span>,
+    <span class="code-string">"progress"</span>: <span class="code-keyword">0.712</span>
+  }
+}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="spec-block">
+                        <div class="spec-header">
+                            <span class="spec-id">API-03</span>
+                            <span>POST /api/v1/pay/split</span>
+                        </div>
+                        <div class="spec-body">
+                            <p style="margin-bottom: 16px; color: var(--text-secondary);">Create a split payment request</p>
+                            <div class="code-block">
+<span class="code-comment">// Request</span>
+{
+  <span class="code-string">"booking_id"</span>: <span class="code-string">"uuid"</span>,
+  <span class="code-string">"companions"</span>: [
+    { <span class="code-string">"phone"</span>: <span class="code-string">"+60123456789"</span>, <span class="code-string">"amount"</span>: <span class="code-keyword">120000</span> },
+    { <span class="code-string">"email"</span>: <span class="code-string">"friend@x.com"</span>, <span class="code-string">"amount"</span>: <span class="code-keyword">120000</span> }
+  ],
+  <span class="code-string">"my_method"</span>: {
+    <span class="code-string">"type"</span>: <span class="code-string">"card"</span>,
+    <span class="code-string">"token"</span>: <span class="code-string">"tok_xxx"</span>
+  }
+}
+
+<span class="code-comment">// Response</span>
+{
+  <span class="code-string">"split_id"</span>: <span class="code-string">"uuid"</span>,
+  <span class="code-string">"status"</span>: <span class="code-string">"pending"</span>,
+  <span class="code-string">"my_payment"</span>: <span class="code-string">"completed"</span>,
+  <span class="code-string">"companions"</span>: [...],
+  <span class="code-string">"expires_at"</span>: <span class="code-string">"2026-01-09T10:00:00Z"</span>,
+  <span class="code-string">"payment_links_sent"</span>: <span class="code-keyword">true</span>
+}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="spec-block">
+                        <div class="spec-header">
+                            <span class="spec-id">API-04</span>
+                            <span>GET /api/v1/pay/credits</span>
+                        </div>
+                        <div class="spec-body">
+                            <p style="margin-bottom: 16px; color: var(--text-secondary);">Get user credit balance and history</p>
+                            <div class="code-block">
+<span class="code-comment">// Response</span>
+{
+  <span class="code-string">"balance"</span>: <span class="code-keyword">2500</span>,
+  <span class="code-string">"discount_value"</span>: <span class="code-keyword">25000</span>,
+  <span class="code-string">"expiring_soon"</span>: {
+    <span class="code-string">"amount"</span>: <span class="code-keyword">500</span>,
+    <span class="code-string">"expires_at"</span>: <span class="code-string">"2026-02-15"</span>
+  },
+  <span class="code-string">"transactions"</span>: [
+    {
+      <span class="code-string">"type"</span>: <span class="code-string">"award"</span>,
+      <span class="code-string">"amount"</span>: <span class="code-keyword">500</span>,
+      <span class="code-string">"reason"</span>: <span class="code-string">"referral"</span>,
+      <span class="code-string">"date"</span>: <span class="code-string">"2026-01-05"</span>
+    }
+  ]
+}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Compliance -->
+        <section id="compliance">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 12</div>
+                    <h2>Compliance Architecture</h2>
+                    <p class="section-desc">
+                        Built-in compliance. Every transaction monitored.
+                    </p>
+                </div>
+
+                <div class="grid-3">
+                    <div class="card">
+                        <div class="card-title">ðŸ›¡ï¸ AML/CFT</div>
+                        <ul class="checklist">
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>Transaction screening</span>
+                            </li>
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>Sanctions list checking</span>
+                            </li>
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>Suspicious activity reporting</span>
+                            </li>
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>Daily threshold monitoring</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">ðŸ“‹ PCI DSS</div>
+                        <ul class="checklist">
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>SAQ-A compliance (PSP handles cards)</span>
+                            </li>
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>No card data storage</span>
+                            </li>
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>Tokenization only</span>
+                            </li>
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>TLS 1.3 everywhere</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">ðŸ“Š Audit Trail</div>
+                        <ul class="checklist">
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>Every transaction logged</span>
+                            </li>
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>Immutable audit log</span>
+                            </li>
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>7-year retention</span>
+                            </li>
+                            <li>
+                                <span class="check">âœ“</span>
+                                <span>Regulator access API</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="spec-block" style="margin-top: 32px;">
+                    <div class="spec-header">
+                        <span class="spec-id">COMPLY-01</span>
+                        <span>Regulatory Position Summary</span>
+                    </div>
+                    <div class="spec-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>Legal Classification</th>
+                                    <th>License Required</th>
+                                    <th>Compliance Method</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Payment Processing</td>
+                                    <td>Merchant/Agent</td>
+                                    <td><span class="tag tag-success">None</span></td>
+                                    <td>Via licensed PSP (iPay88/Stripe)</td>
+                                </tr>
+                                <tr>
+                                    <td>VAYA Credits</td>
+                                    <td>Loyalty/Discount Program</td>
+                                    <td><span class="tag tag-success">None</span></td>
+                                    <td>Terms of Service + Expiry</td>
+                                </tr>
+                                <tr>
+                                    <td>Travel Fund</td>
+                                    <td>Goal Tracking Service</td>
+                                    <td><span class="tag tag-success">None</span></td>
+                                    <td>Funds stay in user's bank</td>
+                                </tr>
+                                <tr>
+                                    <td>Pool Commitments</td>
+                                    <td>Escrow Service</td>
+                                    <td><span class="tag tag-gold">Partner</span></td>
+                                    <td>Licensed trustee holds funds</td>
+                                </tr>
+                                <tr>
+                                    <td>Instant Refunds</td>
+                                    <td>VAYA Capital Deployment</td>
+                                    <td><span class="tag tag-success">None</span></td>
+                                    <td>VAYA's own funds, normal payout</td>
+                                </tr>
+                                <tr>
+                                    <td>Split Trip</td>
+                                    <td>Group Payment Collection</td>
+                                    <td><span class="tag tag-success">None</span></td>
+                                    <td>PSP pending capture</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Timeline -->
+        <section id="timeline">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 13</div>
+                    <h2>Implementation Timeline</h2>
+                    <p class="section-desc">
+                        Week by week. No delays. No excuses.
+                    </p>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-phase">Phase 1: Payment Facilitator</div>
+                        <div class="timeline-time">Weeks 1-12</div>
+                        <div class="card">
+                            <table>
+                                <tr>
+                                    <td><strong>Week 1-2</strong></td>
+                                    <td>iPay88 integration (FPX, Cards)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 3-4</strong></td>
+                                    <td>eWallet integrations (TnG, GrabPay, Boost)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 5-6</strong></td>
+                                    <td>Stripe fallback integration</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 7-8</strong></td>
+                                    <td>Instant refund system</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 9-10</strong></td>
+                                    <td>Split trip feature</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 11-12</strong></td>
+                                    <td>Testing, security audit</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-phase">Phase 2: VAYA Credits</div>
+                        <div class="timeline-time">Weeks 8-16</div>
+                        <div class="card">
+                            <table>
+                                <tr>
+                                    <td><strong>Week 8-10</strong></td>
+                                    <td>Credit ledger system (double-entry)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 11-12</strong></td>
+                                    <td>Earning mechanisms (referral, booking)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 13-14</strong></td>
+                                    <td>Redemption flow integration</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 15-16</strong></td>
+                                    <td>Travel Fund goal tracking</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-phase">Phase 3: Pool Escrow</div>
+                        <div class="timeline-time">Weeks 12-24</div>
+                        <div class="card">
+                            <table>
+                                <tr>
+                                    <td><strong>Week 12-14</strong></td>
+                                    <td>AmanahRaya trustee agreement</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 15-18</strong></td>
+                                    <td>Escrow API integration</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 19-22</strong></td>
+                                    <td>Pool commitment flow</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Week 23-24</strong></td>
+                                    <td>Release/refund automation</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Execution -->
+        <section id="execution">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-num">Section 14</div>
+                    <h2>Execution Checklist</h2>
+                    <p class="section-desc">
+                        Actions to take THIS WEEK.
+                    </p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="spec-block">
+                        <div class="spec-header">
+                            <span class="spec-id">EXEC-01</span>
+                            <span>Week 1 Actions</span>
+                        </div>
+                        <div class="spec-body">
+                            <ul class="checklist">
+                                <li>
+                                    <span class="check">â˜</span>
+                                    <div>
+                                        <strong>iPay88 Merchant Application</strong>
+                                        <p style="color: var(--text-secondary); margin-top: 4px;">Register at ipay88.com.my, submit SSM docs</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="check">â˜</span>
+                                    <div>
+                                        <strong>Stripe Account Setup</strong>
+                                        <p style="color: var(--text-secondary); margin-top: 4px;">Create account, enable MYR, configure webhooks</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="check">â˜</span>
+                                    <div>
+                                        <strong>Fintech Lawyer Engagement</strong>
+                                        <p style="color: var(--text-secondary); margin-top: 4px;">Confirm Phase 1-3 require no license; draft credit T&Cs</p>
+                                    </div>
+                                </li>
+                                <li>
+                                    <span class="check">â˜</span>
+                                    <div>
+                                        <strong>Create vaya-pay Crate</strong>
+                                        <p style="color: var(--text-secondary); margin-top: 4px;">Initialize Rust crate structure per spec</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="spec-block">
+                        <div class="spec-header">
+                            <span class="spec-id">EXEC-02</span>
+                            <span>Partner Contacts</span>
+                        </div>
+                        <div class="spec-body">
+                            <table>
+                                <tr>
+                                    <td><strong>iPay88</strong></td>
+                                    <td>sales@ipay88.com.my</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Stripe MY</strong></td>
+                                    <td>stripe.com/my</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>AmanahRaya Trustees</strong></td>
+                                    <td>amanahrayatrustees.com.my</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CIMB Trust</strong></td>
+                                    <td>cimbtrust.com.my</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Touch 'n Go eWallet</strong></td>
+                                    <td>merchant.tngdigital.com.my</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>GrabPay</strong></td>
+                                    <td>grab.com/my/merchant</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-gold" style="margin-top: 32px;">
+                    <div class="alert-title">ðŸ”¥ The Dream Made Real</div>
+                    <p>VayaPay isn't about becoming a bank. It's about making travel payments so intelligent, so instant, so effortless that users can't imagine booking any other way. The regulatory structure ensures we can execute <strong>immediately</strong> while competitors spend years getting licenses they don't need.</p>
+                    <p style="margin-top: 12px;"><strong>Phase 1-3 can launch in 6 months with zero regulatory delay.</strong></p>
+                    <p style="margin-top: 12px;">This is how dreams come true: by removing every excuse, solving every problem, and building the exact system that makes users say <em>"I can't believe this didn't exist before."</em></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-logo">VAYA<span class="pay">PAY</span></div>
+            <p style="color: var(--text-muted);">
+                Revolutionary Payment Intelligence Platform<br>
+                Document Version 1.0 | January 2026<br>
+                Classification: CONFIDENTIAL
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

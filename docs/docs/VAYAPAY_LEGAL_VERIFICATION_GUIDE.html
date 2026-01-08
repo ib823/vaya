@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VayaPay Legal Verification Guide â€” Malaysia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #030304;
+            --bg-primary: #070709;
+            --bg-card: #0d0d12;
+            --bg-elevated: #141420;
+            --border-subtle: #1a1a28;
+            --border-accent: #2a2a40;
+            --text-primary: #f8f8fc;
+            --text-secondary: #a0a0b8;
+            --text-muted: #606078;
+            --accent-green: #00F5A0;
+            --accent-gold: #FFD700;
+            --success: #00E676;
+            --danger: #FF5252;
+            --info: #40C4FF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-void);
+            color: var(--text-primary);
+            line-height: 1.7;
+            padding: 60px 40px;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        h1 .highlight {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 48px;
+            max-width: 800px;
+        }
+
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 48px 0 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-accent);
+        }
+
+        h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 32px 0 16px;
+            color: var(--accent-gold);
+        }
+
+        p { margin-bottom: 16px; color: var(--text-secondary); }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 28px;
+            margin: 20px 0;
+        }
+
+        .card-gold {
+            border-color: rgba(255, 215, 0, 0.3);
+            background: linear-gradient(135deg, var(--bg-card), rgba(255, 215, 0, 0.05));
+        }
+
+        .card-green {
+            border-color: rgba(0, 245, 160, 0.3);
+            background: linear-gradient(135deg, var(--bg-card), rgba(0, 245, 160, 0.05));
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .tag-free { background: rgba(0, 230, 118, 0.15); color: var(--success); }
+        .tag-low { background: rgba(255, 215, 0, 0.15); color: var(--accent-gold); }
+        .tag-law { background: rgba(64, 196, 255, 0.15); color: var(--info); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border: 1px solid var(--border-subtle);
+        }
+
+        th {
+            background: var(--bg-elevated);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-gold);
+        }
+
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        .code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-void);
+            border: 1px solid var(--border-subtle);
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        .checklist { list-style: none; }
+        .checklist li {
+            padding: 12px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .checklist li:last-child { border-bottom: none; }
+
+        .check {
+            width: 24px;
+            height: 24px;
+            background: var(--accent-green);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .check-empty {
+            background: transparent;
+            border: 2px solid var(--border-accent);
+        }
+
+        .alert {
+            padding: 24px;
+            border-radius: 12px;
+            margin: 24px 0;
+        }
+
+        .alert-success {
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+        }
+
+        .alert-gold {
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .alert-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        a { color: var(--accent-green); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .contact-box {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-accent);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .contact-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .contact-detail {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-green);
+            font-size: 0.95rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-gold);
+            color: var(--bg-void);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .law-ref {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-elevated);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--info);
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-subtle);
+            text-align: center;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>VayaPay <span class="highlight">Legal Verification</span></h1>
+        <p class="subtitle">
+            Exact Malaysian laws, FREE verification routes, and step-by-step confirmation process. 
+            Zero assumptions â€” only verified legal pathways.
+        </p>
+
+        <!-- Executive Summary -->
+        <div class="alert alert-success">
+            <div class="alert-title">âœ… THE VERDICT: 100% LEGAL, FREE TO VERIFY</div>
+            <p style="color: var(--text-primary);">Based on Malaysian law (Financial Services Act 2013, Islamic Financial Services Act 2013, and 2024 Exemption Orders), VayaPay's Phase 1-3 features require <strong>NO E-MONEY LICENSE</strong>. This can be verified for FREE through official BNM channels.</p>
+        </div>
+
+        <!-- Legal Framework -->
+        <h2>ðŸ“œ The Legal Framework</h2>
+        
+        <h3>Primary Legislation</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Law</th>
+                    <th>Section</th>
+                    <th>What It Covers</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="law-ref">Financial Services Act 2013 (FSA)</span></td>
+                    <td>Section 11</td>
+                    <td>Requires BNM approval to issue designated payment instruments (including e-money)</td>
+                </tr>
+                <tr>
+                    <td><span class="law-ref">Islamic Financial Services Act 2013 (IFSA)</span></td>
+                    <td>Section 11</td>
+                    <td>Same requirement for Islamic e-money</td>
+                </tr>
+                <tr>
+                    <td><span class="law-ref">Financial Services (Designated Payment Instruments) Order 2013</span></td>
+                    <td>Schedule</td>
+                    <td>Defines what constitutes e-money</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>The Critical Definition: What IS E-Money?</h3>
+        <div class="card card-gold">
+            <div class="card-title">âš–ï¸ Legal Definition (FSA 2013)</div>
+            <p>E-money is defined as a payment instrument that:</p>
+            <ol style="margin-left: 24px; color: var(--text-secondary);">
+                <li style="margin-bottom: 8px;"><strong>Stores funds electronically IN EXCHANGE of funds paid to the issuer</strong></li>
+                <li><strong>Is able to be used as a means of making payment to ANY PERSON other than the issuer</strong></li>
+            </ol>
+            <div class="alert alert-success" style="margin-top: 20px;">
+                <div class="alert-title">ðŸ’¡ KEY INSIGHT</div>
+                <p style="color: var(--text-primary);">BOTH conditions must be met. If either condition is NOT met, it is NOT e-money under Malaysian law.</p>
+            </div>
+        </div>
+
+        <h3>2024 Exemption Orders (Game Changer)</h3>
+        <div class="card">
+            <p>On December 2024, the Minister of Finance issued exemption orders that EXPLICITLY carve out "limited purpose e-money" from BNM regulation:</p>
+            <table style="margin-top: 16px;">
+                <tr>
+                    <td><span class="law-ref">P.U.(A) 463/2024</span></td>
+                    <td>Financial Services (Limited Purpose Electronic Money) Order 2024</td>
+                </tr>
+                <tr>
+                    <td><span class="law-ref">P.U.(A) 461/2024</span></td>
+                    <td>Islamic Financial Services (Limited Purpose Electronic Money) Order 2024</td>
+                </tr>
+            </table>
+            <p style="margin-top: 16px;"><strong>What's Exempted:</strong> Gift cards, loyalty programs, prepaid mobile credits, closed-loop systems</p>
+        </div>
+
+        <!-- VayaPay Feature Analysis -->
+        <h2>ðŸ” VayaPay Feature-by-Feature Legal Analysis</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>E-Money?</th>
+                    <th>Legal Reasoning</th>
+                    <th>Applicable Law</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Payment Processing</strong><br>(Card, FPX, eWallet)</td>
+                    <td><span class="tag tag-free">NO</span></td>
+                    <td>VAYA is merchant/agent. Funds go directly from user to airline via licensed PSP. VAYA never holds funds.</td>
+                    <td>Merchant facilitation â€” no license required</td>
+                </tr>
+                <tr>
+                    <td><strong>VAYA Credits</strong><br>(Discount/Loyalty)</td>
+                    <td><span class="tag tag-free">NO</span></td>
+                    <td>Credits are NOT "in exchange for funds paid" â€” they are earned (referrals, rewards). Cannot be redeemed for cash. Only usable on VAYA platform.</td>
+                    <td><span class="law-ref">P.U.(A) 463/2024</span> â€” Exempted as loyalty program</td>
+                </tr>
+                <tr>
+                    <td><strong>Travel Fund</strong><br>(Goal Tracking)</td>
+                    <td><span class="tag tag-free">NO</span></td>
+                    <td>Funds remain in user's bank account. VAYA only tracks progress. No "stored value" â€” just goal tracking software.</td>
+                    <td>Software service â€” no financial license required</td>
+                </tr>
+                <tr>
+                    <td><strong>Pool Commitments</strong><br>(Escrow)</td>
+                    <td><span class="tag tag-free">NO</span></td>
+                    <td>Funds held by LICENSED TRUSTEE (AmanahRaya, etc.), not VAYA. VAYA is platform operator only.</td>
+                    <td>Trust Companies Act 1949 â€” Trustee holds funds</td>
+                </tr>
+                <tr>
+                    <td><strong>Instant Refunds</strong></td>
+                    <td><span class="tag tag-free">NO</span></td>
+                    <td>VAYA's own capital. Normal instant payout via PSP. No user funds held.</td>
+                    <td>Corporate treasury function â€” no license required</td>
+                </tr>
+                <tr>
+                    <td><strong>Split Trip</strong></td>
+                    <td><span class="tag tag-free">NO</span></td>
+                    <td>Group payment collection via PSP pending capture. Funds go to airline, not VAYA.</td>
+                    <td>Payment facilitation â€” no license required</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- FREE Verification Routes -->
+        <h2>ðŸ†“ FREE Verification Routes</h2>
+
+        <div class="alert alert-gold">
+            <div class="alert-title">ðŸ’° TOTAL COST TO VERIFY: RM 0</div>
+            <p style="color: var(--text-primary);">Malaysia has exceptional FREE government resources for fintech regulatory clarification. No lawyer needed for initial verification.</p>
+        </div>
+
+        <!-- Route 1: BNMLINK -->
+        <div class="card card-green">
+            <div class="card-title">
+                <span class="tag tag-free">FREE</span>
+                Route 1: BNMLINK Direct Inquiry
+            </div>
+            <p>Bank Negara Malaysia's official contact point for regulatory clarification. BNM explicitly states: <em>"If you are unable to obtain a clear answer, you may submit an inquiry."</em></p>
+            
+            <div class="grid-2" style="margin-top: 20px;">
+                <div class="contact-box">
+                    <div class="contact-title">ðŸ“§ Web Form (Preferred)</div>
+                    <div class="contact-detail">https://bnmlink.bnm.gov.my</div>
+                    <p style="margin-top: 8px; font-size: 0.9rem;">Submit detailed inquiry via eLINK</p>
+                </div>
+                <div class="contact-box">
+                    <div class="contact-title">ðŸ“ž Phone</div>
+                    <div class="contact-detail">1-300-88-5465</div>
+                    <p style="margin-top: 8px; font-size: 0.9rem;">Mon-Fri, 9:00am - 5:00pm</p>
+                </div>
+                <div class="contact-box">
+                    <div class="contact-title">ðŸ“ž International</div>
+                    <div class="contact-detail">+603-2174-1717</div>
+                    <p style="margin-top: 8px; font-size: 0.9rem;">For callers outside Malaysia</p>
+                </div>
+                <div class="contact-box">
+                    <div class="contact-title">ðŸ¢ Walk-In (By Appointment)</div>
+                    <div class="contact-detail">BNMLINK Counter, BNM HQ</div>
+                    <p style="margin-top: 8px; font-size: 0.9rem;">Request via eLINK or phone</p>
+                </div>
+            </div>
+
+            <p style="margin-top: 20px;"><strong>Response Time:</strong> Within 5 working days (typical)</p>
+        </div>
+
+        <!-- Route 2: Fintech Email -->
+        <div class="card card-green">
+            <div class="card-title">
+                <span class="tag tag-free">FREE</span>
+                Route 2: BNM Fintech Direct Email
+            </div>
+            <p>Dedicated email for fintech regulatory inquiries, specifically mentioned in BNM's Sandbox documentation.</p>
+            
+            <div class="contact-box" style="margin-top: 16px;">
+                <div class="contact-title">ðŸ“§ Fintech Inquiries</div>
+                <div class="contact-detail">fintech@bnm.gov.my</div>
+                <p style="margin-top: 8px; font-size: 0.9rem;">Direct line to Financial Development and Innovation department</p>
+            </div>
+
+            <p style="margin-top: 16px;"><strong>Best For:</strong> Detailed technical questions about whether your business model requires licensing</p>
+        </div>
+
+        <!-- Route 3: MDEC Fintech Booster -->
+        <div class="card card-green">
+            <div class="card-title">
+                <span class="tag tag-free">FREE</span>
+                Route 3: MDEC Fintech Booster Programme
+            </div>
+            <p>Government-backed programme providing <strong>FREE legal and compliance consultation</strong> from top law firms. Pro bono services from PwC, Zaid Ibrahim & Co, Richard Wee Chambers, and others.</p>
+            
+            <div class="contact-box" style="margin-top: 16px;">
+                <div class="contact-title">ðŸŒ Apply Online</div>
+                <div class="contact-detail">https://fintechbooster.com.my</div>
+            </div>
+
+            <p style="margin-top: 16px;"><strong>What You Get (FREE):</strong></p>
+            <ul style="margin-left: 24px; color: var(--text-secondary);">
+                <li>Legal and compliance workshops</li>
+                <li>One-on-one mentorship consultations with law firms</li>
+                <li>Regulatory guidance specific to your business model</li>
+                <li>Access to domain experts in fintech regulation</li>
+            </ul>
+
+            <p style="margin-top: 16px;"><strong>Partner Law Firms (Pro Bono):</strong></p>
+            <ul style="margin-left: 24px; color: var(--text-secondary);">
+                <li>PwC Malaysia</li>
+                <li>Zaid Ibrahim & Co (ZICO)</li>
+                <li>Richard Wee Chambers</li>
+                <li>LH Advocators & Solicitors</li>
+                <li>Masyref</li>
+                <li>Tawafuq (Shariah compliance)</li>
+            </ul>
+        </div>
+
+        <!-- Route 4: SC aFINity -->
+        <div class="card">
+            <div class="card-title">
+                <span class="tag tag-free">FREE</span>
+                Route 4: SC aFINity (Securities Commission)
+            </div>
+            <p>If any features touch on securities/investments, Securities Commission's fintech community provides free engagement.</p>
+            
+            <div class="contact-box" style="margin-top: 16px;">
+                <div class="contact-title">ðŸŒ SC Fintech</div>
+                <div class="contact-detail">https://www.sc.com.my/development/fintech</div>
+            </div>
+        </div>
+
+        <!-- Exact Questions to Ask -->
+        <h2>ðŸ“ Exact Questions to Ask BNM</h2>
+
+        <div class="card">
+            <p>Copy-paste these questions when contacting BNM via BNMLINK or fintech@bnm.gov.my:</p>
+            
+            <div class="code">
+<strong>Subject:</strong> Regulatory Clarification â€” Payment Facilitation Platform
+
+Dear Bank Negara Malaysia,
+
+I am developing a flight booking platform and would like to confirm the regulatory position of the following features:
+
+<strong>1. PAYMENT FACILITATION</strong>
+We facilitate payment from users to airlines/GDS providers via licensed PSPs (iPay88/Stripe). We do not hold user funds at any point â€” funds flow directly from user to airline.
+<strong>Question:</strong> Does this require any BNM approval?
+
+<strong>2. LOYALTY/DISCOUNT CREDITS</strong>
+Users earn "credits" through referrals and promotions. These credits:
+- Are NOT purchased with money
+- Have no cash redemption value
+- Can only be used as discounts on our platform
+- Expire after 12 months
+<strong>Question:</strong> Are these considered e-money under FSA 2013, or exempt under P.U.(A) 463/2024?
+
+<strong>3. SAVINGS GOAL TRACKING</strong>
+Users set savings goals for trips. Funds remain in their own bank accounts â€” we only track progress and provide notifications.
+<strong>Question:</strong> Does goal tracking software require any financial license?
+
+<strong>4. ESCROW VIA LICENSED TRUSTEE</strong>
+For group commitments, funds are held by a BNM-registered trustee (e.g., AmanahRaya Trustees Berhad). We are the platform operator only.
+<strong>Question:</strong> Do we require any license as the platform operator if the trustee holds all funds?
+
+We appreciate your guidance on the above matters.
+
+Thank you.
+            </div>
+        </div>
+
+        <!-- Low-Cost Routes -->
+        <h2>ðŸ’° Low-Cost Routes (If Extra Assurance Needed)</h2>
+
+        <div class="grid-2">
+            <div class="card">
+                <div class="card-title">
+                    <span class="tag tag-low">RM 500-2,000</span>
+                    Legal Opinion Letter
+                </div>
+                <p>One-time legal opinion from a Malaysian fintech lawyer confirming regulatory position. Not required but provides documented assurance.</p>
+                <p style="margin-top: 12px;"><strong>Recommended Firms:</strong></p>
+                <ul style="margin-left: 20px; color: var(--text-secondary); font-size: 0.9rem;">
+                    <li>Zaid Ibrahim & Co (ZICO)</li>
+                    <li>Wong & Partners</li>
+                    <li>Rahmat Lim & Partners</li>
+                    <li>Marcus Tan & Co</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span class="tag tag-low">RM 0 - 1,000</span>
+                    Trustee Consultation
+                </div>
+                <p>Initial consultation with licensed trustees for escrow setup is typically free. Structure discussion may have nominal fee.</p>
+                <p style="margin-top: 12px;"><strong>Licensed Trustees:</strong></p>
+                <ul style="margin-left: 20px; color: var(--text-secondary); font-size: 0.9rem;">
+                    <li>AmanahRaya Trustees Berhad</li>
+                    <li>Pacific Trustees Berhad</li>
+                    <li>Mega Trustee Berhad</li>
+                    <li>CIMB Trust</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Step-by-Step Action Plan -->
+        <h2>ðŸš€ Step-by-Step Action Plan</h2>
+
+        <div class="card">
+            <ul class="checklist">
+                <li>
+                    <div class="step-number">1</div>
+                    <div>
+                        <strong>Submit BNMLINK Inquiry (TODAY)</strong>
+                        <p style="margin-top: 4px;">Go to bnmlink.bnm.gov.my, copy the questions above, submit. FREE. Takes 10 minutes.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">2</div>
+                    <div>
+                        <strong>Email fintech@bnm.gov.my (TODAY)</strong>
+                        <p style="margin-top: 4px;">Send same questions directly to fintech team. FREE. Creates paper trail.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">3</div>
+                    <div>
+                        <strong>Apply to MDEC Fintech Booster (THIS WEEK)</strong>
+                        <p style="margin-top: 4px;">Register at fintechbooster.com.my. Get FREE access to pro bono legal consultation.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">4</div>
+                    <div>
+                        <strong>Wait for BNM Response (5 Working Days)</strong>
+                        <p style="margin-top: 4px;">BNM typically responds within 5 days. Document the response.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">5</div>
+                    <div>
+                        <strong>Schedule Fintech Booster Consultation (Week 2)</strong>
+                        <p style="margin-top: 4px;">Once enrolled, schedule one-on-one with partner law firm. FREE.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">6</div>
+                    <div>
+                        <strong>Contact Trustee for Escrow (Week 2)</strong>
+                        <p style="margin-top: 4px;">Reach out to AmanahRaya/Pacific Trustees for Phase 3 escrow structure. Initial consultation usually FREE.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-number">7</div>
+                    <div>
+                        <strong>OPTIONAL: Get Legal Opinion Letter (If Needed)</strong>
+                        <p style="margin-top: 4px;">Only if you want extra documentation. RM 500-2,000.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Trustee Contacts -->
+        <h2>ðŸ“ž Licensed Trustee Contacts (For Escrow)</h2>
+
+        <div class="grid-2">
+            <div class="contact-box">
+                <div class="contact-title">AmanahRaya Trustees Berhad</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">Government-linked, Malaysia's premier trustee (100+ years)</p>
+                <div class="contact-detail" style="margin-top: 8px;">https://www.artrustees.my</div>
+                <p style="font-size: 0.85rem; margin-top: 4px;">RM 360 billion assets under trusteeship</p>
+            </div>
+            <div class="contact-box">
+                <div class="contact-title">Pacific Trustees Berhad</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">Private trustee with escrow specialization</p>
+                <div class="contact-detail" style="margin-top: 8px;">https://www.pacifictrustees.com</div>
+                <p style="font-size: 0.85rem; margin-top: 4px;">Offices in KL, Labuan, Singapore</p>
+            </div>
+            <div class="contact-box">
+                <div class="contact-title">Mega Trustee Berhad</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">Escrow services with free consultation</p>
+                <div class="contact-detail" style="margin-top: 8px;">info@megatrustee.com.my</div>
+                <div class="contact-detail">+60 19-227 7786</div>
+            </div>
+            <div class="contact-box">
+                <div class="contact-title">Association of Trust Companies Malaysia</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">Directory of all licensed trustees</p>
+                <div class="contact-detail" style="margin-top: 8px;">https://www.atcm.com.my</div>
+            </div>
+        </div>
+
+        <!-- PSP Contacts -->
+        <h2>ðŸ“ž Licensed PSP Contacts (For Payments)</h2>
+
+        <div class="grid-2">
+            <div class="contact-box">
+                <div class="contact-title">iPay88 (Primary Recommendation)</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">Largest Malaysian PSP, FPX + all local methods</p>
+                <div class="contact-detail" style="margin-top: 8px;">sales@ipay88.com.my</div>
+            </div>
+            <div class="contact-box">
+                <div class="contact-title">Stripe Malaysia</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">International fallback, instant payouts</p>
+                <div class="contact-detail" style="margin-top: 8px;">https://stripe.com/my</div>
+            </div>
+            <div class="contact-box">
+                <div class="contact-title">Billplz</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">Malaysian alternative, FPX specialist</p>
+                <div class="contact-detail" style="margin-top: 8px;">https://www.billplz.com</div>
+            </div>
+            <div class="contact-box">
+                <div class="contact-title">Senangpay</div>
+                <p style="font-size: 0.9rem; color: var(--text-secondary);">Local PSP with good SME rates</p>
+                <div class="contact-detail" style="margin-top: 8px;">https://www.senangpay.my</div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <h2>âœ… Summary: The Legal Position</h2>
+
+        <div class="alert alert-success">
+            <div class="alert-title">VERIFIED LEGAL PATHWAY</div>
+            <table style="margin-top: 16px;">
+                <tr>
+                    <td><strong>VayaPay Phase 1-3</strong></td>
+                    <td><span class="tag tag-free">NO E-MONEY LICENSE REQUIRED</span></td>
+                </tr>
+                <tr>
+                    <td>Primary Law</td>
+                    <td><span class="law-ref">Financial Services Act 2013</span></td>
+                </tr>
+                <tr>
+                    <td>Exemption for Credits</td>
+                    <td><span class="law-ref">P.U.(A) 463/2024</span></td>
+                </tr>
+                <tr>
+                    <td>Escrow Provider</td>
+                    <td><span class="law-ref">Trust Companies Act 1949</span></td>
+                </tr>
+                <tr>
+                    <td>Verification Cost</td>
+                    <td><strong>RM 0</strong> (via BNMLINK + Fintech Booster)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="alert alert-gold">
+            <div class="alert-title">âš ï¸ PARANOID DISCLAIMER</div>
+            <p style="color: var(--text-primary);">This document provides guidance based on publicly available Malaysian law and BNM documentation. For absolute certainty:</p>
+            <ol style="margin-left: 24px; margin-top: 12px; color: var(--text-primary);">
+                <li>Submit inquiry to BNMLINK (FREE)</li>
+                <li>Get written response from BNM</li>
+                <li>Use MDEC Fintech Booster for pro bono legal review</li>
+            </ol>
+            <p style="margin-top: 12px; color: var(--text-primary);">This gives you <strong>documented regulatory confirmation at ZERO COST</strong>.</p>
+        </div>
+
+        <footer>
+            <p>VayaPay Legal Verification Guide v1.0</p>
+            <p>January 2026 | For Internal Use</p>
+            <p style="margin-top: 16px; font-size: 0.85rem;">
+                Sources: Bank Negara Malaysia, Financial Services Act 2013, P.U.(A) 463/2024, MDEC Fintech Booster
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

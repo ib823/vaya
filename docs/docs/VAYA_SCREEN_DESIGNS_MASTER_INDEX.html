@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Complete Screen Design Specification Master Index</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-500: #00F5A0;
+            --mint-600: #00CC85;
+            --mint-dim: rgba(0, 245, 160, 0.12);
+            --cyan-500: #00D9FF;
+            --cyan-dim: rgba(0, 217, 255, 0.12);
+            --n0: #000000;
+            --n50: #0A0A0B;
+            --n100: #111113;
+            --n150: #161618;
+            --n200: #1A1A1D;
+            --n300: #232326;
+            --n400: #2D2D31;
+            --n500: #3D3D42;
+            --n600: #5C5C63;
+            --n700: #7A7A82;
+            --n800: #9999A1;
+            --n1000: #FFFFFF;
+            --warning: #FFB800;
+            --error: #FF4757;
+            --purple: #A855F7;
+            --gold: #FFD700;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--n1000); line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        
+        .hero { text-align: center; padding: 100px 40px; background: linear-gradient(180deg, rgba(0,245,160,0.1) 0%, rgba(0,217,255,0.05) 50%, transparent 100%); border-bottom: 3px solid var(--mint-500); margin-bottom: 60px; }
+        .hero-logo { font-family: var(--font-display); font-size: 80px; font-weight: 800; margin-bottom: 24px; }
+        .hero-logo span:first-child { color: var(--mint-500); }
+        .hero-logo span:last-child { color: var(--cyan-500); }
+        .hero-title { font-family: var(--font-display); font-size: 40px; font-weight: 700; margin-bottom: 16px; }
+        .hero-subtitle { font-size: 18px; color: var(--n700); max-width: 600px; margin: 0 auto 48px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 20px; margin-bottom: 60px; }
+        .stat-card { background: var(--n100); border: 1px solid var(--n200); border-radius: 16px; padding: 24px; text-align: center; }
+        .stat-value { font-family: var(--font-display); font-size: 48px; font-weight: 800; background: linear-gradient(135deg, var(--mint-500), var(--cyan-500)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-label { font-size: 12px; color: var(--n600); text-transform: uppercase; letter-spacing: 1px; margin-top: 8px; }
+        
+        .flow-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 60px; }
+        .flow-card { background: var(--n100); border: 1px solid var(--n200); border-radius: 20px; padding: 32px; transition: all 0.2s; position: relative; overflow: hidden; }
+        .flow-card:hover { border-color: var(--mint-500); transform: translateY(-4px); }
+        .flow-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--mint-500), var(--cyan-500)); }
+        .flow-num { font-family: var(--font-mono); font-size: 12px; color: var(--mint-500); background: var(--mint-dim); padding: 6px 12px; border-radius: 6px; display: inline-block; margin-bottom: 16px; }
+        .flow-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .flow-desc { color: var(--n700); font-size: 14px; margin-bottom: 20px; }
+        .flow-stats { display: flex; gap: 24px; margin-bottom: 20px; }
+        .flow-stat { text-align: center; }
+        .flow-stat-value { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--cyan-500); }
+        .flow-stat-label { font-size: 10px; color: var(--n600); text-transform: uppercase; }
+        .flow-file { font-family: var(--font-mono); font-size: 11px; color: var(--n600); background: var(--n150); padding: 8px 12px; border-radius: 6px; }
+        
+        .flow-card.critical { border-left: 4px solid var(--error); }
+        .flow-card.critical .flow-num { background: rgba(255,71,87,0.12); color: var(--error); }
+        
+        .checklist { background: var(--n100); border: 1px solid var(--n200); border-radius: 20px; padding: 32px; margin-bottom: 60px; }
+        .checklist-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 24px; }
+        .checklist-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .checklist-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--n150); border-radius: 8px; }
+        .checklist-check { width: 24px; height: 24px; background: var(--mint-500); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--n0); font-size: 14px; font-weight: 700; }
+        .checklist-text { font-size: 13px; color: var(--n800); }
+        
+        .architecture { background: linear-gradient(135deg, var(--n100), rgba(0,245,160,0.05)); border: 2px solid var(--mint-500); border-radius: 20px; padding: 40px; margin-bottom: 60px; }
+        .architecture-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--mint-500); margin-bottom: 24px; text-align: center; }
+        .architecture-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .arch-item { background: var(--n150); border-radius: 12px; padding: 16px; text-align: center; }
+        .arch-crate { font-family: var(--font-mono); font-size: 13px; color: var(--cyan-500); font-weight: 600; margin-bottom: 4px; }
+        .arch-desc { font-size: 11px; color: var(--n600); }
+        
+        .footer { text-align: center; padding: 60px 40px; border-top: 1px solid var(--n200); }
+        .footer-text { font-size: 14px; color: var(--n600); margin-bottom: 16px; }
+        .footer-version { font-family: var(--font-mono); font-size: 12px; color: var(--n500); }
+        
+        @media (max-width: 1000px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .flow-grid { grid-template-columns: 1fr; }
+            .architecture-grid { grid-template-columns: repeat(2, 1fr); }
+            .checklist-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-logo"><span>VA</span><span>YA</span></div>
+        <h1 class="hero-title">Complete Screen Design Specification</h1>
+        <p class="hero-subtitle">Pixel-perfect specifications for all 31 screens across 5 critical flows. Every state, every device, every pixel documented.</p>
+    </div>
+
+    <div class="container">
+        <!-- Master Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">Critical Flows</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">31</div>
+                <div class="stat-label">Screens</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">124</div>
+                <div class="stat-label">Device Variants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">200+</div>
+                <div class="stat-label">Component States</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">85+</div>
+                <div class="stat-label">Form Fields</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">100%</div>
+                <div class="stat-label">Specified</div>
+            </div>
+        </div>
+
+        <!-- Flow Cards -->
+        <div class="flow-grid">
+            <div class="flow-card critical">
+                <span class="flow-num">FLOW 01</span>
+                <h3 class="flow-title">Intent Declaration & Oracle</h3>
+                <p class="flow-desc">Revolutionary entry point. User declares intent, VAYA's Oracle predicts optimal booking strategy with ML-powered confidence scoring.</p>
+                <div class="flow-stats">
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">4</div>
+                        <div class="flow-stat-label">Screens</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">16</div>
+                        <div class="flow-stat-label">Variants</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">48</div>
+                        <div class="flow-stat-label">States</div>
+                    </div>
+                </div>
+                <div class="flow-file">ðŸ“„ VAYA_SCREEN_DESIGNS_FLOW1.html</div>
+            </div>
+
+            <div class="flow-card critical">
+                <span class="flow-num">FLOW 02</span>
+                <h3 class="flow-title">Prediction Results & Action</h3>
+                <p class="flow-desc">Oracle's recommendation display. Book Now, Wait, or Join Pool verdicts. Confidence meters, price history, alternative flights.</p>
+                <div class="flow-stats">
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">6</div>
+                        <div class="flow-stat-label">Screens</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">24</div>
+                        <div class="flow-stat-label">Variants</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">4</div>
+                        <div class="flow-stat-label">Verdicts</div>
+                    </div>
+                </div>
+                <div class="flow-file">ðŸ“„ VAYA_SCREEN_DESIGNS_FLOW2.html</div>
+            </div>
+
+            <div class="flow-card critical">
+                <span class="flow-num">FLOW 03</span>
+                <h3 class="flow-title">Booking Flow</h3>
+                <p class="flow-desc">Complete booking journey. Price lock, passenger details, extras selection, order review. 47 validation rules, ethical design patterns.</p>
+                <div class="flow-stats">
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">6</div>
+                        <div class="flow-stat-label">Screens</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">28</div>
+                        <div class="flow-stat-label">Fields</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">47</div>
+                        <div class="flow-stat-label">Validations</div>
+                    </div>
+                </div>
+                <div class="flow-file">ðŸ“„ VAYA_SCREEN_DESIGNS_FLOW3.html</div>
+            </div>
+
+            <div class="flow-card critical">
+                <span class="flow-num">FLOW 04</span>
+                <h3 class="flow-title">Payment Flow (VayaPay)</h3>
+                <p class="flow-desc">100% sovereign payment processing. PCI-DSS Level 1 compliant. Card, FPX, e-wallets. 3DS challenge, 18 error states handled.</p>
+                <div class="flow-stats">
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">7</div>
+                        <div class="flow-stat-label">Screens</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">12</div>
+                        <div class="flow-stat-label">Methods</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">18</div>
+                        <div class="flow-stat-label">Error States</div>
+                    </div>
+                </div>
+                <div class="flow-file">ðŸ“„ VAYA_SCREEN_DESIGNS_FLOW4.html</div>
+            </div>
+
+            <div class="flow-card" style="grid-column: 1 / -1; border-color: var(--purple);">
+                <span class="flow-num" style="background: rgba(168,85,247,0.12); color: var(--purple);">FLOW 05 â€” REVOLUTIONARY</span>
+                <h3 class="flow-title">Pool Discovery & Join</h3>
+                <p class="flow-desc">Industry-first group buying for flights. Combine purchasing power with other travelers for wholesale discounts up to 30%+. Complete pool lifecycle: discover, join, track, activate, book.</p>
+                <div class="flow-stats">
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">8</div>
+                        <div class="flow-stat-label">Screens</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">32</div>
+                        <div class="flow-stat-label">Variants</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">6</div>
+                        <div class="flow-stat-label">Pool States</div>
+                    </div>
+                    <div class="flow-stat">
+                        <div class="flow-stat-value">30%+</div>
+                        <div class="flow-stat-label">Max Savings</div>
+                    </div>
+                </div>
+                <div class="flow-file">ðŸ“„ VAYA_SCREEN_DESIGNS_FLOW5.html</div>
+            </div>
+        </div>
+
+        <!-- Specification Checklist -->
+        <div class="checklist">
+            <h3 class="checklist-title">âœ“ Specification Completeness</h3>
+            <div class="checklist-grid">
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Pixel dimensions (every element)</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Typography (font, size, weight)</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Color specifications (all states)</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Spacing & margins</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Border radius values</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Shadow specifications</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Component states (6 per component)</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Animation timing & easing</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Accessibility (ARIA, contrast)</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Desktop specifications (1280px+)</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Tablet specifications (744-1366px)</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Mobile specifications (320-428px)</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Watch specifications (162-198px)</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Form validation rules</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Error state handling</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Loading states</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">Empty states</span>
+                </div>
+                <div class="checklist-item">
+                    <span class="checklist-check">âœ“</span>
+                    <span class="checklist-text">VAYA architecture integration</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture Integration -->
+        <div class="architecture">
+            <h3 class="architecture-title">ðŸ”— VAYA 17-Crate Architecture Integration</h3>
+            <div class="architecture-grid">
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-api</div>
+                    <div class="arch-desc">All endpoint routing</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-oracle</div>
+                    <div class="arch-desc">Prediction engine</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-ml</div>
+                    <div class="arch-desc">XGBoost inference</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-book</div>
+                    <div class="arch-desc">Booking state machine</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-pool</div>
+                    <div class="arch-desc">Pool lifecycle</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-auth</div>
+                    <div class="arch-desc">JWT, sessions, OAuth</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-db</div>
+                    <div class="arch-desc">All storage</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-cache</div>
+                    <div class="arch-desc">Price locks, sessions</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-stream</div>
+                    <div class="arch-desc">WebSocket events</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-crypto</div>
+                    <div class="arch-desc">PCI tokenization</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-collect</div>
+                    <div class="arch-desc">Search aggregation</div>
+                </div>
+                <div class="arch-item">
+                    <div class="arch-crate">vaya-search</div>
+                    <div class="arch-desc">Flight search</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen Index -->
+        <div class="checklist">
+            <h3 class="checklist-title">ðŸ“‘ Complete Screen Index</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                    <tr style="background: var(--n150);">
+                        <th style="padding: 12px; text-align: left; color: var(--n600);">ID</th>
+                        <th style="padding: 12px; text-align: left; color: var(--n600);">Screen Name</th>
+                        <th style="padding: 12px; text-align: left; color: var(--n600);">Flow</th>
+                        <th style="padding: 12px; text-align: left; color: var(--n600);">Priority</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--mint-500);">S1.1</td><td style="padding: 10px;">Home / Intent Declaration</td><td style="padding: 10px; color: var(--n600);">Flow 1</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--mint-500);">S1.2</td><td style="padding: 10px;">Intent Bar Expanded</td><td style="padding: 10px; color: var(--n600);">Flow 1</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--mint-500);">S1.3</td><td style="padding: 10px;">Oracle Processing</td><td style="padding: 10px; color: var(--n600);">Flow 1</td><td style="padding: 10px;"><span style="color: var(--warning);">HIGH</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--mint-500);">S1.4</td><td style="padding: 10px;">Prediction Results</td><td style="padding: 10px; color: var(--n600);">Flow 1</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--cyan-500);">S2.1</td><td style="padding: 10px;">Prediction Card â€” Book Now</td><td style="padding: 10px; color: var(--n600);">Flow 2</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--cyan-500);">S2.2</td><td style="padding: 10px;">Prediction Card â€” Wait</td><td style="padding: 10px; color: var(--n600);">Flow 2</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--cyan-500);">S2.3</td><td style="padding: 10px;">Prediction Card â€” Pool</td><td style="padding: 10px; color: var(--n600);">Flow 2</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--cyan-500);">S2.4</td><td style="padding: 10px;">Alternative Flights</td><td style="padding: 10px; color: var(--n600);">Flow 2</td><td style="padding: 10px;"><span style="color: var(--warning);">HIGH</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--cyan-500);">S2.5</td><td style="padding: 10px;">Flight Detail</td><td style="padding: 10px; color: var(--n600);">Flow 2</td><td style="padding: 10px;"><span style="color: var(--warning);">HIGH</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--cyan-500);">S2.6</td><td style="padding: 10px;">Why Wait Explainer</td><td style="padding: 10px; color: var(--n600);">Flow 2</td><td style="padding: 10px;"><span style="color: var(--n600);">MEDIUM</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--gold);">S3.1</td><td style="padding: 10px;">Booking Initiation</td><td style="padding: 10px; color: var(--n600);">Flow 3</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--gold);">S3.2</td><td style="padding: 10px;">Passenger Details</td><td style="padding: 10px; color: var(--n600);">Flow 3</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--gold);">S3.3</td><td style="padding: 10px;">Extras & Add-ons</td><td style="padding: 10px; color: var(--n600);">Flow 3</td><td style="padding: 10px;"><span style="color: var(--warning);">HIGH</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--gold);">S3.4</td><td style="padding: 10px;">Baggage Selection</td><td style="padding: 10px; color: var(--n600);">Flow 3</td><td style="padding: 10px;"><span style="color: var(--n600);">MEDIUM</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--gold);">S3.5</td><td style="padding: 10px;">Order Review</td><td style="padding: 10px; color: var(--n600);">Flow 3</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--gold);">S3.6</td><td style="padding: 10px;">Price Lock Expired</td><td style="padding: 10px; color: var(--n600);">Flow 3</td><td style="padding: 10px;"><span style="color: var(--warning);">HIGH</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--error);">S4.1</td><td style="padding: 10px;">Payment Method Selection</td><td style="padding: 10px; color: var(--n600);">Flow 4</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--error);">S4.2</td><td style="padding: 10px;">Card Payment Form</td><td style="padding: 10px; color: var(--n600);">Flow 4</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--error);">S4.3</td><td style="padding: 10px;">FPX Bank Selection</td><td style="padding: 10px; color: var(--n600);">Flow 4</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--error);">S4.4</td><td style="padding: 10px;">E-Wallet Selection</td><td style="padding: 10px; color: var(--n600);">Flow 4</td><td style="padding: 10px;"><span style="color: var(--warning);">HIGH</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--error);">S4.5</td><td style="padding: 10px;">3D Secure Challenge</td><td style="padding: 10px; color: var(--n600);">Flow 4</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--error);">S4.6</td><td style="padding: 10px;">Payment Processing</td><td style="padding: 10px; color: var(--n600);">Flow 4</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--error);">S4.7</td><td style="padding: 10px;">Payment Result</td><td style="padding: 10px; color: var(--n600);">Flow 4</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--purple);">S5.1</td><td style="padding: 10px;">Pool Discovery</td><td style="padding: 10px; color: var(--n600);">Flow 5</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--purple);">S5.2</td><td style="padding: 10px;">Pool Detail</td><td style="padding: 10px; color: var(--n600);">Flow 5</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--purple);">S5.3</td><td style="padding: 10px;">Join Pool</td><td style="padding: 10px; color: var(--n600);">Flow 5</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--purple);">S5.4</td><td style="padding: 10px;">Pool Member View</td><td style="padding: 10px; color: var(--n600);">Flow 5</td><td style="padding: 10px;"><span style="color: var(--warning);">HIGH</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--purple);">S5.5</td><td style="padding: 10px;">Pool Activated</td><td style="padding: 10px; color: var(--n600);">Flow 5</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--purple);">S5.6</td><td style="padding: 10px;">Create Pool</td><td style="padding: 10px; color: var(--n600);">Flow 5</td><td style="padding: 10px;"><span style="color: var(--warning);">HIGH</span></td></tr>
+                    <tr style="border-bottom: 1px solid var(--n200);"><td style="padding: 10px; font-family: var(--font-mono); color: var(--purple);">S5.7</td><td style="padding: 10px;">Pool Expired</td><td style="padding: 10px; color: var(--n600);">Flow 5</td><td style="padding: 10px;"><span style="color: var(--warning);">HIGH</span></td></tr>
+                    <tr><td style="padding: 10px; font-family: var(--font-mono); color: var(--purple);">S5.8</td><td style="padding: 10px;">Pool Booking</td><td style="padding: 10px; color: var(--n600);">Flow 5</td><td style="padding: 10px;"><span style="color: var(--error);">CRITICAL</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p class="footer-text">VAYA Screen Design Specification â€” Pixel-Perfect â€¢ Device-Dedicated â€¢ Zero Laziness â€¢ Kiasu Paranoid</p>
+        <p class="footer-version">Version 1.0.0 â€¢ Generated January 2026</p>
+    </div>
+</body>
+</html>

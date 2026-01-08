@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VAYA â€” Testing Strategy Specification (Nuclear/Sovereign)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint: #00F5A0; --mint-dim: rgba(0,245,160,0.12);
+            --cyan: #00D9FF; --cyan-dim: rgba(0,217,255,0.12);
+            --white: #FFFFFF;
+            --n0: #000000; --n50: #0A0A0B; --n100: #111113; --n200: #1A1A1D; --n300: #232326;
+            --n600: #5C5C63; --n700: #7A7A82; --n800: #9999A1;
+            --error: #FF4757; --warning: #FFB800; --purple: #A855F7; --blue: #3B82F6;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-body); background: var(--n0); color: var(--white); line-height: 1.6; font-size: 14px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .header { text-align: center; padding: 60px 0; border-bottom: 3px solid var(--blue); margin-bottom: 48px; background: linear-gradient(180deg, rgba(59,130,246,0.1) 0%, transparent 100%); }
+        .logo { font-family: var(--font-display); font-size: 56px; font-weight: 800; }
+        .logo span:first-child { color: var(--mint); }
+        .logo span:last-child { color: var(--cyan); }
+        .title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--blue); margin-top: 16px; }
+        .compliance-badge { display: inline-block; background: var(--mint); color: var(--n0); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 12px; }
+        .section { margin-bottom: 48px; }
+        .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; background: var(--n100); border-left: 4px solid var(--blue); margin-bottom: 20px; }
+        .section-id { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 4px 8px; border-radius: 4px; color: var(--n600); }
+        .section-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+        .subsection { background: var(--n50); border: 1px solid var(--n200); border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+        .subsection h4 { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--cyan); margin-bottom: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+        th { background: var(--n100); padding: 10px 12px; text-align: left; font-size: 10px; text-transform: uppercase; color: var(--n600); }
+        td { padding: 10px 12px; border-bottom: 1px solid var(--n200); vertical-align: top; }
+        .code { font-family: var(--font-mono); font-size: 11px; background: var(--n200); padding: 2px 6px; border-radius: 4px; }
+        .code-block { background: var(--n100); border-radius: 8px; padding: 16px; font-family: var(--font-mono); font-size: 11px; overflow-x: auto; margin: 12px 0; white-space: pre; line-height: 1.5; }
+        .test-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+        .test-unit { background: var(--mint); color: var(--n0); }
+        .test-integration { background: var(--cyan); color: var(--n0); }
+        .test-e2e { background: var(--purple); color: var(--white); }
+        .test-perf { background: var(--warning); color: var(--n0); }
+        .test-security { background: var(--error); color: var(--white); }
+        .pyramid { background: var(--n100); border-radius: 12px; padding: 24px; margin: 16px 0; text-align: center; }
+        .pyramid-level { margin: 8px auto; padding: 12px; border-radius: 8px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo"><span>VA</span><span>YA</span></div>
+            <h1 class="title">ðŸ§ª Testing Strategy Specification</h1>
+            <div class="compliance-badge">âœ“ NUCLEAR/SOVEREIGN COMPLIANT</div>
+            <p style="color: var(--n600); margin-top: 12px;">Domain 9 â€” Comprehensive Test Coverage for Zero-Dependency Architecture</p>
+        </header>
+
+        <!-- ================================================================ -->
+        <!-- TEST-01: TESTING PHILOSOPHY -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">TEST-01</span>
+                <span class="section-title">Testing Philosophy</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸŽ¯ Core Principles</h4>
+                <table>
+                    <tr><th>Principle</th><th>Description</th><th>Implementation</th></tr>
+                    <tr>
+                        <td><strong>Zero External Dependencies</strong></td>
+                        <td>Tests run without Docker, databases, or network</td>
+                        <td>All storage uses embedded VayaDB/VayaCache in test mode</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Compile-Time Safety</strong></td>
+                        <td>Catch errors at compile time, not runtime</td>
+                        <td>Strong types, exhaustive pattern matching, no unwrap()</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Property-Based Testing</strong></td>
+                        <td>Test invariants, not just examples</td>
+                        <td>Use proptest for fuzzing and property verification</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deterministic Reproducibility</strong></td>
+                        <td>Same inputs = same outputs, always</td>
+                        <td>Seeded random, fixed timestamps in tests</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fast Feedback</strong></td>
+                        <td>Unit tests complete in seconds</td>
+                        <td>Target: full test suite &lt; 60s</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ Test Pyramid</h4>
+                <div class="pyramid">
+                    <div class="pyramid-level" style="width: 200px; background: var(--error); color: white;">
+                        E2E Tests (5%)
+                        <br><span style="font-size: 10px; font-weight: 400;">Critical user journeys</span>
+                    </div>
+                    <div class="pyramid-level" style="width: 350px; background: var(--warning); color: black;">
+                        Integration Tests (20%)
+                        <br><span style="font-size: 10px; font-weight: 400;">Service interactions, API contracts</span>
+                    </div>
+                    <div class="pyramid-level" style="width: 500px; background: var(--mint); color: black;">
+                        Unit Tests (75%)
+                        <br><span style="font-size: 10px; font-weight: 400;">Functions, modules, business logic</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Coverage Targets</h4>
+                <table>
+                    <tr><th>Crate</th><th>Line Coverage</th><th>Branch Coverage</th><th>Priority</th></tr>
+                    <tr><td>vaya-common</td><td>â‰¥95%</td><td>â‰¥90%</td><td>Critical (all types)</td></tr>
+                    <tr><td>vaya-crypto</td><td>â‰¥95%</td><td>â‰¥95%</td><td>Critical (security)</td></tr>
+                    <tr><td>vaya-db</td><td>â‰¥90%</td><td>â‰¥85%</td><td>Critical (storage)</td></tr>
+                    <tr><td>vaya-auth</td><td>â‰¥95%</td><td>â‰¥90%</td><td>Critical (security)</td></tr>
+                    <tr><td>vaya-ml</td><td>â‰¥85%</td><td>â‰¥80%</td><td>High (predictions)</td></tr>
+                    <tr><td>vaya-oracle</td><td>â‰¥90%</td><td>â‰¥85%</td><td>High (core feature)</td></tr>
+                    <tr><td>vaya-pool</td><td>â‰¥90%</td><td>â‰¥85%</td><td>High (business logic)</td></tr>
+                    <tr><td>vaya-book</td><td>â‰¥90%</td><td>â‰¥85%</td><td>High (transactions)</td></tr>
+                    <tr><td>vaya-api</td><td>â‰¥85%</td><td>â‰¥80%</td><td>Medium (handlers)</td></tr>
+                    <tr><td>vaya-collect</td><td>â‰¥80%</td><td>â‰¥75%</td><td>Medium (external APIs)</td></tr>
+                    <tr><td><strong>Overall</strong></td><td><strong>â‰¥90%</strong></td><td><strong>â‰¥85%</strong></td><td></td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- TEST-02: UNIT TESTING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">TEST-02</span>
+                <span class="section-title">Unit Testing <span class="test-badge test-unit">UNIT</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”§ Unit Test Structure</h4>
+                <div class="code-block">// Standard unit test structure for VAYA crates
+// File: vaya-{crate}/src/{module}.rs
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use proptest::prelude::*;
+    
+    // ============================================
+    // BASIC FUNCTIONALITY TESTS
+    // ============================================
+    
+    #[test]
+    fn test_basic_functionality() {
+        // Arrange
+        let input = create_test_input();
+        
+        // Act
+        let result = function_under_test(input);
+        
+        // Assert
+        assert_eq!(result, expected_output());
+    }
+    
+    // ============================================
+    // EDGE CASE TESTS
+    // ============================================
+    
+    #[test]
+    fn test_empty_input() {
+        let result = function_under_test(&[]);
+        assert!(result.is_empty());
+    }
+    
+    #[test]
+    fn test_max_input() {
+        let input = vec![u8::MAX; 1000];
+        let result = function_under_test(&input);
+        assert!(result.is_ok());
+    }
+    
+    // ============================================
+    // ERROR CONDITION TESTS
+    // ============================================
+    
+    #[test]
+    fn test_invalid_input_returns_error() {
+        let invalid = create_invalid_input();
+        let result = function_under_test(invalid);
+        assert!(matches!(result, Err(Error::InvalidInput { .. })));
+    }
+    
+    // ============================================
+    // PROPERTY-BASED TESTS
+    // ============================================
+    
+    proptest! {
+        #[test]
+        fn prop_roundtrip_serialization(input in any::<ValidInput>()) {
+            let serialized = serialize(&input);
+            let deserialized = deserialize(&serialized).unwrap();
+            prop_assert_eq!(input, deserialized);
+        }
+        
+        #[test]
+        fn prop_price_never_negative(
+            amount in 0i64..i64::MAX,
+            currency in "[A-Z]{3}"
+        ) {
+            let price = Price::new(amount, &currency);
+            prop_assert!(price.amount.as_minor() >= 0);
+        }
+    }
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“‹ Unit Test Coverage by Crate</h4>
+                <table>
+                    <tr><th>Crate</th><th>Key Test Areas</th><th>Test Count</th></tr>
+                    <tr>
+                        <td><strong>vaya-common</strong></td>
+                        <td>
+                            â€¢ IataCode parsing/validation<br>
+                            â€¢ Price arithmetic (no overflow)<br>
+                            â€¢ Timestamp conversions<br>
+                            â€¢ Route equality/hashing<br>
+                            â€¢ Enum serialization roundtrip
+                        </td>
+                        <td>~150</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-crypto</strong></td>
+                        <td>
+                            â€¢ Argon2id hash/verify<br>
+                            â€¢ JWT sign/verify (RS256)<br>
+                            â€¢ Token generation entropy<br>
+                            â€¢ Constant-time comparison<br>
+                            â€¢ Key derivation
+                        </td>
+                        <td>~80</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-db</strong></td>
+                        <td>
+                            â€¢ LSM-tree insert/get/delete<br>
+                            â€¢ B+Tree CRUD operations<br>
+                            â€¢ WAL recovery<br>
+                            â€¢ Transaction isolation<br>
+                            â€¢ Index correctness
+                        </td>
+                        <td>~200</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-ml</strong></td>
+                        <td>
+                            â€¢ XGBoost tree building<br>
+                            â€¢ LSTM forward/backward pass<br>
+                            â€¢ Feature normalization<br>
+                            â€¢ Prediction bounds<br>
+                            â€¢ Gradient calculations
+                        </td>
+                        <td>~120</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-oracle</strong></td>
+                        <td>
+                            â€¢ Price prediction logic<br>
+                            â€¢ Confidence calculation<br>
+                            â€¢ Recommendation engine<br>
+                            â€¢ Feature extraction<br>
+                            â€¢ Model ensemble
+                        </td>
+                        <td>~100</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-pool</strong></td>
+                        <td>
+                            â€¢ Pool state machine<br>
+                            â€¢ Member join/leave<br>
+                            â€¢ Bid scoring<br>
+                            â€¢ Threshold activation<br>
+                            â€¢ Settlement logic
+                        </td>
+                        <td>~90</td>
+                    </tr>
+                    <tr>
+                        <td><strong>vaya-auth</strong></td>
+                        <td>
+                            â€¢ Session creation/validation<br>
+                            â€¢ Permission checks<br>
+                            â€¢ Rate limit logic<br>
+                            â€¢ MFA verification<br>
+                            â€¢ Token refresh
+                        </td>
+                        <td>~100</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ§ª Example: vaya-common Type Tests</h4>
+                <div class="code-block">// vaya-common/src/types.rs tests
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use proptest::prelude::*;
+    
+    // IataCode tests
+    #[test]
+    fn test_iata_code_valid() {
+        let code = IataCode::new("KUL");
+        assert_eq!(code.as_str(), "KUL");
+    }
+    
+    #[test]
+    fn test_iata_code_padding() {
+        let code = IataCode::new("SIN");
+        assert_eq!(code.0, [b'S', b'I', b'N', 0]);
+    }
+    
+    #[test]
+    fn test_iata_code_truncation() {
+        let code = IataCode::new("TOOLONG");
+        assert_eq!(code.as_str(), "TOOL");
+    }
+    
+    // Price tests
+    #[test]
+    fn test_price_myr_conversion() {
+        let price = Price::myr(12345); // 123.45 MYR
+        assert_eq!(price.amount.as_minor(), 12345);
+        assert_eq!(price.currency, CurrencyCode::MYR);
+        assert_eq!(price.decimals, 2);
+    }
+    
+    #[test]
+    fn test_price_major_conversion() {
+        let price = Price::myr(12345);
+        assert!((price.amount.as_major(2) - 123.45).abs() < 0.001);
+    }
+    
+    proptest! {
+        #[test]
+        fn prop_price_roundtrip(sen in 0i64..100_000_000i64) {
+            let price = Price::myr(sen);
+            let major = price.amount.as_major(2);
+            let back = (major * 100.0).round() as i64;
+            prop_assert_eq!(sen, back);
+        }
+        
+        #[test]
+        fn prop_iata_code_length(s in "[A-Z]{1,10}") {
+            let code = IataCode::new(&s);
+            let result = code.as_str();
+            prop_assert!(result.len() <= 4);
+        }
+    }
+    
+    // Route tests
+    #[test]
+    fn test_route_equality() {
+        let r1 = Route::new(IataCode::new("KUL"), IataCode::new("NRT"));
+        let r2 = Route::new(IataCode::new("KUL"), IataCode::new("NRT"));
+        assert_eq!(r1, r2);
+    }
+    
+    #[test]
+    fn test_route_hash_consistency() {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        
+        let route = Route::new(IataCode::new("KUL"), IataCode::new("NRT"));
+        let mut h1 = DefaultHasher::new();
+        let mut h2 = DefaultHasher::new();
+        route.hash(&mut h1);
+        route.hash(&mut h2);
+        assert_eq!(h1.finish(), h2.finish());
+    }
+    
+    // Timestamp tests
+    #[test]
+    fn test_timestamp_now_positive() {
+        let ts = Timestamp::now();
+        assert!(ts.as_unix() > 0);
+    }
+    
+    #[test]
+    fn test_timestamp_ordering() {
+        let t1 = Timestamp::now();
+        std::thread::sleep(std::time::Duration::from_millis(10));
+        let t2 = Timestamp::now();
+        assert!(t2 > t1);
+    }
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- TEST-03: INTEGRATION TESTING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">TEST-03</span>
+                <span class="section-title">Integration Testing <span class="test-badge test-integration">INTEGRATION</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”— Integration Test Scenarios</h4>
+                <table>
+                    <tr><th>Scenario</th><th>Components</th><th>Verifies</th></tr>
+                    <tr>
+                        <td><strong>Search Flow</strong></td>
+                        <td>vaya-api â†’ vaya-search â†’ vaya-oracle â†’ vaya-cache</td>
+                        <td>Search returns enriched results with predictions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Booking Flow</strong></td>
+                        <td>vaya-api â†’ vaya-book â†’ vaya-db â†’ vaya-auth</td>
+                        <td>Authenticated booking creates valid records</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pool Lifecycle</strong></td>
+                        <td>vaya-pool â†’ vaya-db â†’ vaya-cache</td>
+                        <td>Pool state transitions are atomic and correct</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Auth Flow</strong></td>
+                        <td>vaya-auth â†’ vaya-crypto â†’ vaya-cache</td>
+                        <td>Login/logout/refresh token cycle works</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Collection</strong></td>
+                        <td>vaya-collect â†’ vaya-db</td>
+                        <td>Price observations are stored correctly</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Oracle Prediction</strong></td>
+                        <td>vaya-oracle â†’ vaya-ml â†’ vaya-db</td>
+                        <td>Predictions based on historical data are accurate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Alert Trigger</strong></td>
+                        <td>vaya-alert â†’ vaya-db â†’ notification service</td>
+                        <td>Price drops trigger alerts correctly</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ§ª Integration Test Example: Search Flow</h4>
+                <div class="code-block">// tests/integration/search_flow.rs
+
+use vaya_api::test_harness::TestApp;
+use vaya_common::types::*;
+
+/// Integration test for complete search flow
+/// Tests: API â†’ Search â†’ Oracle â†’ Cache
+
+#[tokio::test]
+async fn test_search_flow_returns_enriched_results() {
+    // Arrange: Set up test application with embedded storage
+    let app = TestApp::builder()
+        .with_test_db()       // Embedded VayaDB (temp directory)
+        .with_test_cache()    // Embedded VayaCache
+        .with_mock_suppliers() // Mock Kiwi, Travelpayouts
+        .seed_price_history() // 30 days of test data
+        .build()
+        .await;
+    
+    // Seed: Add historical price observations for KUL-NRT
+    app.seed_route_data(
+        Route::new(IataCode::new("KUL"), IataCode::new("NRT")),
+        30, // days of history
+    ).await;
+    
+    // Act: Perform search
+    let response = app
+        .post("/api/v1/search")
+        .json(&json!({
+            "origin": "KUL",
+            "destination": "NRT",
+            "departure_date": "2026-03-15",
+            "passengers": { "adults": 1 },
+            "cabin_class": "economy"
+        }))
+        .send()
+        .await;
+    
+    // Assert: Response structure
+    assert_eq!(response.status(), 200);
+    
+    let body: SearchResponse = response.json().await;
+    assert!(!body.results.is_empty());
+    
+    // Assert: Results have Oracle enrichment
+    for result in &body.results {
+        assert!(result.oracle.is_some());
+        
+        let oracle = result.oracle.as_ref().unwrap();
+        assert!(oracle.confidence >= 0.0 && oracle.confidence <= 1.0);
+        assert!(matches!(
+            oracle.recommendation,
+            OracleRecommendation::BuyNow | OracleRecommendation::Wait | OracleRecommendation::Watch
+        ));
+    }
+    
+    // Assert: Results are sorted (best first)
+    let scores: Vec<f32> = body.results
+        .iter()
+        .map(|r| r.oracle.as_ref().unwrap().score)
+        .collect();
+    assert!(scores.windows(2).all(|w| w[0] >= w[1]));
+    
+    // Assert: Cache was populated
+    let cached = app.cache()
+        .get(&format!("search:{}", body.search_id))
+        .await;
+    assert!(cached.is_some());
+}
+
+#[tokio::test]
+async fn test_search_caching() {
+    let app = TestApp::builder()
+        .with_test_db()
+        .with_test_cache()
+        .with_mock_suppliers()
+        .build()
+        .await;
+    
+    let request = json!({
+        "origin": "KUL",
+        "destination": "SIN",
+        "departure_date": "2026-03-20",
+        "passengers": { "adults": 1 }
+    });
+    
+    // First search - hits suppliers
+    let response1 = app.post("/api/v1/search").json(&request).send().await;
+    let body1: SearchResponse = response1.json().await;
+    
+    // Second search - should hit cache
+    let response2 = app.post("/api/v1/search").json(&request).send().await;
+    let body2: SearchResponse = response2.json().await;
+    
+    // Assert: Same results
+    assert_eq!(body1.results.len(), body2.results.len());
+    
+    // Assert: Second was faster (cached)
+    assert!(body2.metadata.response_time_ms < body1.metadata.response_time_ms);
+    assert!(body2.metadata.from_cache);
+}
+
+#[tokio::test]
+async fn test_search_with_authentication() {
+    let app = TestApp::builder()
+        .with_test_db()
+        .with_test_cache()
+        .with_mock_suppliers()
+        .build()
+        .await;
+    
+    // Create test user
+    let (user, token) = app.create_test_user(UserTier::Premium).await;
+    
+    // Search with auth
+    let response = app
+        .post("/api/v1/search")
+        .header("Authorization", format!("Bearer {}", token))
+        .json(&json!({
+            "origin": "KUL",
+            "destination": "LHR",
+            "departure_date": "2026-04-01",
+            "passengers": { "adults": 2 }
+        }))
+        .send()
+        .await;
+    
+    assert_eq!(response.status(), 200);
+    
+    let body: SearchResponse = response.json().await;
+    
+    // Premium users get more results
+    assert!(body.results.len() >= 20);
+    
+    // Search is associated with user
+    assert_eq!(body.metadata.user_id, Some(user.id));
+}</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ§ª Integration Test Example: Booking Flow</h4>
+                <div class="code-block">// tests/integration/booking_flow.rs
+
+#[tokio::test]
+async fn test_complete_booking_flow() {
+    let app = TestApp::builder()
+        .with_test_db()
+        .with_test_cache()
+        .with_mock_suppliers()
+        .with_mock_payment_processor()
+        .build()
+        .await;
+    
+    // 1. Create authenticated user
+    let (user, token) = app.create_test_user(UserTier::Free).await;
+    
+    // 2. Perform search
+    let search_response = app
+        .post("/api/v1/search")
+        .bearer(&token)
+        .json(&json!({
+            "origin": "KUL",
+            "destination": "SIN",
+            "departure_date": "2026-03-15",
+            "passengers": { "adults": 1 }
+        }))
+        .send()
+        .await;
+    
+    let search: SearchResponse = search_response.json().await;
+    let offer = &search.results[0];
+    
+    // 3. Create booking
+    let booking_response = app
+        .post("/api/v1/bookings")
+        .bearer(&token)
+        .json(&json!({
+            "offer_id": offer.id,
+            "search_id": search.search_id,
+            "travelers": [{
+                "type": "adult",
+                "first_name": "John",
+                "last_name": "Doe",
+                "date_of_birth": "1990-01-15",
+                "gender": "M",
+                "passport": {
+                    "number": "A12345678",
+                    "expiry": "2030-01-01",
+                    "country": "MY"
+                }
+            }],
+            "contact": {
+                "email": "john@example.com",
+                "phone": "+60123456789"
+            }
+        }))
+        .send()
+        .await;
+    
+    assert_eq!(booking_response.status(), 201);
+    let booking: BookingResponse = booking_response.json().await;
+    assert_eq!(booking.status, BookingStatus::Pending);
+    
+    // 4. Process payment
+    let payment_response = app
+        .post(&format!("/api/v1/bookings/{}/pay", booking.id))
+        .bearer(&token)
+        .json(&json!({
+            "method": "card",
+            "card_token": "tok_test_visa_success"
+        }))
+        .send()
+        .await;
+    
+    assert_eq!(payment_response.status(), 200);
+    let payment: PaymentResponse = payment_response.json().await;
+    assert_eq!(payment.status, PaymentStatus::Completed);
+    
+    // 5. Verify booking is confirmed
+    let get_booking = app
+        .get(&format!("/api/v1/bookings/{}", booking.id))
+        .bearer(&token)
+        .send()
+        .await;
+    
+    let final_booking: BookingResponse = get_booking.json().await;
+    assert_eq!(final_booking.status, BookingStatus::Confirmed);
+    assert!(final_booking.reference_code.is_some());
+    
+    // 6. Verify database state
+    let db_booking = app.db()
+        .get::<Booking>(&booking.id)
+        .await
+        .unwrap();
+    
+    assert_eq!(db_booking.user_id, user.id);
+    assert!(db_booking.confirmed_at.is_some());
+}
+
+#[tokio::test]
+async fn test_booking_payment_failure_rollback() {
+    let app = TestApp::builder()
+        .with_test_db()
+        .with_mock_payment_processor()
+        .build()
+        .await;
+    
+    let (user, token) = app.create_test_user(UserTier::Free).await;
+    let booking = app.create_test_booking(&user).await;
+    
+    // Attempt payment with failing card
+    let payment_response = app
+        .post(&format!("/api/v1/bookings/{}/pay", booking.id))
+        .bearer(&token)
+        .json(&json!({
+            "method": "card",
+            "card_token": "tok_test_card_declined"
+        }))
+        .send()
+        .await;
+    
+    assert_eq!(payment_response.status(), 402);
+    
+    // Verify booking is still pending (not corrupted)
+    let db_booking = app.db()
+        .get::<Booking>(&booking.id)
+        .await
+        .unwrap();
+    
+    assert_eq!(db_booking.status, BookingStatus::Pending);
+    assert!(db_booking.confirmed_at.is_none());
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- TEST-04: E2E TESTING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">TEST-04</span>
+                <span class="section-title">End-to-End Testing <span class="test-badge test-e2e">E2E</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸŽ­ E2E Test Scenarios (Critical Paths)</h4>
+                <table>
+                    <tr><th>Journey</th><th>Steps</th><th>Success Criteria</th></tr>
+                    <tr>
+                        <td><strong>New User Search & Book</strong></td>
+                        <td>
+                            1. Register account<br>
+                            2. Verify email<br>
+                            3. Search flights<br>
+                            4. Select flight<br>
+                            5. Enter traveler details<br>
+                            6. Pay with FPX<br>
+                            7. Receive confirmation
+                        </td>
+                        <td>
+                            â€¢ Email received<br>
+                            â€¢ Booking confirmed<br>
+                            â€¢ PNR generated<br>
+                            â€¢ &lt; 30s total
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pool Journey</strong></td>
+                        <td>
+                            1. Login<br>
+                            2. Discover pool<br>
+                            3. Join pool<br>
+                            4. Wait for activation<br>
+                            5. View winning bid<br>
+                            6. Confirm booking<br>
+                            7. Pay
+                        </td>
+                        <td>
+                            â€¢ Pool membership created<br>
+                            â€¢ Notifications received<br>
+                            â€¢ Group discount applied
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Price Alert Journey</strong></td>
+                        <td>
+                            1. Search flights<br>
+                            2. Create alert<br>
+                            3. Price drops<br>
+                            4. Alert triggered<br>
+                            5. Click through to book
+                        </td>
+                        <td>
+                            â€¢ Alert created<br>
+                            â€¢ Email/push received<br>
+                            â€¢ Deep link works
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Booking Cancellation</strong></td>
+                        <td>
+                            1. View booking<br>
+                            2. Request cancellation<br>
+                            3. Confirm cancellation<br>
+                            4. Refund processed
+                        </td>
+                        <td>
+                            â€¢ Booking cancelled<br>
+                            â€¢ Refund initiated<br>
+                            â€¢ Email confirmation
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ§ª E2E Test Framework</h4>
+                <div class="code-block">// tests/e2e/framework.rs
+// Uses real HTTP calls against test environment
+
+use reqwest::Client;
+use std::time::Duration;
+
+pub struct E2ETestClient {
+    client: Client,
+    base_url: String,
+    auth_token: Option<String>,
+}
+
+impl E2ETestClient {
+    pub async fn new() -> Self {
+        Self {
+            client: Client::builder()
+                .timeout(Duration::from_secs(30))
+                .build()
+                .unwrap(),
+            base_url: std::env::var("E2E_BASE_URL")
+                .unwrap_or_else(|_| "http://localhost:8080".to_string()),
+            auth_token: None,
+        }
+    }
+    
+    pub async fn register(&mut self, email: &str, password: &str) -> Result<User> {
+        let response = self.client
+            .post(&format!("{}/api/v1/auth/register", self.base_url))
+            .json(&json!({
+                "email": email,
+                "password": password
+            }))
+            .send()
+            .await?;
+        
+        let body: AuthResponse = response.json().await?;
+        self.auth_token = Some(body.access_token.clone());
+        Ok(body.user)
+    }
+    
+    pub async fn search(&self, params: SearchParams) -> Result<SearchResponse> {
+        let mut req = self.client
+            .post(&format!("{}/api/v1/search", self.base_url))
+            .json(&params);
+        
+        if let Some(ref token) = self.auth_token {
+            req = req.bearer_auth(token);
+        }
+        
+        let response = req.send().await?;
+        Ok(response.json().await?)
+    }
+    
+    // ... more helper methods
+}
+
+// tests/e2e/new_user_booking.rs
+
+#[tokio::test]
+#[ignore] // Only run in CI with E2E environment
+async fn e2e_new_user_complete_booking() {
+    let mut client = E2ETestClient::new().await;
+    
+    // 1. Register
+    let email = format!("test_{}@example.com", Uuid::new_v4());
+    let user = client.register(&email, "SecureP@ss123").await.unwrap();
+    
+    // 2. Search
+    let search = client.search(SearchParams {
+        origin: "KUL".into(),
+        destination: "SIN".into(),
+        departure_date: tomorrow(),
+        passengers: Passengers { adults: 1, ..Default::default() },
+    }).await.unwrap();
+    
+    assert!(!search.results.is_empty());
+    
+    // 3. Create booking
+    let offer = &search.results[0];
+    let booking = client.create_booking(CreateBookingRequest {
+        offer_id: offer.id.clone(),
+        travelers: vec![test_traveler()],
+        contact: test_contact(),
+    }).await.unwrap();
+    
+    assert_eq!(booking.status, BookingStatus::Pending);
+    
+    // 4. Pay (using test card)
+    let payment = client.pay_booking(
+        &booking.id,
+        PaymentRequest::TestCard { token: "tok_visa_success".into() }
+    ).await.unwrap();
+    
+    assert_eq!(payment.status, PaymentStatus::Completed);
+    
+    // 5. Verify final state
+    let final_booking = client.get_booking(&booking.id).await.unwrap();
+    assert_eq!(final_booking.status, BookingStatus::Confirmed);
+    assert!(final_booking.reference_code.is_some());
+    
+    // 6. Check email was sent (via test mailbox)
+    let emails = client.check_test_mailbox(&email).await.unwrap();
+    assert!(emails.iter().any(|e| e.subject.contains("Booking Confirmed")));
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- TEST-05: PERFORMANCE TESTING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">TEST-05</span>
+                <span class="section-title">Performance Testing <span class="test-badge test-perf">PERFORMANCE</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Performance Benchmarks</h4>
+                <table>
+                    <tr><th>Operation</th><th>Target p50</th><th>Target p95</th><th>Target p99</th><th>Throughput</th></tr>
+                    <tr>
+                        <td>Search API (cold)</td>
+                        <td>&lt; 500ms</td>
+                        <td>&lt; 1000ms</td>
+                        <td>&lt; 2000ms</td>
+                        <td>100 req/s</td>
+                    </tr>
+                    <tr>
+                        <td>Search API (cached)</td>
+                        <td>&lt; 50ms</td>
+                        <td>&lt; 100ms</td>
+                        <td>&lt; 200ms</td>
+                        <td>1000 req/s</td>
+                    </tr>
+                    <tr>
+                        <td>Oracle Prediction</td>
+                        <td>&lt; 20ms</td>
+                        <td>&lt; 50ms</td>
+                        <td>&lt; 100ms</td>
+                        <td>5000 req/s</td>
+                    </tr>
+                    <tr>
+                        <td>Booking Creation</td>
+                        <td>&lt; 200ms</td>
+                        <td>&lt; 500ms</td>
+                        <td>&lt; 1000ms</td>
+                        <td>50 req/s</td>
+                    </tr>
+                    <tr>
+                        <td>Auth (login)</td>
+                        <td>&lt; 100ms</td>
+                        <td>&lt; 200ms</td>
+                        <td>&lt; 500ms</td>
+                        <td>500 req/s</td>
+                    </tr>
+                    <tr>
+                        <td>Auth (verify token)</td>
+                        <td>&lt; 5ms</td>
+                        <td>&lt; 10ms</td>
+                        <td>&lt; 20ms</td>
+                        <td>10000 req/s</td>
+                    </tr>
+                    <tr>
+                        <td>VayaDB read</td>
+                        <td>&lt; 1ms</td>
+                        <td>&lt; 5ms</td>
+                        <td>&lt; 10ms</td>
+                        <td>50000 req/s</td>
+                    </tr>
+                    <tr>
+                        <td>VayaDB write</td>
+                        <td>&lt; 5ms</td>
+                        <td>&lt; 20ms</td>
+                        <td>&lt; 50ms</td>
+                        <td>10000 req/s</td>
+                    </tr>
+                    <tr>
+                        <td>VayaCache get</td>
+                        <td>&lt; 0.1ms</td>
+                        <td>&lt; 0.5ms</td>
+                        <td>&lt; 1ms</td>
+                        <td>100000 req/s</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ§ª Rust Benchmark Suite</h4>
+                <div class="code-block">// benches/oracle_benchmark.rs
+// Using criterion for statistical benchmarking
+
+use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use vaya_oracle::{Oracle, PriceFeatures};
+use vaya_ml::VayaXGBoost;
+
+fn benchmark_oracle_prediction(c: &mut Criterion) {
+    // Setup: Load pre-trained model
+    let oracle = Oracle::load_test_model();
+    
+    // Generate test features
+    let features: Vec<PriceFeatures> = (0..1000)
+        .map(|_| PriceFeatures::random_for_testing())
+        .collect();
+    
+    c.bench_function("oracle_single_prediction", |b| {
+        b.iter(|| {
+            let feature = &features[fastrand::usize(..features.len())];
+            oracle.predict(black_box(feature))
+        })
+    });
+    
+    c.bench_function("oracle_batch_prediction_100", |b| {
+        b.iter(|| {
+            oracle.predict_batch(black_box(&features[..100]))
+        })
+    });
+}
+
+fn benchmark_xgboost_inference(c: &mut Criterion) {
+    let model = VayaXGBoost::load_test_model();
+    let features: Vec<[f32; 47]> = (0..1000)
+        .map(|_| random_features())
+        .collect();
+    
+    let mut group = c.benchmark_group("xgboost_inference");
+    
+    for size in [1, 10, 100, 1000].iter() {
+        group.bench_with_input(
+            BenchmarkId::from_parameter(size),
+            size,
+            |b, &size| {
+                b.iter(|| {
+                    for i in 0..size {
+                        model.predict(black_box(&features[i]));
+                    }
+                })
+            },
+        );
+    }
+    
+    group.finish();
+}
+
+fn benchmark_db_operations(c: &mut Criterion) {
+    let db = VayaDB::open_temp().unwrap();
+    
+    // Seed data
+    for i in 0..10000 {
+        db.insert(&format!("key_{}", i), &random_data()).unwrap();
+    }
+    
+    c.bench_function("vayadb_point_read", |b| {
+        b.iter(|| {
+            let key = format!("key_{}", fastrand::usize(..10000));
+            db.get(black_box(&key))
+        })
+    });
+    
+    c.bench_function("vayadb_point_write", |b| {
+        b.iter(|| {
+            let key = format!("key_{}", fastrand::usize(..10000));
+            db.insert(black_box(&key), black_box(&random_data()))
+        })
+    });
+    
+    c.bench_function("vayadb_range_scan_100", |b| {
+        b.iter(|| {
+            db.scan("key_1", "key_2", 100)
+        })
+    });
+}
+
+criterion_group!(
+    benches,
+    benchmark_oracle_prediction,
+    benchmark_xgboost_inference,
+    benchmark_db_operations,
+);
+criterion_main!(benches);</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“ˆ Load Testing (with custom tool)</h4>
+                <div class="code-block"># vaya-loadtest - Custom load testing tool (no external deps)
+# Part of the VAYA nuclear stack
+
+$ vaya-loadtest run \
+    --target http://localhost:8080 \
+    --scenario search_flow \
+    --users 100 \
+    --duration 300s \
+    --ramp-up 60s
+
+Load Test Results: search_flow
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+Duration:     300s
+Virtual Users: 100 (ramped over 60s)
+Total Requests: 45,231
+Successful:    45,012 (99.52%)
+Failed:        219 (0.48%)
+
+Latency (ms):
+  p50:   124
+  p95:   342
+  p99:   567
+  max:   1,245
+
+Throughput:
+  Avg:   150.8 req/s
+  Peak:  203.4 req/s
+
+Errors:
+  Timeout (>2s):  156
+  5xx:            48
+  Connection:     15
+
+Resource Usage (during test):
+  CPU:    45% avg, 78% peak
+  Memory: 1.2GB avg, 1.8GB peak
+  
+âœ“ All targets met (p95 < 500ms, error rate < 1%)</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- TEST-06: SECURITY TESTING -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">TEST-06</span>
+                <span class="section-title">Security Testing <span class="test-badge test-security">SECURITY</span></span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ” Security Test Categories</h4>
+                <table>
+                    <tr><th>Category</th><th>Tests</th><th>Tools</th></tr>
+                    <tr>
+                        <td><strong>Authentication</strong></td>
+                        <td>
+                            â€¢ Brute force protection<br>
+                            â€¢ Session fixation<br>
+                            â€¢ Token validation<br>
+                            â€¢ Password policy enforcement
+                        </td>
+                        <td>Custom test suite</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Authorization</strong></td>
+                        <td>
+                            â€¢ Privilege escalation<br>
+                            â€¢ IDOR (Insecure Direct Object Reference)<br>
+                            â€¢ Role boundary testing<br>
+                            â€¢ Cross-user data access
+                        </td>
+                        <td>Custom test suite</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Input Validation</strong></td>
+                        <td>
+                            â€¢ SQL injection (N/A - no SQL)<br>
+                            â€¢ XSS (output encoding)<br>
+                            â€¢ Command injection<br>
+                            â€¢ Path traversal
+                        </td>
+                        <td>Fuzzing, proptest</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cryptography</strong></td>
+                        <td>
+                            â€¢ Key strength<br>
+                            â€¢ Timing attacks<br>
+                            â€¢ Random number quality<br>
+                            â€¢ Hash collision resistance
+                        </td>
+                        <td>Custom + ring tests</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rate Limiting</strong></td>
+                        <td>
+                            â€¢ Limit enforcement<br>
+                            â€¢ Bypass attempts<br>
+                            â€¢ Distributed attack simulation
+                        </td>
+                        <td>Custom load test</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ§ª Security Test Examples</h4>
+                <div class="code-block">// tests/security/auth_security.rs
+
+#[tokio::test]
+async fn test_brute_force_protection() {
+    let app = TestApp::new().await;
+    let email = "target@example.com";
+    app.create_user(email, "correct_password").await;
+    
+    // Attempt 10 failed logins
+    for i in 0..10 {
+        let response = app.post("/api/v1/auth/login")
+            .json(&json!({
+                "email": email,
+                "password": format!("wrong_password_{}", i)
+            }))
+            .send()
+            .await;
+        
+        if i < 5 {
+            assert_eq!(response.status(), 401); // Normal failure
+        } else {
+            assert_eq!(response.status(), 429); // Rate limited
+        }
+    }
+    
+    // Verify account is temporarily locked
+    let response = app.post("/api/v1/auth/login")
+        .json(&json!({
+            "email": email,
+            "password": "correct_password"
+        }))
+        .send()
+        .await;
+    
+    assert_eq!(response.status(), 429);
+    
+    // Wait for lockout to expire
+    tokio::time::sleep(Duration::from_secs(60)).await;
+    
+    // Should work now
+    let response = app.post("/api/v1/auth/login")
+        .json(&json!({
+            "email": email,
+            "password": "correct_password"
+        }))
+        .send()
+        .await;
+    
+    assert_eq!(response.status(), 200);
+}
+
+#[tokio::test]
+async fn test_idor_booking_access() {
+    let app = TestApp::new().await;
+    
+    // Create two users
+    let (user1, token1) = app.create_test_user(UserTier::Free).await;
+    let (user2, token2) = app.create_test_user(UserTier::Free).await;
+    
+    // User1 creates a booking
+    let booking = app.create_booking_for_user(&user1).await;
+    
+    // User2 tries to access User1's booking
+    let response = app.get(&format!("/api/v1/bookings/{}", booking.id))
+        .bearer(&token2)
+        .send()
+        .await;
+    
+    // Should be forbidden, not found (don't leak existence)
+    assert_eq!(response.status(), 404);
+}
+
+#[tokio::test]
+async fn test_jwt_tampering_rejected() {
+    let app = TestApp::new().await;
+    let (user, token) = app.create_test_user(UserTier::Free).await;
+    
+    // Decode and tamper with JWT
+    let parts: Vec<&str> = token.split('.').collect();
+    let payload = base64_decode(parts[1]).unwrap();
+    let mut claims: serde_json::Value = serde_json::from_slice(&payload).unwrap();
+    
+    // Try to elevate to premium
+    claims["tier"] = json!("premium");
+    
+    let tampered_payload = base64_encode(&serde_json::to_vec(&claims).unwrap());
+    let tampered_token = format!("{}.{}.{}", parts[0], tampered_payload, parts[2]);
+    
+    // Try to use tampered token
+    let response = app.get("/api/v1/me")
+        .bearer(&tampered_token)
+        .send()
+        .await;
+    
+    assert_eq!(response.status(), 401);
+}
+
+#[tokio::test]
+async fn test_timing_attack_resistance() {
+    let app = TestApp::new().await;
+    
+    // Create user
+    app.create_user("real@example.com", "password123").await;
+    
+    // Measure time for valid email, wrong password
+    let valid_email_times: Vec<Duration> = (0..100)
+        .map(|_| {
+            let start = Instant::now();
+            let _ = app.post("/api/v1/auth/login")
+                .json(&json!({
+                    "email": "real@example.com",
+                    "password": "wrong"
+                }))
+                .send()
+                .block();
+            start.elapsed()
+        })
+        .collect();
+    
+    // Measure time for invalid email
+    let invalid_email_times: Vec<Duration> = (0..100)
+        .map(|_| {
+            let start = Instant::now();
+            let _ = app.post("/api/v1/auth/login")
+                .json(&json!({
+                    "email": "fake@example.com",
+                    "password": "wrong"
+                }))
+                .send()
+                .block();
+            start.elapsed()
+        })
+        .collect();
+    
+    // Timing should be statistically indistinguishable
+    let valid_avg = average(&valid_email_times);
+    let invalid_avg = average(&invalid_email_times);
+    
+    // Allow 10% variance
+    let ratio = valid_avg.as_micros() as f64 / invalid_avg.as_micros() as f64;
+    assert!(ratio > 0.9 && ratio < 1.1, 
+        "Timing difference detected: ratio = {}", ratio);
+}</div>
+            </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- TEST-07: CI/CD PIPELINE -->
+        <!-- ================================================================ -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-id">TEST-07</span>
+                <span class="section-title">CI/CD Pipeline</span>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ”„ Test Pipeline Stages</h4>
+                <div class="code-block"># .vaya/pipeline.toml - VayaForge CI/CD pipeline definition
+# No external CI dependencies (GitHub Actions, etc.)
+
+[pipeline]
+name = "vaya-oracle"
+trigger = ["push", "pull_request"]
+branches = ["main", "develop", "release/*"]
+
+[[stage]]
+name = "lint"
+parallel = true
+jobs = [
+    { name = "clippy", cmd = "cargo clippy -- -D warnings" },
+    { name = "fmt", cmd = "cargo fmt --check" },
+    { name = "audit", cmd = "cargo audit" },
+]
+timeout = "5m"
+
+[[stage]]
+name = "unit_tests"
+depends_on = ["lint"]
+jobs = [
+    { name = "test", cmd = "cargo test --lib --all-features" },
+]
+timeout = "10m"
+coverage = { threshold = 90 }
+
+[[stage]]
+name = "integration_tests"
+depends_on = ["unit_tests"]
+jobs = [
+    { name = "integration", cmd = "cargo test --test '*' --features integration" },
+]
+timeout = "15m"
+
+[[stage]]
+name = "benchmarks"
+depends_on = ["integration_tests"]
+condition = "branch == 'main' || branch == 'release/*'"
+jobs = [
+    { name = "bench", cmd = "cargo bench -- --save-baseline ci" },
+    { name = "compare", cmd = "cargo bench -- --baseline main" },
+]
+timeout = "20m"
+alert_on_regression = { threshold = "10%" }
+
+[[stage]]
+name = "security_tests"
+depends_on = ["integration_tests"]
+jobs = [
+    { name = "security", cmd = "cargo test --test security_*" },
+    { name = "fuzz", cmd = "cargo +nightly fuzz run fuzz_api -- -max_total_time=300" },
+]
+timeout = "15m"
+
+[[stage]]
+name = "build_artifacts"
+depends_on = ["security_tests"]
+condition = "branch == 'main' || branch == 'release/*'"
+jobs = [
+    { name = "build", cmd = "vaya-forge build --all --release --sign" },
+]
+artifacts = ["target/artifacts/*.vaya"]
+timeout = "30m"
+
+[[stage]]
+name = "e2e_tests"
+depends_on = ["build_artifacts"]
+condition = "branch == 'main' || branch == 'release/*'"
+environment = "staging"
+jobs = [
+    { name = "e2e", cmd = "cargo test --test e2e_* --features e2e" },
+]
+timeout = "30m"
+
+[[stage]]
+name = "deploy"
+depends_on = ["e2e_tests"]
+condition = "branch == 'release/*'"
+approval = { required = true, approvers = ["@platform-team"] }
+jobs = [
+    { name = "deploy", cmd = "vaya-fleet deploy --env production --artifact latest" },
+]</div>
+            </div>
+
+            <div class="subsection">
+                <h4>ðŸ“Š Quality Gates</h4>
+                <table>
+                    <tr><th>Gate</th><th>Threshold</th><th>Action on Failure</th></tr>
+                    <tr><td>Unit Test Pass Rate</td><td>100%</td><td>Block merge</td></tr>
+                    <tr><td>Line Coverage</td><td>â‰¥90%</td><td>Block merge</td></tr>
+                    <tr><td>Branch Coverage</td><td>â‰¥85%</td><td>Warning</td></tr>
+                    <tr><td>Clippy Warnings</td><td>0</td><td>Block merge</td></tr>
+                    <tr><td>Security Vulnerabilities</td><td>0 critical, 0 high</td><td>Block merge</td></tr>
+                    <tr><td>Performance Regression</td><td>&lt;10% slower</td><td>Block merge</td></tr>
+                    <tr><td>Binary Size</td><td>&lt;20MB per service</td><td>Warning</td></tr>
+                    <tr><td>Build Time</td><td>&lt;10min release</td><td>Warning</td></tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- Summary -->
+        <div style="background: linear-gradient(135deg, var(--n100), var(--n200)); border: 2px solid var(--blue); border-radius: 20px; padding: 40px; margin-top: 48px; text-align: center;">
+            <h2 style="font-family: var(--font-display); font-size: 28px; font-weight: 800; margin-bottom: 16px;">ðŸ§ª TESTING STRATEGY COMPLETE</h2>
+            <div class="compliance-badge">âœ“ NUCLEAR/SOVEREIGN COMPLIANT â€” ZERO EXTERNAL TEST DEPS</div>
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; max-width: 800px; margin: 24px auto 0;">
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--mint);">~900</div>
+                    <div style="font-size: 10px; color: var(--n600);">Unit Tests</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--cyan);">~50</div>
+                    <div style="font-size: 10px; color: var(--n600);">Integration</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--purple);">~10</div>
+                    <div style="font-size: 10px; color: var(--n600);">E2E Journeys</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--warning);">90%+</div>
+                    <div style="font-size: 10px; color: var(--n600);">Coverage</div>
+                </div>
+                <div style="background: var(--n100); border-radius: 12px; padding: 12px;">
+                    <div style="font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--error);">&lt;60s</div>
+                    <div style="font-size: 10px; color: var(--n600);">Full Suite</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

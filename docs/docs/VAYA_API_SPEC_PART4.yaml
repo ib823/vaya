@@ -1,0 +1,865 @@
+# ============================================================================
+# VAYA API SPECIFICATION - PART 4
+# WebSocket Events, Error Codes, Rate Limiting
+# ============================================================================
+
+# ============================================================================
+# WEBSOCKET SPECIFICATION
+# ============================================================================
+# Connection URL: wss://ws.vaya.my/v1
+# Authentication: Pass JWT as query param: ?token=<access_token>
+# Heartbeat: Client must send ping every 30s, server responds with pong
+# Reconnection: Exponential backoff starting at 1s, max 30s
+
+websocket:
+  connection:
+    url: "wss://ws.vaya.my/v1"
+    authentication:
+      description: "JWT token passed as query parameter"
+      example: "wss://ws.vaya.my/v1?token=eyJhbGciOiJSUzI1NiIs..."
+    
+    handshake:
+      description: "Server sends connection_ack on successful auth"
+      example:
+        type: "connection_ack"
+        payload:
+          user_id: "550e8400-e29b-41d4-a716-446655440000"
+          session_id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+          server_time: "2024-03-15T14:30:00+08:00"
+    
+    heartbeat:
+      interval_seconds: 30
+      timeout_seconds: 10
+      client_message:
+        type: "ping"
+        timestamp: "2024-03-15T14:30:00+08:00"
+      server_response:
+        type: "pong"
+        timestamp: "2024-03-15T14:30:00+08:00"
+    
+    reconnection:
+      strategy: "exponential_backoff"
+      initial_delay_ms: 1000
+      max_delay_ms: 30000
+      max_attempts: 10
+      jitter: true
+
+  # --------------------------------------------------------------------------
+  # EVENT ENVELOPE
+  # --------------------------------------------------------------------------
+  event_envelope:
+    description: "All WebSocket messages follow this structure"
+    schema:
+      type: object
+      required:
+        - type
+        - timestamp
+      properties:
+        type:
+          type: string
+          description: "Event type identifier"
+        payload:
+          type: object
+          description: "Event-specific data"
+        timestamp:
+          type: string
+          format: date-time
+        event_id:
+          type: string
+          format: uuid
+          description: "Unique event ID for idempotency"
+        correlation_id:
+          type: string
+          format: uuid
+          description: "Links related events (e.g., search request â†’ results)"
+
+  # --------------------------------------------------------------------------
+  # CLIENT â†’ SERVER EVENTS
+  # --------------------------------------------------------------------------
+  client_events:
+    subscribe_search:
+      description: "Subscribe to real-time search results"
+      payload:
+        search_id:
+          type: string
+          format: uuid
+      example:
+        type: "subscribe_search"
+        payload:
+          search_id: "550e8400-e29b-41d4-a716-446655440000"
+
+    unsubscribe_search:
+      description: "Stop receiving search updates"
+      payload:
+        search_id:
+          type: string
+          format: uuid
+
+    subscribe_pool:
+      description: "Subscribe to pool updates"
+      payload:
+        pool_id:
+          type: string
+          format: uuid
+
+    unsubscribe_pool:
+      description: "Stop receiving pool updates"
+      payload:
+        pool_id:
+          type: string
+          format: uuid
+
+    subscribe_booking:
+      description: "Subscribe to booking status updates"
+      payload:
+        booking_id:
+          type: string
+          format: uuid
+
+    subscribe_alerts:
+      description: "Subscribe to all user's price alerts"
+      payload: {}
+
+    subscribe_notifications:
+      description: "Subscribe to real-time notifications"
+      payload: {}
+
+  # --------------------------------------------------------------------------
+  # SERVER â†’ CLIENT EVENTS
+  # --------------------------------------------------------------------------
+  server_events:
+    # Search Events
+    search_result:
+      description: "New flight result found during search"
+      payload:
+        search_id:
+          type: string
+          format: uuid
+        result:
+          $ref: '#/components/schemas/SearchResult'
+        results_so_far:
+          type: integer
+        is_final:
+          type: boolean
+      example:
+        type: "search_result"
+        timestamp: "2024-03-15T14:30:05+08:00"
+        event_id: "evt_123456"
+        correlation_id: "550e8400-e29b-41d4-a716-446655440000"
+        payload:
+          search_id: "550e8400-e29b-41d4-a716-446655440000"
+          result:
+            id: "res_789"
+            price:
+              total:
+                amount: 123400
+                currency: "MYR"
+            outbound:
+              segments: [...]
+          results_so_far: 15
+          is_final: false
+
+    search_complete:
+      description: "Search finished, no more results coming"
+      payload:
+        search_id:
+          type: string
+          format: uuid
+        total_results:
+          type: integer
+        best_price_id:
+          type: string
+        oracle_pick_id:
+          type: string
+      example:
+        type: "search_complete"
+        payload:
+          search_id: "550e8400-e29b-41d4-a716-446655440000"
+          total_results: 47
+          best_price_id: "res_123"
+          oracle_pick_id: "res_456"
+
+    search_error:
+      description: "Search failed"
+      payload:
+        search_id:
+          type: string
+          format: uuid
+        error:
+          $ref: '#/components/schemas/Error'
+
+    # Price Events
+    price_update:
+      description: "Price changed for a watched route"
+      payload:
+        alert_id:
+          type: string
+          format: uuid
+        route:
+          type: object
+          properties:
+            origin:
+              type: string
+            destination:
+              type: string
+        old_price:
+          $ref: '#/components/schemas/Money'
+        new_price:
+          $ref: '#/components/schemas/Money'
+        change_percentage:
+          type: number
+        oracle_recommendation:
+          type: string
+          enum: [buy_now, wait, watch]
+      example:
+        type: "price_update"
+        payload:
+          alert_id: "alert_123"
+          route:
+            origin: "KUL"
+            destination: "NRT"
+          old_price:
+            amount: 150000
+            currency: "MYR"
+          new_price:
+            amount: 123400
+            currency: "MYR"
+          change_percentage: -17.7
+          oracle_recommendation: "buy_now"
+
+    alert_triggered:
+      description: "Price alert condition met"
+      payload:
+        alert_id:
+          type: string
+          format: uuid
+        alert_type:
+          type: string
+        current_price:
+          $ref: '#/components/schemas/Money'
+        target_price:
+          $ref: '#/components/schemas/Money'
+        message:
+          type: string
+        search_url:
+          type: string
+          format: uri
+
+    # Pool Events
+    pool_member_joined:
+      description: "New member joined a pool"
+      payload:
+        pool_id:
+          type: string
+          format: uuid
+        member:
+          type: object
+          properties:
+            name:
+              type: string
+            passenger_count:
+              type: integer
+        new_size:
+          type: integer
+        new_discount:
+          type: number
+        next_tier:
+          type: object
+          nullable: true
+          properties:
+            members_needed:
+              type: integer
+            discount:
+              type: number
+
+    pool_member_left:
+      description: "Member left a pool"
+      payload:
+        pool_id:
+          type: string
+          format: uuid
+        new_size:
+          type: integer
+        new_discount:
+          type: number
+
+    pool_tier_reached:
+      description: "Pool reached new discount tier"
+      payload:
+        pool_id:
+          type: string
+          format: uuid
+        tier:
+          type: integer
+        discount:
+          type: number
+        new_price:
+          $ref: '#/components/schemas/Money'
+
+    pool_locked:
+      description: "Pool locked for booking"
+      payload:
+        pool_id:
+          type: string
+          format: uuid
+        deadline:
+          type: string
+          format: date-time
+        action_required:
+          type: string
+
+    pool_booking_started:
+      description: "Pool booking process initiated"
+      payload:
+        pool_id:
+          type: string
+          format: uuid
+        final_price:
+          $ref: '#/components/schemas/Money'
+        payment_deadline:
+          type: string
+          format: date-time
+
+    pool_completed:
+      description: "Pool booking successful"
+      payload:
+        pool_id:
+          type: string
+          format: uuid
+        booking_reference:
+          type: string
+        total_saved:
+          $ref: '#/components/schemas/Money'
+
+    pool_failed:
+      description: "Pool failed to reach minimum"
+      payload:
+        pool_id:
+          type: string
+          format: uuid
+        reason:
+          type: string
+        refund_status:
+          type: string
+
+    # Booking Events
+    booking_status_changed:
+      description: "Booking status updated"
+      payload:
+        booking_id:
+          type: string
+          format: uuid
+        booking_reference:
+          type: string
+        old_status:
+          type: string
+        new_status:
+          type: string
+        message:
+          type: string
+
+    payment_status_changed:
+      description: "Payment status updated"
+      payload:
+        booking_id:
+          type: string
+          format: uuid
+        payment_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        next_action:
+          type: object
+          nullable: true
+
+    flight_status_update:
+      description: "Flight schedule or status change"
+      payload:
+        booking_id:
+          type: string
+          format: uuid
+        segment_index:
+          type: integer
+        flight_number:
+          type: string
+        update_type:
+          type: string
+          enum: [delay, cancellation, gate_change, schedule_change]
+        details:
+          type: object
+          properties:
+            old_value:
+              type: string
+            new_value:
+              type: string
+            reason:
+              type: string
+
+    # Notification Events
+    notification:
+      description: "General notification"
+      payload:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        action:
+          type: object
+          nullable: true
+        priority:
+          type: string
+          enum: [low, normal, high]
+
+# ============================================================================
+# ERROR CODE TAXONOMY
+# ============================================================================
+error_codes:
+  # Authentication Errors (1xxx)
+  AUTH_1001:
+    code: "AUTH_1001"
+    http_status: 401
+    message: "Invalid credentials"
+    description: "Email or password is incorrect"
+    user_message: "The email or password you entered is incorrect"
+    
+  AUTH_1002:
+    code: "AUTH_1002"
+    http_status: 401
+    message: "Token expired"
+    description: "JWT access token has expired"
+    user_message: "Your session has expired. Please log in again"
+    retry: true
+    
+  AUTH_1003:
+    code: "AUTH_1003"
+    http_status: 401
+    message: "Invalid token"
+    description: "JWT token is malformed or signature invalid"
+    user_message: "Authentication failed. Please log in again"
+    
+  AUTH_1004:
+    code: "AUTH_1004"
+    http_status: 403
+    message: "Account locked"
+    description: "Too many failed login attempts"
+    user_message: "Your account has been locked due to too many failed attempts. Try again in {minutes} minutes"
+    
+  AUTH_1005:
+    code: "AUTH_1005"
+    http_status: 403
+    message: "Email not verified"
+    description: "User email has not been verified"
+    user_message: "Please verify your email before logging in"
+    
+  AUTH_1006:
+    code: "AUTH_1006"
+    http_status: 403
+    message: "MFA required"
+    description: "Multi-factor authentication required"
+    user_message: "Please enter your verification code"
+    
+  AUTH_1007:
+    code: "AUTH_1007"
+    http_status: 400
+    message: "Invalid MFA code"
+    description: "TOTP code is incorrect or expired"
+    user_message: "Invalid verification code. Please try again"
+
+  # Validation Errors (2xxx)
+  VALIDATION_2001:
+    code: "VALIDATION_2001"
+    http_status: 400
+    message: "Invalid request body"
+    description: "Request body failed schema validation"
+    user_message: "Please check your input and try again"
+    
+  VALIDATION_2002:
+    code: "VALIDATION_2002"
+    http_status: 400
+    message: "Missing required field"
+    description: "A required field is missing"
+    user_message: "{field} is required"
+    
+  VALIDATION_2003:
+    code: "VALIDATION_2003"
+    http_status: 400
+    message: "Invalid field format"
+    description: "Field value does not match expected format"
+    user_message: "{field} is not in a valid format"
+    
+  VALIDATION_2004:
+    code: "VALIDATION_2004"
+    http_status: 400
+    message: "Invalid date"
+    description: "Date is invalid or in wrong format"
+    user_message: "Please enter a valid date"
+    
+  VALIDATION_2005:
+    code: "VALIDATION_2005"
+    http_status: 400
+    message: "Date in past"
+    description: "Travel date cannot be in the past"
+    user_message: "Travel date must be in the future"
+    
+  VALIDATION_2006:
+    code: "VALIDATION_2006"
+    http_status: 400
+    message: "Invalid IATA code"
+    description: "Airport code is not valid"
+    user_message: "Please select a valid airport"
+    
+  VALIDATION_2007:
+    code: "VALIDATION_2007"
+    http_status: 400
+    message: "Same origin and destination"
+    description: "Origin and destination airports are the same"
+    user_message: "Origin and destination must be different"
+    
+  VALIDATION_2008:
+    code: "VALIDATION_2008"
+    http_status: 400
+    message: "Too many passengers"
+    description: "Passenger count exceeds limit"
+    user_message: "Maximum 9 passengers per booking"
+    
+  VALIDATION_2009:
+    code: "VALIDATION_2009"
+    http_status: 400
+    message: "Invalid passenger age"
+    description: "Passenger age does not match type"
+    user_message: "Please check passenger dates of birth"
+    
+  VALIDATION_2010:
+    code: "VALIDATION_2010"
+    http_status: 400
+    message: "Passport expired"
+    description: "Passport expires within 6 months of travel"
+    user_message: "Passport must be valid for at least 6 months after travel"
+
+  # Search Errors (3xxx)
+  SEARCH_3001:
+    code: "SEARCH_3001"
+    http_status: 404
+    message: "Search not found"
+    description: "Search ID does not exist or has expired"
+    user_message: "This search has expired. Please search again"
+    
+  SEARCH_3002:
+    code: "SEARCH_3002"
+    http_status: 408
+    message: "Search timeout"
+    description: "Search took too long to complete"
+    user_message: "Search timed out. Please try again"
+    retry: true
+    
+  SEARCH_3003:
+    code: "SEARCH_3003"
+    http_status: 503
+    message: "No suppliers available"
+    description: "All flight data suppliers are unavailable"
+    user_message: "We're experiencing technical difficulties. Please try again later"
+    retry: true
+
+  # Booking Errors (4xxx)
+  BOOKING_4001:
+    code: "BOOKING_4001"
+    http_status: 409
+    message: "Booking token expired"
+    description: "Booking token from search has expired"
+    user_message: "This offer has expired. Please search again for current prices"
+    
+  BOOKING_4002:
+    code: "BOOKING_4002"
+    http_status: 409
+    message: "Price changed"
+    description: "Flight price has changed since search"
+    user_message: "The price has changed to {new_price}. Would you like to continue?"
+    
+  BOOKING_4003:
+    code: "BOOKING_4003"
+    http_status: 409
+    message: "Flight unavailable"
+    description: "Flight is no longer available"
+    user_message: "This flight is no longer available. Please search for alternatives"
+    
+  BOOKING_4004:
+    code: "BOOKING_4004"
+    http_status: 404
+    message: "Booking not found"
+    description: "Booking ID does not exist"
+    user_message: "Booking not found"
+    
+  BOOKING_4005:
+    code: "BOOKING_4005"
+    http_status: 400
+    message: "Cannot cancel booking"
+    description: "Booking is not in a cancellable state"
+    user_message: "This booking cannot be cancelled"
+    
+  BOOKING_4006:
+    code: "BOOKING_4006"
+    http_status: 402
+    message: "Payment required"
+    description: "Booking requires payment to proceed"
+    user_message: "Please complete payment to confirm your booking"
+    
+  BOOKING_4007:
+    code: "BOOKING_4007"
+    http_status: 400
+    message: "Booking expired"
+    description: "Payment deadline has passed"
+    user_message: "This booking has expired. Please search again"
+
+  # Payment Errors (5xxx)
+  PAYMENT_5001:
+    code: "PAYMENT_5001"
+    http_status: 402
+    message: "Card declined"
+    description: "Payment was declined by the bank"
+    user_message: "Your card was declined. Please try another payment method"
+    
+  PAYMENT_5002:
+    code: "PAYMENT_5002"
+    http_status: 402
+    message: "Insufficient funds"
+    description: "Card has insufficient funds"
+    user_message: "Insufficient funds. Please try another card"
+    
+  PAYMENT_5003:
+    code: "PAYMENT_5003"
+    http_status: 400
+    message: "Invalid card"
+    description: "Card number or details are invalid"
+    user_message: "Please check your card details"
+    
+  PAYMENT_5004:
+    code: "PAYMENT_5004"
+    http_status: 400
+    message: "Card expired"
+    description: "Card has expired"
+    user_message: "This card has expired. Please use another card"
+    
+  PAYMENT_5005:
+    code: "PAYMENT_5005"
+    http_status: 402
+    message: "3DS authentication failed"
+    description: "3D Secure verification failed"
+    user_message: "Card verification failed. Please try again or use another card"
+    
+  PAYMENT_5006:
+    code: "PAYMENT_5006"
+    http_status: 408
+    message: "Payment timeout"
+    description: "Payment processing timed out"
+    user_message: "Payment timed out. Please check your booking status before retrying"
+    retry: true
+    
+  PAYMENT_5007:
+    code: "PAYMENT_5007"
+    http_status: 400
+    message: "Refund not eligible"
+    description: "Booking is not eligible for refund"
+    user_message: "This booking is not eligible for refund based on the fare rules"
+    
+  PAYMENT_5008:
+    code: "PAYMENT_5008"
+    http_status: 503
+    message: "Payment gateway unavailable"
+    description: "Payment processor is temporarily unavailable"
+    user_message: "Payment service is temporarily unavailable. Please try again"
+    retry: true
+
+  # Pool Errors (6xxx)
+  POOL_6001:
+    code: "POOL_6001"
+    http_status: 404
+    message: "Pool not found"
+    description: "Pool ID does not exist"
+    user_message: "This pool no longer exists"
+    
+  POOL_6002:
+    code: "POOL_6002"
+    http_status: 409
+    message: "Pool locked"
+    description: "Pool is locked and not accepting new members"
+    user_message: "This pool has been locked and is no longer accepting members"
+    
+  POOL_6003:
+    code: "POOL_6003"
+    http_status: 409
+    message: "Pool full"
+    description: "Pool has reached maximum capacity"
+    user_message: "This pool is full"
+    
+  POOL_6004:
+    code: "POOL_6004"
+    http_status: 400
+    message: "Invalid invite code"
+    description: "Invite code is invalid or expired"
+    user_message: "Invalid invite code"
+    
+  POOL_6005:
+    code: "POOL_6005"
+    http_status: 409
+    message: "Already in pool"
+    description: "User is already a member of this pool"
+    user_message: "You're already in this pool"
+    
+  POOL_6006:
+    code: "POOL_6006"
+    http_status: 400
+    message: "Cannot leave pool"
+    description: "Cannot leave pool after payment"
+    user_message: "You cannot leave this pool after payment"
+
+  # Alert Errors (7xxx)
+  ALERT_7001:
+    code: "ALERT_7001"
+    http_status: 403
+    message: "Alert limit reached"
+    description: "User has reached maximum number of alerts"
+    user_message: "You've reached the maximum number of alerts ({limit})"
+    
+  ALERT_7002:
+    code: "ALERT_7002"
+    http_status: 404
+    message: "Alert not found"
+    description: "Alert ID does not exist"
+    user_message: "Alert not found"
+    
+  ALERT_7003:
+    code: "ALERT_7003"
+    http_status: 409
+    message: "Duplicate alert"
+    description: "Similar alert already exists"
+    user_message: "You already have an alert for this route"
+
+  # Rate Limiting Errors (8xxx)
+  RATE_8001:
+    code: "RATE_8001"
+    http_status: 429
+    message: "Rate limit exceeded"
+    description: "Too many requests"
+    user_message: "Too many requests. Please wait {seconds} seconds"
+    retry: true
+    
+  RATE_8002:
+    code: "RATE_8002"
+    http_status: 429
+    message: "Search rate limit"
+    description: "Too many search requests"
+    user_message: "You've made too many searches. Please wait a moment"
+    retry: true
+
+  # Server Errors (9xxx)
+  SERVER_9001:
+    code: "SERVER_9001"
+    http_status: 500
+    message: "Internal server error"
+    description: "Unexpected server error"
+    user_message: "Something went wrong. Please try again"
+    retry: true
+    
+  SERVER_9002:
+    code: "SERVER_9002"
+    http_status: 503
+    message: "Service unavailable"
+    description: "Service is temporarily unavailable"
+    user_message: "Service temporarily unavailable. Please try again later"
+    retry: true
+    
+  SERVER_9003:
+    code: "SERVER_9003"
+    http_status: 503
+    message: "Database unavailable"
+    description: "Database connection failed"
+    user_message: "We're experiencing technical difficulties. Please try again"
+    retry: true
+
+# ============================================================================
+# RATE LIMITING SPECIFICATION
+# ============================================================================
+rate_limiting:
+  tiers:
+    anonymous:
+      description: "Unauthenticated requests"
+      limits:
+        global: "60/minute"
+        search: "10/minute"
+        
+    free:
+      description: "Free tier authenticated users"
+      limits:
+        global: "300/minute"
+        search: "30/minute"
+        booking: "10/minute"
+        
+    premium:
+      description: "ATA subscribers"
+      limits:
+        global: "1000/minute"
+        search: "100/minute"
+        booking: "30/minute"
+        alerts: "50/hour"
+        
+    enterprise:
+      description: "Enterprise API clients"
+      limits:
+        global: "5000/minute"
+        search: "500/minute"
+        booking: "100/minute"
+
+  headers:
+    description: "Rate limit headers included in all responses"
+    headers:
+      X-RateLimit-Limit:
+        description: "Maximum requests allowed in window"
+        example: "300"
+      X-RateLimit-Remaining:
+        description: "Requests remaining in current window"
+        example: "287"
+      X-RateLimit-Reset:
+        description: "Unix timestamp when limit resets"
+        example: "1710489600"
+      X-RateLimit-Retry-After:
+        description: "Seconds until rate limit resets (only on 429)"
+        example: "30"
+
+  response_429:
+    description: "Response when rate limited"
+    example:
+      code: "RATE_8001"
+      message: "Rate limit exceeded"
+      request_id: "req_abc123"
+      retry_after: 30
+
+# ============================================================================
+# API VERSIONING
+# ============================================================================
+versioning:
+  strategy: "URL path versioning"
+  current_version: "v1"
+  
+  url_format: "/v1/endpoint"
+  
+  deprecation:
+    notice_period_days: 90
+    sunset_header: true
+    documentation: "Deprecated endpoints will include Sunset header"
+    
+  headers:
+    Sunset:
+      description: "Date when endpoint will be removed"
+      example: "Sat, 31 Dec 2024 23:59:59 GMT"
+    Deprecation:
+      description: "Indicates endpoint is deprecated"
+      example: "true"
+    Link:
+      description: "Link to migration documentation"
+      example: '<https://developers.vaya.my/migration/v2>; rel="successor-version"'

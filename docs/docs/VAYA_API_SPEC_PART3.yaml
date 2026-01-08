@@ -1,0 +1,1892 @@
+# ============================================================================
+# VAYA API SPECIFICATION - PART 3
+# Users, Travelers, Trips, Notifications, Support, Admin
+# ============================================================================
+
+# This file continues from VAYA_API_SPEC_PART2.yaml
+
+# ============================================================================
+# USER & TRAVELER SCHEMAS
+# ============================================================================
+components:
+  schemas:
+    # --------------------------------------------------------------------------
+    # TRAVELER SCHEMAS (Saved passenger profiles)
+    # --------------------------------------------------------------------------
+    Traveler:
+      type: object
+      required:
+        - id
+        - name
+        - date_of_birth
+        - gender
+        - nationality
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          $ref: '#/components/schemas/PassengerName'
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum: [male, female]
+        nationality:
+          type: string
+          pattern: "^[A-Z]{2}$"
+        passport:
+          $ref: '#/components/schemas/PassportInfo'
+        frequent_flyer:
+          type: array
+          items:
+            type: object
+            properties:
+              airline:
+                $ref: '#/components/schemas/AirlineCode'
+              number:
+                type: string
+              tier:
+                type: string
+        meal_preference:
+          type: string
+          enum: [regular, vegetarian, vegan, halal, kosher, gluten_free]
+        seat_preference:
+          type: string
+          enum: [window, aisle, middle, no_preference]
+        special_assistance:
+          type: array
+          items:
+            type: string
+            enum: [wheelchair, blind, deaf, mobility, oxygen]
+        redress_number:
+          type: string
+          nullable: true
+          description: TSA redress number
+        known_traveler_number:
+          type: string
+          nullable: true
+        is_primary:
+          type: boolean
+          description: Is this the account holder
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    CreateTravelerRequest:
+      type: object
+      required:
+        - name
+        - date_of_birth
+        - gender
+        - nationality
+      properties:
+        name:
+          $ref: '#/components/schemas/PassengerName'
+        date_of_birth:
+          type: string
+          format: date
+        gender:
+          type: string
+          enum: [male, female]
+        nationality:
+          type: string
+          pattern: "^[A-Z]{2}$"
+        passport:
+          $ref: '#/components/schemas/PassportInfo'
+        frequent_flyer:
+          type: array
+          items:
+            type: object
+            properties:
+              airline:
+                $ref: '#/components/schemas/AirlineCode'
+              number:
+                type: string
+        meal_preference:
+          type: string
+        seat_preference:
+          type: string
+        special_assistance:
+          type: array
+          items:
+            type: string
+
+    # --------------------------------------------------------------------------
+    # TRIP SCHEMAS
+    # --------------------------------------------------------------------------
+    Trip:
+      type: object
+      required:
+        - id
+        - name
+        - status
+        - bookings
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 100
+          example: "Tokyo Family Trip 2024"
+        status:
+          type: string
+          enum: [planning, upcoming, in_progress, completed, cancelled]
+        cover_image_url:
+          type: string
+          format: uri
+          nullable: true
+        destination:
+          $ref: '#/components/schemas/Airport'
+        dates:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+        bookings:
+          type: array
+          items:
+            $ref: '#/components/schemas/TripBooking'
+        travelers:
+          type: array
+          items:
+            type: object
+            properties:
+              traveler_id:
+                type: string
+                format: uuid
+              name:
+                type: string
+        total_cost:
+          $ref: '#/components/schemas/Money'
+        notes:
+          type: string
+          maxLength: 2000
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/TripDocument'
+        checklist:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChecklistItem'
+        shared_with:
+          type: array
+          items:
+            type: object
+            properties:
+              user_id:
+                type: string
+                format: uuid
+              email:
+                type: string
+                format: email
+              permission:
+                type: string
+                enum: [view, edit]
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    TripBooking:
+      type: object
+      properties:
+        booking_id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [flight, hotel, car, activity, transfer]
+        reference:
+          type: string
+        status:
+          type: string
+        summary:
+          type: string
+          example: "KUL â†’ NRT, Malaysia Airlines MH52"
+        datetime:
+          $ref: '#/components/schemas/Timestamp'
+        confirmation_url:
+          type: string
+          format: uri
+
+    TripDocument:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [e_ticket, boarding_pass, hotel_voucher, visa, insurance, other]
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
+        uploaded_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    ChecklistItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        text:
+          type: string
+          maxLength: 200
+        completed:
+          type: boolean
+        due_date:
+          type: string
+          format: date
+          nullable: true
+        category:
+          type: string
+          enum: [documents, packing, booking, other]
+
+    CreateTripRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        destination:
+          $ref: '#/components/schemas/IATACode'
+        dates:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date
+            end:
+              type: string
+              format: date
+        booking_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Existing bookings to add to trip
+        notes:
+          type: string
+
+    # --------------------------------------------------------------------------
+    # NOTIFICATION SCHEMAS
+    # --------------------------------------------------------------------------
+    Notification:
+      type: object
+      required:
+        - id
+        - type
+        - title
+        - body
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [
+            price_alert,
+            pool_update,
+            booking_confirmation,
+            flight_status,
+            payment_receipt,
+            promotion,
+            system,
+            support_reply
+          ]
+        title:
+          type: string
+          maxLength: 100
+        body:
+          type: string
+          maxLength: 500
+        image_url:
+          type: string
+          format: uri
+          nullable: true
+        action:
+          type: object
+          nullable: true
+          properties:
+            type:
+              type: string
+              enum: [open_booking, open_alert, open_pool, open_url, open_search]
+            payload:
+              type: object
+              additionalProperties: true
+        read:
+          type: boolean
+        read_at:
+          $ref: '#/components/schemas/Timestamp'
+          nullable: true
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    NotificationStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        unread:
+          type: integer
+        by_type:
+          type: object
+          additionalProperties:
+            type: integer
+
+    # --------------------------------------------------------------------------
+    # SUPPORT SCHEMAS
+    # --------------------------------------------------------------------------
+    SupportTicket:
+      type: object
+      required:
+        - id
+        - subject
+        - status
+        - category
+      properties:
+        id:
+          type: string
+          format: uuid
+        reference:
+          type: string
+          pattern: "^VAYA-[0-9]{8}$"
+          example: "VAYA-20240315"
+        subject:
+          type: string
+          maxLength: 200
+        status:
+          type: string
+          enum: [open, pending_customer, in_progress, resolved, closed]
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        category:
+          type: string
+          enum: [
+            booking_issue,
+            payment_issue,
+            refund_request,
+            flight_change,
+            technical_issue,
+            account_issue,
+            feedback,
+            other
+          ]
+        booking_id:
+          type: string
+          format: uuid
+          nullable: true
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportMessage'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        assigned_to:
+          type: string
+          nullable: true
+          description: Support agent name
+        resolution:
+          type: string
+          nullable: true
+        satisfaction_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+        updated_at:
+          $ref: '#/components/schemas/Timestamp'
+        resolved_at:
+          $ref: '#/components/schemas/Timestamp'
+          nullable: true
+
+    SupportMessage:
+      type: object
+      required:
+        - id
+        - content
+        - sender
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+          maxLength: 5000
+        sender:
+          type: string
+          enum: [user, agent, system]
+        agent_name:
+          type: string
+          nullable: true
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    Attachment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        filename:
+          type: string
+        mime_type:
+          type: string
+        size_bytes:
+          type: integer
+        url:
+          type: string
+          format: uri
+
+    CreateTicketRequest:
+      type: object
+      required:
+        - subject
+        - category
+        - message
+      properties:
+        subject:
+          type: string
+          maxLength: 200
+        category:
+          type: string
+          enum: [booking_issue, payment_issue, refund_request, flight_change, technical_issue, account_issue, feedback, other]
+        booking_id:
+          type: string
+          format: uuid
+        message:
+          type: string
+          maxLength: 5000
+        priority:
+          type: string
+          enum: [low, normal, high]
+          default: normal
+
+    FAQItem:
+      type: object
+      properties:
+        id:
+          type: string
+        category:
+          type: string
+        question:
+          type: string
+        answer:
+          type: string
+        helpful_count:
+          type: integer
+        related:
+          type: array
+          items:
+            type: string
+
+    # --------------------------------------------------------------------------
+    # ADMIN SCHEMAS
+    # --------------------------------------------------------------------------
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [super_admin, admin, support_lead, support_agent, analyst, readonly]
+        permissions:
+          type: array
+          items:
+            type: string
+        last_login:
+          $ref: '#/components/schemas/Timestamp'
+        created_at:
+          $ref: '#/components/schemas/Timestamp'
+
+    AdminDashboardStats:
+      type: object
+      properties:
+        period:
+          type: string
+          enum: [today, week, month, year]
+        bookings:
+          type: object
+          properties:
+            total:
+              type: integer
+            confirmed:
+              type: integer
+            cancelled:
+              type: integer
+            revenue:
+              $ref: '#/components/schemas/Money'
+            change_percentage:
+              type: number
+        searches:
+          type: object
+          properties:
+            total:
+              type: integer
+            unique_users:
+              type: integer
+            conversion_rate:
+              type: number
+        pools:
+          type: object
+          properties:
+            active:
+              type: integer
+            completed:
+              type: integer
+            total_discount_given:
+              $ref: '#/components/schemas/Money'
+        alerts:
+          type: object
+          properties:
+            active:
+              type: integer
+            triggered:
+              type: integer
+        oracle:
+          type: object
+          properties:
+            predictions_made:
+              type: integer
+            accuracy_rate:
+              type: number
+            avg_savings:
+              $ref: '#/components/schemas/Money'
+        support:
+          type: object
+          properties:
+            open_tickets:
+              type: integer
+            avg_response_minutes:
+              type: integer
+            satisfaction_score:
+              type: number
+
+    AdminBookingFilter:
+      type: object
+      properties:
+        status:
+          type: array
+          items:
+            type: string
+        date_from:
+          type: string
+          format: date
+        date_to:
+          type: string
+          format: date
+        min_amount:
+          type: integer
+        max_amount:
+          type: integer
+        search:
+          type: string
+          description: Search by reference, email, or name
+
+    AdminUserFilter:
+      type: object
+      properties:
+        tier:
+          type: array
+          items:
+            type: string
+        registered_from:
+          type: string
+          format: date
+        registered_to:
+          type: string
+          format: date
+        has_bookings:
+          type: boolean
+        search:
+          type: string
+
+    AuditLogEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        timestamp:
+          $ref: '#/components/schemas/Timestamp'
+        actor:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [user, admin, system, api]
+            id:
+              type: string
+            email:
+              type: string
+        action:
+          type: string
+          example: "booking.cancel"
+        resource:
+          type: object
+          properties:
+            type:
+              type: string
+            id:
+              type: string
+        changes:
+          type: object
+          additionalProperties: true
+        ip_address:
+          type: string
+        user_agent:
+          type: string
+
+# ============================================================================
+# PATHS - USERS
+# ============================================================================
+paths:
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get current user
+      operationId: getCurrentUser
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+    patch:
+      tags: [Users]
+      summary: Update current user
+      operationId: updateCurrentUser
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                phone:
+                  type: string
+                  pattern: "^\\+60[0-9]{9,10}$"
+                preferences:
+                  $ref: '#/components/schemas/UserPreferences'
+      responses:
+        '200':
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+    delete:
+      tags: [Users]
+      summary: Delete account
+      description: |
+        Permanently delete user account and all associated data.
+        This action is irreversible.
+      operationId: deleteCurrentUser
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+                - confirmation
+              properties:
+                password:
+                  type: string
+                confirmation:
+                  type: string
+                  enum: ["DELETE MY ACCOUNT"]
+      responses:
+        '204':
+          description: Account deleted
+        '400':
+          description: Confirmation mismatch or active bookings exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/me/password:
+    put:
+      tags: [Users]
+      summary: Change password
+      operationId: changePassword
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - current_password
+                - new_password
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  sessions_invalidated:
+                    type: integer
+        '400':
+          description: Invalid current password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/me/avatar:
+    put:
+      tags: [Users]
+      summary: Upload avatar
+      operationId: uploadAvatar
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Image file (JPEG, PNG, max 2MB)
+      responses:
+        '200':
+          description: Avatar uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  avatar_url:
+                    type: string
+                    format: uri
+
+    delete:
+      tags: [Users]
+      summary: Remove avatar
+      operationId: removeAvatar
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Avatar removed
+
+  /users/me/export:
+    post:
+      tags: [Users]
+      summary: Export user data
+      description: Request export of all user data (PDPA compliance)
+      operationId: exportUserData
+      security:
+        - BearerAuth: []
+      responses:
+        '202':
+          description: Export initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  estimated_minutes:
+                    type: integer
+                  notification:
+                    type: string
+                    example: "You will receive an email when your export is ready"
+
+  # ==========================================================================
+  # TRAVELER ENDPOINTS
+  # ==========================================================================
+  /travelers:
+    get:
+      tags: [Travelers]
+      summary: List saved travelers
+      operationId: listTravelers
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of travelers
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  travelers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Traveler'
+
+    post:
+      tags: [Travelers]
+      summary: Add traveler
+      operationId: createTraveler
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTravelerRequest'
+      responses:
+        '201':
+          description: Traveler created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Traveler'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /travelers/{traveler_id}:
+    get:
+      tags: [Travelers]
+      summary: Get traveler
+      operationId: getTraveler
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: traveler_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Traveler details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Traveler'
+
+    put:
+      tags: [Travelers]
+      summary: Update traveler
+      operationId: updateTraveler
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: traveler_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTravelerRequest'
+      responses:
+        '200':
+          description: Traveler updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Traveler'
+
+    delete:
+      tags: [Travelers]
+      summary: Delete traveler
+      operationId: deleteTraveler
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: traveler_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Traveler deleted
+
+  # ==========================================================================
+  # TRIP ENDPOINTS
+  # ==========================================================================
+  /trips:
+    get:
+      tags: [Trips]
+      summary: List trips
+      operationId: listTrips
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [upcoming, past, all]
+            default: upcoming
+      responses:
+        '200':
+          description: List of trips
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  trips:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Trip'
+
+    post:
+      tags: [Trips]
+      summary: Create trip
+      operationId: createTrip
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTripRequest'
+      responses:
+        '201':
+          description: Trip created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+
+  /trips/{trip_id}:
+    get:
+      tags: [Trips]
+      summary: Get trip details
+      operationId: getTrip
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Trip details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+
+    patch:
+      tags: [Trips]
+      summary: Update trip
+      operationId: updateTrip
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                dates:
+                  type: object
+                  properties:
+                    start:
+                      type: string
+                      format: date
+                    end:
+                      type: string
+                      format: date
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Trip updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+
+    delete:
+      tags: [Trips]
+      summary: Delete trip
+      operationId: deleteTrip
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Trip deleted
+
+  /trips/{trip_id}/bookings:
+    post:
+      tags: [Trips]
+      summary: Add booking to trip
+      operationId: addBookingToTrip
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - booking_id
+              properties:
+                booking_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Booking added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+
+  /trips/{trip_id}/share:
+    post:
+      tags: [Trips]
+      summary: Share trip
+      operationId: shareTrip
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: trip_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                permission:
+                  type: string
+                  enum: [view, edit]
+                  default: view
+      responses:
+        '200':
+          description: Trip shared
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  share_link:
+                    type: string
+                    format: uri
+
+  # ==========================================================================
+  # NOTIFICATION ENDPOINTS
+  # ==========================================================================
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: List notifications
+      operationId: listNotifications
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: unread_only
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notifications:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+                  stats:
+                    $ref: '#/components/schemas/NotificationStats'
+
+  /notifications/{notification_id}/read:
+    post:
+      tags: [Notifications]
+      summary: Mark notification as read
+      operationId: markNotificationRead
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+
+  /notifications/read-all:
+    post:
+      tags: [Notifications]
+      summary: Mark all as read
+      operationId: markAllNotificationsRead
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: All notifications marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  marked_count:
+                    type: integer
+
+  /notifications/settings:
+    get:
+      tags: [Notifications]
+      summary: Get notification settings
+      operationId: getNotificationSettings
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Notification settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreferences'
+
+    put:
+      tags: [Notifications]
+      summary: Update notification settings
+      operationId: updateNotificationSettings
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferences'
+      responses:
+        '200':
+          description: Settings updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationPreferences'
+
+  /notifications/devices:
+    post:
+      tags: [Notifications]
+      summary: Register push device
+      operationId: registerPushDevice
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - platform
+              properties:
+                token:
+                  type: string
+                  description: FCM/APNS token
+                platform:
+                  type: string
+                  enum: [ios, android, web]
+                device_name:
+                  type: string
+      responses:
+        '200':
+          description: Device registered
+
+  # ==========================================================================
+  # SUPPORT ENDPOINTS
+  # ==========================================================================
+  /support/tickets:
+    get:
+      tags: [Support]
+      summary: List support tickets
+      operationId: listSupportTickets
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, resolved, all]
+            default: all
+      responses:
+        '200':
+          description: List of tickets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tickets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SupportTicket'
+
+    post:
+      tags: [Support]
+      summary: Create support ticket
+      operationId: createSupportTicket
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketRequest'
+      responses:
+        '201':
+          description: Ticket created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportTicket'
+
+  /support/tickets/{ticket_id}:
+    get:
+      tags: [Support]
+      summary: Get ticket details
+      operationId: getSupportTicket
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: ticket_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ticket details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportTicket'
+
+  /support/tickets/{ticket_id}/messages:
+    post:
+      tags: [Support]
+      summary: Reply to ticket
+      operationId: replyToTicket
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: ticket_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content
+              properties:
+                content:
+                  type: string
+                  maxLength: 5000
+      responses:
+        '201':
+          description: Message added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportMessage'
+
+  /support/tickets/{ticket_id}/close:
+    post:
+      tags: [Support]
+      summary: Close ticket
+      operationId: closeSupportTicket
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: ticket_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                satisfaction_rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                feedback:
+                  type: string
+      responses:
+        '200':
+          description: Ticket closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportTicket'
+
+  /support/faq:
+    get:
+      tags: [Support]
+      summary: Get FAQ
+      operationId: getFAQ
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: FAQ items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      type: string
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FAQItem'
+
+  /support/faq/{faq_id}/helpful:
+    post:
+      tags: [Support]
+      summary: Mark FAQ as helpful
+      operationId: markFAQHelpful
+      parameters:
+        - name: faq_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                helpful:
+                  type: boolean
+      responses:
+        '200':
+          description: Feedback recorded
+
+  # ==========================================================================
+  # ADMIN ENDPOINTS
+  # ==========================================================================
+  /admin/dashboard:
+    get:
+      tags: [Admin]
+      summary: Get dashboard stats
+      operationId: getAdminDashboard
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [today, week, month, year]
+            default: week
+      responses:
+        '200':
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDashboardStats'
+
+  /admin/bookings:
+    get:
+      tags: [Admin]
+      summary: List all bookings
+      operationId: adminListBookings
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Bookings list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Booking'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /admin/users:
+    get:
+      tags: [Admin]
+      summary: List all users
+      operationId: adminListUsers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: tier
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Users list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /admin/users/{user_id}:
+    get:
+      tags: [Admin]
+      summary: Get user details (admin)
+      operationId: adminGetUser
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User details with full history
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/User'
+                  - type: object
+                    properties:
+                      bookings_count:
+                        type: integer
+                      total_spent:
+                        $ref: '#/components/schemas/Money'
+                      recent_activity:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AuditLogEntry'
+
+  /admin/support/tickets:
+    get:
+      tags: [Admin]
+      summary: List all support tickets
+      operationId: adminListTickets
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: priority
+          in: query
+          schema:
+            type: string
+        - name: assigned_to
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tickets list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tickets:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SupportTicket'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /admin/support/tickets/{ticket_id}/assign:
+    post:
+      tags: [Admin]
+      summary: Assign ticket
+      operationId: adminAssignTicket
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: ticket_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                agent_id:
+                  type: string
+                  format: uuid
+      responses:
+        '200':
+          description: Ticket assigned
+
+  /admin/audit-log:
+    get:
+      tags: [Admin]
+      summary: Get audit log
+      operationId: getAuditLog
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: actor_type
+          in: query
+          schema:
+            type: string
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: resource_type
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Audit log entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entries:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AuditLogEntry'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+
+  /admin/oracle/performance:
+    get:
+      tags: [Admin]
+      summary: Get Oracle performance metrics
+      operationId: getOraclePerformance
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month]
+            default: week
+        - name: route
+          in: query
+          schema:
+            type: string
+          description: Filter by route (KUL-NRT)
+      responses:
+        '200':
+          description: Oracle metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accuracy:
+                    type: number
+                    description: Overall prediction accuracy
+                  by_recommendation:
+                    type: object
+                    properties:
+                      buy_now:
+                        type: object
+                        properties:
+                          count:
+                            type: integer
+                          accuracy:
+                            type: number
+                      wait:
+                        type: object
+                        properties:
+                          count:
+                            type: integer
+                          accuracy:
+                            type: number
+                  avg_savings:
+                    $ref: '#/components/schemas/Money'
+                  top_routes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        route:
+                          type: string
+                        predictions:
+                          type: integer
+                        accuracy:
+                          type: number
+
+  /admin/system/health:
+    get:
+      tags: [Admin]
+      summary: System health check
+      operationId: getSystemHealth
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: System health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy]
+                  services:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        status:
+                          type: string
+                        latency_ms:
+                          type: integer
+                        last_check:
+                          $ref: '#/components/schemas/Timestamp'
+                  database:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      connections:
+                        type: integer
+                      latency_ms:
+                        type: integer
+                  cache:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      hit_rate:
+                        type: number
+                      memory_used_mb:
+                        type: integer
