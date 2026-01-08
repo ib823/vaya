@@ -1,0 +1,18 @@
+[package]
+name = "vaya-collect"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "HTTP client and data collection for external APIs"
+
+[dependencies]
+vaya-common = { workspace = true }
+vaya-cache = { workspace = true }
+tokio = { workspace = true }
+rustls = { workspace = true }
+ring = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

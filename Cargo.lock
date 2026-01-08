@@ -767,6 +767,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "vaya-collect"
+version = "0.1.0"
+dependencies = [
+ "ring",
+ "rustls",
+ "tokio",
+ "tracing",
+ "vaya-cache",
+ "vaya-common",
+]
+
+[[package]]
 name = "vaya-common"
 version = "0.1.0"
 dependencies = [

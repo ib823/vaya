@@ -12,7 +12,7 @@ members = [
     # "crates/vaya-pool",
     # "crates/vaya-book",
     # "crates/vaya-search",
-    # "crates/vaya-collect",
+    "crates/vaya-collect",
     "crates/vaya-net",
     # "crates/vaya-api",
     # "crates/vaya-bin",
