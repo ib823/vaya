@@ -1,0 +1,17 @@
+[package]
+name = "vaya-store"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Relational layer on top of vaya-db LSM storage"
+
+[dependencies]
+vaya-common = { workspace = true }
+vaya-db = { workspace = true }
+rkyv = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
+tempfile = "3.14"
