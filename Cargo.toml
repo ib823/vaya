@@ -18,6 +18,7 @@ members = [
     "crates/vaya-bin",
     "crates/vaya-forge",
     "crates/vaya-fleet",
+    "crates/vaya-ui",
 ]
 
 [workspace.package]
@@ -66,6 +67,19 @@ vaya-net = { path = "crates/vaya-net" }
 vaya-api = { path = "crates/vaya-api" }
 vaya-forge = { path = "crates/vaya-forge" }
 vaya-fleet = { path = "crates/vaya-fleet" }
+vaya-ui = { path = "crates/vaya-ui" }
+
+# Frontend - Leptos WASM
+leptos = { version = "0.6", features = ["csr"] }
+leptos_router = { version = "0.6", features = ["csr"] }
+leptos_meta = { version = "0.6", features = ["csr"] }
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"
+web-sys = { version = "0.3", features = ["Window", "Document", "Element", "HtmlElement", "console", "Storage"] }
+gloo-net = { version = "0.6", features = ["http"] }
+gloo-timers = "0.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 
 [profile.release]
 lto = true

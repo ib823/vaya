@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="VAYA - The Oracle for flight booking. Know exactly when to book.">
+    <meta name="theme-color" content="#0A0A0B">
+
+    <title>VAYA - The Oracle</title>
+
+    <!-- Preconnect to font servers for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- VAYA Design System fonts: Space Grotesk (display), DM Sans (body), JetBrains Mono (mono) -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Main stylesheet - Trunk will copy this from styles/ -->
+    <link data-trunk rel="css" href="styles/main.css">
+
+    <!-- Trunk will inject the WASM module here -->
+    <link data-trunk rel="rust" data-wasm-opt="z" />
+
+    <style>
+        /* Critical CSS - prevent flash of unstyled content */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: #0A0A0B;
+            color: #FFFFFF;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Loading state before WASM initializes */
+        .vaya-loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            gap: 24px;
+        }
+
+        .vaya-loading-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00F5A0 0%, #00D9FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .vaya-loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 245, 160, 0.2);
+            border-top-color: #00F5A0;
+            border-radius: 50%;
+            animation: spin 800ms linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Initial loading state - replaced by Leptos when WASM loads -->
+    <div class="vaya-loading" id="vaya-loading">
+        <div class="vaya-loading-logo">VAYA</div>
+        <div class="vaya-loading-spinner"></div>
+    </div>
+
+    <noscript>
+        <div style="text-align: center; padding: 48px; color: #9999A1;">
+            <h1 style="color: #00F5A0; font-family: 'Space Grotesk', sans-serif;">VAYA</h1>
+            <p>JavaScript is required to run VAYA. Please enable JavaScript in your browser settings.</p>
+        </div>
+    </noscript>
+</body>
+</html>

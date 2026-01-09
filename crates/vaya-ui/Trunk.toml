@@ -1,0 +1,34 @@
+# Trunk build configuration for VAYA UI
+# https://trunkrs.dev/configuration/
+
+[build]
+# The index HTML file to drive the bundling process
+target = "index.html"
+# Output directory for build artifacts
+dist = "dist"
+
+[watch]
+# Watch for changes in these paths
+watch = ["src", "styles", "index.html"]
+# Ignore these patterns
+ignore = ["dist"]
+
+[serve]
+# Development server port
+port = 8080
+# Host to bind to (use addresses instead of deprecated address)
+addresses = ["0.0.0.0"]
+# Don't auto-open browser (codespaces handles this)
+open = false
+# Enable WebSocket for live reload
+ws_protocol = "ws"
+
+# Copy styles directory to dist
+[[hooks]]
+stage = "build"
+command = "sh"
+command_arguments = ["-c", "mkdir -p dist && cp -r styles dist/"]
+
+[tools]
+# Ensure wasm-bindgen version matches Cargo.toml
+wasm_bindgen = "0.2.106"

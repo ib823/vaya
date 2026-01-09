@@ -1,0 +1,47 @@
+[package]
+name = "vaya-ui"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "VAYA Frontend - Leptos-based UI for the Oracle flight booking system"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Leptos framework
+leptos.workspace = true
+leptos_router.workspace = true
+leptos_meta.workspace = true
+
+# WASM bindings
+wasm-bindgen.workspace = true
+console_error_panic_hook.workspace = true
+web-sys.workspace = true
+
+# HTTP client and timers for WASM
+gloo-net.workspace = true
+gloo-timers.workspace = true
+
+# JS interop
+js-sys = "0.3"
+log = "0.4"
+
+# Serialization (for API communication)
+serde.workspace = true
+serde_json.workspace = true
+
+# Note: vaya-common is NOT included here because it uses `ring` which doesn't
+# compile to WASM. We define separate DTO types with serde support instead.
+
+[features]
+default = []
+hydrate = ["leptos/hydrate"]
+csr = ["leptos/csr"]
+
+[package.metadata.leptos]
+# Settings for cargo-leptos
+output-name = "vaya"
+site-root = "target/site"
+site-pkg-dir = "pkg"
