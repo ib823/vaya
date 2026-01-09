@@ -849,6 +849,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "vaya-search"
+version = "0.1.0"
+dependencies = [
+ "time",
+ "tokio",
+ "tracing",
+ "vaya-cache",
+ "vaya-collect",
+ "vaya-common",
+]
+
+[[package]]
 name = "vaya-store"
 version = "0.1.0"
 dependencies = [

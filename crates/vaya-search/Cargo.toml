@@ -1,0 +1,17 @@
+[package]
+name = "vaya-search"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Flight search engine and fare aggregation"
+
+[dependencies]
+vaya-common = { workspace = true }
+vaya-cache = { workspace = true }
+vaya-collect = { workspace = true }
+time = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }
