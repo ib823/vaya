@@ -1,0 +1,18 @@
+[package]
+name = "vaya-fleet"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "VAYA orchestration with node management, scheduling, and Raft consensus"
+
+[dependencies]
+vaya-common = { workspace = true }
+vaya-crypto = { workspace = true }
+vaya-net = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+time = { workspace = true }
+
+[dev-dependencies]

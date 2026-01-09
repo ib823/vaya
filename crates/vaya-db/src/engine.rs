@@ -266,15 +266,19 @@ impl VayaDb {
 
     /// Close the database
     pub fn close(&self) -> DbResult<()> {
-        if self.closed.swap(true, Ordering::SeqCst) {
+        // Check if already closed using load first
+        if self.closed.load(Ordering::SeqCst) {
             return Ok(()); // Already closed
         }
 
-        // Flush any remaining data
+        // Flush any remaining data before marking closed
         self.flush()?;
 
         // Sync WAL
         self.sync()?;
+
+        // Now mark as closed
+        self.closed.store(true, Ordering::SeqCst);
 
         Ok(())
     }
@@ -327,9 +331,9 @@ impl VayaDb {
     fn load_sstables(
         config: &DbConfig,
     ) -> DbResult<(Vec<Vec<SsTableMeta>>, u64, BTreeMap<u64, SsTableReader>)> {
-        let mut levels = Vec::new();
+        let mut levels: Vec<Vec<SsTableMeta>> = Vec::new();
         let mut max_id = 0u64;
-        let readers = BTreeMap::new();
+        let mut readers = BTreeMap::new();
 
         let sst_dir = config.sstables_path();
         if !sst_dir.exists() {
@@ -343,6 +347,9 @@ impl VayaDb {
             // For now, scan the directory
         }
 
+        // Ensure we have at least level 0
+        levels.push(Vec::new());
+
         // Scan for SSTable files
         for entry in fs::read_dir(&sst_dir)? {
             let entry = entry?;
@@ -353,14 +360,15 @@ impl VayaDb {
                     if let Ok(id) = u64::from_str_radix(stem, 16) {
                         max_id = max_id.max(id);
 
-                        // Read SSTable metadata
+                        // Read SSTable and extract metadata
                         let reader = SsTableReader::open(&path)?;
-                        // For now, put everything in level 0
-                        if levels.is_empty() {
-                            levels.push(Vec::new());
-                        }
-                        // We'd need to extract metadata from the reader
-                        // For now, skip this complexity
+                        let meta = reader.metadata(id, 0)?; // Put in level 0
+
+                        // Store metadata in levels
+                        levels[0].push(meta);
+
+                        // Store reader
+                        readers.insert(id, reader);
                     }
                 }
             }

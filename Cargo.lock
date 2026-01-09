@@ -1021,6 +1021,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "vaya-fleet"
+version = "0.1.0"
+dependencies = [
+ "time",
+ "tokio",
+ "tracing",
+ "vaya-common",
+ "vaya-crypto",
+ "vaya-net",
+]
+
+[[package]]
+name = "vaya-forge"
+version = "0.1.0"
+dependencies = [
+ "lz4_flex",
+ "time",
+ "tracing",
+ "vaya-common",
+ "vaya-crypto",
+]
+
+[[package]]
 name = "vaya-ml"
 version = "0.1.0"
 dependencies = [

@@ -1,0 +1,17 @@
+[package]
+name = "vaya-forge"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "VAYA build system with hermetic builds, delta updates, and artifact registry"
+
+[dependencies]
+vaya-common = { workspace = true }
+vaya-crypto = { workspace = true }
+lz4_flex = { workspace = true }
+tracing = { workspace = true }
+time = { workspace = true }
+
+[dev-dependencies]

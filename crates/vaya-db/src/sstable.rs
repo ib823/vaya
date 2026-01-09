@@ -570,6 +570,110 @@ impl SsTableReader {
     pub fn path(&self) -> &Path {
         &self.path
     }
+
+    /// Extract metadata from this SSTable
+    /// This reconstructs metadata from the index for reopened tables
+    pub fn metadata(&self, id: u64, level: u32) -> DbResult<SsTableMeta> {
+        // Extract user key from internal key (remove sequence+type suffix)
+        let extract_user_key = |internal_key: &[u8]| -> Vec<u8> {
+            if internal_key.len() >= 9 {
+                internal_key[..internal_key.len() - 9].to_vec()
+            } else {
+                internal_key.to_vec()
+            }
+        };
+
+        // Scan all entries to find true smallest/largest user keys
+        let mut smallest_key: Option<Vec<u8>> = None;
+        let mut largest_key: Option<Vec<u8>> = None;
+        let mut entry_count = 0u64;
+        let mut min_seq = u64::MAX;
+        let mut max_seq = 0u64;
+
+        for entry in &self.index {
+            // Read the block and scan entries
+            let block_data = self.read_block(entry)?;
+            let entries = Self::decode_block_entries(&block_data)?;
+            entry_count += entries.len() as u64;
+
+            for (internal_key, _) in &entries {
+                let user_key = extract_user_key(internal_key);
+
+                // Update smallest/largest
+                match &smallest_key {
+                    None => smallest_key = Some(user_key.clone()),
+                    Some(sk) if user_key < *sk => smallest_key = Some(user_key.clone()),
+                    _ => {}
+                }
+                match &largest_key {
+                    None => largest_key = Some(user_key.clone()),
+                    Some(lk) if user_key > *lk => largest_key = Some(user_key.clone()),
+                    _ => {}
+                }
+
+                // Extract sequence numbers
+                if internal_key.len() >= 9 {
+                    let key_len = internal_key.len() - 9;
+                    let seq_bytes = &internal_key[key_len..key_len + 8];
+                    let inverted_seq = u64::from_be_bytes(seq_bytes.try_into().unwrap());
+                    let seq = u64::MAX - inverted_seq;
+                    min_seq = min_seq.min(seq);
+                    max_seq = max_seq.max(seq);
+                }
+            }
+        }
+
+        let file_size = std::fs::metadata(&self.path)
+            .map(|m| m.len())
+            .unwrap_or(0);
+
+        Ok(SsTableMeta {
+            id,
+            level,
+            smallest_key: smallest_key.unwrap_or_default(),
+            largest_key: largest_key.unwrap_or_default(),
+            entry_count,
+            file_size,
+            min_sequence: if min_seq == u64::MAX { 0 } else { min_seq },
+            max_sequence: max_seq,
+        })
+    }
+
+    /// Read a block from the file
+    fn read_block(&self, entry: &IndexEntry) -> DbResult<Vec<u8>> {
+        let mut reader = BufReader::new(File::open(&self.path)?);
+        reader.seek(SeekFrom::Start(entry.offset))?;
+        let mut compressed = vec![0u8; entry.size as usize];
+        reader.read_exact(&mut compressed)?;
+        decompress_size_prepended(&compressed)
+            .map_err(|e| DbError::Corruption(format!("Block decompression failed: {}", e)))
+    }
+
+    /// Decode block entries
+    fn decode_block_entries(data: &[u8]) -> DbResult<Vec<(Vec<u8>, Vec<u8>)>> {
+        let mut entries = Vec::new();
+        let mut offset = 0;
+
+        while offset + 8 <= data.len() {
+            let key_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+            offset += 4;
+            let value_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+            offset += 4;
+
+            if offset + key_len + value_len > data.len() {
+                break;
+            }
+
+            let key = data[offset..offset + key_len].to_vec();
+            offset += key_len;
+            let value = data[offset..offset + value_len].to_vec();
+            offset += value_len;
+
+            entries.push((key, value));
+        }
+
+        Ok(entries)
+    }
 }
 
 /// Flush a memtable to an SSTable

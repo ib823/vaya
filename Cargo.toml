@@ -16,6 +16,8 @@ members = [
     "crates/vaya-net",
     "crates/vaya-api",
     "crates/vaya-bin",
+    "crates/vaya-forge",
+    "crates/vaya-fleet",
 ]
 
 [workspace.package]
@@ -62,6 +64,8 @@ vaya-search = { path = "crates/vaya-search" }
 vaya-collect = { path = "crates/vaya-collect" }
 vaya-net = { path = "crates/vaya-net" }
 vaya-api = { path = "crates/vaya-api" }
+vaya-forge = { path = "crates/vaya-forge" }
+vaya-fleet = { path = "crates/vaya-fleet" }
 
 [profile.release]
 lto = true

@@ -121,11 +121,15 @@ impl MemTable {
 
     /// Get a value by key (returns the most recent version)
     pub fn get(&self, key: &[u8]) -> Option<Vec<u8>> {
-        // Create a search key with max sequence (will find the newest entry)
-        let search_key = InternalKey::put(key.to_vec(), u64::MAX).encode();
+        // Since sequence is inverted (u64::MAX - seq), the highest real sequence has the lowest
+        // inverted value. So entries are sorted: newest first (smallest inverted) to oldest.
+        // We create a start key with u64::MAX sequence (inverted=0, smallest possible)
+        // and iterate forward to find the first entry matching our key.
+        let start_key = InternalKey::put(key.to_vec(), u64::MAX).encode();
+        let end_key = InternalKey::put(key.to_vec(), 0).encode();
 
-        // Find the first entry >= search key
-        for entry in self.map.range(..=search_key).rev() {
+        // Iterate forward from start_key - first matching entry is the newest
+        for entry in self.map.range(start_key..=end_key) {
             let internal_key = InternalKey::decode(entry.key())?;
             if internal_key.user_key == key {
                 match internal_key.value_type {
