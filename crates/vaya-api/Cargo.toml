@@ -1,0 +1,20 @@
+[package]
+name = "vaya-api"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "REST API layer with routing, middleware, and handlers"
+
+[dependencies]
+vaya-common = { workspace = true }
+vaya-auth = { workspace = true }
+vaya-search = { workspace = true }
+vaya-book = { workspace = true }
+vaya-pool = { workspace = true }
+vaya-oracle = { workspace = true }
+time = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

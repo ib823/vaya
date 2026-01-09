@@ -1,0 +1,18 @@
+[package]
+name = "vaya-book"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Booking management, passenger records, and ticketing"
+
+[dependencies]
+vaya-common = { workspace = true }
+vaya-crypto = { workspace = true }
+vaya-search = { workspace = true }
+ring = { workspace = true }
+time = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

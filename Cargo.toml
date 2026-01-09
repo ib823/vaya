@@ -8,14 +8,14 @@ members = [
     "crates/vaya-store",
     "crates/vaya-auth",
     "crates/vaya-ml",
-    # "crates/vaya-oracle",
-    # "crates/vaya-pool",
-    # "crates/vaya-book",
+    "crates/vaya-oracle",
+    "crates/vaya-pool",
+    "crates/vaya-book",
     "crates/vaya-search",
     "crates/vaya-collect",
     "crates/vaya-net",
-    # "crates/vaya-api",
-    # "crates/vaya-bin",
+    "crates/vaya-api",
+    "crates/vaya-bin",
 ]
 
 [workspace.package]
