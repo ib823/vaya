@@ -27,6 +27,8 @@ pub enum OracleError {
     DateOutOfRange { days_ahead: u32, max_days: u32 },
     /// Route not supported
     UnsupportedRoute(String),
+    /// Prediction failed
+    PredictionFailed(String),
 
     // === Alert Errors ===
     /// Alert not found
@@ -79,6 +81,7 @@ impl fmt::Display for OracleError {
                 write!(f, "Date out of range: {} days ahead, max {} days", days_ahead, max_days)
             }
             OracleError::UnsupportedRoute(route) => write!(f, "Unsupported route: {}", route),
+            OracleError::PredictionFailed(msg) => write!(f, "Prediction failed: {}", msg),
 
             // Alert
             OracleError::AlertNotFound(id) => write!(f, "Alert not found: {}", id),

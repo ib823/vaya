@@ -1,0 +1,42 @@
+[package]
+name = "vaya-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Core business logic for VAYA flight booking platform"
+
+[dependencies]
+# Internal crates
+vaya-common = { workspace = true }
+vaya-db = { workspace = true }
+vaya-cache = { workspace = true }
+vaya-auth = { workspace = true }
+vaya-gds = { workspace = true }
+vaya-payment = { workspace = true }
+vaya-notification = { workspace = true }
+vaya-oracle = { workspace = true }
+vaya-search = { workspace = true }
+vaya-book = { workspace = true }
+
+# Async runtime
+tokio = { workspace = true }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "1.0"
+
+# Logging
+tracing = { workspace = true }
+
+# Time
+time = { workspace = true }
+
+# Async trait
+async-trait = "0.1"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt-multi-thread", "macros"] }

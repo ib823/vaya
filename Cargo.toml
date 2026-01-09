@@ -14,6 +14,10 @@ members = [
     "crates/vaya-search",
     "crates/vaya-collect",
     "crates/vaya-net",
+    "crates/vaya-gds",
+    "crates/vaya-payment",
+    "crates/vaya-notification",
+    "crates/vaya-core",
     "crates/vaya-api",
     "crates/vaya-bin",
     "crates/vaya-forge",
@@ -64,6 +68,10 @@ vaya-book = { path = "crates/vaya-book" }
 vaya-search = { path = "crates/vaya-search" }
 vaya-collect = { path = "crates/vaya-collect" }
 vaya-net = { path = "crates/vaya-net" }
+vaya-gds = { path = "crates/vaya-gds" }
+vaya-payment = { path = "crates/vaya-payment" }
+vaya-notification = { path = "crates/vaya-notification" }
+vaya-core = { path = "crates/vaya-core" }
 vaya-api = { path = "crates/vaya-api" }
 vaya-forge = { path = "crates/vaya-forge" }
 vaya-fleet = { path = "crates/vaya-fleet" }

@@ -1,0 +1,42 @@
+[package]
+name = "vaya-gds"
+version = "0.1.0"
+edition = "2021"
+description = "GDS (Global Distribution System) integration for VAYA"
+authors = ["VAYA Team"]
+license = "Proprietary"
+
+[dependencies]
+# Internal crates - using existing sovereign infrastructure
+vaya-common = { path = "../vaya-common" }
+vaya-cache = { path = "../vaya-cache" }
+
+# Async runtime
+tokio = { version = "1.35", features = ["rt-multi-thread", "macros", "time"] }
+
+# HTTP client (minimal, rustls only - no OpenSSL)
+reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "1.0"
+
+# Logging
+tracing = "0.1"
+
+# Time handling (using same as vaya-common)
+time = { version = "0.3", features = ["formatting", "parsing", "macros"] }
+
+# Async trait support
+async-trait = "0.1"
+
+# Parking lot for sync primitives
+parking_lot = "0.12"
+
+[dev-dependencies]
+tokio-test = "0.4"
+wiremock = "0.5"
+tracing-subscriber = "0.3"

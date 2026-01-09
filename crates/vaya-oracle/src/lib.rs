@@ -30,12 +30,16 @@
 
 mod alert;
 mod error;
+mod lstm_predictor;
 mod prediction;
 
 pub use alert::{
     AlertCheckResult, AlertManager, AlertStatus, AlertTrigger, PriceAlert,
 };
 pub use error::{OracleError, OracleResult};
+pub use lstm_predictor::{
+    EnsemblePredictor, LSTMConfig, LSTMPredictor, TrainingMetrics,
+};
 pub use prediction::{
     BookingRecommendation, ConfidenceLevel, PriceDataPoint, PricePrediction,
     PricePredictor, PriceTrend,

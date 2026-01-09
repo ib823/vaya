@@ -1,0 +1,39 @@
+[package]
+name = "vaya-notification"
+version = "0.1.0"
+edition = "2021"
+description = "Email and SMS notifications for VAYA"
+authors = ["VAYA Team"]
+license = "Proprietary"
+
+[dependencies]
+# Internal crates
+vaya-common = { path = "../vaya-common" }
+vaya-cache = { path = "../vaya-cache" }
+
+# Async runtime
+tokio = { version = "1.35", features = ["rt-multi-thread", "macros", "time"] }
+
+# HTTP client for email APIs
+reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+thiserror = "1.0"
+
+# Logging
+tracing = "0.1"
+
+# Async trait support
+async-trait = "0.1"
+
+# Template engine (simple)
+handlebars = "5.1"
+
+[dev-dependencies]
+tokio-test = "0.4"
+wiremock = "0.5"
+tracing-subscriber = "0.3"
