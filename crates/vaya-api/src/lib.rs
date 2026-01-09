@@ -31,6 +31,7 @@
 //! ```
 
 mod error;
+pub mod handlers;
 mod middleware;
 mod router;
 mod types;

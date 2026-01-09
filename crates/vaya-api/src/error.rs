@@ -99,6 +99,31 @@ impl fmt::Display for ApiError {
 impl std::error::Error for ApiError {}
 
 impl ApiError {
+    /// Create bad request error
+    pub fn bad_request(msg: impl Into<String>) -> Self {
+        ApiError::BadRequest(msg.into())
+    }
+
+    /// Create unauthorized error
+    pub fn unauthorized(msg: impl Into<String>) -> Self {
+        ApiError::Unauthorized(msg.into())
+    }
+
+    /// Create forbidden error
+    pub fn forbidden(msg: impl Into<String>) -> Self {
+        ApiError::Forbidden(msg.into())
+    }
+
+    /// Create not found error
+    pub fn not_found(msg: impl Into<String>) -> Self {
+        ApiError::NotFound(msg.into())
+    }
+
+    /// Create internal error
+    pub fn internal(msg: impl Into<String>) -> Self {
+        ApiError::Internal(msg.into())
+    }
+
     /// Get HTTP status code
     pub fn status_code(&self) -> u16 {
         match self {

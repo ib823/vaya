@@ -313,6 +313,36 @@ impl Matrix {
     pub fn clip(&self, min: f32, max: f32) -> Matrix {
         self.map(|x| x.max(min).min(max))
     }
+
+    /// Concatenate matrices vertically (stack rows)
+    pub fn concat_vertical(&self, other: &Matrix) -> MlResult<Matrix> {
+        if self.cols != other.cols {
+            return Err(MlError::DimensionMismatch {
+                expected: (self.rows, self.cols),
+                actual: (other.rows, other.cols),
+            });
+        }
+
+        let mut data = self.data.clone();
+        data.extend_from_slice(&other.data);
+
+        Ok(Matrix {
+            data,
+            rows: self.rows + other.rows,
+            cols: self.cols,
+        })
+    }
+
+    /// Check if two matrices are approximately equal
+    pub fn approx_eq(&self, other: &Matrix, epsilon: f32) -> bool {
+        if self.shape() != other.shape() {
+            return false;
+        }
+        self.data
+            .iter()
+            .zip(other.data.iter())
+            .all(|(a, b)| (a - b).abs() < epsilon)
+    }
 }
 
 impl Add for &Matrix {

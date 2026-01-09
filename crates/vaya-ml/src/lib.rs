@@ -24,6 +24,7 @@
 
 pub mod activation;
 pub mod layer;
+pub mod lstm;
 pub mod matrix;
 pub mod network;
 pub mod scaler;
@@ -31,6 +32,7 @@ pub mod tree;
 
 pub use activation::Activation;
 pub use layer::Layer;
+pub use lstm::{LSTM, LSTMCell, LSTMState, PriceLSTM};
 pub use matrix::Matrix;
 pub use network::NeuralNetwork;
 pub use scaler::StandardScaler;
