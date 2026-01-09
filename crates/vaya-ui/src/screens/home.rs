@@ -4,12 +4,16 @@
 //! This is the entry point to the Oracle flow.
 
 use leptos::*;
+use leptos_router::use_navigate;
 use crate::components::{AirportPicker, SwapButton, DateInput};
 use crate::hooks::set_search_params;
 
 /// Home screen component
 #[component]
 pub fn Home() -> impl IntoView {
+    // Get navigate function at component setup time (must be inside Router)
+    let navigate = use_navigate();
+
     // Form state using RwSignal for component compatibility
     let origin = create_rw_signal(String::new());
     let destination = create_rw_signal(String::new());
@@ -57,7 +61,6 @@ pub fn Home() -> impl IntoView {
             );
 
             // Navigate to oracle loading
-            let navigate = leptos_router::use_navigate();
             let query = format!(
                 "?origin={}&destination={}&date={}&pax={}",
                 origin.get(),

@@ -572,6 +572,88 @@ input[type="radio"]:focus-visible + label {
   color: var(--error);
 }
 
+/* Airport Picker Container - for dropdown positioning */
+.airport-picker-container {
+  position: relative;
+}
+
+/* Airport Dropdown */
+.airport-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--n100);
+  border: 2px solid var(--n300);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  max-height: 320px;
+  overflow-y: auto;
+  animation: dropdown-enter 150ms var(--ease-out);
+}
+
+@keyframes dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.airport-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.airport-dropdown-item:hover,
+.airport-dropdown-item-highlighted {
+  background: var(--n200);
+}
+
+.airport-dropdown-item:not(:last-child) {
+  border-bottom: 1px solid var(--n200);
+}
+
+.dropdown-code {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mint-500);
+  min-width: 40px;
+}
+
+.dropdown-city {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--n1000);
+  flex: 1;
+}
+
+.dropdown-country {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--n600);
+}
+
+.airport-dropdown-empty {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--n600);
+  font-size: 14px;
+}
+
 /* --- Swap Button --- */
 
 .swap-button {

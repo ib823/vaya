@@ -119,7 +119,7 @@ pub fn OrderReview() -> impl IntoView {
 
     // Handle back
     let handle_back = {
-        let nav = navigate;
+        let nav = navigate.clone();
         move |_| {
             nav("/booking/contact", Default::default());
         }
@@ -127,12 +127,12 @@ pub fn OrderReview() -> impl IntoView {
 
     // Check if we have required data
     if flight.is_none() {
+        let nav = navigate;
         return view! {
             <div class="screen-review">
                 <div class="error-state">
                     <p>"No booking data found"</p>
                     <button class="btn btn-primary" on:click=move |_| {
-                        let nav = use_navigate();
                         nav("/booking/flights", Default::default());
                     }>
                         "Start over"

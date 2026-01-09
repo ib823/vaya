@@ -23,11 +23,11 @@ open = false
 # Enable WebSocket for live reload
 ws_protocol = "ws"
 
-# Copy styles directory to dist
+# Copy styles and assets directories to dist
 [[hooks]]
 stage = "build"
 command = "sh"
-command_arguments = ["-c", "mkdir -p dist && cp -r styles dist/"]
+command_arguments = ["-c", "mkdir -p dist && cp -r styles dist/ && cp -r assets dist/"]
 
 [tools]
 # Ensure wasm-bindgen version matches Cargo.toml
