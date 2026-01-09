@@ -99,7 +99,7 @@ impl Price {
             "BHD" | "KWD" | "OMR" => 3,
             _ => 2,
         };
-        self.amount as f64 / 10f64.powi(decimals as i32)
+        self.amount as f64 / 10f64.powi(decimals)
     }
 
     /// Format for display (e.g., "RM 150.00")

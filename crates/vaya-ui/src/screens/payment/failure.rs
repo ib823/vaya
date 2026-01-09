@@ -18,25 +18,25 @@ fn get_session_storage() -> Option<Storage> {
 fn get_payment_error() -> PaymentError {
     get_session_storage()
         .and_then(|s| s.get_item("payment_error").ok().flatten())
-        .and_then(|s| match s.as_str() {
-            "CardDeclined" => Some(PaymentError::CardDeclined),
-            "InsufficientFunds" => Some(PaymentError::InsufficientFunds),
-            "ExpiredCard" => Some(PaymentError::ExpiredCard),
-            "InvalidCard" => Some(PaymentError::InvalidCard),
-            "FraudSuspected" => Some(PaymentError::FraudSuspected),
-            "BankUnavailable" => Some(PaymentError::BankUnavailable),
-            "NetworkError" => Some(PaymentError::NetworkError),
-            "ThreeDsFailed" => Some(PaymentError::ThreeDsFailed),
-            "CurrencyNotSupported" => Some(PaymentError::CurrencyNotSupported),
-            "LimitExceeded" => Some(PaymentError::LimitExceeded),
-            "CardNotSupported" => Some(PaymentError::CardNotSupported),
-            "ProcessorError" => Some(PaymentError::ProcessorError),
-            "TimeoutError" => Some(PaymentError::TimeoutError),
-            "DuplicateTransaction" => Some(PaymentError::DuplicateTransaction),
-            "InvalidCvv" => Some(PaymentError::InvalidCvv),
-            "AddressVerificationFailed" => Some(PaymentError::AddressVerificationFailed),
-            "RiskBlocked" => Some(PaymentError::RiskBlocked),
-            _ => Some(PaymentError::GeneralError),
+        .map(|s| match s.as_str() {
+            "CardDeclined" => PaymentError::CardDeclined,
+            "InsufficientFunds" => PaymentError::InsufficientFunds,
+            "ExpiredCard" => PaymentError::ExpiredCard,
+            "InvalidCard" => PaymentError::InvalidCard,
+            "FraudSuspected" => PaymentError::FraudSuspected,
+            "BankUnavailable" => PaymentError::BankUnavailable,
+            "NetworkError" => PaymentError::NetworkError,
+            "ThreeDsFailed" => PaymentError::ThreeDsFailed,
+            "CurrencyNotSupported" => PaymentError::CurrencyNotSupported,
+            "LimitExceeded" => PaymentError::LimitExceeded,
+            "CardNotSupported" => PaymentError::CardNotSupported,
+            "ProcessorError" => PaymentError::ProcessorError,
+            "TimeoutError" => PaymentError::TimeoutError,
+            "DuplicateTransaction" => PaymentError::DuplicateTransaction,
+            "InvalidCvv" => PaymentError::InvalidCvv,
+            "AddressVerificationFailed" => PaymentError::AddressVerificationFailed,
+            "RiskBlocked" => PaymentError::RiskBlocked,
+            _ => PaymentError::GeneralError,
         })
         .unwrap_or(PaymentError::GeneralError)
 }

@@ -40,7 +40,7 @@ fn generate_mock_prediction(origin: &str, destination: &str) -> OraclePrediction
     let price_delta = (hash % 30000) as i64 - 15000; // -150 to +150 MYR
 
     let wait_days = if verdict == OracleVerdict::Wait {
-        Some(3 + (hash % 12) as u32)
+        Some(3 + (hash % 12))
     } else {
         None
     };

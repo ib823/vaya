@@ -228,7 +228,7 @@ pub fn FlightSelection() -> impl IntoView {
                         }.into_view()
                     } else {
                         flights.into_iter().map(|flight| {
-                            let is_selected = selected_flight.get().as_ref().map_or(false, |f| f.id == flight.id);
+                            let is_selected = selected_flight.get().as_ref().is_some_and(|f| f.id == flight.id);
                             view! {
                                 <FlightCard
                                     flight=flight

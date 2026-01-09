@@ -354,14 +354,14 @@ fn is_valid_expiry(expiry: &str) -> bool {
         Err(_) => return false,
     };
 
-    if month < 1 || month > 12 {
+    if !(1..=12).contains(&month) {
         return false;
     }
 
     // Get current date
     let now = js_sys::Date::new_0();
-    let current_year = (now.get_full_year() as u32) % 100;
-    let current_month = now.get_month() as u32 + 1;
+    let current_year = now.get_full_year() % 100;
+    let current_month = now.get_month() + 1;
 
     // Check if expired
     if year < current_year {

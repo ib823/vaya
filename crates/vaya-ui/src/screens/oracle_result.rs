@@ -81,7 +81,7 @@ fn format_date_display(date: &str) -> String {
         .get(2)
         .and_then(|d| d.parse::<u32>().ok())
         .unwrap_or(1);
-    let year = parts.get(0).unwrap_or(&"2026");
+    let year = parts.first().unwrap_or(&"2026");
 
     format!("{} {}, {}", month, day, year)
 }
