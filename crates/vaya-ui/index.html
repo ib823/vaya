@@ -26,7 +26,8 @@
     <link data-trunk rel="css" href="styles/main.css">
 
     <!-- Trunk will inject the WASM module here -->
-    <link data-trunk rel="rust" data-wasm-opt="z" />
+    <!-- Note: wasm-opt disabled due to bulk-memory feature compatibility -->
+    <link data-trunk rel="rust" data-wasm-opt="0" />
 
     <style>
         /* Critical CSS - prevent flash of unstyled content */

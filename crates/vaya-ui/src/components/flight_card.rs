@@ -162,7 +162,7 @@ pub fn FlightList(
                 }.into_view()
             } else {
                 flights.into_iter().map(|flight| {
-                    let is_selected = selected_id.as_ref().map_or(false, |id| id == &flight.id);
+                    let is_selected = selected_id.as_ref().is_some_and(|id| id == &flight.id);
                     view! {
                         <FlightCard
                             flight=flight
