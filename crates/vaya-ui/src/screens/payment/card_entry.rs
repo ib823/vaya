@@ -7,8 +7,8 @@ use leptos_router::use_navigate;
 use web_sys::Storage;
 
 use crate::hooks::validation::{
-    validate, card_number_rules, cvv_rules, expiry_rules,
-    format_card_number, format_expiry, get_card_type,
+    card_number_rules, cvv_rules, expiry_rules, format_card_number, format_expiry, get_card_type,
+    validate,
 };
 
 /// Get session storage
@@ -60,10 +60,20 @@ pub fn CardEntry() -> impl IntoView {
 
     // Validation
     let validate_card = move || {
-        let raw: String = card_number.get().chars().filter(|c| c.is_ascii_digit()).collect();
+        let raw: String = card_number
+            .get()
+            .chars()
+            .filter(|c| c.is_ascii_digit())
+            .collect();
         match validate(&raw, &card_number_rules()) {
-            Ok(_) => { set_card_error.set(None); true }
-            Err(e) => { set_card_error.set(Some(e)); false }
+            Ok(_) => {
+                set_card_error.set(None);
+                true
+            }
+            Err(e) => {
+                set_card_error.set(Some(e));
+                false
+            }
         }
     };
 
@@ -77,17 +87,25 @@ pub fn CardEntry() -> impl IntoView {
         }
     };
 
-    let validate_expiry_field = move || {
-        match validate(&expiry.get(), &expiry_rules()) {
-            Ok(_) => { set_expiry_error.set(None); true }
-            Err(e) => { set_expiry_error.set(Some(e)); false }
+    let validate_expiry_field = move || match validate(&expiry.get(), &expiry_rules()) {
+        Ok(_) => {
+            set_expiry_error.set(None);
+            true
+        }
+        Err(e) => {
+            set_expiry_error.set(Some(e));
+            false
         }
     };
 
-    let validate_cvv_field = move || {
-        match validate(&cvv.get(), &cvv_rules()) {
-            Ok(_) => { set_cvv_error.set(None); true }
-            Err(e) => { set_cvv_error.set(Some(e)); false }
+    let validate_cvv_field = move || match validate(&cvv.get(), &cvv_rules()) {
+        Ok(_) => {
+            set_cvv_error.set(None);
+            true
+        }
+        Err(e) => {
+            set_cvv_error.set(Some(e));
+            false
         }
     };
 

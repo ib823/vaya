@@ -15,55 +15,251 @@ pub struct Airport {
 
 /// List of popular airports for autocomplete
 const AIRPORTS: &[Airport] = &[
-    Airport { code: "KUL", city: "Kuala Lumpur", country: "Malaysia" },
-    Airport { code: "SIN", city: "Singapore", country: "Singapore" },
-    Airport { code: "NRT", city: "Tokyo Narita", country: "Japan" },
-    Airport { code: "HND", city: "Tokyo Haneda", country: "Japan" },
-    Airport { code: "HKG", city: "Hong Kong", country: "Hong Kong" },
-    Airport { code: "BKK", city: "Bangkok", country: "Thailand" },
-    Airport { code: "ICN", city: "Seoul Incheon", country: "South Korea" },
-    Airport { code: "TPE", city: "Taipei", country: "Taiwan" },
-    Airport { code: "MNL", city: "Manila", country: "Philippines" },
-    Airport { code: "CGK", city: "Jakarta", country: "Indonesia" },
-    Airport { code: "SYD", city: "Sydney", country: "Australia" },
-    Airport { code: "MEL", city: "Melbourne", country: "Australia" },
-    Airport { code: "PER", city: "Perth", country: "Australia" },
-    Airport { code: "LAX", city: "Los Angeles", country: "USA" },
-    Airport { code: "JFK", city: "New York JFK", country: "USA" },
-    Airport { code: "SFO", city: "San Francisco", country: "USA" },
-    Airport { code: "LHR", city: "London Heathrow", country: "UK" },
-    Airport { code: "CDG", city: "Paris CDG", country: "France" },
-    Airport { code: "AMS", city: "Amsterdam", country: "Netherlands" },
-    Airport { code: "FRA", city: "Frankfurt", country: "Germany" },
-    Airport { code: "DXB", city: "Dubai", country: "UAE" },
-    Airport { code: "DOH", city: "Doha", country: "Qatar" },
-    Airport { code: "PEN", city: "Penang", country: "Malaysia" },
-    Airport { code: "LGK", city: "Langkawi", country: "Malaysia" },
-    Airport { code: "BKI", city: "Kota Kinabalu", country: "Malaysia" },
-    Airport { code: "KCH", city: "Kuching", country: "Malaysia" },
-    Airport { code: "JHB", city: "Johor Bahru", country: "Malaysia" },
-    Airport { code: "DMK", city: "Bangkok Don Mueang", country: "Thailand" },
-    Airport { code: "CNX", city: "Chiang Mai", country: "Thailand" },
-    Airport { code: "HKT", city: "Phuket", country: "Thailand" },
-    Airport { code: "SGN", city: "Ho Chi Minh City", country: "Vietnam" },
-    Airport { code: "HAN", city: "Hanoi", country: "Vietnam" },
-    Airport { code: "DPS", city: "Bali Denpasar", country: "Indonesia" },
-    Airport { code: "SUB", city: "Surabaya", country: "Indonesia" },
-    Airport { code: "PNH", city: "Phnom Penh", country: "Cambodia" },
-    Airport { code: "REP", city: "Siem Reap", country: "Cambodia" },
-    Airport { code: "RGN", city: "Yangon", country: "Myanmar" },
-    Airport { code: "CMB", city: "Colombo", country: "Sri Lanka" },
-    Airport { code: "DEL", city: "New Delhi", country: "India" },
-    Airport { code: "BOM", city: "Mumbai", country: "India" },
-    Airport { code: "KIX", city: "Osaka Kansai", country: "Japan" },
-    Airport { code: "NGO", city: "Nagoya", country: "Japan" },
-    Airport { code: "CTS", city: "Sapporo", country: "Japan" },
-    Airport { code: "FUK", city: "Fukuoka", country: "Japan" },
-    Airport { code: "PVG", city: "Shanghai Pudong", country: "China" },
-    Airport { code: "PEK", city: "Beijing", country: "China" },
-    Airport { code: "CAN", city: "Guangzhou", country: "China" },
-    Airport { code: "SZX", city: "Shenzhen", country: "China" },
-    Airport { code: "MFM", city: "Macau", country: "Macau" },
+    Airport {
+        code: "KUL",
+        city: "Kuala Lumpur",
+        country: "Malaysia",
+    },
+    Airport {
+        code: "SIN",
+        city: "Singapore",
+        country: "Singapore",
+    },
+    Airport {
+        code: "NRT",
+        city: "Tokyo Narita",
+        country: "Japan",
+    },
+    Airport {
+        code: "HND",
+        city: "Tokyo Haneda",
+        country: "Japan",
+    },
+    Airport {
+        code: "HKG",
+        city: "Hong Kong",
+        country: "Hong Kong",
+    },
+    Airport {
+        code: "BKK",
+        city: "Bangkok",
+        country: "Thailand",
+    },
+    Airport {
+        code: "ICN",
+        city: "Seoul Incheon",
+        country: "South Korea",
+    },
+    Airport {
+        code: "TPE",
+        city: "Taipei",
+        country: "Taiwan",
+    },
+    Airport {
+        code: "MNL",
+        city: "Manila",
+        country: "Philippines",
+    },
+    Airport {
+        code: "CGK",
+        city: "Jakarta",
+        country: "Indonesia",
+    },
+    Airport {
+        code: "SYD",
+        city: "Sydney",
+        country: "Australia",
+    },
+    Airport {
+        code: "MEL",
+        city: "Melbourne",
+        country: "Australia",
+    },
+    Airport {
+        code: "PER",
+        city: "Perth",
+        country: "Australia",
+    },
+    Airport {
+        code: "LAX",
+        city: "Los Angeles",
+        country: "USA",
+    },
+    Airport {
+        code: "JFK",
+        city: "New York JFK",
+        country: "USA",
+    },
+    Airport {
+        code: "SFO",
+        city: "San Francisco",
+        country: "USA",
+    },
+    Airport {
+        code: "LHR",
+        city: "London Heathrow",
+        country: "UK",
+    },
+    Airport {
+        code: "CDG",
+        city: "Paris CDG",
+        country: "France",
+    },
+    Airport {
+        code: "AMS",
+        city: "Amsterdam",
+        country: "Netherlands",
+    },
+    Airport {
+        code: "FRA",
+        city: "Frankfurt",
+        country: "Germany",
+    },
+    Airport {
+        code: "DXB",
+        city: "Dubai",
+        country: "UAE",
+    },
+    Airport {
+        code: "DOH",
+        city: "Doha",
+        country: "Qatar",
+    },
+    Airport {
+        code: "PEN",
+        city: "Penang",
+        country: "Malaysia",
+    },
+    Airport {
+        code: "LGK",
+        city: "Langkawi",
+        country: "Malaysia",
+    },
+    Airport {
+        code: "BKI",
+        city: "Kota Kinabalu",
+        country: "Malaysia",
+    },
+    Airport {
+        code: "KCH",
+        city: "Kuching",
+        country: "Malaysia",
+    },
+    Airport {
+        code: "JHB",
+        city: "Johor Bahru",
+        country: "Malaysia",
+    },
+    Airport {
+        code: "DMK",
+        city: "Bangkok Don Mueang",
+        country: "Thailand",
+    },
+    Airport {
+        code: "CNX",
+        city: "Chiang Mai",
+        country: "Thailand",
+    },
+    Airport {
+        code: "HKT",
+        city: "Phuket",
+        country: "Thailand",
+    },
+    Airport {
+        code: "SGN",
+        city: "Ho Chi Minh City",
+        country: "Vietnam",
+    },
+    Airport {
+        code: "HAN",
+        city: "Hanoi",
+        country: "Vietnam",
+    },
+    Airport {
+        code: "DPS",
+        city: "Bali Denpasar",
+        country: "Indonesia",
+    },
+    Airport {
+        code: "SUB",
+        city: "Surabaya",
+        country: "Indonesia",
+    },
+    Airport {
+        code: "PNH",
+        city: "Phnom Penh",
+        country: "Cambodia",
+    },
+    Airport {
+        code: "REP",
+        city: "Siem Reap",
+        country: "Cambodia",
+    },
+    Airport {
+        code: "RGN",
+        city: "Yangon",
+        country: "Myanmar",
+    },
+    Airport {
+        code: "CMB",
+        city: "Colombo",
+        country: "Sri Lanka",
+    },
+    Airport {
+        code: "DEL",
+        city: "New Delhi",
+        country: "India",
+    },
+    Airport {
+        code: "BOM",
+        city: "Mumbai",
+        country: "India",
+    },
+    Airport {
+        code: "KIX",
+        city: "Osaka Kansai",
+        country: "Japan",
+    },
+    Airport {
+        code: "NGO",
+        city: "Nagoya",
+        country: "Japan",
+    },
+    Airport {
+        code: "CTS",
+        city: "Sapporo",
+        country: "Japan",
+    },
+    Airport {
+        code: "FUK",
+        city: "Fukuoka",
+        country: "Japan",
+    },
+    Airport {
+        code: "PVG",
+        city: "Shanghai Pudong",
+        country: "China",
+    },
+    Airport {
+        code: "PEK",
+        city: "Beijing",
+        country: "China",
+    },
+    Airport {
+        code: "CAN",
+        city: "Guangzhou",
+        country: "China",
+    },
+    Airport {
+        code: "SZX",
+        city: "Shenzhen",
+        country: "China",
+    },
+    Airport {
+        code: "MFM",
+        city: "Macau",
+        country: "Macau",
+    },
 ];
 
 /// Get city name from IATA code
@@ -124,9 +320,7 @@ pub fn AirportPicker(
 
     let has_error = error.is_some();
 
-    let displayed_city = move || {
-        city.clone().unwrap_or_else(|| get_city_name(&code.get()))
-    };
+    let displayed_city = move || city.clone().unwrap_or_else(|| get_city_name(&code.get()));
 
     let filtered_airports = move || filter_airports(&search_text.get());
 

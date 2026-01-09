@@ -8,7 +8,7 @@ use leptos::*;
 use leptos_router::use_navigate;
 use web_sys::Storage;
 
-use crate::types::{OracleVerdict, OraclePrediction, Price, PriceTrend};
+use crate::types::{OraclePrediction, OracleVerdict, Price, PriceTrend};
 
 /// Loading messages to display during Oracle processing
 const LOADING_MESSAGES: &[&str] = &[
@@ -23,7 +23,10 @@ const LOADING_MESSAGES: &[&str] = &[
 /// In production, this would be replaced by actual API call
 fn generate_mock_prediction(origin: &str, destination: &str) -> OraclePrediction {
     // Deterministic "random" based on route to keep consistent during demo
-    let hash = origin.bytes().chain(destination.bytes()).fold(0u32, |acc, b| acc.wrapping_add(b as u32));
+    let hash = origin
+        .bytes()
+        .chain(destination.bytes())
+        .fold(0u32, |acc, b| acc.wrapping_add(b as u32));
 
     let verdict = match hash % 4 {
         0 => OracleVerdict::BookNow,
@@ -59,7 +62,10 @@ fn generate_mock_prediction(origin: &str, destination: &str) -> OraclePrediction
         price_trend: Some(price_trend),
         reasoning: vec![
             "Historical data analyzed from 847M+ data points".to_string(),
-            format!("Current price is {}% vs 30-day average", if price_delta > 0 { "above" } else { "below" }),
+            format!(
+                "Current price is {}% vs 30-day average",
+                if price_delta > 0 { "above" } else { "below" }
+            ),
             "Demand patterns suggest optimal booking window".to_string(),
             format!("Confidence based on {} similar routes", 1000 + hash % 5000),
         ],
@@ -88,7 +94,13 @@ pub fn OracleLoading() -> impl IntoView {
     let origin = move || params.get().get("origin").cloned().unwrap_or_default();
     let destination = move || params.get().get("destination").cloned().unwrap_or_default();
     let date = move || params.get().get("date").cloned().unwrap_or_default();
-    let pax = move || params.get().get("pax").cloned().unwrap_or_else(|| "1".to_string());
+    let pax = move || {
+        params
+            .get()
+            .get("pax")
+            .cloned()
+            .unwrap_or_else(|| "1".to_string())
+    };
 
     let route_display = move || {
         let o = origin();
@@ -130,7 +142,10 @@ pub fn OracleLoading() -> impl IntoView {
                     }
 
                     // Navigate to result
-                    nav(&format!("/oracle/result/{}", prediction.id), Default::default());
+                    nav(
+                        &format!("/oracle/result/{}", prediction.id),
+                        Default::default(),
+                    );
                 },
                 std::time::Duration::from_millis(1500),
             );

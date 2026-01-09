@@ -6,8 +6,8 @@ use leptos::*;
 use leptos_router::use_navigate;
 use web_sys::Storage;
 
-use crate::components::{TextInput, PhoneInput};
-use crate::hooks::validation::{validate, email_rules, phone_rules};
+use crate::components::{PhoneInput, TextInput};
+use crate::hooks::validation::{email_rules, phone_rules, validate};
 
 /// Get session storage
 fn get_session_storage() -> Option<Storage> {
@@ -31,16 +31,14 @@ pub fn ContactDetails() -> impl IntoView {
     let (phone_error, set_phone_error) = create_signal::<Option<String>>(None);
 
     // Validate email
-    let validate_email = move || {
-        match validate(&email.get(), &email_rules()) {
-            Ok(_) => {
-                set_email_error.set(None);
-                true
-            }
-            Err(e) => {
-                set_email_error.set(Some(e));
-                false
-            }
+    let validate_email = move || match validate(&email.get(), &email_rules()) {
+        Ok(_) => {
+            set_email_error.set(None);
+            true
+        }
+        Err(e) => {
+            set_email_error.set(Some(e));
+            false
         }
     };
 
@@ -56,16 +54,14 @@ pub fn ContactDetails() -> impl IntoView {
     };
 
     // Validate phone
-    let validate_phone = move || {
-        match validate(&phone_number.get(), &phone_rules()) {
-            Ok(_) => {
-                set_phone_error.set(None);
-                true
-            }
-            Err(e) => {
-                set_phone_error.set(Some(e));
-                false
-            }
+    let validate_phone = move || match validate(&phone_number.get(), &phone_rules()) {
+        Ok(_) => {
+            set_phone_error.set(None);
+            true
+        }
+        Err(e) => {
+            set_phone_error.set(Some(e));
+            false
         }
     };
 
@@ -89,7 +85,10 @@ pub fn ContactDetails() -> impl IntoView {
                 // Store contact info
                 if let Some(storage) = get_session_storage() {
                     let _ = storage.set_item("contact_email", &email.get());
-                    let _ = storage.set_item("contact_phone", &format!("{}{}", country_code.get(), phone_number.get()));
+                    let _ = storage.set_item(
+                        "contact_phone",
+                        &format!("{}{}", country_code.get(), phone_number.get()),
+                    );
                 }
                 nav("/booking/review", Default::default());
             }

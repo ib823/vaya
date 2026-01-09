@@ -38,7 +38,15 @@ pub fn Checkbox(
         classes.join(" ")
     };
 
-    let checkbox_id = format!("checkbox-{}", label.to_lowercase().replace(' ', "-").chars().take(20).collect::<String>());
+    let checkbox_id = format!(
+        "checkbox-{}",
+        label
+            .to_lowercase()
+            .replace(' ', "-")
+            .chars()
+            .take(20)
+            .collect::<String>()
+    );
     let error_id = format!("{}-error", checkbox_id);
     let error_id_attr = error_id.clone();
 
@@ -96,7 +104,10 @@ pub fn CheckboxGroup(
     error: Option<String>,
 ) -> impl IntoView {
     let has_error = error.is_some();
-    let error_id = format!("checkbox-group-{}-error", label.to_lowercase().replace(' ', "-"));
+    let error_id = format!(
+        "checkbox-group-{}-error",
+        label.to_lowercase().replace(' ', "-")
+    );
     let error_id_attr = error_id.clone();
 
     view! {

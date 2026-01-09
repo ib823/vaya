@@ -100,7 +100,8 @@ pub const GRADIENT_PRIMARY: &str = "linear-gradient(135deg, #00F5A0 0%, #00D9FF 
 /// Dark gradient - For card backgrounds
 pub const GRADIENT_DARK: &str = "linear-gradient(180deg, #111113 0%, #0A0A0B 100%)";
 /// Radial gradient - For spotlight effects
-pub const GRADIENT_RADIAL: &str = "radial-gradient(circle at 50% 0%, rgba(0, 245, 160, 0.15) 0%, transparent 50%)";
+pub const GRADIENT_RADIAL: &str =
+    "radial-gradient(circle at 50% 0%, rgba(0, 245, 160, 0.15) 0%, transparent 50%)";
 
 // ============================================================================
 // ORACLE VERDICT COLORS

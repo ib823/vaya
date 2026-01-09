@@ -153,8 +153,60 @@ pub fn mock_oracle_prediction(route_hash: u32) -> OraclePrediction {
 }
 
 /// Generate mock FPX banks list
+/// Malaysian banks for FPX online banking payment
 pub fn mock_fpx_banks() -> Vec<FpxBank> {
-    FpxBank::mock_banks()
+    vec![
+        FpxBank {
+            code: "MBB".to_string(),
+            name: "Maybank".to_string(),
+            online: true,
+        },
+        FpxBank {
+            code: "CIMB".to_string(),
+            name: "CIMB Bank".to_string(),
+            online: true,
+        },
+        FpxBank {
+            code: "PBB".to_string(),
+            name: "Public Bank".to_string(),
+            online: true,
+        },
+        FpxBank {
+            code: "RHB".to_string(),
+            name: "RHB Bank".to_string(),
+            online: true,
+        },
+        FpxBank {
+            code: "HLB".to_string(),
+            name: "Hong Leong Bank".to_string(),
+            online: true,
+        },
+        FpxBank {
+            code: "AMBANK".to_string(),
+            name: "AmBank".to_string(),
+            online: true,
+        },
+        FpxBank {
+            code: "BIMB".to_string(),
+            name: "Bank Islam".to_string(),
+            online: true,
+        },
+        FpxBank {
+            code: "BSN".to_string(),
+            name: "BSN".to_string(),
+            online: false,
+        },
+        FpxBank {
+            code: "OCBC".to_string(),
+            name: "OCBC Bank".to_string(),
+            online: true,
+        },
+        FpxBank {
+            code: "SCB".to_string(),
+            name: "Standard Chartered".to_string(),
+            online: true,
+        },
+    ]
 }
 
 /// Generate price lock for a flight
@@ -179,7 +231,12 @@ pub fn mock_price_lock(flight: &Flight, duration: PriceLockDuration) -> PriceLoc
 pub fn mock_booking_reference() -> String {
     let chars: Vec<char> = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".chars().collect();
     let now = js_sys::Date::now() as u64;
-    format!("VY{}", (0..6).map(|i| chars[((now >> (i * 5)) % 32) as usize]).collect::<String>())
+    format!(
+        "VY{}",
+        (0..6)
+            .map(|i| chars[((now >> (i * 5)) % 32) as usize])
+            .collect::<String>()
+    )
 }
 
 /// Format expiry time as ISO string

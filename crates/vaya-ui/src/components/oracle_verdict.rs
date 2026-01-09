@@ -3,8 +3,8 @@
 //! Displays the Oracle's recommendation with animated confidence bar,
 //! price prediction, and contextual CTA. Four variants based on verdict type.
 
+use crate::types::{confidence_label, OraclePrediction, OracleVerdict};
 use leptos::*;
-use crate::types::{OracleVerdict, OraclePrediction, confidence_label};
 
 /// Oracle verdict card with full prediction display
 #[component]
@@ -50,18 +50,18 @@ pub fn OracleVerdictCard(
     };
 
     // Format price
-    let format_price = |amount: i64, currency: &str| -> String {
-        format!("{} {}", currency, amount)
-    };
+    let format_price =
+        |amount: i64, currency: &str| -> String { format!("{} {}", currency, amount) };
 
     let current_price_display = format_price(
         prediction.current_price.amount,
         &prediction.current_price.currency,
     );
 
-    let predicted_price_display = prediction.predicted_price.as_ref().map(|p| {
-        format_price(p.amount, &p.currency)
-    });
+    let predicted_price_display = prediction
+        .predicted_price
+        .as_ref()
+        .map(|p| format_price(p.amount, &p.currency));
 
     // Price change calculation
     let price_change = prediction.predicted_price.as_ref().map(|predicted| {
@@ -277,7 +277,13 @@ pub fn PriceComparison(
         "price-comparison-stable"
     };
 
-    let arrow = if diff > 0 { "↑" } else if diff < 0 { "↓" } else { "→" };
+    let arrow = if diff > 0 {
+        "↑"
+    } else if diff < 0 {
+        "↓"
+    } else {
+        "→"
+    };
 
     view! {
         <div class=format!("price-comparison {}", change_class)>

@@ -3,8 +3,8 @@
 //! Displays flight information in a card format with route, price,
 //! airline, and timing details. Supports selection state and click handling.
 
-use leptos::*;
 use crate::types::Flight;
+use leptos::*;
 
 /// Flight card displaying route, price, and flight details
 #[component]

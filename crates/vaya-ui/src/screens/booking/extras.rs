@@ -24,9 +24,18 @@ impl BaggageOption {
     pub fn options() -> Vec<Self> {
         vec![
             BaggageOption { kg: 0, price: 0 },
-            BaggageOption { kg: 20, price: 8000 },
-            BaggageOption { kg: 25, price: 10000 },
-            BaggageOption { kg: 30, price: 12000 },
+            BaggageOption {
+                kg: 20,
+                price: 8000,
+            },
+            BaggageOption {
+                kg: 25,
+                price: 10000,
+            },
+            BaggageOption {
+                kg: 30,
+                price: 12000,
+            },
         ]
     }
 }
@@ -86,7 +95,7 @@ pub fn ExtrasSelection() -> impl IntoView {
     let navigate = use_navigate();
 
     // State
-    let (selected_baggage, set_baggage) = create_signal(0u8);  // kg
+    let (selected_baggage, set_baggage) = create_signal(0u8); // kg
     let (selected_meal, set_meal) = create_signal::<Option<String>>(None);
     let (selected_insurance, set_insurance) = create_signal::<Option<InsuranceType>>(None);
 
@@ -98,13 +107,17 @@ pub fn ExtrasSelection() -> impl IntoView {
             .map(|b| b.price)
             .unwrap_or(0);
 
-        let meal_cost = selected_meal.get()
-            .and_then(|id| MealOption::options().iter().find(|m| m.id == id).map(|m| m.price))
+        let meal_cost = selected_meal
+            .get()
+            .and_then(|id| {
+                MealOption::options()
+                    .iter()
+                    .find(|m| m.id == id)
+                    .map(|m| m.price)
+            })
             .unwrap_or(0);
 
-        let insurance_cost = selected_insurance.get()
-            .map(|i| i.price_myr())
-            .unwrap_or(0);
+        let insurance_cost = selected_insurance.get().map(|i| i.price_myr()).unwrap_or(0);
 
         bag_cost + meal_cost + insurance_cost
     };

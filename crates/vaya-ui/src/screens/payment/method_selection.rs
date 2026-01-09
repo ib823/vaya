@@ -147,8 +147,7 @@ fn PaymentMethodCard(
     method: PaymentMethod,
     selected: ReadSignal<Option<PaymentMethod>>,
     on_select: impl Fn(PaymentMethod) + 'static,
-    #[prop(optional)]
-    compact: bool,
+    #[prop(optional)] compact: bool,
 ) -> impl IntoView {
     let is_selected = move || selected.get() == Some(method);
 

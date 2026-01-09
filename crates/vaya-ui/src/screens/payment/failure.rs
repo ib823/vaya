@@ -6,8 +6,8 @@ use leptos::*;
 use leptos_router::use_navigate;
 use web_sys::Storage;
 
-use crate::types::PaymentError;
 use crate::components::CountdownMini;
+use crate::types::PaymentError;
 
 /// Get session storage
 fn get_session_storage() -> Option<Storage> {
@@ -96,8 +96,10 @@ pub fn Failure() -> impl IntoView {
     // Handle contact support
     let handle_support = move |_| {
         // In production: open support chat or page
-        web_sys::window()
-            .and_then(|w| w.open_with_url_and_target("mailto:support@vaya.my", "_blank").ok());
+        web_sys::window().and_then(|w| {
+            w.open_with_url_and_target("mailto:support@vaya.my", "_blank")
+                .ok()
+        });
     };
 
     // Handle go home

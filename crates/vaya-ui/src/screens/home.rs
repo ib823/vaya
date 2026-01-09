@@ -3,10 +3,10 @@
 //! The primary landing screen where users declare their travel intent.
 //! This is the entry point to the Oracle flow.
 
+use crate::components::{AirportPicker, DateInput, SwapButton};
+use crate::hooks::set_search_params;
 use leptos::*;
 use leptos_router::use_navigate;
-use crate::components::{AirportPicker, SwapButton, DateInput};
-use crate::hooks::set_search_params;
 
 /// Home screen component
 #[component]

@@ -6,7 +6,7 @@ use leptos::*;
 use leptos_router::use_navigate;
 use web_sys::Storage;
 
-use crate::components::{TextInput, DateInput, TitleSelect, CountrySelect};
+use crate::components::{CountrySelect, DateInput, TextInput, TitleSelect};
 use crate::types::{Passenger, PassengerType};
 
 /// Get session storage
@@ -38,13 +38,33 @@ fn PassengerForm(
     // Update main passenger signal when fields change
     create_effect(move |_| {
         passenger.update(|p| {
-            p.title = if title.get().is_empty() { None } else { Some(title.get()) };
+            p.title = if title.get().is_empty() {
+                None
+            } else {
+                Some(title.get())
+            };
             p.first_name = first_name.get();
             p.last_name = last_name.get();
-            p.date_of_birth = if dob.get().is_empty() { None } else { Some(dob.get()) };
-            p.nationality = if nationality.get().is_empty() { None } else { Some(nationality.get()) };
-            p.passport_number = if passport_number.get().is_empty() { None } else { Some(passport_number.get()) };
-            p.passport_expiry = if passport_expiry.get().is_empty() { None } else { Some(passport_expiry.get()) };
+            p.date_of_birth = if dob.get().is_empty() {
+                None
+            } else {
+                Some(dob.get())
+            };
+            p.nationality = if nationality.get().is_empty() {
+                None
+            } else {
+                Some(nationality.get())
+            };
+            p.passport_number = if passport_number.get().is_empty() {
+                None
+            } else {
+                Some(passport_number.get())
+            };
+            p.passport_expiry = if passport_expiry.get().is_empty() {
+                None
+            } else {
+                Some(passport_expiry.get())
+            };
         });
     });
 
@@ -145,8 +165,14 @@ pub fn PassengerDetails() -> impl IntoView {
     // Check if international flight
     let is_international = {
         let storage = get_session_storage();
-        let origin = storage.as_ref().and_then(|s| s.get_item("oracle_origin").ok().flatten()).unwrap_or_default();
-        let dest = storage.as_ref().and_then(|s| s.get_item("oracle_destination").ok().flatten()).unwrap_or_default();
+        let origin = storage
+            .as_ref()
+            .and_then(|s| s.get_item("oracle_origin").ok().flatten())
+            .unwrap_or_default();
+        let dest = storage
+            .as_ref()
+            .and_then(|s| s.get_item("oracle_destination").ok().flatten())
+            .unwrap_or_default();
         // Simple check: different first letter usually means international
         !origin.is_empty() && !dest.is_empty() && origin.chars().next() != dest.chars().next()
     };
@@ -180,7 +206,8 @@ pub fn PassengerDetails() -> impl IntoView {
         move |_| {
             // Store passengers in session storage
             if let Some(storage) = get_session_storage() {
-                let pax_data: Vec<Passenger> = passengers_for_continue.iter().map(|p| p.get()).collect();
+                let pax_data: Vec<Passenger> =
+                    passengers_for_continue.iter().map(|p| p.get()).collect();
                 if let Ok(json) = serde_json::to_string(&pax_data) {
                     let _ = storage.set_item("booking_passengers", &json);
                 }

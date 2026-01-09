@@ -18,29 +18,35 @@ fn get_session_storage() -> Option<Storage> {
 fn load_booking_data() -> BookingData {
     let storage = get_session_storage();
 
-    let flight: Option<Flight> = storage.as_ref()
+    let flight: Option<Flight> = storage
+        .as_ref()
         .and_then(|s| s.get_item("selected_flight").ok().flatten())
         .and_then(|json| serde_json::from_str(&json).ok());
 
-    let passengers: Vec<Passenger> = storage.as_ref()
+    let passengers: Vec<Passenger> = storage
+        .as_ref()
         .and_then(|s| s.get_item("booking_passengers").ok().flatten())
         .and_then(|json| serde_json::from_str(&json).ok())
         .unwrap_or_default();
 
-    let contact_email = storage.as_ref()
+    let contact_email = storage
+        .as_ref()
         .and_then(|s| s.get_item("contact_email").ok().flatten())
         .unwrap_or_default();
 
-    let contact_phone = storage.as_ref()
+    let contact_phone = storage
+        .as_ref()
         .and_then(|s| s.get_item("contact_phone").ok().flatten())
         .unwrap_or_default();
 
-    let extras_total: i64 = storage.as_ref()
+    let extras_total: i64 = storage
+        .as_ref()
         .and_then(|s| s.get_item("extras_total").ok().flatten())
         .and_then(|s| s.parse().ok())
         .unwrap_or(0);
 
-    let price_lock_fee: i64 = storage.as_ref()
+    let price_lock_fee: i64 = storage
+        .as_ref()
         .and_then(|s| s.get_item("price_lock_fee").ok().flatten())
         .and_then(|s| s.parse().ok())
         .unwrap_or(0);
@@ -79,7 +85,10 @@ pub fn OrderReview() -> impl IntoView {
     let price_lock_fee = data.price_lock_fee;
 
     // Calculate totals
-    let base_fare = flight.as_ref().map(|f| f.price.amount * passengers.len() as i64).unwrap_or(0);
+    let base_fare = flight
+        .as_ref()
+        .map(|f| f.price.amount * passengers.len() as i64)
+        .unwrap_or(0);
     let taxes = (base_fare as f64 * 0.06) as i64; // 6% tax
     let fees = 1500; // RM 15 booking fee
     let total = base_fare + taxes + fees + extras_total - price_lock_fee; // Lock fee credited back
@@ -139,7 +148,8 @@ pub fn OrderReview() -> impl IntoView {
                     </button>
                 </div>
             </div>
-        }.into_view();
+        }
+        .into_view();
     }
 
     let flight_data = flight.unwrap();
@@ -232,5 +242,6 @@ pub fn OrderReview() -> impl IntoView {
                 </button>
             </div>
         </div>
-    }.into_view()
+    }
+    .into_view()
 }

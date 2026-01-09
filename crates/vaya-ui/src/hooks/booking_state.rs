@@ -2,8 +2,8 @@
 //!
 //! Provides centralized state management for the booking flow using Leptos context.
 
-use leptos::*;
 use crate::types::*;
+use leptos::*;
 
 /// Search parameters from home screen
 #[derive(Clone, Debug, Default)]
@@ -42,19 +42,23 @@ pub struct BookingState {
 impl BookingState {
     /// Calculate total price in sen
     pub fn calculate_total(&self) -> i64 {
-        let base = self.selected_flight.as_ref()
+        let base = self
+            .selected_flight
+            .as_ref()
             .map(|f| f.price.amount)
             .unwrap_or(0);
 
-        let lock_fee = self.price_lock.as_ref()
-            .map(|l| l.fee)
-            .unwrap_or(0);
+        let lock_fee = self.price_lock.as_ref().map(|l| l.fee).unwrap_or(0);
 
         let pax_count = self.search.passengers.max(1) as i64;
 
         // Per passenger costs
         let bags = self.extras.checked_bags as i64 * 8000; // RM80 per bag in sen
-        let seat = if self.extras.seat_selection.is_some() { 4500 } else { 0 }; // RM45
+        let seat = if self.extras.seat_selection.is_some() {
+            4500
+        } else {
+            0
+        }; // RM45
         let meal = if self.extras.meal.is_some() { 3500 } else { 0 }; // RM35
 
         // Insurance is per booking, not per passenger
@@ -65,14 +69,22 @@ impl BookingState {
             None => 0,
         };
 
-        (base * pax_count) + lock_fee + (bags * pax_count) + (seat * pax_count) + (meal * pax_count) + insurance
+        (base * pax_count)
+            + lock_fee
+            + (bags * pax_count)
+            + (seat * pax_count)
+            + (meal * pax_count)
+            + insurance
     }
 
     /// Check if booking is ready for payment
     pub fn is_ready_for_payment(&self) -> bool {
         self.selected_flight.is_some()
             && !self.passengers.is_empty()
-            && self.passengers.iter().all(|p| !p.first_name.is_empty() && !p.last_name.is_empty())
+            && self
+                .passengers
+                .iter()
+                .all(|p| !p.first_name.is_empty() && !p.last_name.is_empty())
             && !self.contact.email.is_empty()
             && !self.contact.phone_number.is_empty()
             && self.terms_accepted
@@ -87,8 +99,7 @@ pub fn provide_booking_state() {
 
 /// Use booking state in any component
 pub fn use_booking_state() -> RwSignal<BookingState> {
-    use_context::<RwSignal<BookingState>>()
-        .expect("BookingState must be provided at app root")
+    use_context::<RwSignal<BookingState>>().expect("BookingState must be provided at app root")
 }
 
 /// Try to get booking state (returns None if not in context)

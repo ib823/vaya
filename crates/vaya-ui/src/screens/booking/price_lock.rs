@@ -7,7 +7,7 @@ use leptos_router::use_navigate;
 use web_sys::Storage;
 
 use crate::components::{FlightMini, PriceLockFee};
-use crate::hooks::{use_booking_state, set_price_lock, mock_price_lock};
+use crate::hooks::{mock_price_lock, set_price_lock, use_booking_state};
 use crate::types::{Flight, PriceLockDuration};
 
 /// Get session storage
@@ -94,7 +94,8 @@ pub fn PriceLock() -> impl IntoView {
                     </button>
                 </div>
             </div>
-        }.into_view();
+        }
+        .into_view();
     }
 
     let flight = flight_clone.unwrap();

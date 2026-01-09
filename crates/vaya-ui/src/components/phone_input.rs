@@ -7,10 +7,10 @@ use leptos::*;
 /// Country code option
 #[derive(Clone, Debug)]
 pub struct CountryCode {
-    pub code: String,      // "+60"
-    pub country: String,   // "MY"
-    pub name: String,      // "Malaysia"
-    pub flag: String,      // "🇲🇾"
+    pub code: String,    // "+60"
+    pub country: String, // "MY"
+    pub name: String,    // "Malaysia"
+    pub flag: String,    // "🇲🇾"
 }
 
 impl CountryCode {
@@ -94,9 +94,8 @@ pub fn PhoneInput(
     let error_id_attr = error_id.clone();
 
     // Format phone number as user types (remove non-digits)
-    let format_phone = move |input: String| -> String {
-        input.chars().filter(|c| c.is_ascii_digit()).collect()
-    };
+    let format_phone =
+        move |input: String| -> String { input.chars().filter(|c| c.is_ascii_digit()).collect() };
 
     view! {
         <div class="phone-input-group">

@@ -102,7 +102,8 @@ pub fn TextInput(
     };
 
     let input_type = input_type.unwrap_or_else(|| "text".to_string());
-    let input_id = id.unwrap_or_else(|| format!("input-{}", label.to_lowercase().replace(' ', "-")));
+    let input_id =
+        id.unwrap_or_else(|| format!("input-{}", label.to_lowercase().replace(' ', "-")));
     let error_id = format!("{}-error", input_id);
 
     // Clone values for view

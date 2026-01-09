@@ -4,10 +4,10 @@
 //! This is the "money maker" screen - the core value proposition of VAYA.
 
 use leptos::*;
-use leptos_router::{use_params_map, use_navigate};
+use leptos_router::{use_navigate, use_params_map};
 use web_sys::Storage;
 
-use crate::types::{confidence_label, OracleVerdict, OraclePrediction, Price, PriceTrend};
+use crate::types::{confidence_label, OraclePrediction, OracleVerdict, Price, PriceTrend};
 
 /// Get session storage
 fn get_session_storage() -> Option<Storage> {
@@ -22,7 +22,10 @@ fn load_prediction_from_storage() -> Option<(OraclePrediction, String, String, S
     let prediction: OraclePrediction = serde_json::from_str(&json).ok()?;
 
     let origin = storage.get_item("oracle_origin").ok()?.unwrap_or_default();
-    let destination = storage.get_item("oracle_destination").ok()?.unwrap_or_default();
+    let destination = storage
+        .get_item("oracle_destination")
+        .ok()?
+        .unwrap_or_default();
     let date = storage.get_item("oracle_date").ok()?.unwrap_or_default();
 
     Some((prediction, origin, destination, date))
@@ -74,7 +77,10 @@ fn format_date_display(date: &str) -> String {
         _ => return date.to_string(),
     };
 
-    let day = parts.get(2).and_then(|d| d.parse::<u32>().ok()).unwrap_or(1);
+    let day = parts
+        .get(2)
+        .and_then(|d| d.parse::<u32>().ok())
+        .unwrap_or(1);
     let year = parts.get(0).unwrap_or(&"2026");
 
     format!("{} {}, {}", month, day, year)
@@ -90,9 +96,14 @@ pub fn OracleResult() -> impl IntoView {
     let _prediction_id = move || params.get().get("id").cloned().unwrap_or_default();
 
     // Load prediction from session storage or use fallback
-    let (prediction, origin, destination, date) = load_prediction_from_storage()
-        .unwrap_or_else(|| {
-            (fallback_prediction(), "KUL".to_string(), "NRT".to_string(), "2026-01-15".to_string())
+    let (prediction, origin, destination, date) =
+        load_prediction_from_storage().unwrap_or_else(|| {
+            (
+                fallback_prediction(),
+                "KUL".to_string(),
+                "NRT".to_string(),
+                "2026-01-15".to_string(),
+            )
         });
 
     let route = format!("{} → {}", origin, destination);

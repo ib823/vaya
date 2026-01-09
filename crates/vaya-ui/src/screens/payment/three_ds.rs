@@ -2,9 +2,9 @@
 //!
 //! Handles 3D Secure authentication iframe.
 
+use gloo_timers::callback::Timeout;
 use leptos::*;
 use leptos_router::use_navigate;
-use gloo_timers::callback::Timeout;
 
 /// 3D Secure challenge screen
 #[component]

@@ -2,9 +2,9 @@
 //!
 //! Shows payment processing status with animated loading.
 
+use gloo_timers::callback::Timeout;
 use leptos::*;
 use leptos_router::use_navigate;
-use gloo_timers::callback::Timeout;
 use web_sys::Storage;
 
 use crate::types::PaymentStatus;

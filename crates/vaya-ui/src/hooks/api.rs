@@ -115,14 +115,11 @@ pub async fn get_flight(flight_id: &str) -> ApiResult<Flight> {
 pub async fn health_check() -> ApiResult<bool> {
     let url = format!("{}/health", config::api_base());
 
-    let response = Request::get(&url)
-        .send()
-        .await
-        .map_err(|e| ApiError {
-            code: "NETWORK_ERROR".to_string(),
-            message: "Failed to connect to server".to_string(),
-            details: Some(e.to_string()),
-        })?;
+    let response = Request::get(&url).send().await.map_err(|e| ApiError {
+        code: "NETWORK_ERROR".to_string(),
+        message: "Failed to connect to server".to_string(),
+        details: Some(e.to_string()),
+    })?;
 
     Ok(response.ok())
 }

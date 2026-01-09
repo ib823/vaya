@@ -17,19 +17,23 @@ fn get_session_storage() -> Option<Storage> {
 fn load_confirmation_data() -> ConfirmationData {
     let storage = get_session_storage();
 
-    let reference = storage.as_ref()
+    let reference = storage
+        .as_ref()
         .and_then(|s| s.get_item("booking_reference").ok().flatten())
         .unwrap_or_else(|| "VY000000".to_string());
 
-    let flight: Option<Flight> = storage.as_ref()
+    let flight: Option<Flight> = storage
+        .as_ref()
         .and_then(|s| s.get_item("selected_flight").ok().flatten())
         .and_then(|json| serde_json::from_str(&json).ok());
 
-    let email = storage.as_ref()
+    let email = storage
+        .as_ref()
         .and_then(|s| s.get_item("contact_email").ok().flatten())
         .unwrap_or_default();
 
-    let total: i64 = storage.as_ref()
+    let total: i64 = storage
+        .as_ref()
         .and_then(|s| s.get_item("booking_total").ok().flatten())
         .and_then(|s| s.parse().ok())
         .unwrap_or(0);
@@ -68,7 +72,10 @@ pub fn Success() -> impl IntoView {
     // Trigger animations on mount
     request_animation_frame(move || {
         set_confetti.set(true);
-        set_timeout(move || set_content.set(true), std::time::Duration::from_millis(500));
+        set_timeout(
+            move || set_content.set(true),
+            std::time::Duration::from_millis(500),
+        );
     });
 
     // Handle done

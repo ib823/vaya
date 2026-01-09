@@ -32,7 +32,7 @@ impl PriceItemType {
 #[derive(Clone, Debug)]
 pub struct PriceLineItem {
     pub label: String,
-    pub amount: i64,         // In minor units (sen/cents)
+    pub amount: i64, // In minor units (sen/cents)
     pub item_type: PriceItemType,
     pub quantity: Option<u32>,
 }

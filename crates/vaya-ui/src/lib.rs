@@ -27,11 +27,25 @@ pub mod tokens;
 pub mod types;
 
 use screens::{
-    Home, OracleLoading, OracleResult, NotFound,
+    CardEntry,
+    ContactDetails,
+    ExtrasSelection,
+    Failure,
     // Booking flow
-    FlightSelection, PriceLock, PassengerDetails, ExtrasSelection, ContactDetails, OrderReview,
+    FlightSelection,
+    FpxBankSelection,
+    Home,
     // Payment flow
-    MethodSelection, CardEntry, FpxBankSelection, ThreeDsChallenge, Processing, Success, Failure,
+    MethodSelection,
+    NotFound,
+    OracleLoading,
+    OracleResult,
+    OrderReview,
+    PassengerDetails,
+    PriceLock,
+    Processing,
+    Success,
+    ThreeDsChallenge,
 };
 
 /// Main application component with router and error boundary

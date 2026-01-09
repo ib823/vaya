@@ -431,9 +431,9 @@ impl InsuranceType {
 
     pub fn price_myr(&self) -> i64 {
         match self {
-            Self::Basic => 2500,      // RM 25
-            Self::Standard => 4500,   // RM 45
-            Self::Premium => 8500,    // RM 85
+            Self::Basic => 2500,    // RM 25
+            Self::Standard => 4500, // RM 45
+            Self::Premium => 8500,  // RM 85
         }
     }
 }
@@ -555,16 +555,56 @@ pub struct FpxBank {
 impl FpxBank {
     pub fn mock_banks() -> Vec<Self> {
         vec![
-            FpxBank { code: "MBB".to_string(), name: "Maybank".to_string(), online: true },
-            FpxBank { code: "CIMB".to_string(), name: "CIMB Bank".to_string(), online: true },
-            FpxBank { code: "PBB".to_string(), name: "Public Bank".to_string(), online: true },
-            FpxBank { code: "RHB".to_string(), name: "RHB Bank".to_string(), online: true },
-            FpxBank { code: "HLB".to_string(), name: "Hong Leong Bank".to_string(), online: true },
-            FpxBank { code: "AMBANK".to_string(), name: "AmBank".to_string(), online: true },
-            FpxBank { code: "BIMB".to_string(), name: "Bank Islam".to_string(), online: true },
-            FpxBank { code: "BSN".to_string(), name: "BSN".to_string(), online: false },
-            FpxBank { code: "OCBC".to_string(), name: "OCBC Bank".to_string(), online: true },
-            FpxBank { code: "SCB".to_string(), name: "Standard Chartered".to_string(), online: true },
+            FpxBank {
+                code: "MBB".to_string(),
+                name: "Maybank".to_string(),
+                online: true,
+            },
+            FpxBank {
+                code: "CIMB".to_string(),
+                name: "CIMB Bank".to_string(),
+                online: true,
+            },
+            FpxBank {
+                code: "PBB".to_string(),
+                name: "Public Bank".to_string(),
+                online: true,
+            },
+            FpxBank {
+                code: "RHB".to_string(),
+                name: "RHB Bank".to_string(),
+                online: true,
+            },
+            FpxBank {
+                code: "HLB".to_string(),
+                name: "Hong Leong Bank".to_string(),
+                online: true,
+            },
+            FpxBank {
+                code: "AMBANK".to_string(),
+                name: "AmBank".to_string(),
+                online: true,
+            },
+            FpxBank {
+                code: "BIMB".to_string(),
+                name: "Bank Islam".to_string(),
+                online: true,
+            },
+            FpxBank {
+                code: "BSN".to_string(),
+                name: "BSN".to_string(),
+                online: false,
+            },
+            FpxBank {
+                code: "OCBC".to_string(),
+                name: "OCBC Bank".to_string(),
+                online: true,
+            },
+            FpxBank {
+                code: "SCB".to_string(),
+                name: "Standard Chartered".to_string(),
+                online: true,
+            },
         ]
     }
 }
@@ -575,7 +615,7 @@ impl FpxBank {
 pub enum PaymentStatus {
     Pending,
     Processing,
-    RequiresAction,  // 3DS
+    RequiresAction, // 3DS
     Succeeded,
     Failed,
 }
@@ -626,32 +666,38 @@ impl PaymentError {
     pub fn display_message(&self) -> &'static str {
         match self {
             Self::CardDeclined => "Your card was declined. Please try another payment method.",
-            Self::InsufficientFunds => "Insufficient funds. Please check your balance or try another card.",
+            Self::InsufficientFunds => {
+                "Insufficient funds. Please check your balance or try another card."
+            }
             Self::ExpiredCard => "Your card has expired. Please use a valid card.",
             Self::InvalidCard => "Invalid card details. Please check and try again.",
             Self::FraudSuspected => "Transaction flagged for security. Please contact your bank.",
             Self::BankUnavailable => "Bank is temporarily unavailable. Please try again later.",
             Self::NetworkError => "Network error. Please check your connection and try again.",
             Self::ThreeDsFailed => "3D Secure verification failed. Please try again.",
-            Self::CurrencyNotSupported => "Currency not supported. Please try another payment method.",
+            Self::CurrencyNotSupported => {
+                "Currency not supported. Please try another payment method."
+            }
             Self::LimitExceeded => "Transaction limit exceeded. Please contact your bank.",
             Self::CardNotSupported => "Card type not supported. Please try another card.",
             Self::ProcessorError => "Payment processor error. Please try again.",
             Self::TimeoutError => "Request timed out. Please try again.",
-            Self::DuplicateTransaction => "Duplicate transaction detected. Please wait or check your email.",
+            Self::DuplicateTransaction => {
+                "Duplicate transaction detected. Please wait or check your email."
+            }
             Self::InvalidCvv => "Invalid CVV. Please check the security code on your card.",
-            Self::AddressVerificationFailed => "Address verification failed. Please check your billing address.",
+            Self::AddressVerificationFailed => {
+                "Address verification failed. Please check your billing address."
+            }
             Self::RiskBlocked => "Transaction blocked by security. Please contact support.",
             Self::GeneralError => "Something went wrong. Please try again.",
         }
     }
 
     pub fn is_retryable(&self) -> bool {
-        matches!(self,
-            Self::BankUnavailable |
-            Self::NetworkError |
-            Self::ProcessorError |
-            Self::TimeoutError
+        matches!(
+            self,
+            Self::BankUnavailable | Self::NetworkError | Self::ProcessorError | Self::TimeoutError
         )
     }
 }
@@ -688,9 +734,9 @@ impl PriceLockDuration {
 
     pub fn fee_myr(&self) -> i64 {
         match self {
-            Self::Hours24 => 1500,   // RM 15
-            Self::Hours48 => 2500,   // RM 25
-            Self::Hours72 => 3500,   // RM 35
+            Self::Hours24 => 1500, // RM 15
+            Self::Hours48 => 2500, // RM 25
+            Self::Hours72 => 3500, // RM 35
         }
     }
 

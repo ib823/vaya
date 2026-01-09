@@ -7,7 +7,7 @@ use leptos_router::use_navigate;
 use web_sys::Storage;
 
 use crate::components::FlightCard;
-use crate::hooks::{mock_flights, use_booking_state, select_flight as set_flight};
+use crate::hooks::{mock_flights, select_flight as set_flight, use_booking_state};
 use crate::types::Flight;
 
 /// Get session storage
@@ -63,10 +63,22 @@ pub fn FlightSelection() -> impl IntoView {
         } else {
             // Fallback to session storage
             let storage = get_session_storage();
-            let origin = storage.as_ref().and_then(|s| s.get_item("oracle_origin").ok().flatten()).unwrap_or_else(|| "KUL".to_string());
-            let destination = storage.as_ref().and_then(|s| s.get_item("oracle_destination").ok().flatten()).unwrap_or_else(|| "NRT".to_string());
-            let date = storage.as_ref().and_then(|s| s.get_item("oracle_date").ok().flatten()).unwrap_or_default();
-            let pax = storage.as_ref().and_then(|s| s.get_item("oracle_pax").ok().flatten()).unwrap_or_else(|| "1".to_string());
+            let origin = storage
+                .as_ref()
+                .and_then(|s| s.get_item("oracle_origin").ok().flatten())
+                .unwrap_or_else(|| "KUL".to_string());
+            let destination = storage
+                .as_ref()
+                .and_then(|s| s.get_item("oracle_destination").ok().flatten())
+                .unwrap_or_else(|| "NRT".to_string());
+            let date = storage
+                .as_ref()
+                .and_then(|s| s.get_item("oracle_date").ok().flatten())
+                .unwrap_or_default();
+            let pax = storage
+                .as_ref()
+                .and_then(|s| s.get_item("oracle_pax").ok().flatten())
+                .unwrap_or_else(|| "1".to_string());
             (origin, destination, date, pax)
         }
     };
@@ -95,7 +107,9 @@ pub fn FlightSelection() -> impl IntoView {
                 SortOption::PriceLow => flights.sort_by_key(|f| f.price.amount),
                 SortOption::PriceHigh => flights.sort_by_key(|f| std::cmp::Reverse(f.price.amount)),
                 SortOption::Duration => flights.sort_by_key(|f| f.duration_minutes),
-                SortOption::Departure => flights.sort_by(|a, b| a.departure_time.cmp(&b.departure_time)),
+                SortOption::Departure => {
+                    flights.sort_by(|a, b| a.departure_time.cmp(&b.departure_time))
+                }
             }
 
             flights

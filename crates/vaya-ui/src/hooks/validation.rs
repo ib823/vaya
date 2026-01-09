@@ -19,7 +19,7 @@ pub enum ValidationRule {
     MaxAge(u8),
     AgeBetween(u8, u8),
     MinMonthsFromDate(String, u8),
-    Luhn,  // Credit card validation
+    Luhn, // Credit card validation
     ExpiryDate,
 }
 
@@ -64,7 +64,10 @@ pub fn validate(value: &str, rules: &[ValidationRule]) -> Result<(), String> {
                 }
             }
             ValidationRule::LettersOnly => {
-                if !value.chars().all(|c| c.is_alphabetic() || c.is_whitespace() || c == '-' || c == '\'') {
+                if !value
+                    .chars()
+                    .all(|c| c.is_alphabetic() || c.is_whitespace() || c == '-' || c == '\'')
+                {
                     return Err("Only letters allowed".to_string());
                 }
             }
@@ -95,7 +98,10 @@ pub fn validate(value: &str, rules: &[ValidationRule]) -> Result<(), String> {
             }
             ValidationRule::MinMonthsFromDate(from_date, months) => {
                 if !min_months_from(value, from_date, *months) {
-                    return Err(format!("Must be at least {} months from {}", months, from_date));
+                    return Err(format!(
+                        "Must be at least {} months from {}",
+                        months, from_date
+                    ));
                 }
             }
             ValidationRule::Luhn => {
@@ -129,18 +135,12 @@ pub fn name_rules() -> Vec<ValidationRule> {
 
 /// Rules for email fields
 pub fn email_rules() -> Vec<ValidationRule> {
-    vec![
-        ValidationRule::Required,
-        ValidationRule::Email,
-    ]
+    vec![ValidationRule::Required, ValidationRule::Email]
 }
 
 /// Rules for phone number fields
 pub fn phone_rules() -> Vec<ValidationRule> {
-    vec![
-        ValidationRule::Required,
-        ValidationRule::Phone,
-    ]
+    vec![ValidationRule::Required, ValidationRule::Phone]
 }
 
 /// Rules for passport number fields
@@ -155,10 +155,7 @@ pub fn passport_rules() -> Vec<ValidationRule> {
 
 /// Rules for credit card number fields
 pub fn card_number_rules() -> Vec<ValidationRule> {
-    vec![
-        ValidationRule::Required,
-        ValidationRule::Luhn,
-    ]
+    vec![ValidationRule::Required, ValidationRule::Luhn]
 }
 
 /// Rules for CVV fields
@@ -172,10 +169,7 @@ pub fn cvv_rules() -> Vec<ValidationRule> {
 
 /// Rules for card expiry fields (MM/YY)
 pub fn expiry_rules() -> Vec<ValidationRule> {
-    vec![
-        ValidationRule::Required,
-        ValidationRule::ExpiryDate,
-    ]
+    vec![ValidationRule::Required, ValidationRule::ExpiryDate]
 }
 
 /// Rules for adult passenger date of birth
@@ -235,8 +229,12 @@ fn is_valid_email(email: &str) -> bool {
     }
 
     // Basic character validation
-    local.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '_' || c == '-' || c == '+')
-        && domain.chars().all(|c| c.is_alphanumeric() || c == '.' || c == '-')
+    local
+        .chars()
+        .all(|c| c.is_alphanumeric() || c == '.' || c == '_' || c == '-' || c == '+')
+        && domain
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '.' || c == '-')
 }
 
 /// Phone number validation (digits only, 9-15 chars)
@@ -294,7 +292,10 @@ fn age_between(dob: &str, min: u8, max: u8) -> bool {
 fn min_months_from(date: &str, from_date: &str, min_months: u8) -> bool {
     // Parse dates and calculate difference
     let date_parts: Vec<i32> = date.split('-').filter_map(|s| s.parse().ok()).collect();
-    let from_parts: Vec<i32> = from_date.split('-').filter_map(|s| s.parse().ok()).collect();
+    let from_parts: Vec<i32> = from_date
+        .split('-')
+        .filter_map(|s| s.parse().ok())
+        .collect();
 
     if date_parts.len() != 3 || from_parts.len() != 3 {
         return false;
@@ -426,7 +427,11 @@ pub fn format_card_number(number: &str) -> String {
 pub fn format_expiry(input: &str) -> String {
     let digits: String = input.chars().filter(|c| c.is_ascii_digit()).collect();
     if digits.len() >= 2 {
-        format!("{}/{}", &digits[..2], &digits[2..].chars().take(2).collect::<String>())
+        format!(
+            "{}/{}",
+            &digits[..2],
+            &digits[2..].chars().take(2).collect::<String>()
+        )
     } else {
         digits
     }
