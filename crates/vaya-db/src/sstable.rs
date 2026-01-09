@@ -650,22 +650,33 @@ impl SsTableReader {
     }
 
     /// Decode block entries
+    /// Block format: [key_len(4) | key | value_len(4) | value]*
     fn decode_block_entries(data: &[u8]) -> DbResult<Vec<(Vec<u8>, Vec<u8>)>> {
         let mut entries = Vec::new();
         let mut offset = 0;
 
-        while offset + 8 <= data.len() {
+        while offset + 4 <= data.len() {
+            // Read key length
             let key_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
             offset += 4;
-            let value_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
-            offset += 4;
 
-            if offset + key_len + value_len > data.len() {
+            if offset + key_len + 4 > data.len() {
                 break;
             }
 
+            // Read key
             let key = data[offset..offset + key_len].to_vec();
             offset += key_len;
+
+            // Read value length
+            let value_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+            offset += 4;
+
+            if offset + value_len > data.len() {
+                break;
+            }
+
+            // Read value
             let value = data[offset..offset + value_len].to_vec();
             offset += value_len;
 
