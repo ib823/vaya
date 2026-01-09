@@ -31,7 +31,9 @@ pub fn update_profile(req: &Request) -> ApiResult<Response> {
         return Err(ApiError::Unauthorized("Authentication required".into()));
     }
 
-    let body = req.body_string().ok_or(ApiError::BadRequest("Missing request body".into()))?;
+    let body = req
+        .body_string()
+        .ok_or(ApiError::BadRequest("Missing request body".into()))?;
 
     // Parse update fields
     let name = extract_field(&body, "name");
@@ -69,13 +71,19 @@ pub fn change_password(req: &Request) -> ApiResult<Response> {
         return Err(ApiError::Unauthorized("Authentication required".into()));
     }
 
-    let body = req.body_string().ok_or(ApiError::BadRequest("Missing request body".into()))?;
+    let body = req
+        .body_string()
+        .ok_or(ApiError::BadRequest("Missing request body".into()))?;
 
-    let current_password = extract_field(&body, "current_password")
-        .ok_or(ApiError::ValidationError(vec![FieldError::required("current_password")]))?;
+    let current_password =
+        extract_field(&body, "current_password").ok_or(ApiError::ValidationError(vec![
+            FieldError::required("current_password"),
+        ]))?;
 
-    let new_password = extract_field(&body, "new_password")
-        .ok_or(ApiError::ValidationError(vec![FieldError::required("new_password")]))?;
+    let new_password =
+        extract_field(&body, "new_password").ok_or(ApiError::ValidationError(vec![
+            FieldError::required("new_password"),
+        ]))?;
 
     // Validate new password
     if new_password.len() < 12 {
@@ -139,12 +147,11 @@ fn extract_field(body: &str, field: &str) -> Option<String> {
         return None;
     }
 
-    if rest.starts_with('"') {
-        let rest = &rest[1..];
+    if let Some(rest) = rest.strip_prefix('"') {
         let end = rest.find('"')?;
         Some(rest[..end].to_string())
     } else {
-        let end = rest.find(|c: char| c == ',' || c == '}').unwrap_or(rest.len());
+        let end = rest.find([',', '}']).unwrap_or(rest.len());
         Some(rest[..end].trim().to_string())
     }
 }
@@ -158,7 +165,9 @@ fn is_valid_phone(phone: &str) -> bool {
     let chars: Vec<char> = phone.chars().collect();
     let start = if chars.first() == Some(&'+') { 1 } else { 0 };
 
-    chars[start..].iter().all(|c| c.is_ascii_digit() || *c == ' ' || *c == '-')
+    chars[start..]
+        .iter()
+        .all(|c| c.is_ascii_digit() || *c == ' ' || *c == '-')
 }
 
 /// Escape JSON string

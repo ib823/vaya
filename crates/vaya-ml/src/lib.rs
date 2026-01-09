@@ -32,7 +32,7 @@ pub mod tree;
 
 pub use activation::Activation;
 pub use layer::Layer;
-pub use lstm::{LSTM, LSTMCell, LSTMState, PriceLSTM};
+pub use lstm::{LSTMCell, LSTMState, PriceLSTM, LSTM};
 pub use matrix::Matrix;
 pub use network::NeuralNetwork;
 pub use scaler::StandardScaler;

@@ -8,7 +8,8 @@ pub fn register_handler(req: &Request) -> ApiResult<Response> {
         return Err(ApiError::bad_request("Missing request body"));
     }
     // TODO: Implement registration logic
-    Ok(Response::created().with_body(br#"{"id":"user_123","email":"user@example.com","created":true}"#.to_vec()))
+    Ok(Response::created()
+        .with_body(br#"{"id":"user_123","email":"user@example.com","created":true}"#.to_vec()))
 }
 
 /// POST /auth/login - User login
@@ -17,12 +18,18 @@ pub fn login_handler(req: &Request) -> ApiResult<Response> {
         return Err(ApiError::bad_request("Missing request body"));
     }
     // TODO: Implement login logic
-    Ok(Response::ok().with_body(br#"{"token":"jwt_token_here","refresh_token":"refresh_token_here","expires_in":3600}"#.to_vec()))
+    Ok(Response::ok().with_body(
+        br#"{"token":"jwt_token_here","refresh_token":"refresh_token_here","expires_in":3600}"#
+            .to_vec(),
+    ))
 }
 
 /// POST /auth/logout - User logout
 pub fn logout_handler(req: &Request) -> ApiResult<Response> {
-    let _auth = req.headers.get("authorization").ok_or(ApiError::unauthorized("Missing token"))?;
+    let _auth = req
+        .headers
+        .get("authorization")
+        .ok_or(ApiError::unauthorized("Missing token"))?;
     // TODO: Implement logout logic (invalidate token)
     Ok(Response::ok().with_body(br#"{"success":true}"#.to_vec()))
 }
@@ -65,7 +72,10 @@ pub fn verify_email_handler(req: &Request) -> ApiResult<Response> {
 
 /// DELETE /auth/account - Delete user account
 pub fn delete_account_handler(req: &Request) -> ApiResult<Response> {
-    let _auth = req.headers.get("authorization").ok_or(ApiError::unauthorized("Missing token"))?;
+    let _auth = req
+        .headers
+        .get("authorization")
+        .ok_or(ApiError::unauthorized("Missing token"))?;
     // TODO: Implement account deletion
     Ok(Response::ok().with_body(br#"{"deleted":true}"#.to_vec()))
 }
@@ -93,7 +103,8 @@ mod tests {
     #[test]
     fn test_logout_handler() {
         let mut req = Request::new("POST", "/auth/logout");
-        req.headers.insert("authorization".into(), "Bearer token".into());
+        req.headers
+            .insert("authorization".into(), "Bearer token".into());
         let resp = logout_handler(&req).unwrap();
         assert_eq!(resp.status, 200);
     }

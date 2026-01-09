@@ -125,7 +125,7 @@ impl SessionStore {
         // Track user sessions
         {
             let mut user_sessions = self.user_sessions.lock().unwrap();
-            let sessions = user_sessions.entry(user_id.clone()).or_insert_with(Vec::new);
+            let sessions = user_sessions.entry(user_id.clone()).or_default();
             sessions.push(session_id);
 
             // Enforce max sessions per user
@@ -163,9 +163,7 @@ impl SessionStore {
     /// Get a session by ID
     pub fn get(&self, session_id: &str) -> AuthResult<Session> {
         let sessions = self.sessions.lock().unwrap();
-        let session = sessions
-            .get(session_id)
-            .ok_or(AuthError::SessionNotFound)?;
+        let session = sessions.get(session_id).ok_or(AuthError::SessionNotFound)?;
 
         if session.is_expired() {
             drop(sessions);

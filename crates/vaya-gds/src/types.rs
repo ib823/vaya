@@ -264,7 +264,12 @@ impl Itinerary {
         if self.segments.is_empty() {
             0
         } else {
-            self.segments.len() - 1 + self.segments.iter().map(|s| s.stops as usize).sum::<usize>()
+            self.segments.len() - 1
+                + self
+                    .segments
+                    .iter()
+                    .map(|s| s.stops as usize)
+                    .sum::<usize>()
         }
     }
 
@@ -366,7 +371,7 @@ impl FlightOffer {
     /// Check if offer is expired
     #[must_use]
     pub fn is_expired(&self) -> bool {
-        self.expires_at.map_or(false, |exp| exp.is_past())
+        self.expires_at.is_some_and(|exp| exp.is_past())
     }
 
     /// Check if offer is valid
@@ -385,14 +390,20 @@ impl FlightOffer {
     #[must_use]
     pub fn total_stops(&self) -> usize {
         self.outbound.total_stops()
-            + self.return_itinerary.as_ref().map_or(0, Itinerary::total_stops)
+            + self
+                .return_itinerary
+                .as_ref()
+                .map_or(0, Itinerary::total_stops)
     }
 
     /// Is direct flight(s)?
     #[must_use]
     pub fn is_direct(&self) -> bool {
         self.outbound.is_direct()
-            && self.return_itinerary.as_ref().map_or(true, Itinerary::is_direct)
+            && self
+                .return_itinerary
+                .as_ref()
+                .is_none_or(Itinerary::is_direct)
     }
 
     /// Get all airlines involved (unique)
@@ -536,7 +547,7 @@ impl PassengerDetails {
     /// Check if passport is valid for travel date
     #[must_use]
     pub fn is_passport_valid_for(&self, travel_date: Date) -> bool {
-        self.passport_expiry.map_or(false, |exp| {
+        self.passport_expiry.is_some_and(|exp| {
             // Passport should be valid at least 6 months after travel
             exp > travel_date.add_days(180)
         })
@@ -623,7 +634,7 @@ impl BookingConfirmation {
     /// Check if ticketing is needed soon
     #[must_use]
     pub fn ticketing_urgent(&self) -> bool {
-        self.ticketing_deadline.map_or(false, |deadline| {
+        self.ticketing_deadline.is_some_and(|deadline| {
             let hours_remaining = (deadline.as_unix() - Timestamp::now().as_unix()) / 3600;
             hours_remaining < 24
         })

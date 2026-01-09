@@ -61,24 +61,56 @@ impl fmt::Display for OracleError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             // Data
-            OracleError::InsufficientData { required, available } => {
-                write!(f, "Insufficient data: need {} samples, have {}", required, available)
+            OracleError::InsufficientData {
+                required,
+                available,
+            } => {
+                write!(
+                    f,
+                    "Insufficient data: need {} samples, have {}",
+                    required, available
+                )
             }
-            OracleError::StaleData { age_hours, max_hours } => {
-                write!(f, "Data too old: {} hours old, max {} hours", age_hours, max_hours)
+            OracleError::StaleData {
+                age_hours,
+                max_hours,
+            } => {
+                write!(
+                    f,
+                    "Data too old: {} hours old, max {} hours",
+                    age_hours, max_hours
+                )
             }
-            OracleError::NoPriceData { origin, destination } => {
+            OracleError::NoPriceData {
+                origin,
+                destination,
+            } => {
                 write!(f, "No price data for route {}-{}", origin, destination)
             }
             OracleError::InvalidData(msg) => write!(f, "Invalid data: {}", msg),
 
             // Prediction
             OracleError::ModelNotTrained => write!(f, "Model not trained"),
-            OracleError::LowConfidence { confidence, threshold } => {
-                write!(f, "Confidence too low: {:.2}% < {:.2}%", confidence * 100.0, threshold * 100.0)
+            OracleError::LowConfidence {
+                confidence,
+                threshold,
+            } => {
+                write!(
+                    f,
+                    "Confidence too low: {:.2}% < {:.2}%",
+                    confidence * 100.0,
+                    threshold * 100.0
+                )
             }
-            OracleError::DateOutOfRange { days_ahead, max_days } => {
-                write!(f, "Date out of range: {} days ahead, max {} days", days_ahead, max_days)
+            OracleError::DateOutOfRange {
+                days_ahead,
+                max_days,
+            } => {
+                write!(
+                    f,
+                    "Date out of range: {} days ahead, max {} days",
+                    days_ahead, max_days
+                )
             }
             OracleError::UnsupportedRoute(route) => write!(f, "Unsupported route: {}", route),
             OracleError::PredictionFailed(msg) => write!(f, "Prediction failed: {}", msg),

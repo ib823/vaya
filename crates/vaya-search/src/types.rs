@@ -1,7 +1,7 @@
 //! Core types for flight search
 
 use time::{Date, Duration, Time};
-use vaya_common::{IataCode, AirlineCode, CurrencyCode, MinorUnits};
+use vaya_common::{AirlineCode, CurrencyCode, IataCode, MinorUnits};
 
 /// Cabin class
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -205,10 +205,7 @@ impl FlightLeg {
         if self.segments.len() <= 1 {
             return Vec::new();
         }
-        self.segments[1..]
-            .iter()
-            .map(|s| &s.origin)
-            .collect()
+        self.segments[1..].iter().map(|s| &s.origin).collect()
     }
 }
 
@@ -228,9 +225,7 @@ pub struct PriceBreakdown {
 impl PriceBreakdown {
     /// Total price
     pub fn total(&self) -> MinorUnits {
-        MinorUnits::new(
-            self.base_fare.as_i64() + self.taxes.as_i64() + self.surcharges.as_i64(),
-        )
+        MinorUnits::new(self.base_fare.as_i64() + self.taxes.as_i64() + self.surcharges.as_i64())
     }
 }
 
@@ -265,7 +260,11 @@ impl FlightOffer {
     /// Total duration for the whole trip
     pub fn total_duration_minutes(&self) -> u16 {
         let outbound = self.outbound.total_duration_minutes;
-        let inbound = self.inbound.as_ref().map(|i| i.total_duration_minutes).unwrap_or(0);
+        let inbound = self
+            .inbound
+            .as_ref()
+            .map(|i| i.total_duration_minutes)
+            .unwrap_or(0);
         outbound + inbound
     }
 

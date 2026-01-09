@@ -33,6 +33,6 @@ pub use engine::{SearchEngine, SearchEngineConfig, SearchProvider, SearchRespons
 pub use error::{SearchError, SearchResult};
 pub use request::{Alliance, SearchFilters, SearchRequest, SortBy, SortOrder};
 pub use types::{
-    BaggageAllowance, CabinClass, FlightLeg, FlightOffer, FlightSegment, PassengerType,
-    Passengers, PriceBreakdown, TripType,
+    BaggageAllowance, CabinClass, FlightLeg, FlightOffer, FlightSegment, PassengerType, Passengers,
+    PriceBreakdown, TripType,
 };

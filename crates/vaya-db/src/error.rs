@@ -50,7 +50,11 @@ impl fmt::Display for DbError {
                 write!(f, "Value too large: {} bytes (max: {} bytes)", size, max)
             }
             DbError::VersionMismatch { expected, found } => {
-                write!(f, "Version mismatch: expected {}, found {}", expected, found)
+                write!(
+                    f,
+                    "Version mismatch: expected {}, found {}",
+                    expected, found
+                )
             }
         }
     }

@@ -1,7 +1,7 @@
 //! Cryptographic hash functions using ring
 
-use ring::digest::{self, Algorithm, SHA256, SHA384, SHA512};
 use crate::random::hex_encode;
+use ring::digest::{self, SHA256, SHA384, SHA512};
 
 /// SHA-256 hash output (32 bytes)
 pub struct Sha256Hash([u8; 32]);

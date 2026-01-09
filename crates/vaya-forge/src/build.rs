@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
-use crate::{Artifact, ArtifactId, ArtifactMetadata, ForgeError, ForgeResult};
+use crate::{Artifact, ArtifactId, ArtifactMetadata, ForgeResult};
 
 /// Build configuration
 #[derive(Debug, Clone)]
@@ -67,7 +67,11 @@ impl BuildConfig {
             self.target, self.platform, self.opt_level, self.lto, self.strip, self.features
         );
         let hash = sha256(config_str.as_bytes());
-        hash.as_ref().iter().take(16).map(|b| format!("{:02x}", b)).collect()
+        hash.as_ref()
+            .iter()
+            .take(16)
+            .map(|b| format!("{:02x}", b))
+            .collect()
     }
 }
 
@@ -139,10 +143,8 @@ impl HermeticBuilder {
         // 3. Execute cargo build with locked deps
         // 4. Collect artifacts
 
-        let metadata = ArtifactMetadata::new(
-            &self.context.config.target,
-            env!("CARGO_PKG_VERSION"),
-        );
+        let metadata =
+            ArtifactMetadata::new(&self.context.config.target, env!("CARGO_PKG_VERSION"));
 
         // Placeholder artifact data
         let data = format!(
@@ -150,7 +152,8 @@ impl HermeticBuilder {
             self.context.config.target,
             self.context.config.platform,
             self.context.config.config_hash()
-        ).into_bytes();
+        )
+        .into_bytes();
 
         let compressed = lz4_flex::compress_prepend_size(&data);
         let metadata = metadata.with_size(data.len(), compressed.len());
@@ -193,19 +196,13 @@ mod tests {
 
     #[test]
     fn test_build_context() {
-        let ctx = BuildContext::new(
-            PathBuf::from("/src"),
-            PathBuf::from("/out"),
-        );
+        let ctx = BuildContext::new(PathBuf::from("/src"), PathBuf::from("/out"));
         assert_eq!(ctx.source_dir, PathBuf::from("/src"));
     }
 
     #[test]
     fn test_hermetic_build() {
-        let ctx = BuildContext::new(
-            PathBuf::from("/src"),
-            PathBuf::from("/out"),
-        );
+        let ctx = BuildContext::new(PathBuf::from("/src"), PathBuf::from("/out"));
         let builder = HermeticBuilder::new(ctx);
         let result = builder.build().unwrap();
         assert!(!result.cache_hit);

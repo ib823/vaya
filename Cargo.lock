@@ -3207,6 +3207,7 @@ dependencies = [
  "log",
  "serde",
  "serde_json",
+ "vaya-common",
  "wasm-bindgen",
  "web-sys",
 ]

@@ -1,4 +1,4 @@
-//! Email client (SendGrid)
+//! Email client (`SendGrid`)
 
 use std::time::Duration;
 use tracing::{debug, info, warn};
@@ -7,13 +7,13 @@ use vaya_common::{Timestamp, Uuid};
 
 use crate::error::{NotificationError, NotificationResult};
 use crate::templates::TemplateEngine;
-use crate::types::*;
+use crate::types::{AttachmentDisposition, EmailRequest, EmailResult, NotificationStatus};
 use crate::NotificationConfig;
 
-/// SendGrid API base URL
+/// `SendGrid` API base URL
 const SENDGRID_API_BASE: &str = "https://api.sendgrid.com/v3";
 
-/// Email client using SendGrid
+/// Email client using `SendGrid`
 pub struct EmailClient {
     /// HTTP client
     http_client: reqwest::Client,
@@ -39,7 +39,9 @@ impl EmailClient {
         let http_client = reqwest::Client::builder()
             .timeout(Duration::from_secs(config.request_timeout_secs))
             .build()
-            .map_err(|e| NotificationError::Configuration(format!("Failed to create HTTP client: {e}")))?;
+            .map_err(|e| {
+                NotificationError::Configuration(format!("Failed to create HTTP client: {e}"))
+            })?;
 
         Ok(Self {
             http_client,
@@ -58,8 +60,13 @@ impl EmailClient {
 
         // Render template if needed
         let (text_body, html_body) = if let Some(ref template) = request.template {
-            let text = self.templates.render(&format!("{template}_text"), &request.context).ok();
-            let html = self.templates.render(&format!("{template}_html"), &request.context)?;
+            let text = self
+                .templates
+                .render(&format!("{template}_text"), &request.context)
+                .ok();
+            let html = self
+                .templates
+                .render(&format!("{template}_html"), &request.context)?;
             (text, Some(html))
         } else {
             (request.text_body.clone(), request.html_body.clone())
@@ -84,7 +91,7 @@ impl EmailClient {
         Ok(result)
     }
 
-    /// Build SendGrid API payload
+    /// Build `SendGrid` API payload
     fn build_sendgrid_payload(
         &self,
         request: &EmailRequest,
@@ -104,8 +111,8 @@ impl EmailClient {
 
         // Add custom headers
         if !request.headers.is_empty() {
-            personalizations["headers"] = serde_json::to_value(&request.headers)
-                .unwrap_or_default();
+            personalizations["headers"] =
+                serde_json::to_value(&request.headers).unwrap_or_default();
         }
 
         let mut payload = serde_json::json!({
@@ -142,27 +149,30 @@ impl EmailClient {
 
         // Add categories/tags
         if !request.tags.is_empty() {
-            payload["categories"] = serde_json::to_value(&request.tags)
-                .unwrap_or_default();
+            payload["categories"] = serde_json::to_value(&request.tags).unwrap_or_default();
         }
 
         // Add attachments
         if !request.attachments.is_empty() {
-            let attachments: Vec<serde_json::Value> = request.attachments.iter().map(|a| {
-                let mut attachment = serde_json::json!({
-                    "content": a.content,
-                    "filename": a.filename,
-                    "type": a.content_type,
-                    "disposition": match a.disposition {
-                        AttachmentDisposition::Attachment => "attachment",
-                        AttachmentDisposition::Inline => "inline",
+            let attachments: Vec<serde_json::Value> = request
+                .attachments
+                .iter()
+                .map(|a| {
+                    let mut attachment = serde_json::json!({
+                        "content": a.content,
+                        "filename": a.filename,
+                        "type": a.content_type,
+                        "disposition": match a.disposition {
+                            AttachmentDisposition::Attachment => "attachment",
+                            AttachmentDisposition::Inline => "inline",
+                        }
+                    });
+                    if let Some(ref content_id) = a.content_id {
+                        attachment["content_id"] = serde_json::json!(content_id);
                     }
-                });
-                if let Some(ref content_id) = a.content_id {
-                    attachment["content_id"] = serde_json::json!(content_id);
-                }
-                attachment
-            }).collect();
+                    attachment
+                })
+                .collect();
             payload["attachments"] = serde_json::json!(attachments);
         }
 
@@ -176,7 +186,10 @@ impl EmailClient {
     }
 
     /// Send with retry
-    async fn send_with_retry(&self, payload: &serde_json::Value) -> NotificationResult<EmailResult> {
+    async fn send_with_retry(
+        &self,
+        payload: &serde_json::Value,
+    ) -> NotificationResult<EmailResult> {
         let mut last_error = NotificationError::ServiceUnavailable("No attempts made".to_string());
 
         for attempt in 0..=self.max_retries {
@@ -206,7 +219,7 @@ impl EmailClient {
     async fn send_request(&self, payload: &serde_json::Value) -> NotificationResult<EmailResult> {
         let response = self
             .http_client
-            .post(&format!("{}/mail/send", SENDGRID_API_BASE))
+            .post(format!("{SENDGRID_API_BASE}/mail/send"))
             .header("Authorization", format!("Bearer {}", self.api_key))
             .header("Content-Type", "application/json")
             .json(payload)
@@ -238,8 +251,12 @@ impl EmailClient {
         let error_body = response.text().await.unwrap_or_default();
 
         match status.as_u16() {
-            401 => Err(NotificationError::Configuration("Invalid API key".to_string())),
-            429 => Err(NotificationError::RateLimited { retry_after_secs: 60 }),
+            401 => Err(NotificationError::Configuration(
+                "Invalid API key".to_string(),
+            )),
+            429 => Err(NotificationError::RateLimited {
+                retry_after_secs: 60,
+            }),
             400 => {
                 // Parse SendGrid error
                 if let Ok(error) = serde_json::from_str::<serde_json::Value>(&error_body) {
@@ -256,14 +273,16 @@ impl EmailClient {
                 }
             }
             _ => Err(NotificationError::ServiceUnavailable(format!(
-                "HTTP {}: {}",
-                status, error_body
+                "HTTP {status}: {error_body}"
             ))),
         }
     }
 
     /// Send bulk emails
-    pub async fn send_bulk(&self, requests: &[EmailRequest]) -> Vec<NotificationResult<EmailResult>> {
+    pub async fn send_bulk(
+        &self,
+        requests: &[EmailRequest],
+    ) -> Vec<NotificationResult<EmailResult>> {
         let mut results = Vec::with_capacity(requests.len());
 
         for request in requests {
@@ -301,11 +320,7 @@ mod tests {
             .with_name("John Doe")
             .with_text("Hello, world!");
 
-        let payload = client.build_sendgrid_payload(
-            &request,
-            request.text_body.clone(),
-            None,
-        );
+        let payload = client.build_sendgrid_payload(&request, request.text_body.clone(), None);
 
         assert!(payload.is_ok());
         let payload = payload.expect("Should build");

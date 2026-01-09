@@ -35,7 +35,11 @@ impl fmt::Display for ForgeError {
             ForgeError::ArtifactNotFound(id) => write!(f, "Artifact not found: {}", id),
             ForgeError::InvalidArtifact(msg) => write!(f, "Invalid artifact: {}", msg),
             ForgeError::ChecksumMismatch { expected, actual } => {
-                write!(f, "Checksum mismatch: expected {}, got {}", expected, actual)
+                write!(
+                    f,
+                    "Checksum mismatch: expected {}, got {}",
+                    expected, actual
+                )
             }
             ForgeError::CompressionError(msg) => write!(f, "Compression error: {}", msg),
             ForgeError::DeltaError(msg) => write!(f, "Delta error: {}", msg),

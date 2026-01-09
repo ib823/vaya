@@ -52,9 +52,12 @@ pub mod user;
 
 pub use booking::{BookingConfig, BookingService, CancellationResult, PaymentResult};
 pub use error::{CoreError, CoreResult};
-pub use search::{SearchResponse, SearchService, SearchPriceInsight};
+pub use search::{SearchPriceInsight, SearchResponse, SearchService};
 pub use types::*;
-pub use user::{AuthConfig, AuthResponse, LoginRequest, ProfileUpdate, RegisterRequest, User, UserService, UserStatus};
+pub use user::{
+    AuthConfig, AuthResponse, LoginRequest, ProfileUpdate, RegisterRequest, User, UserService,
+    UserStatus,
+};
 
 /// Core configuration
 #[derive(Debug, Clone)]

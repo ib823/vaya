@@ -20,6 +20,7 @@
 #![warn(rust_2018_idioms)]
 #![forbid(unsafe_op_in_unsafe_fn)]
 
+pub mod codegen;
 pub mod enums;
 pub mod error;
 pub mod types;
@@ -35,9 +36,10 @@ pub const VAYA_VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Build timestamp (set at compile time)
 pub const BUILD_TIMESTAMP: &str = env!("CARGO_PKG_VERSION");
 
-/// Prelude module for convenient imports
+/// Prelude module for convenient imports.
+///
+/// Re-exports commonly used types for easy `use vaya_common::prelude::*;`.
 pub mod prelude {
-    //! Convenience re-exports of commonly used types
     pub use crate::enums::*;
     pub use crate::error::{ErrorCode, Result, VayaError};
     pub use crate::types::*;

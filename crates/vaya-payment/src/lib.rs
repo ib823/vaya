@@ -3,7 +3,7 @@
 //! This crate provides payment processing via Stripe integration.
 //! It uses VAYA's sovereign infrastructure:
 //!
-//! - Uses `vaya-common` types (Price, CurrencyCode, etc.)
+//! - Uses `vaya-common` types (Price, `CurrencyCode`, etc.)
 //! - Uses `vaya-cache` for idempotency key caching
 //! - NO external database dependencies
 //!
@@ -11,7 +11,7 @@
 //!
 //! - **Card Payments**: Via Stripe
 //! - **FPX**: Malaysian bank transfers
-//! - **GrabPay**: Malaysian e-wallet
+//! - **`GrabPay`**: Malaysian e-wallet
 //!
 //! # Example
 //!
@@ -36,13 +36,13 @@
 #![warn(clippy::pedantic)]
 
 pub mod error;
-pub mod types;
 pub mod stripe;
+pub mod types;
 mod webhook;
 
 pub use error::{PaymentError, PaymentResult};
-pub use types::*;
 pub use stripe::{PaymentProvider, StripeClient};
+pub use types::*;
 pub use webhook::WebhookHandler;
 
 /// Payment configuration
@@ -102,10 +102,14 @@ impl PaymentConfig {
     /// Validate configuration
     pub fn validate(&self) -> PaymentResult<()> {
         if self.stripe_secret_key.is_empty() {
-            return Err(PaymentError::Configuration("Stripe secret key is required".to_string()));
+            return Err(PaymentError::Configuration(
+                "Stripe secret key is required".to_string(),
+            ));
         }
         if !self.stripe_secret_key.starts_with("sk_") {
-            return Err(PaymentError::Configuration("Invalid Stripe secret key format".to_string()));
+            return Err(PaymentError::Configuration(
+                "Invalid Stripe secret key format".to_string(),
+            ));
         }
         Ok(())
     }

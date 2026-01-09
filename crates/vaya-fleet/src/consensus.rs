@@ -215,7 +215,11 @@ impl RaftNode {
         }
 
         let vote_granted = req.term >= self.current_term
-            && self.voted_for.as_ref().map(|v| v == &req.candidate_id).unwrap_or(true)
+            && self
+                .voted_for
+                .as_ref()
+                .map(|v| v == &req.candidate_id)
+                .unwrap_or(true)
             && self.is_log_up_to_date(req.last_log_index, req.last_log_term);
 
         if vote_granted {
@@ -267,7 +271,11 @@ impl RaftNode {
             }
         }
 
-        tracing::info!("Node {} became leader for term {}", self.id.as_str(), self.current_term);
+        tracing::info!(
+            "Node {} became leader for term {}",
+            self.id.as_str(),
+            self.current_term
+        );
     }
 
     /// Become follower
@@ -357,10 +365,7 @@ impl RaftNode {
     }
 
     fn last_log_info(&self) -> (u64, u64) {
-        self.log
-            .last()
-            .map(|e| (e.index, e.term))
-            .unwrap_or((0, 0))
+        self.log.last().map(|e| (e.index, e.term)).unwrap_or((0, 0))
     }
 
     fn is_log_up_to_date(&self, index: u64, term: u64) -> bool {

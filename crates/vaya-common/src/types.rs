@@ -48,21 +48,35 @@ impl IataCode {
         &self.0
     }
 
-    /// Common airports
-    pub const KUL: Self = Self(*b"KUL\0");  // Kuala Lumpur
-    pub const SIN: Self = Self(*b"SIN\0");  // Singapore
-    pub const BKK: Self = Self(*b"BKK\0");  // Bangkok
-    pub const NRT: Self = Self(*b"NRT\0");  // Tokyo Narita
-    pub const HND: Self = Self(*b"HND\0");  // Tokyo Haneda
-    pub const HKG: Self = Self(*b"HKG\0");  // Hong Kong
-    pub const ICN: Self = Self(*b"ICN\0");  // Seoul Incheon
-    pub const SYD: Self = Self(*b"SYD\0");  // Sydney
-    pub const MEL: Self = Self(*b"MEL\0");  // Melbourne
-    pub const LHR: Self = Self(*b"LHR\0");  // London Heathrow
-    pub const CDG: Self = Self(*b"CDG\0");  // Paris CDG
-    pub const DXB: Self = Self(*b"DXB\0");  // Dubai
-    pub const JFK: Self = Self(*b"JFK\0");  // New York JFK
-    pub const LAX: Self = Self(*b"LAX\0");  // Los Angeles
+    // Common airports
+    /// Kuala Lumpur International Airport
+    pub const KUL: Self = Self(*b"KUL\0");
+    /// Singapore Changi Airport
+    pub const SIN: Self = Self(*b"SIN\0");
+    /// Bangkok Suvarnabhumi Airport
+    pub const BKK: Self = Self(*b"BKK\0");
+    /// Tokyo Narita International Airport
+    pub const NRT: Self = Self(*b"NRT\0");
+    /// Tokyo Haneda Airport
+    pub const HND: Self = Self(*b"HND\0");
+    /// Hong Kong International Airport
+    pub const HKG: Self = Self(*b"HKG\0");
+    /// Seoul Incheon International Airport
+    pub const ICN: Self = Self(*b"ICN\0");
+    /// Sydney Kingsford Smith Airport
+    pub const SYD: Self = Self(*b"SYD\0");
+    /// Melbourne Tullamarine Airport
+    pub const MEL: Self = Self(*b"MEL\0");
+    /// London Heathrow Airport
+    pub const LHR: Self = Self(*b"LHR\0");
+    /// Paris Charles de Gaulle Airport
+    pub const CDG: Self = Self(*b"CDG\0");
+    /// Dubai International Airport
+    pub const DXB: Self = Self(*b"DXB\0");
+    /// New York John F. Kennedy Airport
+    pub const JFK: Self = Self(*b"JFK\0");
+    /// Los Angeles International Airport
+    pub const LAX: Self = Self(*b"LAX\0");
 }
 
 impl fmt::Debug for IataCode {
@@ -85,6 +99,10 @@ impl fmt::Display for IataCode {
 pub struct CurrencyCode([u8; 4]);
 
 impl CurrencyCode {
+    /// Creates a new currency code from a string.
+    ///
+    /// The code is automatically converted to uppercase.
+    /// Only the first 3 characters are used.
     pub fn new(code: &str) -> Self {
         let mut bytes = [0u8; 4];
         let code_upper = code.to_uppercase();
@@ -94,6 +112,7 @@ impl CurrencyCode {
         Self(bytes)
     }
 
+    /// Returns the currency code as a string slice.
     pub fn as_str(&self) -> &str {
         let len = self.0.iter().position(|&b| b == 0).unwrap_or(3);
         unsafe { std::str::from_utf8_unchecked(&self.0[..len]) }
@@ -109,22 +128,38 @@ impl CurrencyCode {
     }
 
     // Common currencies
-    pub const MYR: Self = Self(*b"MYR\0");  // Malaysian Ringgit
-    pub const USD: Self = Self(*b"USD\0");  // US Dollar
-    pub const SGD: Self = Self(*b"SGD\0");  // Singapore Dollar
-    pub const THB: Self = Self(*b"THB\0");  // Thai Baht
-    pub const IDR: Self = Self(*b"IDR\0");  // Indonesian Rupiah
-    pub const PHP: Self = Self(*b"PHP\0");  // Philippine Peso
-    pub const VND: Self = Self(*b"VND\0");  // Vietnamese Dong
-    pub const JPY: Self = Self(*b"JPY\0");  // Japanese Yen
-    pub const KRW: Self = Self(*b"KRW\0");  // Korean Won
-    pub const CNY: Self = Self(*b"CNY\0");  // Chinese Yuan
-    pub const HKD: Self = Self(*b"HKD\0");  // Hong Kong Dollar
-    pub const TWD: Self = Self(*b"TWD\0");  // Taiwan Dollar
-    pub const AUD: Self = Self(*b"AUD\0");  // Australian Dollar
-    pub const NZD: Self = Self(*b"NZD\0");  // New Zealand Dollar
-    pub const EUR: Self = Self(*b"EUR\0");  // Euro
-    pub const GBP: Self = Self(*b"GBP\0");  // British Pound
+    /// Malaysian Ringgit
+    pub const MYR: Self = Self(*b"MYR\0");
+    /// US Dollar
+    pub const USD: Self = Self(*b"USD\0");
+    /// Singapore Dollar
+    pub const SGD: Self = Self(*b"SGD\0");
+    /// Thai Baht
+    pub const THB: Self = Self(*b"THB\0");
+    /// Indonesian Rupiah
+    pub const IDR: Self = Self(*b"IDR\0");
+    /// Philippine Peso
+    pub const PHP: Self = Self(*b"PHP\0");
+    /// Vietnamese Dong
+    pub const VND: Self = Self(*b"VND\0");
+    /// Japanese Yen
+    pub const JPY: Self = Self(*b"JPY\0");
+    /// Korean Won
+    pub const KRW: Self = Self(*b"KRW\0");
+    /// Chinese Yuan
+    pub const CNY: Self = Self(*b"CNY\0");
+    /// Hong Kong Dollar
+    pub const HKD: Self = Self(*b"HKD\0");
+    /// Taiwan Dollar
+    pub const TWD: Self = Self(*b"TWD\0");
+    /// Australian Dollar
+    pub const AUD: Self = Self(*b"AUD\0");
+    /// New Zealand Dollar
+    pub const NZD: Self = Self(*b"NZD\0");
+    /// Euro
+    pub const EUR: Self = Self(*b"EUR\0");
+    /// British Pound
+    pub const GBP: Self = Self(*b"GBP\0");
 }
 
 impl fmt::Debug for CurrencyCode {
@@ -141,19 +176,26 @@ impl fmt::Display for CurrencyCode {
 
 /// Monetary amount in minor units (cents/sen)
 /// Using i64 to handle all currencies including IDR, VND
-#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[derive(
+    Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default,
+)]
 #[archive(compare(PartialEq, PartialOrd))]
 #[archive_attr(derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash))]
 #[repr(C)]
 pub struct MinorUnits(i64);
 
 impl MinorUnits {
+    /// Zero value constant for convenience.
     pub const ZERO: Self = Self(0);
 
+    /// Creates a new MinorUnits from an i64 value.
+    ///
+    /// The value represents the smallest currency unit (e.g., cents, sen).
     pub fn new(amount: i64) -> Self {
         Self(amount)
     }
 
+    /// Returns the raw i64 value.
     pub fn as_i64(&self) -> i64 {
         self.0
     }
@@ -202,11 +244,14 @@ impl fmt::Display for MinorUnits {
 #[archive_attr(derive(Debug, PartialEq, Eq))]
 #[repr(C)]
 pub struct Price {
+    /// Amount in minor units (cents/sen)
     pub amount: MinorUnits,
+    /// Currency code (ISO 4217)
     pub currency: CurrencyCode,
 }
 
 impl Price {
+    /// Creates a new Price with the given amount and currency.
     pub fn new(amount: MinorUnits, currency: CurrencyCode) -> Self {
         Self { amount, currency }
     }
@@ -236,7 +281,12 @@ impl Price {
     pub fn format(&self) -> String {
         let decimals = self.currency.decimals();
         let major = self.amount.to_major(decimals);
-        format!("{} {:.prec$}", self.currency.as_str(), major, prec = decimals as usize)
+        format!(
+            "{} {:.prec$}",
+            self.currency.as_str(),
+            major,
+            prec = decimals as usize
+        )
     }
 
     /// Check if zero
@@ -269,15 +319,19 @@ impl fmt::Display for Price {
 }
 
 /// Unix timestamp (seconds since epoch)
-#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[derive(
+    Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default,
+)]
 #[archive(compare(PartialEq, PartialOrd))]
 #[archive_attr(derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash))]
 #[repr(C)]
 pub struct Timestamp(i64);
 
 impl Timestamp {
+    /// Unix epoch (1970-01-01 00:00:00 UTC).
     pub const EPOCH: Self = Self(0);
 
+    /// Returns the current timestamp.
     pub fn now() -> Self {
         Self(
             std::time::SystemTime::now()
@@ -287,10 +341,12 @@ impl Timestamp {
         )
     }
 
+    /// Creates a timestamp from Unix seconds.
     pub fn from_unix(secs: i64) -> Self {
         Self(secs)
     }
 
+    /// Returns the Unix timestamp value in seconds.
     pub fn as_unix(&self) -> i64 {
         self.0
     }
@@ -376,7 +432,11 @@ impl fmt::Display for Timestamp {
 
         let (m, d) = days_to_month_day(remaining_days as u32, is_leap_year(y));
 
-        write!(f, "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z", y, m, d, hours, minutes, seconds)
+        write!(
+            f,
+            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
+            y, m, d, hours, minutes, seconds
+        )
     }
 }
 
@@ -402,17 +462,23 @@ fn days_to_month_day(day_of_year: u32, leap: bool) -> (u32, u32) {
 }
 
 /// Date (year, month, day) - compact date without time
-#[derive(Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[derive(
+    Archive, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default,
+)]
 #[archive(compare(PartialEq, PartialOrd))]
 #[archive_attr(derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash))]
 #[repr(C)]
 pub struct Date {
+    /// Year (e.g., 2025)
     pub year: i16,
+    /// Month (1-12)
     pub month: u8,
+    /// Day of month (1-31)
     pub day: u8,
 }
 
 impl Date {
+    /// Creates a new Date with the given year, month, and day.
     pub fn new(year: i16, month: u8, day: u8) -> Self {
         Self { year, month, day }
     }
@@ -452,7 +518,13 @@ impl Date {
         let days_in_month = match self.month {
             1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
             4 | 6 | 9 | 11 => 30,
-            2 => if is_leap_year(self.year as i64) { 29 } else { 28 },
+            2 => {
+                if is_leap_year(self.year as i64) {
+                    29
+                } else {
+                    28
+                }
+            }
             _ => return false,
         };
 
@@ -482,8 +554,11 @@ impl Date {
             [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         };
 
-        for m in 0..(self.month.saturating_sub(1) as usize) {
-            days += days_in_months[m];
+        for &month_days in days_in_months
+            .iter()
+            .take(self.month.saturating_sub(1) as usize)
+        {
+            days += month_days;
         }
 
         // Days
@@ -528,7 +603,11 @@ impl Date {
 
 impl fmt::Debug for Date {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Date({:04}-{:02}-{:02})", self.year, self.month, self.day)
+        write!(
+            f,
+            "Date({:04}-{:02}-{:02})",
+            self.year, self.month, self.day
+        )
     }
 }
 
@@ -544,13 +623,19 @@ impl fmt::Display for Date {
 #[archive_attr(derive(Debug, PartialEq, Eq, Hash))]
 #[repr(C)]
 pub struct Route {
+    /// Origin airport code
     pub origin: IataCode,
+    /// Destination airport code
     pub destination: IataCode,
 }
 
 impl Route {
+    /// Creates a new Route with the given origin and destination codes.
     pub fn new(origin: IataCode, destination: IataCode) -> Self {
-        Self { origin, destination }
+        Self {
+            origin,
+            destination,
+        }
     }
 
     /// Create from string codes
@@ -582,13 +667,23 @@ impl Route {
 
 impl fmt::Debug for Route {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Route({} -> {})", self.origin.as_str(), self.destination.as_str())
+        write!(
+            f,
+            "Route({} -> {})",
+            self.origin.as_str(),
+            self.destination.as_str()
+        )
     }
 }
 
 impl fmt::Display for Route {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} -> {}", self.origin.as_str(), self.destination.as_str())
+        write!(
+            f,
+            "{} -> {}",
+            self.origin.as_str(),
+            self.destination.as_str()
+        )
     }
 }
 
@@ -598,11 +693,14 @@ impl fmt::Display for Route {
 #[archive_attr(derive(Debug, PartialEq, Eq, Hash))]
 #[repr(C, align(16))]
 pub struct Uuid {
+    /// High 64 bits of the UUID
     pub high: u64,
+    /// Low 64 bits of the UUID
     pub low: u64,
 }
 
 impl Uuid {
+    /// The nil UUID (all zeros)
     pub const NIL: Self = Self { high: 0, low: 0 };
 
     /// Generate a new UUID v4 using ring's SystemRandom
@@ -615,9 +713,18 @@ impl Uuid {
         bytes[6] = (bytes[6] & 0x0f) | 0x40;
         bytes[8] = (bytes[8] & 0x3f) | 0x80;
 
+        // SAFETY: bytes is [u8; 16], so these slices are always exactly 8 bytes
         Self {
-            high: u64::from_be_bytes(bytes[0..8].try_into().unwrap()),
-            low: u64::from_be_bytes(bytes[8..16].try_into().unwrap()),
+            high: u64::from_be_bytes(
+                bytes[0..8]
+                    .try_into()
+                    .expect("slice from 16-byte array is always 8 bytes"),
+            ),
+            low: u64::from_be_bytes(
+                bytes[8..16]
+                    .try_into()
+                    .expect("slice from 16-byte array is always 8 bytes"),
+            ),
         }
     }
 
@@ -636,9 +743,18 @@ impl Uuid {
 
     /// Create from bytes
     pub fn from_bytes(bytes: [u8; 16]) -> Self {
+        // SAFETY: bytes is [u8; 16], so these slices are always exactly 8 bytes
         Self {
-            high: u64::from_be_bytes(bytes[0..8].try_into().unwrap()),
-            low: u64::from_be_bytes(bytes[8..16].try_into().unwrap()),
+            high: u64::from_be_bytes(
+                bytes[0..8]
+                    .try_into()
+                    .expect("slice from 16-byte array is always 8 bytes"),
+            ),
+            low: u64::from_be_bytes(
+                bytes[8..16]
+                    .try_into()
+                    .expect("slice from 16-byte array is always 8 bytes"),
+            ),
         }
     }
 
@@ -694,6 +810,7 @@ pub struct FixedString<const N: usize> {
 }
 
 impl<const N: usize> FixedString<N> {
+    /// Creates an empty FixedString.
     pub const fn empty() -> Self {
         Self {
             data: [0u8; N],
@@ -701,6 +818,9 @@ impl<const N: usize> FixedString<N> {
         }
     }
 
+    /// Creates a new FixedString from a string slice.
+    ///
+    /// If the string exceeds N bytes, it is truncated.
     pub fn new(s: &str) -> Self {
         let mut data = [0u8; N];
         let len = s.len().min(N);
@@ -711,18 +831,22 @@ impl<const N: usize> FixedString<N> {
         }
     }
 
+    /// Returns the string content as a string slice.
     pub fn as_str(&self) -> &str {
         unsafe { std::str::from_utf8_unchecked(&self.data[..self.len as usize]) }
     }
 
+    /// Returns the length of the string in bytes.
     pub fn len(&self) -> usize {
         self.len as usize
     }
 
+    /// Returns true if the string is empty.
     pub fn is_empty(&self) -> bool {
         self.len == 0
     }
 
+    /// Returns the maximum capacity in bytes.
     pub fn capacity(&self) -> usize {
         N
     }
@@ -747,10 +871,15 @@ impl<const N: usize> fmt::Display for FixedString<N> {
 }
 
 // Type aliases for common fixed string sizes
+/// Fixed string with 16-byte capacity
 pub type String16 = FixedString<16>;
+/// Fixed string with 32-byte capacity
 pub type String32 = FixedString<32>;
+/// Fixed string with 64-byte capacity
 pub type String64 = FixedString<64>;
+/// Fixed string with 128-byte capacity
 pub type String128 = FixedString<128>;
+/// Fixed string with 256-byte capacity
 pub type String256 = FixedString<256>;
 
 /// Airline code (2-letter IATA)
@@ -761,6 +890,10 @@ pub type String256 = FixedString<256>;
 pub struct AirlineCode([u8; 2]);
 
 impl AirlineCode {
+    /// Creates a new airline code from a string.
+    ///
+    /// The code is automatically converted to uppercase.
+    /// Only the first 2 characters are used.
     pub fn new(code: &str) -> Self {
         let mut bytes = [b' '; 2];
         let code_upper = code.to_uppercase();
@@ -770,25 +903,40 @@ impl AirlineCode {
         Self(bytes)
     }
 
+    /// Returns the airline code as a string slice.
     pub fn as_str(&self) -> &str {
         unsafe { std::str::from_utf8_unchecked(&self.0) }
     }
 
     // Common airlines
-    pub const MH: Self = Self(*b"MH");  // Malaysia Airlines
-    pub const AK: Self = Self(*b"AK");  // AirAsia
-    pub const SQ: Self = Self(*b"SQ");  // Singapore Airlines
-    pub const TG: Self = Self(*b"TG");  // Thai Airways
-    pub const CX: Self = Self(*b"CX");  // Cathay Pacific
-    pub const NH: Self = Self(*b"NH");  // ANA
-    pub const JL: Self = Self(*b"JL");  // Japan Airlines
-    pub const KE: Self = Self(*b"KE");  // Korean Air
-    pub const OZ: Self = Self(*b"OZ");  // Asiana
-    pub const EK: Self = Self(*b"EK");  // Emirates
-    pub const QR: Self = Self(*b"QR");  // Qatar Airways
-    pub const TR: Self = Self(*b"TR");  // Scoot
-    pub const FD: Self = Self(*b"FD");  // Thai AirAsia
-    pub const VJ: Self = Self(*b"VJ");  // VietJet
+    /// Malaysia Airlines
+    pub const MH: Self = Self(*b"MH");
+    /// AirAsia
+    pub const AK: Self = Self(*b"AK");
+    /// Singapore Airlines
+    pub const SQ: Self = Self(*b"SQ");
+    /// Thai Airways
+    pub const TG: Self = Self(*b"TG");
+    /// Cathay Pacific
+    pub const CX: Self = Self(*b"CX");
+    /// All Nippon Airways (ANA)
+    pub const NH: Self = Self(*b"NH");
+    /// Japan Airlines
+    pub const JL: Self = Self(*b"JL");
+    /// Korean Air
+    pub const KE: Self = Self(*b"KE");
+    /// Asiana Airlines
+    pub const OZ: Self = Self(*b"OZ");
+    /// Emirates
+    pub const EK: Self = Self(*b"EK");
+    /// Qatar Airways
+    pub const QR: Self = Self(*b"QR");
+    /// Scoot
+    pub const TR: Self = Self(*b"TR");
+    /// Thai AirAsia
+    pub const FD: Self = Self(*b"FD");
+    /// VietJet Air
+    pub const VJ: Self = Self(*b"VJ");
 }
 
 impl fmt::Debug for AirlineCode {

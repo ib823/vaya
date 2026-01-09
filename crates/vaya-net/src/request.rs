@@ -45,9 +45,8 @@ impl Request {
     /// Parse raw HTTP request bytes
     pub fn parse(data: &[u8]) -> NetResult<Self> {
         // Find header/body separator
-        let header_end = Self::find_header_end(data).ok_or_else(|| {
-            NetError::InvalidRequest("Incomplete headers".into())
-        })?;
+        let header_end = Self::find_header_end(data)
+            .ok_or_else(|| NetError::InvalidRequest("Incomplete headers".into()))?;
 
         if header_end > MAX_HEADER_SIZE {
             return Err(NetError::HeaderTooLarge);
@@ -104,12 +103,7 @@ impl Request {
 
     /// Find the end of headers (\r\n\r\n)
     fn find_header_end(data: &[u8]) -> Option<usize> {
-        for i in 0..data.len().saturating_sub(3) {
-            if &data[i..i + 4] == b"\r\n\r\n" {
-                return Some(i);
-            }
-        }
-        None
+        (0..data.len().saturating_sub(3)).find(|&i| &data[i..i + 4] == b"\r\n\r\n")
     }
 
     /// Parse the request line (e.g., "GET /path HTTP/1.1")
@@ -182,9 +176,9 @@ impl Request {
 
     /// Parse a header line (e.g., "Content-Type: application/json")
     fn parse_header_line(line: &str) -> NetResult<(String, String)> {
-        let idx = line.find(':').ok_or_else(|| {
-            NetError::InvalidRequest(format!("Invalid header line: {}", line))
-        })?;
+        let idx = line
+            .find(':')
+            .ok_or_else(|| NetError::InvalidRequest(format!("Invalid header line: {}", line)))?;
 
         let name = line[..idx].trim().to_string();
         let value = line[idx + 1..].trim().to_string();

@@ -100,14 +100,22 @@ impl fmt::Display for PoolError {
             PoolError::CannotLeave(reason) => write!(f, "Cannot leave pool: {}", reason),
             PoolError::MemberLimitReached => write!(f, "Pool member limit reached"),
             PoolError::MinMembersNotReached { required, current } => {
-                write!(f, "Minimum {} members required, only {} joined", required, current)
+                write!(
+                    f,
+                    "Minimum {} members required, only {} joined",
+                    required, current
+                )
             }
 
             // Contribution
             PoolError::InvalidContribution(msg) => write!(f, "Invalid contribution: {}", msg),
             PoolError::ContributionNotFound(id) => write!(f, "Contribution not found: {}", id),
             PoolError::InsufficientContribution { required, provided } => {
-                write!(f, "Insufficient contribution: required {}, provided {}", required, provided)
+                write!(
+                    f,
+                    "Insufficient contribution: required {}, provided {}",
+                    required, provided
+                )
             }
             PoolError::ContributionDeadlinePassed => write!(f, "Contribution deadline has passed"),
             PoolError::ContributionAlreadyProcessed => write!(f, "Contribution already processed"),
@@ -140,9 +148,7 @@ impl PoolError {
     pub fn is_retriable(&self) -> bool {
         matches!(
             self,
-            PoolError::LockFailed
-                | PoolError::ConcurrentModification
-                | PoolError::Internal(_)
+            PoolError::LockFailed | PoolError::ConcurrentModification | PoolError::Internal(_)
         )
     }
 

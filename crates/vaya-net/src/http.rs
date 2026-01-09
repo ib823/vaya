@@ -96,7 +96,10 @@ impl FromStr for Version {
         match s.to_uppercase().as_str() {
             "HTTP/1.0" => Ok(Version::Http10),
             "HTTP/1.1" => Ok(Version::Http11),
-            _ => Err(NetError::InvalidRequest(format!("Unsupported HTTP version: {}", s))),
+            _ => Err(NetError::InvalidRequest(format!(
+                "Unsupported HTTP version: {}",
+                s
+            ))),
         }
     }
 }
@@ -231,12 +234,15 @@ pub struct Headers {
 impl Headers {
     /// Create a new empty headers collection
     pub fn new() -> Self {
-        Self { headers: Vec::new() }
+        Self {
+            headers: Vec::new(),
+        }
     }
 
     /// Add a header (allows duplicates)
     pub fn append(&mut self, name: impl Into<String>, value: impl Into<String>) {
-        self.headers.push((name.into().to_lowercase(), value.into()));
+        self.headers
+            .push((name.into().to_lowercase(), value.into()));
     }
 
     /// Set a header (replaces existing)

@@ -121,9 +121,8 @@ impl Server {
 
     /// Load certificates from a PEM file
     fn load_certs(path: &str) -> NetResult<Vec<CertificateDer<'static>>> {
-        let file = File::open(path).map_err(|e| {
-            NetError::Tls(format!("Failed to open certificate file: {}", e))
-        })?;
+        let file = File::open(path)
+            .map_err(|e| NetError::Tls(format!("Failed to open certificate file: {}", e)))?;
         let mut reader = BufReader::new(file);
         let certs = rustls_pemfile::certs(&mut reader)
             .collect::<Result<Vec<_>, _>>()
@@ -138,9 +137,8 @@ impl Server {
 
     /// Load private key from a PEM file
     fn load_key(path: &str) -> NetResult<PrivateKeyDer<'static>> {
-        let file = File::open(path).map_err(|e| {
-            NetError::Tls(format!("Failed to open key file: {}", e))
-        })?;
+        let file = File::open(path)
+            .map_err(|e| NetError::Tls(format!("Failed to open key file: {}", e)))?;
         let mut reader = BufReader::new(file);
 
         loop {
@@ -177,7 +175,9 @@ impl Server {
                     let tls_acceptor = self.tls_acceptor.clone();
 
                     tokio::spawn(async move {
-                        if let Err(e) = Self::handle_connection(stream, addr, router, tls_acceptor).await {
+                        if let Err(e) =
+                            Self::handle_connection(stream, addr, router, tls_acceptor).await
+                        {
                             tracing::debug!("Connection error from {}: {}", addr, e);
                         }
                     });
@@ -419,8 +419,8 @@ mod tokio_rustls {
 
         fn poll(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Self::Output> {
             let stream = self.stream.take().unwrap();
-            let conn = ServerConnection::new(self.config.clone())
-                .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+            let conn =
+                ServerConnection::new(self.config.clone()).map_err(|e| io::Error::other(e))?;
 
             Poll::Ready(Ok(TlsStream {
                 stream,

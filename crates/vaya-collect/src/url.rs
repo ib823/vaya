@@ -95,9 +95,9 @@ impl Url {
                 let host = authority[1..bracket_end].to_string();
                 let port = if authority.len() > bracket_end + 1 {
                     let port_str = &authority[bracket_end + 2..]; // Skip ]:
-                    port_str
-                        .parse()
-                        .map_err(|_| CollectError::InvalidUrl(format!("Invalid port: {}", port_str)))?
+                    port_str.parse().map_err(|_| {
+                        CollectError::InvalidUrl(format!("Invalid port: {}", port_str))
+                    })?
                 } else {
                     default_port
                 };
@@ -214,11 +214,14 @@ pub fn decode(s: &str) -> CollectResult<String> {
         if c == '%' {
             let hex: String = chars.by_ref().take(2).collect();
             if hex.len() == 2 {
-                let byte = u8::from_str_radix(&hex, 16)
-                    .map_err(|_| CollectError::ParseError(format!("Invalid percent encoding: %{}", hex)))?;
+                let byte = u8::from_str_radix(&hex, 16).map_err(|_| {
+                    CollectError::ParseError(format!("Invalid percent encoding: %{}", hex))
+                })?;
                 result.push(byte);
             } else {
-                return Err(CollectError::ParseError("Incomplete percent encoding".into()));
+                return Err(CollectError::ParseError(
+                    "Incomplete percent encoding".into(),
+                ));
             }
         } else if c == '+' {
             result.push(b' ');

@@ -1,7 +1,6 @@
 //! Query building and execution
 
 use crate::schema::{Record, Value};
-use crate::{StoreError, StoreResult};
 
 /// Comparison operators
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -136,25 +135,19 @@ impl Condition {
         match self.op {
             CompareOp::IsNull => field_value.map(|v| v.is_null()).unwrap_or(true),
             CompareOp::IsNotNull => field_value.map(|v| !v.is_null()).unwrap_or(false),
-            CompareOp::Eq => {
-                field_value
-                    .and_then(|v| self.values.first().map(|target| v == target))
-                    .unwrap_or(false)
-            }
-            CompareOp::Ne => {
-                field_value
-                    .and_then(|v| self.values.first().map(|target| v != target))
-                    .unwrap_or(true)
-            }
+            CompareOp::Eq => field_value
+                .and_then(|v| self.values.first().map(|target| v == target))
+                .unwrap_or(false),
+            CompareOp::Ne => field_value
+                .and_then(|v| self.values.first().map(|target| v != target))
+                .unwrap_or(true),
             CompareOp::Lt => self.compare_numeric(field_value, |a, b| a < b),
             CompareOp::Le => self.compare_numeric(field_value, |a, b| a <= b),
             CompareOp::Gt => self.compare_numeric(field_value, |a, b| a > b),
             CompareOp::Ge => self.compare_numeric(field_value, |a, b| a >= b),
-            CompareOp::In => {
-                field_value
-                    .map(|v| self.values.contains(v))
-                    .unwrap_or(false)
-            }
+            CompareOp::In => field_value
+                .map(|v| self.values.contains(v))
+                .unwrap_or(false),
             CompareOp::Like => self.matches_like(field_value),
         }
     }
@@ -164,7 +157,9 @@ impl Condition {
         F: Fn(f64, f64) -> bool,
     {
         let Some(field) = field else { return false };
-        let Some(target) = self.values.first() else { return false };
+        let Some(target) = self.values.first() else {
+            return false;
+        };
 
         match (field, target) {
             (Value::Int64(a), Value::Int64(b)) => cmp(*a as f64, *b as f64),
@@ -178,8 +173,12 @@ impl Condition {
     }
 
     fn matches_like(&self, field: Option<&Value>) -> bool {
-        let Some(Value::String(s)) = field else { return false };
-        let Some(Value::String(pattern)) = self.values.first() else { return false };
+        let Some(Value::String(s)) = field else {
+            return false;
+        };
+        let Some(Value::String(pattern)) = self.values.first() else {
+            return false;
+        };
 
         // Simple LIKE implementation: % matches any sequence, _ matches single char
         self.like_match(s, pattern)
@@ -427,9 +426,7 @@ mod tests {
 
     #[test]
     fn test_condition_like() {
-        let record = RecordBuilder::new()
-            .string("name", "Alice Smith")
-            .build();
+        let record = RecordBuilder::new().string("name", "Alice Smith").build();
 
         assert!(Condition {
             column: "name".into(),

@@ -13,7 +13,9 @@ impl ArtifactId {
     /// Create from hex string
     pub fn from_hex(hex: &str) -> ForgeResult<Self> {
         if hex.len() != 64 {
-            return Err(ForgeError::InvalidArtifact("Invalid artifact ID length".into()));
+            return Err(ForgeError::InvalidArtifact(
+                "Invalid artifact ID length".into(),
+            ));
         }
         Ok(Self(hex.to_string()))
     }

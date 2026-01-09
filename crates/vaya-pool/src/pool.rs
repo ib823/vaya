@@ -2,7 +2,7 @@
 
 use ring::rand::{SecureRandom, SystemRandom};
 use time::OffsetDateTime;
-use vaya_common::{MinorUnits, IataCode};
+use vaya_common::{IataCode, MinorUnits};
 use vaya_search::FlightOffer;
 
 use crate::pricing::{PriceLock, TieredPricing};
@@ -45,7 +45,10 @@ impl PoolStatus {
     pub fn is_terminal(&self) -> bool {
         matches!(
             self,
-            PoolStatus::Completed | PoolStatus::Expired | PoolStatus::Cancelled | PoolStatus::Failed
+            PoolStatus::Completed
+                | PoolStatus::Expired
+                | PoolStatus::Cancelled
+                | PoolStatus::Failed
         )
     }
 
@@ -490,7 +493,12 @@ impl Pool {
     }
 
     /// Transition to a new status
-    pub fn transition(&mut self, new_status: PoolStatus, reason: &str, actor: &str) -> PoolResult<()> {
+    pub fn transition(
+        &mut self,
+        new_status: PoolStatus,
+        reason: &str,
+        actor: &str,
+    ) -> PoolResult<()> {
         if !self.status.can_transition_to(new_status) {
             return Err(PoolError::InvalidStateTransition {
                 from: self.status.as_str().to_string(),
@@ -577,7 +585,11 @@ impl Pool {
 
         // Check contribution deadline for Active status
         if self.status == PoolStatus::Active && now > self.contribution_deadline {
-            let _ = self.transition(PoolStatus::Expired, "Contribution deadline passed", "SYSTEM");
+            let _ = self.transition(
+                PoolStatus::Expired,
+                "Contribution deadline passed",
+                "SYSTEM",
+            );
             return true;
         }
 
@@ -654,7 +666,8 @@ mod tests {
             test_pricing(),
             "user-organizer",
             1,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(pool.id.starts_with("POOL-"));
         assert_eq!(pool.status, PoolStatus::Forming);
@@ -665,13 +678,8 @@ mod tests {
 
     #[test]
     fn test_join_pool() {
-        let mut pool = Pool::new(
-            "Test Pool",
-            test_route(),
-            test_pricing(),
-            "organizer",
-            1,
-        ).unwrap();
+        let mut pool =
+            Pool::new("Test Pool", test_route(), test_pricing(), "organizer", 1).unwrap();
 
         // Join as new member
         assert!(pool.join("user-2", 1).is_ok());
@@ -688,13 +696,8 @@ mod tests {
 
     #[test]
     fn test_minimum_members() {
-        let mut pool = Pool::new(
-            "Test Pool",
-            test_route(),
-            test_pricing(),
-            "organizer",
-            1,
-        ).unwrap();
+        let mut pool =
+            Pool::new("Test Pool", test_route(), test_pricing(), "organizer", 1).unwrap();
 
         pool.min_members = 3;
 
@@ -713,13 +716,8 @@ mod tests {
 
     #[test]
     fn test_leave_pool() {
-        let mut pool = Pool::new(
-            "Test Pool",
-            test_route(),
-            test_pricing(),
-            "organizer",
-            1,
-        ).unwrap();
+        let mut pool =
+            Pool::new("Test Pool", test_route(), test_pricing(), "organizer", 1).unwrap();
 
         pool.join("user-2", 1).unwrap();
 
@@ -736,13 +734,8 @@ mod tests {
 
     #[test]
     fn test_contribution() {
-        let mut pool = Pool::new(
-            "Test Pool",
-            test_route(),
-            test_pricing(),
-            "organizer",
-            1,
-        ).unwrap();
+        let mut pool =
+            Pool::new("Test Pool", test_route(), test_pricing(), "organizer", 1).unwrap();
 
         pool.min_members = 1;
         pool.join("user-2", 1).unwrap();
@@ -761,13 +754,8 @@ mod tests {
 
     #[test]
     fn test_insufficient_contribution() {
-        let mut pool = Pool::new(
-            "Test Pool",
-            test_route(),
-            test_pricing(),
-            "organizer",
-            2,
-        ).unwrap();
+        let mut pool =
+            Pool::new("Test Pool", test_route(), test_pricing(), "organizer", 2).unwrap();
 
         pool.min_members = 1;
         pool.status = PoolStatus::Active;
@@ -775,24 +763,23 @@ mod tests {
         // Try to contribute less than required (2 spots @ $100 = $200)
         let amount = MinorUnits::new(10000); // Only $100
         let result = pool.contribute("organizer", amount);
-        assert!(matches!(result, Err(PoolError::InsufficientContribution { .. })));
+        assert!(matches!(
+            result,
+            Err(PoolError::InsufficientContribution { .. })
+        ));
     }
 
     #[test]
     fn test_all_contributed_locks_pool() {
-        let mut pool = Pool::new(
-            "Test Pool",
-            test_route(),
-            test_pricing(),
-            "organizer",
-            1,
-        ).unwrap();
+        let mut pool =
+            Pool::new("Test Pool", test_route(), test_pricing(), "organizer", 1).unwrap();
 
         pool.min_members = 1;
         pool.status = PoolStatus::Active;
 
         // Contribute
-        pool.contribute("organizer", MinorUnits::new(10000)).unwrap();
+        pool.contribute("organizer", MinorUnits::new(10000))
+            .unwrap();
 
         assert_eq!(pool.status, PoolStatus::Locked);
     }
@@ -812,13 +799,8 @@ mod tests {
 
     #[test]
     fn test_cancel_pool() {
-        let mut pool = Pool::new(
-            "Test Pool",
-            test_route(),
-            test_pricing(),
-            "organizer",
-            1,
-        ).unwrap();
+        let mut pool =
+            Pool::new("Test Pool", test_route(), test_pricing(), "organizer", 1).unwrap();
 
         // Non-organizer cannot cancel
         pool.join("user-2", 1).unwrap();
@@ -831,13 +813,8 @@ mod tests {
 
     #[test]
     fn test_complete_pool() {
-        let mut pool = Pool::new(
-            "Test Pool",
-            test_route(),
-            test_pricing(),
-            "organizer",
-            1,
-        ).unwrap();
+        let mut pool =
+            Pool::new("Test Pool", test_route(), test_pricing(), "organizer", 1).unwrap();
 
         pool.status = PoolStatus::Locked;
 
@@ -855,13 +832,8 @@ mod tests {
 
     #[test]
     fn test_price_lock_on_join() {
-        let mut pool = Pool::new(
-            "Test Pool",
-            test_route(),
-            test_pricing(),
-            "organizer",
-            1,
-        ).unwrap();
+        let mut pool =
+            Pool::new("Test Pool", test_route(), test_pricing(), "organizer", 1).unwrap();
 
         pool.join("user-2", 1).unwrap();
 

@@ -64,7 +64,7 @@ where
         notification_config: Option<&NotificationConfig>,
     ) -> CoreResult<Self> {
         let email = notification_config
-            .map(|c| EmailClient::new(c))
+            .map(EmailClient::new)
             .transpose()
             .map_err(|e| CoreError::Internal(format!("Failed to create email client: {}", e)))?;
 
@@ -94,9 +94,7 @@ where
 
         // Validate offer hasn't expired
         if offer.expires_at < Timestamp::now() {
-            return Err(CoreError::FareNotAvailable(
-                "Offer has expired".to_string(),
-            ));
+            return Err(CoreError::FareNotAvailable("Offer has expired".to_string()));
         }
 
         // Validate passenger count matches
@@ -117,8 +115,8 @@ where
         let pnr = self.generate_pnr();
 
         // Calculate payment deadline
-        let payment_deadline = Timestamp::now()
-            .add_mins(self.config.payment_timeout_minutes as i64);
+        let payment_deadline =
+            Timestamp::now().add_mins(self.config.payment_timeout_minutes as i64);
 
         // Create booking record
         let booking = Booking {
@@ -177,15 +175,12 @@ where
         booking.status = BookingStatus::PaymentProcessing;
 
         // Create payment request
-        let mut payment_request = PaymentRequest::new(
-            booking.total_price,
-            &booking.pnr,
-            &booking.contact.email,
-        )
-        .with_description(format!("Flight booking {}", booking.pnr))
-        .with_idempotency_key(format!("booking_{}", booking.id))
-        .with_metadata("booking_id", &booking.id)
-        .with_metadata("pnr", &booking.pnr);
+        let mut payment_request =
+            PaymentRequest::new(booking.total_price, &booking.pnr, &booking.contact.email)
+                .with_description(format!("Flight booking {}", booking.pnr))
+                .with_idempotency_key(format!("booking_{}", booking.id))
+                .with_metadata("booking_id", &booking.id)
+                .with_metadata("pnr", &booking.pnr);
 
         if let Some(url) = return_url {
             payment_request = payment_request.with_return_url(url);
@@ -238,7 +233,11 @@ where
             }
             _ => {
                 booking.status = BookingStatus::PendingPayment;
-                Err(CoreError::PaymentFailed(payment_intent.error_message.unwrap_or_else(|| "Payment failed".to_string())))
+                Err(CoreError::PaymentFailed(
+                    payment_intent
+                        .error_message
+                        .unwrap_or_else(|| "Payment failed".to_string()),
+                ))
             }
         }
     }
@@ -368,24 +367,49 @@ where
             CoreError::NotificationFailed("Email client not configured".to_string())
         })?;
 
-        let email = EmailRequest::from_type(&booking.contact.email, NotificationType::BookingConfirmation)
-            .with_name(&format!(
+        let email = EmailRequest::from_type(
+            &booking.contact.email,
+            NotificationType::BookingConfirmation,
+        )
+        .with_name(format!(
+            "{} {}",
+            booking.passengers[0].first_name, booking.passengers[0].last_name
+        ))
+        .with_context("booking_ref", &booking.pnr)
+        .with_context(
+            "passenger_name",
+            format!(
                 "{} {}",
                 booking.passengers[0].first_name, booking.passengers[0].last_name
-            ))
-            .with_context("booking_ref", &booking.pnr)
-            .with_context("passenger_name", &format!(
-                "{} {}",
-                booking.passengers[0].first_name, booking.passengers[0].last_name
-            ))
-            .with_context("origin", booking.flights.outbound.segments[0].origin.as_str())
-            .with_context("destination", booking.flights.outbound.segments.last()
+            ),
+        )
+        .with_context(
+            "origin",
+            booking.flights.outbound.segments[0].origin.as_str(),
+        )
+        .with_context(
+            "destination",
+            booking
+                .flights
+                .outbound
+                .segments
+                .last()
                 .map(|s| s.destination.as_str())
-                .unwrap_or(""))
-            .with_context("departure_date", &booking.flights.outbound.segments[0].departure_time)
-            .with_context("flight_number", &booking.flights.outbound.segments[0].flight_number)
-            .with_context("currency", booking.total_price.currency.as_str())
-            .with_context("total_amount", format!("{:.2}", booking.total_price.amount.as_i64() as f64 / 100.0));
+                .unwrap_or(""),
+        )
+        .with_context(
+            "departure_date",
+            &booking.flights.outbound.segments[0].departure_time,
+        )
+        .with_context(
+            "flight_number",
+            &booking.flights.outbound.segments[0].flight_number,
+        )
+        .with_context("currency", booking.total_price.currency.as_str())
+        .with_context(
+            "total_amount",
+            format!("{:.2}", booking.total_price.amount.as_i64() as f64 / 100.0),
+        );
 
         email_client
             .send(&email)

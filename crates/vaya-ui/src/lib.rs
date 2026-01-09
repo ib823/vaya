@@ -21,6 +21,8 @@ use leptos::*;
 use leptos_router::*;
 
 pub mod components;
+#[allow(dead_code)]
+pub mod generated_types;
 pub mod hooks;
 pub mod screens;
 pub mod tokens;

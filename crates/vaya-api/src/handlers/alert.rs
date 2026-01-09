@@ -4,33 +4,55 @@ use crate::{ApiError, ApiResult, Request, Response};
 
 /// POST /alerts - Create a price alert
 pub fn create_alert_handler(req: &Request) -> ApiResult<Response> {
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     if req.body.is_empty() {
         return Err(ApiError::bad_request("Missing request body"));
     }
     // TODO: Implement alert creation
-    Ok(Response::created().with_body(br#"{"alert_id":"alert_123","status":"active","created_at":"2026-01-09T00:00:00Z"}"#.to_vec()))
+    Ok(Response::created().with_body(
+        br#"{"alert_id":"alert_123","status":"active","created_at":"2026-01-09T00:00:00Z"}"#
+            .to_vec(),
+    ))
 }
 
 /// GET /alerts - List user's alerts
 pub fn list_alerts_handler(req: &Request) -> ApiResult<Response> {
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     // TODO: Implement alert listing
     Ok(Response::ok().with_body(br#"{"alerts":[],"total":0,"page":1}"#.to_vec()))
 }
 
 /// GET /alerts/{id} - Get alert details
 pub fn get_alert_handler(req: &Request) -> ApiResult<Response> {
-    let _id = req.param("id").ok_or(ApiError::bad_request("Missing alert ID"))?;
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _id = req
+        .param("id")
+        .ok_or(ApiError::bad_request("Missing alert ID"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     // TODO: Implement alert retrieval
-    Ok(Response::ok().with_body(br#"{"alert_id":"alert_123","route":"SIN-BKK","target_price":200,"status":"active"}"#.to_vec()))
+    Ok(Response::ok().with_body(
+        br#"{"alert_id":"alert_123","route":"SIN-BKK","target_price":200,"status":"active"}"#
+            .to_vec(),
+    ))
 }
 
 /// PUT /alerts/{id} - Update alert
 pub fn update_alert_handler(req: &Request) -> ApiResult<Response> {
-    let _id = req.param("id").ok_or(ApiError::bad_request("Missing alert ID"))?;
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _id = req
+        .param("id")
+        .ok_or(ApiError::bad_request("Missing alert ID"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     if req.body.is_empty() {
         return Err(ApiError::bad_request("Missing request body"));
     }
@@ -40,18 +62,29 @@ pub fn update_alert_handler(req: &Request) -> ApiResult<Response> {
 
 /// DELETE /alerts/{id} - Delete alert
 pub fn delete_alert_handler(req: &Request) -> ApiResult<Response> {
-    let _id = req.param("id").ok_or(ApiError::bad_request("Missing alert ID"))?;
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _id = req
+        .param("id")
+        .ok_or(ApiError::bad_request("Missing alert ID"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     // TODO: Implement alert deletion
     Ok(Response::ok().with_body(br#"{"alert_id":"alert_123","deleted":true}"#.to_vec()))
 }
 
 /// POST /alerts/{id}/snooze - Snooze an alert
 pub fn snooze_alert_handler(req: &Request) -> ApiResult<Response> {
-    let _id = req.param("id").ok_or(ApiError::bad_request("Missing alert ID"))?;
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _id = req
+        .param("id")
+        .ok_or(ApiError::bad_request("Missing alert ID"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     // TODO: Implement alert snoozing
-    Ok(Response::ok().with_body(br#"{"alert_id":"alert_123","snoozed_until":"2026-01-16T00:00:00Z"}"#.to_vec()))
+    Ok(Response::ok()
+        .with_body(br#"{"alert_id":"alert_123","snoozed_until":"2026-01-16T00:00:00Z"}"#.to_vec()))
 }
 
 #[cfg(test)]

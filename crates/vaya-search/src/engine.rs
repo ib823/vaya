@@ -1,13 +1,12 @@
 //! Search engine for processing flight searches
 
-use std::collections::HashMap;
 use std::sync::Mutex;
 
 use vaya_cache::LruCache;
 
 use crate::request::{SearchRequest, SortBy, SortOrder};
 use crate::types::FlightOffer;
-use crate::{SearchError, SearchResult};
+use crate::SearchResult;
 
 /// Search response
 #[derive(Debug, Clone)]
@@ -39,7 +38,9 @@ impl SearchResponse {
 
     /// Get the fastest offer
     pub fn fastest(&self) -> Option<&FlightOffer> {
-        self.offers.iter().min_by_key(|o| o.total_duration_minutes())
+        self.offers
+            .iter()
+            .min_by_key(|o| o.total_duration_minutes())
     }
 
     /// Sort offers by criteria
@@ -158,7 +159,8 @@ impl SearchEngine {
     pub fn add_provider(&mut self, provider: Box<dyn SearchProvider>) {
         self.providers.push(provider);
         // Sort by priority (descending)
-        self.providers.sort_by(|a, b| b.priority().cmp(&a.priority()));
+        self.providers
+            .sort_by(|a, b| b.priority().cmp(&a.priority()));
     }
 
     /// Execute a search

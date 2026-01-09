@@ -71,7 +71,7 @@ pub enum PaymentMethodType {
     Card,
     /// FPX (Malaysian bank transfer)
     Fpx,
-    /// GrabPay
+    /// `GrabPay`
     GrabPay,
     /// Touch 'n Go eWallet
     TngEwallet,
@@ -154,7 +154,7 @@ pub enum PaymentMethodDetails {
         /// Bank code
         bank: String,
     },
-    /// GrabPay
+    /// `GrabPay`
     GrabPay,
     /// Other payment method
     Other {
@@ -208,7 +208,11 @@ impl Default for PaymentRequest {
 impl PaymentRequest {
     /// Create new payment request
     #[must_use]
-    pub fn new(amount: Price, booking_ref: impl Into<String>, customer_email: impl Into<String>) -> Self {
+    pub fn new(
+        amount: Price,
+        booking_ref: impl Into<String>,
+        customer_email: impl Into<String>,
+    ) -> Self {
         Self {
             amount,
             currency: amount.currency,
@@ -254,10 +258,14 @@ impl PaymentRequest {
             });
         }
         if self.booking_ref.is_empty() {
-            return Err(crate::PaymentError::Configuration("Booking reference is required".to_string()));
+            return Err(crate::PaymentError::Configuration(
+                "Booking reference is required".to_string(),
+            ));
         }
         if self.customer_email.is_empty() {
-            return Err(crate::PaymentError::Configuration("Customer email is required".to_string()));
+            return Err(crate::PaymentError::Configuration(
+                "Customer email is required".to_string(),
+            ));
         }
         Ok(())
     }
@@ -335,11 +343,9 @@ impl RefundReason {
     #[must_use]
     pub const fn stripe_reason(&self) -> &'static str {
         match self {
-            Self::CustomerRequest => "requested_by_customer",
+            Self::CustomerRequest | Self::BookingCancelled | Self::Other => "requested_by_customer",
             Self::Duplicate => "duplicate",
             Self::Fraudulent => "fraudulent",
-            Self::BookingCancelled => "requested_by_customer",
-            Self::Other => "requested_by_customer",
         }
     }
 }
@@ -467,7 +473,10 @@ mod tests {
     fn test_card_brand() {
         assert_eq!(CardBrand::from_stripe("visa"), CardBrand::Visa);
         assert_eq!(CardBrand::from_stripe("MASTERCARD"), CardBrand::Mastercard);
-        assert!(matches!(CardBrand::from_stripe("unknown"), CardBrand::Other(_)));
+        assert!(matches!(
+            CardBrand::from_stripe("unknown"),
+            CardBrand::Other(_)
+        ));
     }
 
     #[test]

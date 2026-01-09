@@ -13,12 +13,14 @@
 //! let style = format!("background: {}; color: {}", colors::MINT_500, colors::N0);
 //! ```
 
+pub mod accessibility;
 pub mod animations;
 pub mod colors;
 pub mod spacing;
 pub mod typography;
 
 // Re-export commonly used tokens
+pub use accessibility::*;
 pub use animations::*;
 pub use colors::*;
 pub use spacing::*;

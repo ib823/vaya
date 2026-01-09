@@ -13,6 +13,8 @@ pub const MINT_500: &str = "#00F5A0";
 pub const MINT_600: &str = "#00CC85";
 /// Primary mint dim (for backgrounds)
 pub const MINT_DIM: &str = "rgba(0, 245, 160, 0.12)";
+/// Primary mint muted (for subtle accents)
+pub const MINT_MUTED: &str = "rgba(0, 245, 160, 0.24)";
 
 /// Secondary cyan - Accent and highlights
 pub const CYAN_500: &str = "#00D9FF";
@@ -75,6 +77,11 @@ pub const SUCCESS_DIM: &str = "rgba(0, 245, 160, 0.12)";
 pub const PURPLE: &str = "#A855F7";
 /// Purple dim (for backgrounds)
 pub const PURPLE_DIM: &str = "rgba(168, 85, 247, 0.12)";
+
+/// Blue - Info/links
+pub const BLUE: &str = "#3B82F6";
+/// Blue dim (for backgrounds)
+pub const BLUE_DIM: &str = "rgba(59, 130, 246, 0.12)";
 
 // ============================================================================
 // GLOW EFFECTS

@@ -60,10 +60,7 @@ fn run_server() -> ExitCode {
         return ExitCode::from(1);
     }
 
-    info!(
-        version = env!("CARGO_PKG_VERSION"),
-        "Starting VAYA server"
-    );
+    info!(version = env!("CARGO_PKG_VERSION"), "Starting VAYA server");
 
     // Load configuration
     let config = match Config::from_env() {
@@ -81,7 +78,7 @@ fn run_server() -> ExitCode {
     );
 
     // Build application
-    let app = match app::App::new(config.clone()) {
+    let _app = match app::App::new(config.clone()) {
         Ok(a) => a,
         Err(e) => {
             error!(error = %e, "Failed to initialize application");

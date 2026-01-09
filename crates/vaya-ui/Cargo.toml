@@ -32,8 +32,13 @@ log = "0.4"
 serde.workspace = true
 serde_json.workspace = true
 
-# Note: vaya-common is NOT included here because it uses `ring` which doesn't
-# compile to WASM. We define separate DTO types with serde support instead.
+# Note: vaya-common is NOT included as a runtime dependency because it uses
+# `ring` which doesn't compile to WASM. Instead, we generate WASM-compatible
+# types from vaya-common during the build process.
+
+[build-dependencies]
+# Build-time only - vaya-common runs on host, not in WASM
+vaya-common = { path = "../vaya-common" }
 
 [features]
 default = []

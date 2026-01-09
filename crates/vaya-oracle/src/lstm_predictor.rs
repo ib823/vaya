@@ -7,9 +7,7 @@ use tracing::{debug, info};
 use vaya_common::{CurrencyCode, IataCode, MinorUnits};
 use vaya_ml::{Matrix, PriceLSTM, StandardScaler};
 
-use crate::prediction::{
-    BookingRecommendation, ConfidenceLevel, PriceDataPoint, PricePrediction, PriceTrend,
-};
+use crate::prediction::{PriceDataPoint, PricePrediction, PriceTrend};
 use crate::{OracleError, OracleResult};
 
 /// Number of features per time step
@@ -156,15 +154,16 @@ impl LSTMPredictor {
         self.scaler.fit(&feature_matrix);
 
         // Create sequences for training
-        let scaled_matrix = self.scaler.transform(&feature_matrix)
+        let _scaled_matrix = self
+            .scaler
+            .transform(&feature_matrix)
             .ok_or_else(|| OracleError::ModelError("Failed to scale features".to_string()))?;
 
-        let sequences_count = training_data.len().saturating_sub(self.config.sequence_length);
+        let sequences_count = training_data
+            .len()
+            .saturating_sub(self.config.sequence_length);
 
-        debug!(
-            "Created {} training sequences",
-            sequences_count
-        );
+        debug!("Created {} training sequences", sequences_count);
 
         // Note: In a production system, we would implement backpropagation
         // and train the model here. For now, we use the forward pass capability
@@ -301,17 +300,12 @@ impl LSTMPredictor {
     }
 
     /// Statistical fallback prediction (weighted average)
-    fn predict_statistical(
-        &self,
-        recent_data: &[&PriceDataPoint],
-        days_until: u32,
-    ) -> (f64, f64) {
+    fn predict_statistical(&self, recent_data: &[&PriceDataPoint], days_until: u32) -> (f64, f64) {
         // Filter for similar booking windows
         let relevant: Vec<&PriceDataPoint> = recent_data
             .iter()
             .filter(|d| {
-                let diff =
-                    (d.days_before_departure as i32 - days_until as i32).unsigned_abs();
+                let diff = (d.days_before_departure as i32 - days_until as i32).unsigned_abs();
                 diff <= 7
             })
             .copied()
@@ -375,8 +369,11 @@ impl LSTMPredictor {
         }
 
         let mid = data.len() / 2;
-        let older_avg: f64 =
-            data[..mid].iter().map(|d| d.price.as_i64() as f64).sum::<f64>() / mid as f64;
+        let older_avg: f64 = data[..mid]
+            .iter()
+            .map(|d| d.price.as_i64() as f64)
+            .sum::<f64>()
+            / mid as f64;
         let newer_avg: f64 = data[mid..]
             .iter()
             .map(|d| d.price.as_i64() as f64)
@@ -443,11 +440,7 @@ impl LSTMPredictor {
             return 0.0;
         }
 
-        let variance = prices
-            .iter()
-            .map(|p| (p - mean).powi(2))
-            .sum::<f64>()
-            / prices.len() as f64;
+        let variance = prices.iter().map(|p| (p - mean).powi(2)).sum::<f64>() / prices.len() as f64;
 
         (variance.sqrt() / mean) * 100.0 // Coefficient of variation as percentage
     }
@@ -668,8 +661,14 @@ mod tests {
         let today = OffsetDateTime::now_utc().date();
         let start = today + time::Duration::days(10);
 
-        let result =
-            predictor.predict_range(IataCode::SIN, IataCode::BKK, start, 7, &data, CurrencyCode::SGD);
+        let result = predictor.predict_range(
+            IataCode::SIN,
+            IataCode::BKK,
+            start,
+            7,
+            &data,
+            CurrencyCode::SGD,
+        );
 
         assert!(result.is_ok());
         let predictions = result.unwrap();
@@ -686,7 +685,14 @@ mod tests {
         let start = today + time::Duration::days(10);
 
         let predictions = predictor
-            .predict_range(IataCode::SIN, IataCode::BKK, start, 7, &data, CurrencyCode::SGD)
+            .predict_range(
+                IataCode::SIN,
+                IataCode::BKK,
+                start,
+                7,
+                &data,
+                CurrencyCode::SGD,
+            )
             .unwrap();
 
         let best = LSTMPredictor::find_best_booking_day(&predictions);

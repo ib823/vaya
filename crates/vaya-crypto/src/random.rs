@@ -1,7 +1,7 @@
 //! Secure random number generation using ring's SystemRandom
 
 use ring::rand::{SecureRandom, SystemRandom};
-use vaya_common::{Result, VayaError, ErrorCode};
+use vaya_common::{ErrorCode, Result, VayaError};
 
 /// Thread-safe random number generator
 pub struct VayaRandom {
@@ -127,7 +127,7 @@ pub fn hex_encode(bytes: &[u8]) -> String {
 
 /// Decode hex string to bytes
 pub fn hex_decode(hex: &str) -> Result<Vec<u8>> {
-    if hex.len() % 2 != 0 {
+    if !hex.len().is_multiple_of(2) {
         return Err(VayaError::new(ErrorCode::CryptoError, "Invalid hex length"));
     }
 
@@ -145,7 +145,10 @@ fn hex_char_to_nibble(c: u8) -> Result<u8> {
         b'0'..=b'9' => Ok(c - b'0'),
         b'a'..=b'f' => Ok(c - b'a' + 10),
         b'A'..=b'F' => Ok(c - b'A' + 10),
-        _ => Err(VayaError::new(ErrorCode::CryptoError, "Invalid hex character")),
+        _ => Err(VayaError::new(
+            ErrorCode::CryptoError,
+            "Invalid hex character",
+        )),
     }
 }
 
@@ -153,7 +156,7 @@ fn hex_char_to_nibble(c: u8) -> Result<u8> {
 pub fn base64_encode(bytes: &[u8]) -> String {
     const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-    let mut result = String::with_capacity((bytes.len() + 2) / 3 * 4);
+    let mut result = String::with_capacity(bytes.len().div_ceil(3) * 4);
     let chunks = bytes.chunks(3);
 
     for chunk in chunks {
@@ -191,7 +194,12 @@ pub fn base64_decode(input: &str) -> Result<Vec<u8>> {
             '0'..='9' => (c as u32) - ('0' as u32) + 52,
             '-' | '+' => 62,
             '_' | '/' => 63,
-            _ => return Err(VayaError::new(ErrorCode::CryptoError, "Invalid base64 character")),
+            _ => {
+                return Err(VayaError::new(
+                    ErrorCode::CryptoError,
+                    "Invalid base64 character",
+                ))
+            }
         };
 
         buffer = (buffer << 6) | val;

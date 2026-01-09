@@ -51,7 +51,9 @@ impl fmt::Display for StoreError {
             StoreError::IndexNotFound(name) => write!(f, "Index not found: {}", name),
             StoreError::IndexExists(name) => write!(f, "Index already exists: {}", name),
             StoreError::PrimaryKeyViolation => write!(f, "Primary key violation"),
-            StoreError::UniqueViolation(col) => write!(f, "Unique constraint violation on: {}", col),
+            StoreError::UniqueViolation(col) => {
+                write!(f, "Unique constraint violation on: {}", col)
+            }
             StoreError::NullViolation(col) => write!(f, "Null constraint violation on: {}", col),
             StoreError::InvalidQuery(msg) => write!(f, "Invalid query: {}", msg),
             StoreError::Serialization(msg) => write!(f, "Serialization error: {}", msg),

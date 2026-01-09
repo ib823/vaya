@@ -2,10 +2,10 @@
 
 use std::sync::Arc;
 use std::time::Duration;
-use tracing::{debug, info, warn};
+use tracing::{debug, info};
 
 use vaya_cache::Cache;
-use vaya_common::{Date, IataCode, Timestamp};
+use vaya_common::{Date, Timestamp};
 use vaya_gds::{FlightSearchRequest, GdsProvider};
 use vaya_oracle::LSTMPredictor;
 
@@ -22,7 +22,11 @@ fn parse_date(s: &str) -> Option<Date> {
     let month: u8 = parts[1].parse().ok()?;
     let day: u8 = parts[2].parse().ok()?;
     let date = Date::new(year, month, day);
-    if date.is_valid() { Some(date) } else { None }
+    if date.is_valid() {
+        Some(date)
+    } else {
+        None
+    }
 }
 
 /// Flight search service
@@ -66,9 +70,7 @@ impl<G: GdsProvider + Send + Sync> SearchService<G> {
     /// Search for flights
     pub async fn search(&self, request: &SearchRequest) -> CoreResult<SearchResponse> {
         // Validate request
-        request
-            .validate()
-            .map_err(|e| CoreError::InvalidSearchParams(e))?;
+        request.validate().map_err(CoreError::InvalidSearchParams)?;
 
         info!(
             "Searching flights: {} -> {} on {}",
@@ -91,13 +93,11 @@ impl<G: GdsProvider + Send + Sync> SearchService<G> {
         let gds_params = self.build_gds_params(request)?;
 
         // Execute search with timeout
-        let search_result = tokio::time::timeout(
-            self.timeout,
-            self.gds.search_flights(&gds_params),
-        )
-        .await
-        .map_err(|_| CoreError::SearchTimeout)?
-        .map_err(|e| CoreError::GdsError(e.to_string()))?;
+        let search_result =
+            tokio::time::timeout(self.timeout, self.gds.search_flights(&gds_params))
+                .await
+                .map_err(|_| CoreError::SearchTimeout)?
+                .map_err(|e| CoreError::GdsError(e.to_string()))?;
 
         // Convert GDS results to our types
         let mut offers = self.convert_gds_offers(&search_result)?;
@@ -119,7 +119,11 @@ impl<G: GdsProvider + Send + Sync> SearchService<G> {
         }
 
         // Cache the results (5 minute TTL)
-        self.cache.insert(cache_key.clone(), offers.clone(), Some(Duration::from_secs(300)));
+        self.cache.insert(
+            cache_key.clone(),
+            offers.clone(),
+            Some(Duration::from_secs(300)),
+        );
 
         // Calculate price insight
         let price_insight = self.calculate_insight(request, &offers);
@@ -148,13 +152,15 @@ impl<G: GdsProvider + Send + Sync> SearchService<G> {
     /// Build GDS search params
     fn build_gds_params(&self, request: &SearchRequest) -> CoreResult<FlightSearchRequest> {
         // Parse departure date (YYYY-MM-DD)
-        let departure_date = parse_date(&request.departure_date)
-            .ok_or_else(|| CoreError::InvalidSearchParams("Invalid departure date format".to_string()))?;
+        let departure_date = parse_date(&request.departure_date).ok_or_else(|| {
+            CoreError::InvalidSearchParams("Invalid departure date format".to_string())
+        })?;
 
         // Parse return date if present
         let return_date = match &request.return_date {
-            Some(d) => Some(parse_date(d)
-                .ok_or_else(|| CoreError::InvalidSearchParams("Invalid return date format".to_string()))?),
+            Some(d) => Some(parse_date(d).ok_or_else(|| {
+                CoreError::InvalidSearchParams("Invalid return date format".to_string())
+            })?),
             None => None,
         };
 
@@ -206,7 +212,9 @@ impl<G: GdsProvider + Send + Sync> SearchService<G> {
             .transpose()?;
 
         // Get cabin class from first segment
-        let cabin_class = gds.outbound.segments
+        let cabin_class = gds
+            .outbound
+            .segments
             .first()
             .map(|s| match s.cabin_class {
                 vaya_gds::CabinClass::Economy => CabinClass::Economy,
@@ -217,23 +225,45 @@ impl<G: GdsProvider + Send + Sync> SearchService<G> {
             .unwrap_or(CabinClass::Economy);
 
         // Build fare conditions from gds fare rules
-        let fare_conditions = gds.fare_rules.as_ref().map(|rules| FareConditions {
-            cancellation: if rules.refundable { "Refundable".to_string() } else { "Non-refundable".to_string() },
-            changes: if rules.changeable { "Changeable with fee".to_string() } else { "Non-changeable".to_string() },
-            refund: if rules.refundable { "Refundable".to_string() } else { "Non-refundable".to_string() },
-            fare_family: None,
-        }).unwrap_or(FareConditions {
-            cancellation: "See fare rules".to_string(),
-            changes: "See fare rules".to_string(),
-            refund: "See fare rules".to_string(),
-            fare_family: None,
-        });
+        let fare_conditions = gds
+            .fare_rules
+            .as_ref()
+            .map(|rules| FareConditions {
+                cancellation: if rules.refundable {
+                    "Refundable".to_string()
+                } else {
+                    "Non-refundable".to_string()
+                },
+                changes: if rules.changeable {
+                    "Changeable with fee".to_string()
+                } else {
+                    "Non-changeable".to_string()
+                },
+                refund: if rules.refundable {
+                    "Refundable".to_string()
+                } else {
+                    "Non-refundable".to_string()
+                },
+                fare_family: None,
+            })
+            .unwrap_or(FareConditions {
+                cancellation: "See fare rules".to_string(),
+                changes: "See fare rules".to_string(),
+                refund: "See fare rules".to_string(),
+                fare_family: None,
+            });
 
         // Build baggage allowance
-        let baggage_included = gds.fare_rules.as_ref()
+        let baggage_included = gds
+            .fare_rules
+            .as_ref()
             .and_then(|r| r.baggage.as_ref())
             .map(|b| BaggageAllowance {
-                cabin: if b.carry_on { "7kg".to_string() } else { "None".to_string() },
+                cabin: if b.carry_on {
+                    "7kg".to_string()
+                } else {
+                    "None".to_string()
+                },
                 checked: format!("{}x{}kg", b.checked_bags, b.weight_kg.unwrap_or(23)),
                 extra_cost: None,
             })
@@ -243,7 +273,11 @@ impl<G: GdsProvider + Send + Sync> SearchService<G> {
                 extra_cost: None,
             });
 
-        let refundable = gds.fare_rules.as_ref().map(|r| r.refundable).unwrap_or(false);
+        let refundable = gds
+            .fare_rules
+            .as_ref()
+            .map(|r| r.refundable)
+            .unwrap_or(false);
 
         Ok(FlightOffer {
             id: gds.id.clone(),
@@ -257,7 +291,9 @@ impl<G: GdsProvider + Send + Sync> SearchService<G> {
             seats_remaining: gds.available_seats.map(|s| s as u8),
             refundable,
             baggage_included,
-            expires_at: gds.expires_at.unwrap_or_else(|| Timestamp::now().add_mins(30)),
+            expires_at: gds
+                .expires_at
+                .unwrap_or_else(|| Timestamp::now().add_mins(30)),
             source: "amadeus".to_string(),
         })
     }

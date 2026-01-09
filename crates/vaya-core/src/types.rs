@@ -72,9 +72,10 @@ impl Default for PassengerCount {
 }
 
 /// Cabin class
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum CabinClass {
     /// Economy class
+    #[default]
     Economy,
     /// Premium economy
     PremiumEconomy,
@@ -106,27 +107,16 @@ impl CabinClass {
     }
 }
 
-impl Default for CabinClass {
-    fn default() -> Self {
-        Self::Economy
-    }
-}
-
 /// Trip type
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TripType {
     /// One-way trip
     OneWay,
     /// Round trip
+    #[default]
     RoundTrip,
     /// Multi-city
     MultiCity,
-}
-
-impl Default for TripType {
-    fn default() -> Self {
-        Self::RoundTrip
-    }
 }
 
 /// Search request
@@ -158,11 +148,7 @@ pub struct SearchRequest {
 
 impl SearchRequest {
     /// Create a new one-way search request
-    pub fn one_way(
-        origin: IataCode,
-        destination: IataCode,
-        departure_date: &str,
-    ) -> Self {
+    pub fn one_way(origin: IataCode, destination: IataCode, departure_date: &str) -> Self {
         Self {
             origin,
             destination,
@@ -230,9 +216,7 @@ impl SearchRequest {
             return Err("Origin and destination must be different".to_string());
         }
 
-        self.passengers
-            .validate()
-            .map_err(|e| e.to_string())?;
+        self.passengers.validate().map_err(|e| e.to_string())?;
 
         if self.trip_type == TripType::RoundTrip && self.return_date.is_none() {
             return Err("Return date required for round-trip".to_string());
@@ -390,7 +374,10 @@ pub enum BookingStatus {
 impl BookingStatus {
     /// Check if booking can be cancelled
     pub fn can_cancel(&self) -> bool {
-        matches!(self, Self::PendingPayment | Self::Confirmed | Self::Ticketed)
+        matches!(
+            self,
+            Self::PendingPayment | Self::Confirmed | Self::Ticketed
+        )
     }
 
     /// Check if booking can be modified
@@ -545,14 +532,10 @@ mod tests {
 
     #[test]
     fn test_search_request() {
-        let search = SearchRequest::round_trip(
-            IataCode::KUL,
-            IataCode::SIN,
-            "2025-06-15",
-            "2025-06-20",
-        )
-        .with_passengers(PassengerCount::adults(2))
-        .with_cabin(CabinClass::Business);
+        let search =
+            SearchRequest::round_trip(IataCode::KUL, IataCode::SIN, "2025-06-15", "2025-06-20")
+                .with_passengers(PassengerCount::adults(2))
+                .with_cabin(CabinClass::Business);
 
         assert!(search.validate().is_ok());
         assert_eq!(search.passengers.adults, 2);

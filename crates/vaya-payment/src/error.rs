@@ -124,9 +124,9 @@ impl PaymentError {
         matches!(
             self,
             Self::Network(_)
-            | Self::ServiceUnavailable(_)
-            | Self::Timeout
-            | Self::RateLimited { .. }
+                | Self::ServiceUnavailable(_)
+                | Self::Timeout
+                | Self::RateLimited { .. }
         )
     }
 
@@ -146,9 +146,9 @@ impl PaymentError {
         matches!(
             self,
             Self::CardDeclined { .. }
-            | Self::InsufficientFunds
-            | Self::ExpiredCard
-            | Self::InvalidCard(_)
+                | Self::InsufficientFunds
+                | Self::ExpiredCard
+                | Self::InvalidCard(_)
         )
     }
 
@@ -179,14 +179,13 @@ impl PaymentError {
     pub fn http_status(&self) -> u16 {
         match self {
             Self::Configuration(_) => 500,
-            Self::AuthenticationFailed(_) => 401,
+            Self::AuthenticationFailed(_) | Self::InvalidSignature => 401,
             Self::CardDeclined { .. }
             | Self::InsufficientFunds
             | Self::ExpiredCard
             | Self::InvalidCard(_) => 400,
             Self::AlreadyProcessed { .. } => 409,
             Self::PaymentNotFound { .. } => 404,
-            Self::InvalidSignature => 401,
             Self::RateLimited { .. } => 429,
             Self::ServiceUnavailable(_) | Self::Network(_) | Self::Timeout => 503,
             Self::RequiresAuthentication { .. } => 402,
@@ -215,7 +214,10 @@ mod tests {
     fn test_error_retryable() {
         assert!(PaymentError::Timeout.is_retryable());
         assert!(PaymentError::Network("test".to_string()).is_retryable());
-        assert!(PaymentError::RateLimited { retry_after_secs: 60 }.is_retryable());
+        assert!(PaymentError::RateLimited {
+            retry_after_secs: 60
+        }
+        .is_retryable());
 
         assert!(!PaymentError::CardDeclined {
             code: "declined".to_string(),
@@ -239,8 +241,23 @@ mod tests {
 
     #[test]
     fn test_error_http_status() {
-        assert_eq!(PaymentError::AuthenticationFailed("test".to_string()).http_status(), 401);
-        assert_eq!(PaymentError::PaymentNotFound { payment_id: "123".to_string() }.http_status(), 404);
-        assert_eq!(PaymentError::RateLimited { retry_after_secs: 60 }.http_status(), 429);
+        assert_eq!(
+            PaymentError::AuthenticationFailed("test".to_string()).http_status(),
+            401
+        );
+        assert_eq!(
+            PaymentError::PaymentNotFound {
+                payment_id: "123".to_string()
+            }
+            .http_status(),
+            404
+        );
+        assert_eq!(
+            PaymentError::RateLimited {
+                retry_after_secs: 60
+            }
+            .http_status(),
+            429
+        );
     }
 }

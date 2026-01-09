@@ -251,7 +251,9 @@ impl PriceAlert {
                 }
             }
             AlertTrigger::PriceDropsBy => {
-                if let (Some(reference), Some(percent)) = (self.reference_price, self.threshold_percent) {
+                if let (Some(reference), Some(percent)) =
+                    (self.reference_price, self.threshold_percent)
+                {
                     let target = reference.as_i64() * (100 - percent as i64) / 100;
                     current_price.as_i64() <= target
                 } else {
@@ -334,8 +336,12 @@ impl PriceAlert {
         match self.trigger {
             AlertTrigger::PriceDropsBelow => self.threshold_price,
             AlertTrigger::PriceDropsBy => {
-                if let (Some(reference), Some(percent)) = (self.reference_price, self.threshold_percent) {
-                    Some(MinorUnits::new(reference.as_i64() * (100 - percent as i64) / 100))
+                if let (Some(reference), Some(percent)) =
+                    (self.reference_price, self.threshold_percent)
+                {
+                    Some(MinorUnits::new(
+                        reference.as_i64() * (100 - percent as i64) / 100,
+                    ))
                 } else {
                     None
                 }
@@ -441,9 +447,9 @@ impl AlertManager {
 
         let triggered = alert.should_trigger(price);
         let savings = if triggered {
-            alert.target_price().map(|target| {
-                MinorUnits::new((target.as_i64() - price.as_i64()).max(0))
-            })
+            alert
+                .target_price()
+                .map(|target| MinorUnits::new((target.as_i64() - price.as_i64()).max(0)))
         } else {
             None
         };
@@ -497,7 +503,7 @@ mod tests {
             IataCode::BKK,
             Date::from_calendar_date(2026, time::Month::July, 15).unwrap(),
             MinorUnits::new(30000), // Reference $300
-            20,                      // 20% drop
+            20,                     // 20% drop
             CurrencyCode::SGD,
         );
 

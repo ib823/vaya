@@ -70,7 +70,11 @@ enum PathSegment {
 
 impl Route {
     /// Create a new route
-    pub fn new(method: Method, pattern: impl Into<String>, handler_name: impl Into<String>) -> Self {
+    pub fn new(
+        method: Method,
+        pattern: impl Into<String>,
+        handler_name: impl Into<String>,
+    ) -> Self {
         let pattern = pattern.into();
         let segments = Self::parse_pattern(&pattern);
 
@@ -213,7 +217,11 @@ impl Router {
     }
 
     /// Find matching route for request
-    pub fn find(&self, method: Method, path: &str) -> Option<(&Route, HashMap<String, String>, Handler)> {
+    pub fn find(
+        &self,
+        method: Method,
+        path: &str,
+    ) -> Option<(&Route, HashMap<String, String>, Handler)> {
         for (i, route) in self.routes.iter().enumerate() {
             if route.method != method {
                 continue;
@@ -252,7 +260,10 @@ impl Router {
 
                 handler(&req)
             }
-            None => Err(ApiError::NotFound(format!("No route for {} {}", request.method, request.path))),
+            None => Err(ApiError::NotFound(format!(
+                "No route for {} {}",
+                request.method, request.path
+            ))),
         }
     }
 
@@ -328,7 +339,11 @@ mod tests {
 
     #[test]
     fn test_nested_params() {
-        let route = Route::new(Method::GET, "/api/users/:user_id/bookings/:booking_id", "get_booking");
+        let route = Route::new(
+            Method::GET,
+            "/api/users/:user_id/bookings/:booking_id",
+            "get_booking",
+        );
 
         let params = route.match_path("/api/users/123/bookings/456").unwrap();
         assert_eq!(params.get("user_id"), Some(&"123".to_string()));

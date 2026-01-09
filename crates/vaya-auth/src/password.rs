@@ -151,7 +151,7 @@ impl PasswordHasher {
 fn base64_encode(data: &[u8]) -> String {
     const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-    let mut result = String::with_capacity((data.len() + 2) / 3 * 4);
+    let mut result = String::with_capacity(data.len().div_ceil(3) * 4);
 
     for chunk in data.chunks(3) {
         let b0 = chunk[0] as usize;
@@ -189,7 +189,7 @@ fn base64_decode(s: &str) -> Result<Vec<u8>, String> {
     };
 
     let bytes = s.as_bytes();
-    let mut result = Vec::with_capacity((bytes.len() + 3) / 4 * 3);
+    let mut result = Vec::with_capacity(bytes.len().div_ceil(4) * 3);
 
     let mut i = 0;
     while i < bytes.len() {

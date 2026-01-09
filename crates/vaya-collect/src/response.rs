@@ -34,10 +34,7 @@ impl ResponseHeaders {
     /// Add a header value (appends to existing)
     pub fn add(&mut self, name: impl Into<String>, value: impl Into<String>) {
         let name = name.into().to_lowercase();
-        self.inner
-            .entry(name)
-            .or_insert_with(Vec::new)
-            .push(value.into());
+        self.inner.entry(name).or_default().push(value.into());
     }
 
     /// Get first header value
@@ -161,12 +158,7 @@ impl Response {
 
 /// Find the end of headers (position before \r\n\r\n)
 fn find_header_end(data: &[u8]) -> Option<usize> {
-    for i in 0..data.len().saturating_sub(3) {
-        if &data[i..i + 4] == b"\r\n\r\n" {
-            return Some(i);
-        }
-    }
-    None
+    (0..data.len().saturating_sub(3)).find(|&i| &data[i..i + 4] == b"\r\n\r\n")
 }
 
 /// Parse HTTP status line

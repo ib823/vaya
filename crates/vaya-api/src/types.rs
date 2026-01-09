@@ -215,7 +215,8 @@ impl Response {
     /// Set JSON body (manual serialization for zero-dep)
     pub fn set_json_body<T: JsonSerialize>(&mut self, body: &T) {
         self.body = body.to_json().into_bytes();
-        self.headers.insert("content-type".into(), "application/json".into());
+        self.headers
+            .insert("content-type".into(), "application/json".into());
     }
 
     /// Set header
@@ -318,10 +319,7 @@ pub fn parse_query_string(query: &str) -> HashMap<String, String> {
         if let Some(eq_pos) = pair.find('=') {
             let key = &pair[..eq_pos];
             let value = &pair[eq_pos + 1..];
-            params.insert(
-                url_decode(key),
-                url_decode(value),
-            );
+            params.insert(url_decode(key), url_decode(value));
         }
     }
 
@@ -374,7 +372,8 @@ mod tests {
     #[test]
     fn test_auth_token() {
         let mut req = Request::new("GET", "/api");
-        req.headers.insert("authorization".into(), "Bearer abc123".into());
+        req.headers
+            .insert("authorization".into(), "Bearer abc123".into());
 
         assert_eq!(req.auth_token(), Some("abc123"));
     }
@@ -428,7 +427,11 @@ mod tests {
     #[test]
     fn test_paginated_body() {
         let body = PaginatedBody {
-            data: vec![ErrorBody { error: "e1".into(), message: "m1".into(), code: 1 }],
+            data: vec![ErrorBody {
+                error: "e1".into(),
+                message: "m1".into(),
+                code: 1,
+            }],
             total: 100,
             page: 1,
             page_size: 10,

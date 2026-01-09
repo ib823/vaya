@@ -92,7 +92,10 @@ impl PriceTrend {
 
     /// Check if this is a favorable trend for buying
     pub fn is_favorable(&self) -> bool {
-        matches!(self, PriceTrend::Down | PriceTrend::StrongDown | PriceTrend::Stable)
+        matches!(
+            self,
+            PriceTrend::Down | PriceTrend::StrongDown | PriceTrend::Stable
+        )
     }
 }
 
@@ -366,7 +369,7 @@ impl PricePredictor {
             departure_date,
             MinorUnits::new(predicted_price as i64),
             currency,
-        confidence,
+            confidence,
         );
 
         prediction = prediction.with_trend(trend, change_percent);
@@ -388,8 +391,8 @@ impl PricePredictor {
 
         if relevant_data.is_empty() {
             // Fallback to all data
-            let avg: f64 = data.iter().map(|d| d.price.as_i64() as f64).sum::<f64>()
-                / data.len() as f64;
+            let avg: f64 =
+                data.iter().map(|d| d.price.as_i64() as f64).sum::<f64>() / data.len() as f64;
             let confidence = 0.3; // Low confidence for fallback
             return (avg, confidence);
         }
@@ -435,9 +438,15 @@ impl PricePredictor {
 
         // Compare recent vs older prices
         let mid = sorted.len() / 2;
-        let older_avg: f64 = sorted[..mid].iter().map(|d| d.price.as_i64() as f64).sum::<f64>()
+        let older_avg: f64 = sorted[..mid]
+            .iter()
+            .map(|d| d.price.as_i64() as f64)
+            .sum::<f64>()
             / mid as f64;
-        let newer_avg: f64 = sorted[mid..].iter().map(|d| d.price.as_i64() as f64).sum::<f64>()
+        let newer_avg: f64 = sorted[mid..]
+            .iter()
+            .map(|d| d.price.as_i64() as f64)
+            .sum::<f64>()
             / (sorted.len() - mid) as f64;
 
         let change_percent = ((newer_avg - older_avg) / older_avg) * 100.0;
@@ -466,11 +475,23 @@ mod tests {
 
     #[test]
     fn test_confidence_level() {
-        assert_eq!(ConfidenceLevel::from_confidence(0.95), ConfidenceLevel::VeryHigh);
-        assert_eq!(ConfidenceLevel::from_confidence(0.80), ConfidenceLevel::High);
-        assert_eq!(ConfidenceLevel::from_confidence(0.60), ConfidenceLevel::Medium);
+        assert_eq!(
+            ConfidenceLevel::from_confidence(0.95),
+            ConfidenceLevel::VeryHigh
+        );
+        assert_eq!(
+            ConfidenceLevel::from_confidence(0.80),
+            ConfidenceLevel::High
+        );
+        assert_eq!(
+            ConfidenceLevel::from_confidence(0.60),
+            ConfidenceLevel::Medium
+        );
         assert_eq!(ConfidenceLevel::from_confidence(0.35), ConfidenceLevel::Low);
-        assert_eq!(ConfidenceLevel::from_confidence(0.10), ConfidenceLevel::VeryLow);
+        assert_eq!(
+            ConfidenceLevel::from_confidence(0.10),
+            ConfidenceLevel::VeryLow
+        );
     }
 
     #[test]
@@ -479,7 +500,10 @@ mod tests {
         assert_eq!(PriceTrend::from_change_percent(5.0), PriceTrend::Up);
         assert_eq!(PriceTrend::from_change_percent(0.0), PriceTrend::Stable);
         assert_eq!(PriceTrend::from_change_percent(-5.0), PriceTrend::Down);
-        assert_eq!(PriceTrend::from_change_percent(-15.0), PriceTrend::StrongDown);
+        assert_eq!(
+            PriceTrend::from_change_percent(-15.0),
+            PriceTrend::StrongDown
+        );
 
         assert!(PriceTrend::Down.is_favorable());
         assert!(!PriceTrend::Up.is_favorable());
@@ -597,6 +621,6 @@ mod tests {
 
         assert_eq!(features.len(), 5);
         assert_eq!(features[0], 25000.0); // price
-        assert_eq!(features[1], 30.0);    // days before departure
+        assert_eq!(features[1], 30.0); // days before departure
     }
 }

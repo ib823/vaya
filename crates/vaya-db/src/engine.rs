@@ -40,9 +40,7 @@ pub struct VayaDb {
 impl VayaDb {
     /// Open or create a database at the given path
     pub fn open(config: DbConfig) -> DbResult<Self> {
-        config
-            .validate()
-            .map_err(|e| DbError::InvalidConfig(e))?;
+        config.validate().map_err(DbError::InvalidConfig)?;
 
         // Create directories
         fs::create_dir_all(&config.path)?;
@@ -204,7 +202,7 @@ impl VayaDb {
 
         let memtable = {
             let mut mt = self.memtable.write();
-            let old = std::mem::replace(&mut *mt, MemTable::new());
+            let old = std::mem::take(&mut *mt);
             Arc::new(old)
         };
 
@@ -355,7 +353,7 @@ impl VayaDb {
             let entry = entry?;
             let path = entry.path();
 
-            if path.extension().map_or(false, |e| e == "sst") {
+            if path.extension().is_some_and(|e| e == "sst") {
                 if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
                     if let Ok(id) = u64::from_str_radix(stem, 16) {
                         max_id = max_id.max(id);

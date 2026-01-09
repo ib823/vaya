@@ -15,21 +15,21 @@
 
 #![warn(missing_docs)]
 
+pub mod aead;
 pub mod hash;
 pub mod hmac;
 pub mod jwt;
 pub mod password;
 pub mod random;
-pub mod aead;
 
+pub use aead::*;
 pub use hash::*;
 pub use hmac::*;
 pub use jwt::*;
 pub use password::*;
 pub use random::*;
-pub use aead::*;
 
-use vaya_common::{Result, VayaError, ErrorCode};
+use vaya_common::{ErrorCode, VayaError};
 
 /// Crypto-specific error helper
 pub fn crypto_error(msg: impl Into<String>) -> VayaError {

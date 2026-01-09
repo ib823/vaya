@@ -85,8 +85,9 @@ impl AuthMiddleware {
         }
 
         // Get token from header
-        let token = request.auth_token()
-            .ok_or(ApiError::Unauthorized("Missing authorization header".into()))?;
+        let token = request.auth_token().ok_or(ApiError::Unauthorized(
+            "Missing authorization header".into(),
+        ))?;
 
         // Validate token (simplified - would use vaya_auth::JwtManager)
         let claims = self.validate_token(token)?;
@@ -202,18 +203,15 @@ impl RateLimiter {
 
     /// Apply rate limit headers to response
     pub fn apply_headers(&self, response: &mut Response, info: &RateLimitInfo) {
-        response.headers.insert(
-            "x-ratelimit-remaining".into(),
-            info.remaining.to_string(),
-        );
-        response.headers.insert(
-            "x-ratelimit-limit".into(),
-            info.limit.to_string(),
-        );
-        response.headers.insert(
-            "x-ratelimit-reset".into(),
-            info.reset_at.to_string(),
-        );
+        response
+            .headers
+            .insert("x-ratelimit-remaining".into(), info.remaining.to_string());
+        response
+            .headers
+            .insert("x-ratelimit-limit".into(), info.limit.to_string());
+        response
+            .headers
+            .insert("x-ratelimit-reset".into(), info.reset_at.to_string());
     }
 }
 
@@ -356,10 +354,9 @@ impl CorsConfig {
             return; // Origin not allowed
         };
 
-        response.headers.insert(
-            "access-control-allow-origin".into(),
-            allowed_origin,
-        );
+        response
+            .headers
+            .insert("access-control-allow-origin".into(), allowed_origin);
 
         response.headers.insert(
             "access-control-allow-methods".into(),
@@ -379,10 +376,9 @@ impl CorsConfig {
         }
 
         if self.allow_credentials {
-            response.headers.insert(
-                "access-control-allow-credentials".into(),
-                "true".into(),
-            );
+            response
+                .headers
+                .insert("access-control-allow-credentials".into(), "true".into());
         }
 
         response.headers.insert(
@@ -446,20 +442,25 @@ mod tests {
             .with_credentials();
 
         assert!(cors.allow_credentials);
-        assert!(cors.allowed_origins.contains(&"https://example.com".to_string()));
+        assert!(cors
+            .allowed_origins
+            .contains(&"https://example.com".to_string()));
     }
 
     #[test]
     fn test_cors_apply() {
         let cors = CorsConfig::new();
         let mut req = Request::new("GET", "/api");
-        req.headers.insert("origin".into(), "https://test.com".into());
+        req.headers
+            .insert("origin".into(), "https://test.com".into());
 
         let mut response = Response::ok();
         cors.apply(&req, &mut response);
 
         assert!(response.headers.contains_key("access-control-allow-origin"));
-        assert!(response.headers.contains_key("access-control-allow-methods"));
+        assert!(response
+            .headers
+            .contains_key("access-control-allow-methods"));
     }
 
     #[test]

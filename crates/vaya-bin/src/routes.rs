@@ -15,16 +15,48 @@ pub fn register_routes(server: &mut ApiServer, _state: Arc<AppState>) {
     server.get("/live", live_handler, "live");
 
     // Search routes
-    server.post("/search/flights", handlers::search::search_flights, "search_flights");
-    server.get("/search/airports", handlers::search::search_airports, "search_airports");
-    server.get("/search/airlines", handlers::search::search_airlines, "search_airlines");
+    server.post(
+        "/search/flights",
+        handlers::search::search_flights,
+        "search_flights",
+    );
+    server.get(
+        "/search/airports",
+        handlers::search::search_airports,
+        "search_airports",
+    );
+    server.get(
+        "/search/airlines",
+        handlers::search::search_airlines,
+        "search_airlines",
+    );
 
     // Booking routes
-    server.post("/bookings", handlers::booking::create_booking, "create_booking");
-    server.get("/bookings", handlers::booking::list_bookings, "list_bookings");
-    server.get("/bookings/:id", handlers::booking::get_booking, "get_booking");
-    server.post("/bookings/:id/confirm", handlers::booking::confirm_booking, "confirm_booking");
-    server.post("/bookings/:id/cancel", handlers::booking::cancel_booking, "cancel_booking");
+    server.post(
+        "/bookings",
+        handlers::booking::create_booking,
+        "create_booking",
+    );
+    server.get(
+        "/bookings",
+        handlers::booking::list_bookings,
+        "list_bookings",
+    );
+    server.get(
+        "/bookings/:id",
+        handlers::booking::get_booking,
+        "get_booking",
+    );
+    server.post(
+        "/bookings/:id/confirm",
+        handlers::booking::confirm_booking,
+        "confirm_booking",
+    );
+    server.post(
+        "/bookings/:id/cancel",
+        handlers::booking::cancel_booking,
+        "cancel_booking",
+    );
 
     // Pool routes (group buying)
     server.post("/pools", handlers::pool::create_pool, "create_pool");
@@ -32,29 +64,65 @@ pub fn register_routes(server: &mut ApiServer, _state: Arc<AppState>) {
     server.get("/pools/:id", handlers::pool::get_pool, "get_pool");
     server.post("/pools/:id/join", handlers::pool::join_pool, "join_pool");
     server.post("/pools/:id/leave", handlers::pool::leave_pool, "leave_pool");
-    server.post("/pools/:id/contribute", handlers::pool::contribute, "contribute");
+    server.post(
+        "/pools/:id/contribute",
+        handlers::pool::contribute,
+        "contribute",
+    );
 
     // Alert routes
     server.post("/alerts", handlers::alert::create_alert, "create_alert");
     server.get("/alerts", handlers::alert::list_alerts, "list_alerts");
     server.get("/alerts/:id", handlers::alert::get_alert, "get_alert");
     server.delete("/alerts/:id", handlers::alert::delete_alert, "delete_alert");
-    server.post("/alerts/:id/pause", handlers::alert::pause_alert, "pause_alert");
-    server.post("/alerts/:id/resume", handlers::alert::resume_alert, "resume_alert");
+    server.post(
+        "/alerts/:id/pause",
+        handlers::alert::pause_alert,
+        "pause_alert",
+    );
+    server.post(
+        "/alerts/:id/resume",
+        handlers::alert::resume_alert,
+        "resume_alert",
+    );
 
     // User routes
     server.post("/auth/register", handlers::auth::register, "register");
     server.post("/auth/login", handlers::auth::login, "login");
     server.post("/auth/logout", handlers::auth::logout, "logout");
-    server.post("/auth/refresh", handlers::auth::refresh_token, "refresh_token");
+    server.post(
+        "/auth/refresh",
+        handlers::auth::refresh_token,
+        "refresh_token",
+    );
     server.get("/users/me", handlers::user::get_profile, "get_profile");
-    server.put("/users/me", handlers::user::update_profile, "update_profile");
-    server.put("/users/me/password", handlers::user::change_password, "change_password");
+    server.put(
+        "/users/me",
+        handlers::user::update_profile,
+        "update_profile",
+    );
+    server.put(
+        "/users/me/password",
+        handlers::user::change_password,
+        "change_password",
+    );
 
     // Oracle routes (pricing insights)
-    server.get("/oracle/predict", handlers::oracle::get_prediction, "get_prediction");
-    server.get("/oracle/insights", handlers::oracle::get_insights, "get_insights");
-    server.get("/oracle/best-time", handlers::oracle::get_best_time, "get_best_time");
+    server.get(
+        "/oracle/predict",
+        handlers::oracle::get_prediction,
+        "get_prediction",
+    );
+    server.get(
+        "/oracle/insights",
+        handlers::oracle::get_insights,
+        "get_insights",
+    );
+    server.get(
+        "/oracle/best-time",
+        handlers::oracle::get_best_time,
+        "get_best_time",
+    );
 }
 
 /// Health check handler

@@ -55,7 +55,10 @@ impl NodeStatus {
 
     /// Check if node is healthy
     pub fn is_healthy(&self) -> bool {
-        matches!(self, NodeStatus::Ready | NodeStatus::Busy | NodeStatus::Draining)
+        matches!(
+            self,
+            NodeStatus::Ready | NodeStatus::Busy | NodeStatus::Draining
+        )
     }
 }
 

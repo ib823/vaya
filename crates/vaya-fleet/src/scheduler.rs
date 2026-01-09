@@ -1,7 +1,7 @@
 //! Task scheduling and distribution
 
-use std::collections::{BinaryHeap, HashMap, VecDeque};
 use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap, VecDeque};
 use std::sync::atomic::{AtomicU64, Ordering as AtomicOrdering};
 use time::OffsetDateTime;
 
@@ -32,22 +32,17 @@ impl TaskId {
 }
 
 /// Task priority
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TaskPriority {
     /// Low priority
     Low = 0,
     /// Normal priority
+    #[default]
     Normal = 1,
     /// High priority
     High = 2,
     /// Critical priority
     Critical = 3,
-}
-
-impl Default for TaskPriority {
-    fn default() -> Self {
-        TaskPriority::Normal
-    }
 }
 
 /// Task status
@@ -74,7 +69,10 @@ impl TaskStatus {
     pub fn is_terminal(&self) -> bool {
         matches!(
             self,
-            TaskStatus::Completed | TaskStatus::Failed | TaskStatus::Cancelled | TaskStatus::TimedOut
+            TaskStatus::Completed
+                | TaskStatus::Failed
+                | TaskStatus::Cancelled
+                | TaskStatus::TimedOut
         )
     }
 
@@ -320,12 +318,13 @@ impl Scheduler {
 
     /// Assign task to node
     pub fn assign(&mut self, task_id: &TaskId, node_id: NodeId) -> FleetResult<()> {
-        let task = self.tasks.get_mut(task_id).ok_or_else(|| {
-            FleetError::TaskFailed {
+        let task = self
+            .tasks
+            .get_mut(task_id)
+            .ok_or_else(|| FleetError::TaskFailed {
                 task_id: task_id.as_str().to_string(),
                 reason: "Task not found".into(),
-            }
-        })?;
+            })?;
 
         if task.status != TaskStatus::Pending && task.status != TaskStatus::Queued {
             return Err(FleetError::TaskFailed {
@@ -349,12 +348,13 @@ impl Scheduler {
 
     /// Complete task
     pub fn complete(&mut self, task_id: &TaskId, result: TaskResult) -> FleetResult<()> {
-        let task = self.tasks.get_mut(task_id).ok_or_else(|| {
-            FleetError::TaskFailed {
+        let task = self
+            .tasks
+            .get_mut(task_id)
+            .ok_or_else(|| FleetError::TaskFailed {
                 task_id: task_id.as_str().to_string(),
                 reason: "Task not found".into(),
-            }
-        })?;
+            })?;
 
         task.status = result.status;
 
@@ -367,18 +367,23 @@ impl Scheduler {
 
         self.completed.insert(task_id.clone(), result);
 
-        tracing::info!("Task {} completed with status {:?}", task_id.as_str(), task.status);
+        tracing::info!(
+            "Task {} completed with status {:?}",
+            task_id.as_str(),
+            task.status
+        );
         Ok(())
     }
 
     /// Retry failed task
     pub fn retry(&mut self, task_id: &TaskId) -> FleetResult<bool> {
-        let task = self.tasks.get_mut(task_id).ok_or_else(|| {
-            FleetError::TaskFailed {
+        let task = self
+            .tasks
+            .get_mut(task_id)
+            .ok_or_else(|| FleetError::TaskFailed {
                 task_id: task_id.as_str().to_string(),
                 reason: "Task not found".into(),
-            }
-        })?;
+            })?;
 
         if task.retries >= task.max_retries {
             return Ok(false);
@@ -431,11 +436,7 @@ impl Scheduler {
     pub fn tasks_for_node(&self, node_id: &NodeId) -> Vec<&Task> {
         self.node_tasks
             .get(node_id)
-            .map(|ids| {
-                ids.iter()
-                    .filter_map(|id| self.tasks.get(id))
-                    .collect()
-            })
+            .map(|ids| ids.iter().filter_map(|id| self.tasks.get(id)).collect())
             .unwrap_or_default()
     }
 
@@ -470,10 +471,7 @@ impl Scheduler {
                 let node_id = node.info.id.clone();
 
                 // Check capacity
-                let current_tasks = self.node_tasks
-                    .get(&node_id)
-                    .map(|t| t.len())
-                    .unwrap_or(0);
+                let current_tasks = self.node_tasks.get(&node_id).map(|t| t.len()).unwrap_or(0);
 
                 if current_tasks < self.config.max_tasks_per_node {
                     if self.assign(&task_id, node_id.clone()).is_ok() {
@@ -518,8 +516,7 @@ mod tests {
 
     #[test]
     fn test_task_priority() {
-        let task = Task::new("test", vec![])
-            .with_priority(TaskPriority::Critical);
+        let task = Task::new("test", vec![]).with_priority(TaskPriority::Critical);
         assert_eq!(task.priority, TaskPriority::Critical);
     }
 

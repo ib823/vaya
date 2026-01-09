@@ -202,7 +202,10 @@ impl ApiServer {
 
         // Check rate limit
         if let Some(ref limiter) = self.rate_limiter {
-            let client_id = request.client_ip.clone().unwrap_or_else(|| "unknown".into());
+            let client_id = request
+                .client_ip
+                .clone()
+                .unwrap_or_else(|| "unknown".into());
             match limiter.check(&client_id) {
                 Ok(info) => {
                     // Rate limit OK, continue

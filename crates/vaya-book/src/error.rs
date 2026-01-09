@@ -90,7 +90,11 @@ impl fmt::Display for BookError {
             BookError::InvalidPayment(msg) => write!(f, "Invalid payment: {}", msg),
             BookError::MissingField(field) => write!(f, "Missing required field: {}", field),
             BookError::PassengerCountMismatch { expected, got } => {
-                write!(f, "Passenger count mismatch: expected {}, got {}", expected, got)
+                write!(
+                    f,
+                    "Passenger count mismatch: expected {}, got {}",
+                    expected, got
+                )
             }
 
             // State
@@ -113,7 +117,9 @@ impl fmt::Display for BookError {
             // Cancellation
             BookError::NotCancellable(reason) => write!(f, "Booking not cancellable: {}", reason),
             BookError::CancellationDeadlinePassed => write!(f, "Cancellation deadline passed"),
-            BookError::PartialCancellationNotAllowed => write!(f, "Partial cancellation not allowed"),
+            BookError::PartialCancellationNotAllowed => {
+                write!(f, "Partial cancellation not allowed")
+            }
 
             // Ticketing
             BookError::TicketingFailed(msg) => write!(f, "Ticketing failed: {}", msg),

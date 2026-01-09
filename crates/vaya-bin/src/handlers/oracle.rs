@@ -18,7 +18,9 @@ pub fn get_prediction(req: &Request) -> ApiResult<Response> {
 
     // Validate airport codes
     if origin.len() != 3 || destination.len() != 3 {
-        return Err(ApiError::BadRequest("Airport codes must be 3 characters".into()));
+        return Err(ApiError::BadRequest(
+            "Airport codes must be 3 characters".into(),
+        ));
     }
 
     // TODO: Get actual prediction from oracle
@@ -76,9 +78,9 @@ pub fn get_best_time(req: &Request) -> ApiResult<Response> {
         .query("destination")
         .ok_or(ApiError::BadRequest("Missing destination parameter".into()))?;
 
-    let departure_date = req
-        .query("departure_date")
-        .ok_or(ApiError::BadRequest("Missing departure_date parameter".into()))?;
+    let departure_date = req.query("departure_date").ok_or(ApiError::BadRequest(
+        "Missing departure_date parameter".into(),
+    ))?;
 
     // TODO: Calculate best booking time
     let best_time = BestTimeResponse {
@@ -114,9 +116,15 @@ impl JsonSerialize for PredictionResponse {
     fn to_json(&self) -> String {
         format!(
             r#"{{"origin":"{}","destination":"{}","date":"{}","predicted_price_cents":{},"confidence":{},"trend":"{}","recommendation":"{}","price_range_low_cents":{},"price_range_high_cents":{}}}"#,
-            self.origin, self.destination, self.date, self.predicted_price_cents,
-            self.confidence, self.trend, self.recommendation,
-            self.price_range_low_cents, self.price_range_high_cents
+            self.origin,
+            self.destination,
+            self.date,
+            self.predicted_price_cents,
+            self.confidence,
+            self.trend,
+            self.recommendation,
+            self.price_range_low_cents,
+            self.price_range_high_cents
         )
     }
 }
@@ -138,8 +146,14 @@ impl JsonSerialize for InsightsResponse {
     fn to_json(&self) -> String {
         format!(
             r#"{{"origin":"{}","destination":"{}","cheapest_day":"{}","most_expensive_day":"{}","average_price_cents":{},"price_volatility":"{}","best_advance_days":{},"season":"{}"}}"#,
-            self.origin, self.destination, self.cheapest_day, self.most_expensive_day,
-            self.average_price_cents, self.price_volatility, self.best_advance_days, self.season
+            self.origin,
+            self.destination,
+            self.cheapest_day,
+            self.most_expensive_day,
+            self.average_price_cents,
+            self.price_volatility,
+            self.best_advance_days,
+            self.season
         )
     }
 }
@@ -160,9 +174,13 @@ impl JsonSerialize for BestTimeResponse {
     fn to_json(&self) -> String {
         format!(
             r#"{{"origin":"{}","destination":"{}","departure_date":"{}","recommended_booking_date":"{}","expected_price_cents":{},"savings_percent":{},"confidence":{}}}"#,
-            self.origin, self.destination, self.departure_date,
-            self.recommended_booking_date, self.expected_price_cents,
-            self.savings_percent, self.confidence
+            self.origin,
+            self.destination,
+            self.departure_date,
+            self.recommended_booking_date,
+            self.expected_price_cents,
+            self.savings_percent,
+            self.confidence
         )
     }
 }

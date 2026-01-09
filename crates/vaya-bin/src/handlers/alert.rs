@@ -8,7 +8,9 @@ pub fn create_alert(req: &Request) -> ApiResult<Response> {
         return Err(ApiError::Unauthorized("Authentication required".into()));
     }
 
-    let _body = req.body_string().ok_or(ApiError::BadRequest("Missing request body".into()))?;
+    let _body = req
+        .body_string()
+        .ok_or(ApiError::BadRequest("Missing request body".into()))?;
 
     // TODO: Parse and create alert
     let alert = AlertResponse {
@@ -122,8 +124,13 @@ impl JsonSerialize for AlertResponse {
     fn to_json(&self) -> String {
         format!(
             r#"{{"id":"{}","origin":"{}","destination":"{}","target_price_cents":{},"current_price_cents":{},"status":"{}","created_at":"{}"}}"#,
-            self.id, self.origin, self.destination, self.target_price_cents,
-            self.current_price_cents, self.status, self.created_at
+            self.id,
+            self.origin,
+            self.destination,
+            self.target_price_cents,
+            self.current_price_cents,
+            self.status,
+            self.created_at
         )
     }
 }

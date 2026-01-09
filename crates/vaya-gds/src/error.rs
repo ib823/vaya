@@ -137,7 +137,7 @@ impl GdsError {
         match self {
             Self::Configuration(_) | Self::InvalidRequest(_) => 400,
             Self::AuthenticationFailed(_) | Self::TokenExpired => 401,
-            Self::FlightUnavailable(_) | Self::OfferExpired { .. } => 404,
+            Self::FlightUnavailable(_) | Self::OfferExpired { .. } | Self::NotFound { .. } => 404,
             Self::PriceChanged { .. } => 409,
             Self::RateLimited { .. } => 429,
             Self::Timeout { .. } => 408,
@@ -146,14 +146,14 @@ impl GdsError {
             | Self::Internal(_)
             | Self::Serialization(_)
             | Self::InvalidResponse(_) => 500,
-            Self::BookingFailed { .. }
-            | Self::TicketingFailed(_)
-            | Self::CancellationFailed(_) => 422,
-            Self::NotFound { .. } => 404,
+            Self::BookingFailed { .. } | Self::TicketingFailed(_) | Self::CancellationFailed(_) => {
+                422
+            }
         }
     }
 
     /// Create from reqwest error
+    #[must_use]
     pub fn from_reqwest(err: reqwest::Error) -> Self {
         if err.is_timeout() {
             Self::Timeout { timeout_secs: 30 }
@@ -185,7 +185,10 @@ mod tests {
 
     #[test]
     fn test_error_retryable() {
-        assert!(GdsError::RateLimited { retry_after_secs: 60 }.is_retryable());
+        assert!(GdsError::RateLimited {
+            retry_after_secs: 60
+        }
+        .is_retryable());
         assert!(GdsError::TokenExpired.is_retryable());
         assert!(GdsError::NetworkError("test".to_string()).is_retryable());
         assert!(!GdsError::InvalidRequest("test".to_string()).is_retryable());
@@ -199,7 +202,10 @@ mod tests {
     #[test]
     fn test_error_retry_after() {
         assert_eq!(
-            GdsError::RateLimited { retry_after_secs: 60 }.retry_after(),
+            GdsError::RateLimited {
+                retry_after_secs: 60
+            }
+            .retry_after(),
             Some(60)
         );
         assert_eq!(GdsError::TokenExpired.retry_after(), Some(0));
@@ -215,7 +221,10 @@ mod tests {
             401
         );
         assert_eq!(
-            GdsError::RateLimited { retry_after_secs: 60 }.status_code(),
+            GdsError::RateLimited {
+                retry_after_secs: 60
+            }
+            .status_code(),
             429
         );
         assert_eq!(

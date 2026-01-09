@@ -1,6 +1,6 @@
 //! Delta encoding for efficient updates
 
-use crate::{ForgeError, ForgeResult};
+use crate::ForgeError;
 
 /// Delta encoding result
 pub type DeltaResult<T> = Result<T, ForgeError>;

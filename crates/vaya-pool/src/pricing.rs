@@ -77,11 +77,15 @@ impl TieredPricing {
     pub fn add_tier(&mut self, tier: PricingTier) -> PoolResult<()> {
         // Validate tier
         if tier.min_members == 0 {
-            return Err(PoolError::InvalidConfig("Tier min_members must be > 0".into()));
+            return Err(PoolError::InvalidConfig(
+                "Tier min_members must be > 0".into(),
+            ));
         }
 
         if tier.discount_percent > 100 {
-            return Err(PoolError::InvalidConfig("Discount cannot exceed 100%".into()));
+            return Err(PoolError::InvalidConfig(
+                "Discount cannot exceed 100%".into(),
+            ));
         }
 
         // Check for overlapping tiers
@@ -159,7 +163,9 @@ impl TieredPricing {
     /// Validate the pricing structure
     pub fn validate(&self) -> PoolResult<()> {
         if self.base_price.as_i64() <= 0 {
-            return Err(PoolError::InvalidConfig("Base price must be positive".into()));
+            return Err(PoolError::InvalidConfig(
+                "Base price must be positive".into(),
+            ));
         }
 
         if self.max_pool_size == 0 {
@@ -185,7 +191,10 @@ impl TieredPricing {
             if (expected_price - actual_price).abs() > 1 {
                 return Err(PoolError::InvalidConfig(format!(
                     "Tier '{}' price {} doesn't match {}% discount from base {}",
-                    tier.name, actual_price, tier.discount_percent, self.base_price.as_i64()
+                    tier.name,
+                    actual_price,
+                    tier.discount_percent,
+                    self.base_price.as_i64()
                 )));
             }
         }
@@ -299,7 +308,8 @@ mod tests {
         TieredPricing::with_standard_tiers(
             MinorUnits::new(10000), // $100 base price
             CurrencyCode::SGD,
-        ).unwrap()
+        )
+        .unwrap()
     }
 
     #[test]

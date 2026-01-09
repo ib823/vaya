@@ -7,7 +7,7 @@ use vaya_common::{Timestamp, Uuid};
 
 use crate::error::{NotificationError, NotificationResult};
 use crate::templates::TemplateEngine;
-use crate::types::*;
+use crate::types::{NotificationStatus, SmsRequest, SmsResult};
 use crate::NotificationConfig;
 
 /// Twilio API base URL
@@ -39,7 +39,9 @@ impl SmsClient {
         let http_client = reqwest::Client::builder()
             .timeout(Duration::from_secs(config.request_timeout_secs))
             .build()
-            .map_err(|e| NotificationError::Configuration(format!("Failed to create HTTP client: {e}")))?;
+            .map_err(|e| {
+                NotificationError::Configuration(format!("Failed to create HTTP client: {e}"))
+            })?;
 
         Ok(Self {
             http_client,
@@ -67,7 +69,11 @@ impl SmsClient {
             info!(
                 "Sandbox mode: would send SMS to {} with message '{}'",
                 request.to_phone,
-                if message.len() > 50 { &message[..50] } else { &message }
+                if message.len() > 50 {
+                    &message[..50]
+                } else {
+                    &message
+                }
             );
             return Ok(SmsResult {
                 message_sid: format!("sandbox_{}", Uuid::new_v4()),
@@ -89,12 +95,16 @@ impl SmsClient {
             1
         } else {
             // Multipart messages use 153 characters per segment
-            ((len + 152) / 153) as u8
+            len.div_ceil(153) as u8
         }
     }
 
     /// Send with retry
-    async fn send_with_retry(&self, to_phone: &str, message: &str) -> NotificationResult<SmsResult> {
+    async fn send_with_retry(
+        &self,
+        to_phone: &str,
+        message: &str,
+    ) -> NotificationResult<SmsResult> {
         let mut last_error = NotificationError::ServiceUnavailable("No attempts made".to_string());
 
         for attempt in 0..=self.max_retries {
@@ -146,8 +156,9 @@ impl SmsClient {
         let body = response.text().await.unwrap_or_default();
 
         if status.is_success() {
-            let json: serde_json::Value = serde_json::from_str(&body)
-                .map_err(|e| NotificationError::InvalidResponse(format!("Failed to parse response: {e}")))?;
+            let json: serde_json::Value = serde_json::from_str(&body).map_err(|e| {
+                NotificationError::InvalidResponse(format!("Failed to parse response: {e}"))
+            })?;
 
             let message_sid = json
                 .get("sid")
@@ -162,11 +173,9 @@ impl SmsClient {
 
             let notification_status = match sms_status {
                 "queued" => NotificationStatus::Queued,
-                "sending" => NotificationStatus::Sent,
-                "sent" => NotificationStatus::Sent,
+                "sending" | "sent" => NotificationStatus::Sent,
                 "delivered" => NotificationStatus::Delivered,
-                "failed" => NotificationStatus::Failed,
-                "undelivered" => NotificationStatus::Failed,
+                "failed" | "undelivered" => NotificationStatus::Failed,
                 _ => NotificationStatus::Queued,
             };
 
@@ -195,16 +204,28 @@ impl SmsClient {
 
         let error_code = error_json
             .get("code")
-            .and_then(|v| v.as_u64())
+            .and_then(handlebars::JsonValue::as_u64)
             .unwrap_or(0);
 
         match (status.as_u16(), error_code) {
-            (401, _) => Err(NotificationError::Configuration("Invalid Twilio credentials".to_string())),
-            (429, _) => Err(NotificationError::RateLimited { retry_after_secs: 60 }),
-            (_, 21211) => Err(NotificationError::InvalidPhoneNumber(error_message.to_string())),
-            (_, 21614) => Err(NotificationError::InvalidPhoneNumber("Phone number is not valid".to_string())),
-            (_, 21608) => Err(NotificationError::SmsDeliveryFailed("Unverified number in trial".to_string())),
-            _ => Err(NotificationError::SmsDeliveryFailed(error_message.to_string())),
+            (401, _) => Err(NotificationError::Configuration(
+                "Invalid Twilio credentials".to_string(),
+            )),
+            (429, _) => Err(NotificationError::RateLimited {
+                retry_after_secs: 60,
+            }),
+            (_, 21211) => Err(NotificationError::InvalidPhoneNumber(
+                error_message.to_string(),
+            )),
+            (_, 21614) => Err(NotificationError::InvalidPhoneNumber(
+                "Phone number is not valid".to_string(),
+            )),
+            (_, 21608) => Err(NotificationError::SmsDeliveryFailed(
+                "Unverified number in trial".to_string(),
+            )),
+            _ => Err(NotificationError::SmsDeliveryFailed(
+                error_message.to_string(),
+            )),
         }
     }
 
@@ -240,11 +261,9 @@ impl SmsClient {
 
         Ok(match status {
             "queued" => NotificationStatus::Queued,
-            "sending" => NotificationStatus::Sent,
-            "sent" => NotificationStatus::Sent,
+            "sending" | "sent" => NotificationStatus::Sent,
             "delivered" => NotificationStatus::Delivered,
-            "failed" => NotificationStatus::Failed,
-            "undelivered" => NotificationStatus::Failed,
+            "failed" | "undelivered" => NotificationStatus::Failed,
             _ => NotificationStatus::Queued,
         })
     }
@@ -255,8 +274,7 @@ mod tests {
     use super::*;
 
     fn create_test_config() -> NotificationConfig {
-        NotificationConfig::default()
-            .with_twilio("AC123", "auth123", "+60123456789")
+        NotificationConfig::default().with_twilio("AC123", "auth123", "+60123456789")
     }
 
     #[test]

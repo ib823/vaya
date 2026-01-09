@@ -33,20 +33,16 @@ mod error;
 mod lstm_predictor;
 mod prediction;
 
-pub use alert::{
-    AlertCheckResult, AlertManager, AlertStatus, AlertTrigger, PriceAlert,
-};
+pub use alert::{AlertCheckResult, AlertManager, AlertStatus, AlertTrigger, PriceAlert};
 pub use error::{OracleError, OracleResult};
-pub use lstm_predictor::{
-    EnsemblePredictor, LSTMConfig, LSTMPredictor, TrainingMetrics,
-};
+pub use lstm_predictor::{EnsemblePredictor, LSTMConfig, LSTMPredictor, TrainingMetrics};
 pub use prediction::{
-    BookingRecommendation, ConfidenceLevel, PriceDataPoint, PricePrediction,
-    PricePredictor, PriceTrend,
+    BookingRecommendation, ConfidenceLevel, PriceDataPoint, PricePrediction, PricePredictor,
+    PriceTrend,
 };
 
-use vaya_common::{CurrencyCode, IataCode, MinorUnits};
 use time::Date;
+use vaya_common::{CurrencyCode, IataCode, MinorUnits};
 
 /// Oracle configuration
 #[derive(Debug, Clone)]
@@ -155,8 +151,16 @@ impl PriceInsight {
 
         let sum: i64 = historical_prices.iter().map(|p| p.as_i64()).sum();
         let avg = sum / count as i64;
-        let low = historical_prices.iter().map(|p| p.as_i64()).min().unwrap_or(avg);
-        let high = historical_prices.iter().map(|p| p.as_i64()).max().unwrap_or(avg);
+        let low = historical_prices
+            .iter()
+            .map(|p| p.as_i64())
+            .min()
+            .unwrap_or(avg);
+        let high = historical_prices
+            .iter()
+            .map(|p| p.as_i64())
+            .max()
+            .unwrap_or(avg);
 
         // Calculate deal score (0-100, higher = better deal)
         let current = current_price.as_i64();
@@ -173,9 +177,18 @@ impl PriceInsight {
         // Calculate trend from first half vs second half
         let mid = count / 2;
         let trend = if mid > 0 {
-            let first_half_avg: i64 = historical_prices[..mid].iter().map(|p| p.as_i64()).sum::<i64>() / mid as i64;
-            let second_half_avg: i64 = historical_prices[mid..].iter().map(|p| p.as_i64()).sum::<i64>() / (count - mid) as i64;
-            let change_pct = ((second_half_avg - first_half_avg) as f64 / first_half_avg as f64) * 100.0;
+            let first_half_avg: i64 = historical_prices[..mid]
+                .iter()
+                .map(|p| p.as_i64())
+                .sum::<i64>()
+                / mid as i64;
+            let second_half_avg: i64 = historical_prices[mid..]
+                .iter()
+                .map(|p| p.as_i64())
+                .sum::<i64>()
+                / (count - mid) as i64;
+            let change_pct =
+                ((second_half_avg - first_half_avg) as f64 / first_half_avg as f64) * 100.0;
             PriceTrend::from_change_percent(change_pct)
         } else {
             PriceTrend::Stable
@@ -232,11 +245,11 @@ impl Season {
         let month = date.month() as u8;
 
         match month {
-            12 | 1 => Season::Peak,      // Year-end holidays
-            6 | 7 | 8 => Season::High,   // Summer vacation
-            3 | 4 => Season::Normal,     // Shoulder season
-            9 | 10 => Season::Normal,    // Shoulder season
-            2 | 5 | 11 => Season::Low,   // Low season
+            12 | 1 => Season::Peak,    // Year-end holidays
+            6..=8 => Season::High,     // Summer vacation
+            3 | 4 => Season::Normal,   // Shoulder season
+            9 | 10 => Season::Normal,  // Shoulder season
+            2 | 5 | 11 => Season::Low, // Low season
             _ => Season::Normal,
         }
     }
@@ -286,23 +299,22 @@ impl BestBookingTime {
     pub fn calculate(
         departure_date: Date,
         base_price: MinorUnits,
-        currency: CurrencyCode,
+        _currency: CurrencyCode,
     ) -> Self {
         let season = Season::for_date(departure_date);
 
         // Optimal booking windows by season
         let (days_before, confidence) = match season {
-            Season::Peak => (60, 0.75),      // Book early for peak
-            Season::High => (45, 0.70),      // Book fairly early
-            Season::Normal => (30, 0.65),    // Standard window
-            Season::Low => (21, 0.60),       // Can wait a bit
-            Season::OffPeak => (14, 0.55),   // Last minute ok
+            Season::Peak => (60, 0.75),    // Book early for peak
+            Season::High => (45, 0.70),    // Book fairly early
+            Season::Normal => (30, 0.65),  // Standard window
+            Season::Low => (21, 0.60),     // Can wait a bit
+            Season::OffPeak => (14, 0.55), // Last minute ok
         };
 
         let book_by = departure_date - time::Duration::days(days_before as i64);
-        let expected_price = MinorUnits::new(
-            (base_price.as_i64() as f64 * season.price_multiplier()) as i64
-        );
+        let expected_price =
+            MinorUnits::new((base_price.as_i64() as f64 * season.price_multiplier()) as i64);
 
         Self {
             departure_date,
@@ -397,11 +409,7 @@ mod tests {
     #[test]
     fn test_best_booking_time() {
         let departure = Date::from_calendar_date(2025, time::Month::December, 25).unwrap();
-        let best = BestBookingTime::calculate(
-            departure,
-            MinorUnits::new(25000),
-            CurrencyCode::SGD,
-        );
+        let best = BestBookingTime::calculate(departure, MinorUnits::new(25000), CurrencyCode::SGD);
 
         assert_eq!(best.season, Season::Peak);
         assert_eq!(best.days_before, 60);

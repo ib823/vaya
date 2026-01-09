@@ -37,12 +37,12 @@ impl Default for DbConfig {
             l0_compaction_threshold: 4,
             level_size_multiplier: 10,
             max_levels: 7,
-            block_size: 4096,      // 4 KB (match OS page size)
+            block_size: 4096, // 4 KB (match OS page size)
             compression: true,
             wal_enabled: true,
-            wal_sync: false,       // fsync on commit, not every write
+            wal_sync: false,                  // fsync on commit, not every write
             max_value_size: 10 * 1024 * 1024, // 10 MB
-            bloom_fp_rate: 0.01,   // 1% false positive rate
+            bloom_fp_rate: 0.01,              // 1% false positive rate
         }
     }
 }

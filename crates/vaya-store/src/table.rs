@@ -46,8 +46,8 @@ impl Table {
 
         // Store schema
         let schema_key = Self::schema_key(&name);
-        let schema_bytes =
-            rkyv::to_bytes::<_, 256>(&schema).map_err(|e| StoreError::Serialization(e.to_string()))?;
+        let schema_bytes = rkyv::to_bytes::<_, 256>(&schema)
+            .map_err(|e| StoreError::Serialization(e.to_string()))?;
         db.put(&schema_key, &schema_bytes)?;
 
         // Store table metadata marker
@@ -185,17 +185,16 @@ impl Table {
         let data_key = self.data_key(pk);
 
         // Check if record exists
-        let old_bytes = self
-            .db
-            .get(&data_key)?
-            .ok_or(StoreError::NotFound)?;
+        let old_bytes = self.db.get(&data_key)?.ok_or(StoreError::NotFound)?;
 
-        let old_record =
-            Record::from_bytes(&old_bytes).ok_or_else(|| StoreError::Serialization("Invalid record".into()))?;
+        let old_record = Record::from_bytes(&old_bytes)
+            .ok_or_else(|| StoreError::Serialization("Invalid record".into()))?;
 
         // Check unique constraints for changed values
         for col in self.schema.unique_columns() {
-            if let (Some(old_val), Some(new_val)) = (old_record.get(&col.name), record.get(&col.name)) {
+            if let (Some(old_val), Some(new_val)) =
+                (old_record.get(&col.name), record.get(&col.name))
+            {
                 if old_val != new_val {
                     if let Some(_existing) = self.find_by_value(&col.name, new_val)? {
                         return Err(StoreError::UniqueViolation(col.name.clone()));
@@ -264,10 +263,7 @@ impl Table {
 
     /// Execute a query
     pub fn query(&self, query: &Query) -> StoreResult<Vec<Record>> {
-        let mut results: Vec<Record> = self
-            .scan()?
-            .filter(|r| query.matches(r))
-            .collect();
+        let mut results: Vec<Record> = self.scan()?.filter(|r| query.matches(r)).collect();
 
         // Apply sorting
         if !query.sorts.is_empty() {
@@ -316,8 +312,12 @@ impl Table {
     fn compare_values(&self, a: &Value, b: &Value) -> std::cmp::Ordering {
         match (a, b) {
             (Value::Int64(a), Value::Int64(b)) => a.cmp(b),
-            (Value::Float64(a), Value::Float64(b)) => a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal),
-            (Value::Float32(a), Value::Float32(b)) => a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal),
+            (Value::Float64(a), Value::Float64(b)) => {
+                a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal)
+            }
+            (Value::Float32(a), Value::Float32(b)) => {
+                a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal)
+            }
             (Value::String(a), Value::String(b)) => a.cmp(b),
             (Value::Bool(a), Value::Bool(b)) => a.cmp(b),
             (Value::Null, Value::Null) => std::cmp::Ordering::Equal,
@@ -329,11 +329,11 @@ impl Table {
 
     /// Scan all records in the table
     pub fn scan(&self) -> StoreResult<impl Iterator<Item = Record>> {
-        let prefix = self.data_key_prefix();
+        let _prefix = self.data_key_prefix();
 
         // Collect all matching records
         // In a real implementation, we'd use a range scan
-        let mut records = Vec::new();
+        let records = Vec::new();
 
         // For now, we'll use a simple approach since VayaDb doesn't expose iteration
         // This would need to be improved with proper range scan support
@@ -427,8 +427,8 @@ mod tests {
         assert_eq!(table.name(), "users");
 
         // Should fail to create again
-        let schema2 = Schema::new("users")
-            .column(Column::new("id", ColumnType::Int64).primary_key());
+        let schema2 =
+            Schema::new("users").column(Column::new("id", ColumnType::Int64).primary_key());
         assert!(Table::create(schema2, db.clone()).is_err());
 
         // Should be able to open
@@ -465,8 +465,8 @@ mod tests {
         let test = create_test_db();
         let db = test.db.clone();
 
-        let schema = Schema::new("users")
-            .column(Column::new("id", ColumnType::Int64).primary_key());
+        let schema =
+            Schema::new("users").column(Column::new("id", ColumnType::Int64).primary_key());
 
         let table = Table::create(schema, db).unwrap();
 
@@ -486,8 +486,8 @@ mod tests {
         let test = create_test_db();
         let db = test.db.clone();
 
-        let schema = Schema::new("users")
-            .column(Column::new("id", ColumnType::Int64).primary_key());
+        let schema =
+            Schema::new("users").column(Column::new("id", ColumnType::Int64).primary_key());
 
         let table = Table::create(schema, db).unwrap();
 

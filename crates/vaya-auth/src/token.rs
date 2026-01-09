@@ -30,7 +30,11 @@ pub struct Claims {
 
 impl Claims {
     /// Create new claims with subject and expiration
-    pub fn new(subject: impl Into<String>, issuer: impl Into<String>, expires_in: Duration) -> Self {
+    pub fn new(
+        subject: impl Into<String>,
+        issuer: impl Into<String>,
+        expires_in: Duration,
+    ) -> Self {
         let now = OffsetDateTime::now_utc();
         Self {
             sub: subject.into(),
@@ -95,7 +99,11 @@ impl Claims {
         }
 
         for (key, value) in &self.custom {
-            parts.push(format!("\"{}\":\"{}\"", escape_json(key), escape_json(value)));
+            parts.push(format!(
+                "\"{}\":\"{}\"",
+                escape_json(key),
+                escape_json(value)
+            ));
         }
 
         format!("{{{}}}", parts.join(","))
@@ -251,7 +259,7 @@ impl JwtTokenizer {
 fn base64url_encode(data: &[u8]) -> String {
     const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-    let mut result = String::with_capacity((data.len() + 2) / 3 * 4);
+    let mut result = String::with_capacity(data.len().div_ceil(3) * 4);
 
     for chunk in data.chunks(3) {
         let b0 = chunk[0] as usize;
@@ -289,7 +297,7 @@ fn base64url_decode(s: &str) -> Result<Vec<u8>, String> {
     };
 
     let bytes = s.as_bytes();
-    let mut result = Vec::with_capacity((bytes.len() + 3) / 4 * 3);
+    let mut result = Vec::with_capacity(bytes.len().div_ceil(4) * 3);
 
     let mut i = 0;
     while i < bytes.len() {
@@ -443,7 +451,10 @@ mod tests {
         let decoded = tokenizer.validate(&token).unwrap();
 
         assert_eq!(decoded.custom.len(), 2);
-        assert!(decoded.custom.iter().any(|(k, v)| k == "role" && v == "admin"));
+        assert!(decoded
+            .custom
+            .iter()
+            .any(|(k, v)| k == "role" && v == "admin"));
     }
 
     #[test]

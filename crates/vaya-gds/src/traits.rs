@@ -3,7 +3,9 @@
 use async_trait::async_trait;
 
 use crate::error::GdsResult;
-use crate::types::*;
+use crate::types::{
+    BookingConfirmation, ContactDetails, FlightOffer, FlightSearchRequest, PassengerDetails,
+};
 
 /// GDS Provider trait - implement for each GDS system
 ///
@@ -87,6 +89,11 @@ pub mod mock {
     use std::sync::atomic::{AtomicBool, Ordering};
     use vaya_common::{AirlineCode, CurrencyCode, Date, IataCode, MinorUnits, Price, Timestamp};
 
+    use crate::{
+        BaggageAllowance, BookingStatus, FareRules, FlightPoint, FlightSegment, Itinerary,
+        PriceBreakdown,
+    };
+
     /// Mock GDS provider for testing
     pub struct MockGdsProvider {
         /// Should search return empty results
@@ -156,8 +163,7 @@ pub mod mock {
             }
 
             // Return mock offer with updated price
-            let request =
-                FlightSearchRequest::one_way(IataCode::KUL, IataCode::NRT, Date::today());
+            let request = FlightSearchRequest::one_way(IataCode::KUL, IataCode::NRT, Date::today());
             Ok(create_mock_offer(offer_id, &request, 51000))
         }
 
@@ -321,8 +327,7 @@ pub mod mock {
         #[tokio::test]
         async fn test_mock_search() {
             let provider = MockGdsProvider::new();
-            let request =
-                FlightSearchRequest::one_way(IataCode::KUL, IataCode::NRT, Date::today());
+            let request = FlightSearchRequest::one_way(IataCode::KUL, IataCode::NRT, Date::today());
 
             let offers = provider.search_flights(&request).await.unwrap();
             assert_eq!(offers.len(), 3);
@@ -333,8 +338,7 @@ pub mod mock {
             let provider = MockGdsProvider::new();
             provider.set_empty(true);
 
-            let request =
-                FlightSearchRequest::one_way(IataCode::KUL, IataCode::NRT, Date::today());
+            let request = FlightSearchRequest::one_way(IataCode::KUL, IataCode::NRT, Date::today());
             let offers = provider.search_flights(&request).await.unwrap();
             assert!(offers.is_empty());
         }
@@ -344,8 +348,7 @@ pub mod mock {
             let provider = MockGdsProvider::new();
             provider.set_fail(true);
 
-            let request =
-                FlightSearchRequest::one_way(IataCode::KUL, IataCode::NRT, Date::today());
+            let request = FlightSearchRequest::one_way(IataCode::KUL, IataCode::NRT, Date::today());
             assert!(provider.search_flights(&request).await.is_err());
         }
 
@@ -354,8 +357,7 @@ pub mod mock {
             let provider = MockGdsProvider::new();
 
             // Search
-            let request =
-                FlightSearchRequest::one_way(IataCode::KUL, IataCode::NRT, Date::today());
+            let request = FlightSearchRequest::one_way(IataCode::KUL, IataCode::NRT, Date::today());
             let offers = provider.search_flights(&request).await.unwrap();
             let offer = &offers[0];
 

@@ -289,7 +289,12 @@ pub struct PriceLSTM {
 
 impl PriceLSTM {
     /// Create a new price prediction LSTM
-    pub fn new(input_size: usize, hidden_size: usize, num_layers: usize, output_size: usize) -> Self {
+    pub fn new(
+        input_size: usize,
+        hidden_size: usize,
+        num_layers: usize,
+        output_size: usize,
+    ) -> Self {
         Self {
             lstm: LSTM::new(input_size, hidden_size, num_layers),
             output_weights: Matrix::random_xavier(output_size, hidden_size),

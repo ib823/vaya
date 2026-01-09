@@ -10,10 +10,7 @@ pub type CoreResult<T> = Result<T, CoreError>;
 pub enum CoreError {
     // === Search Errors ===
     /// No flights found for search criteria
-    NoFlightsFound {
-        origin: String,
-        destination: String,
-    },
+    NoFlightsFound { origin: String, destination: String },
     /// Search timeout
     SearchTimeout,
     /// Invalid search parameters
@@ -31,15 +28,9 @@ pub enum CoreError {
     /// Fare no longer available
     FareNotAvailable(String),
     /// Price changed
-    PriceChanged {
-        expected: i64,
-        actual: i64,
-    },
+    PriceChanged { expected: i64, actual: i64 },
     /// Insufficient seats
-    InsufficientSeats {
-        requested: u8,
-        available: u8,
-    },
+    InsufficientSeats { requested: u8, available: u8 },
 
     // === User Errors ===
     /// User not found
@@ -86,7 +77,10 @@ impl fmt::Display for CoreError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             // Search
-            CoreError::NoFlightsFound { origin, destination } => {
+            CoreError::NoFlightsFound {
+                origin,
+                destination,
+            } => {
                 write!(f, "No flights found from {} to {}", origin, destination)
             }
             CoreError::SearchTimeout => write!(f, "Search timed out"),
@@ -101,8 +95,15 @@ impl fmt::Display for CoreError {
             CoreError::PriceChanged { expected, actual } => {
                 write!(f, "Price changed from {} to {}", expected, actual)
             }
-            CoreError::InsufficientSeats { requested, available } => {
-                write!(f, "Requested {} seats but only {} available", requested, available)
+            CoreError::InsufficientSeats {
+                requested,
+                available,
+            } => {
+                write!(
+                    f,
+                    "Requested {} seats but only {} available",
+                    requested, available
+                )
             }
 
             // User
@@ -140,9 +141,7 @@ impl CoreError {
     pub fn is_retryable(&self) -> bool {
         matches!(
             self,
-            CoreError::SearchTimeout
-                | CoreError::ServiceUnavailable(_)
-                | CoreError::GdsError(_)
+            CoreError::SearchTimeout | CoreError::ServiceUnavailable(_) | CoreError::GdsError(_)
         )
     }
 
@@ -178,8 +177,7 @@ impl CoreError {
             CoreError::PriceChanged { .. }
             | CoreError::FareNotAvailable(_)
             | CoreError::InsufficientSeats { .. } => 409,
-            CoreError::ServiceUnavailable(_)
-            | CoreError::SearchTimeout => 503,
+            CoreError::ServiceUnavailable(_) | CoreError::SearchTimeout => 503,
             _ => 500,
         }
     }

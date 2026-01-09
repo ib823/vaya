@@ -4,7 +4,10 @@ use crate::{ApiError, ApiResult, Request, Response};
 
 /// Check if user has admin role
 fn require_admin(req: &Request) -> ApiResult<()> {
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     if !req.has_role("admin") {
         return Err(ApiError::forbidden("Admin access required"));
     }
@@ -21,15 +24,21 @@ pub fn admin_list_users_handler(req: &Request) -> ApiResult<Response> {
 /// GET /admin/users/{id} - Get user details (admin only)
 pub fn admin_get_user_handler(req: &Request) -> ApiResult<Response> {
     require_admin(req)?;
-    let _id = req.param("id").ok_or(ApiError::bad_request("Missing user ID"))?;
+    let _id = req
+        .param("id")
+        .ok_or(ApiError::bad_request("Missing user ID"))?;
     // TODO: Implement admin user retrieval
-    Ok(Response::ok().with_body(br#"{"id":"user_123","email":"user@example.com","status":"active","tier":"gold"}"#.to_vec()))
+    Ok(Response::ok().with_body(
+        br#"{"id":"user_123","email":"user@example.com","status":"active","tier":"gold"}"#.to_vec(),
+    ))
 }
 
 /// PUT /admin/users/{id} - Update user (admin only)
 pub fn admin_update_user_handler(req: &Request) -> ApiResult<Response> {
     require_admin(req)?;
-    let _id = req.param("id").ok_or(ApiError::bad_request("Missing user ID"))?;
+    let _id = req
+        .param("id")
+        .ok_or(ApiError::bad_request("Missing user ID"))?;
     if req.body.is_empty() {
         return Err(ApiError::bad_request("Missing request body"));
     }
@@ -40,7 +49,9 @@ pub fn admin_update_user_handler(req: &Request) -> ApiResult<Response> {
 /// DELETE /admin/users/{id} - Delete user (admin only)
 pub fn admin_delete_user_handler(req: &Request) -> ApiResult<Response> {
     require_admin(req)?;
-    let _id = req.param("id").ok_or(ApiError::bad_request("Missing user ID"))?;
+    let _id = req
+        .param("id")
+        .ok_or(ApiError::bad_request("Missing user ID"))?;
     // TODO: Implement admin user deletion
     Ok(Response::ok().with_body(br#"{"id":"user_123","deleted":true}"#.to_vec()))
 }
@@ -49,28 +60,38 @@ pub fn admin_delete_user_handler(req: &Request) -> ApiResult<Response> {
 pub fn admin_get_stats_handler(req: &Request) -> ApiResult<Response> {
     require_admin(req)?;
     // TODO: Implement admin stats retrieval
-    Ok(Response::ok().with_body(br#"{"total_users":10000,"active_users":5000,"total_bookings":25000,"total_pools":500}"#.to_vec()))
+    Ok(Response::ok().with_body(
+        br#"{"total_users":10000,"active_users":5000,"total_bookings":25000,"total_pools":500}"#
+            .to_vec(),
+    ))
 }
 
 /// GET /admin/stats/revenue - Get revenue statistics (admin only)
 pub fn admin_get_revenue_handler(req: &Request) -> ApiResult<Response> {
     require_admin(req)?;
     // TODO: Implement revenue stats retrieval
-    Ok(Response::ok().with_body(br#"{"total_revenue":1500000.00,"monthly_revenue":150000.00,"currency":"USD"}"#.to_vec()))
+    Ok(Response::ok().with_body(
+        br#"{"total_revenue":1500000.00,"monthly_revenue":150000.00,"currency":"USD"}"#.to_vec(),
+    ))
 }
 
 /// GET /admin/stats/bookings - Get booking statistics (admin only)
 pub fn admin_get_booking_stats_handler(req: &Request) -> ApiResult<Response> {
     require_admin(req)?;
     // TODO: Implement booking stats retrieval
-    Ok(Response::ok().with_body(br#"{"total_bookings":25000,"confirmed":20000,"cancelled":3000,"pending":2000}"#.to_vec()))
+    Ok(Response::ok().with_body(
+        br#"{"total_bookings":25000,"confirmed":20000,"cancelled":3000,"pending":2000}"#.to_vec(),
+    ))
 }
 
 /// GET /admin/stats/oracle - Get oracle/ML statistics (admin only)
 pub fn admin_get_oracle_stats_handler(req: &Request) -> ApiResult<Response> {
     require_admin(req)?;
     // TODO: Implement oracle stats retrieval
-    Ok(Response::ok().with_body(br#"{"predictions_made":100000,"accuracy":0.82,"mape":8.5,"model_version":"2.1.0"}"#.to_vec()))
+    Ok(Response::ok().with_body(
+        br#"{"predictions_made":100000,"accuracy":0.82,"mape":8.5,"model_version":"2.1.0"}"#
+            .to_vec(),
+    ))
 }
 
 #[cfg(test)]

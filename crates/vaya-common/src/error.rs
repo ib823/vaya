@@ -62,34 +62,45 @@ impl VayaError {
 
     // Convenience constructors
 
+    /// Creates a NotFound error for the specified resource.
     pub fn not_found(resource: &str) -> Self {
         Self::new(ErrorCode::NotFound, format!("{} not found", resource))
     }
 
+    /// Creates a validation error with the given message.
     pub fn validation(message: impl Into<String>) -> Self {
         Self::new(ErrorCode::ValidationFailed, message)
     }
 
+    /// Creates an unauthorized error with the given message.
     pub fn unauthorized(message: impl Into<String>) -> Self {
         Self::new(ErrorCode::Unauthorized, message)
     }
 
+    /// Creates a forbidden error with the given message.
     pub fn forbidden(message: impl Into<String>) -> Self {
         Self::new(ErrorCode::Forbidden, message)
     }
 
+    /// Creates an internal server error with the given message.
     pub fn internal(message: impl Into<String>) -> Self {
         Self::new(ErrorCode::InternalError, message)
     }
 
+    /// Creates a rate limited error with a default message.
     pub fn rate_limited() -> Self {
-        Self::new(ErrorCode::RateLimited, "Too many requests, please try again later")
+        Self::new(
+            ErrorCode::RateLimited,
+            "Too many requests, please try again later",
+        )
     }
 
+    /// Creates a conflict error with the given message.
     pub fn conflict(message: impl Into<String>) -> Self {
         Self::new(ErrorCode::Conflict, message)
     }
 
+    /// Creates a bad request error with the given message.
     pub fn bad_request(message: impl Into<String>) -> Self {
         Self::new(ErrorCode::BadRequest, message)
     }
@@ -107,7 +118,9 @@ impl fmt::Display for VayaError {
 
 impl std::error::Error for VayaError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_ref().map(|s| s.as_ref() as &(dyn std::error::Error + 'static))
+        self.source
+            .as_ref()
+            .map(|s| s.as_ref() as &(dyn std::error::Error + 'static))
     }
 }
 
@@ -116,86 +129,146 @@ impl std::error::Error for VayaError {
 #[repr(u16)]
 pub enum ErrorCode {
     // 400 Bad Request
+    /// Generic bad request error
     BadRequest = 4000,
+    /// Validation failed for one or more fields
     ValidationFailed = 4001,
+    /// Input value is invalid
     InvalidInput = 4002,
+    /// Required field is missing
     MissingField = 4003,
+    /// Value format is invalid
     InvalidFormat = 4004,
+    /// Date range is invalid (e.g., end before start)
     InvalidDateRange = 4005,
+    /// Route is invalid (e.g., same origin/destination)
     InvalidRoute = 4006,
+    /// Currency code is invalid
     InvalidCurrency = 4007,
+    /// Price value is invalid
     InvalidPrice = 4008,
 
     // 401 Unauthorized
+    /// Authentication required
     Unauthorized = 4010,
+    /// Access token is invalid
     InvalidToken = 4011,
+    /// Access token has expired
     TokenExpired = 4012,
+    /// Username/password incorrect
     InvalidCredentials = 4013,
+    /// Multi-factor authentication required
     MfaRequired = 4014,
+    /// MFA code is invalid
     InvalidMfaCode = 4015,
+    /// Session has expired
     SessionExpired = 4016,
 
     // 403 Forbidden
+    /// Action is not allowed
     Forbidden = 4030,
+    /// User lacks required permissions
     InsufficientPermissions = 4031,
+    /// User account is suspended
     AccountSuspended = 4032,
+    /// Feature is not available
     FeatureNotAvailable = 4033,
+    /// Feature requires higher subscription tier
     TierRestricted = 4034,
 
     // 404 Not Found
+    /// Generic resource not found
     NotFound = 4040,
+    /// User not found
     UserNotFound = 4041,
+    /// Booking not found
     BookingNotFound = 4042,
+    /// Pool not found
     PoolNotFound = 4043,
+    /// Alert not found
     AlertNotFound = 4044,
+    /// Flight not found
     FlightNotFound = 4045,
+    /// Offer not found
     OfferNotFound = 4046,
 
     // 409 Conflict
+    /// Generic conflict error
     Conflict = 4090,
+    /// Email address already registered
     DuplicateEmail = 4091,
+    /// Booking already exists for this offer
     BookingAlreadyExists = 4092,
+    /// Pool is already closed
     PoolAlreadyClosed = 4093,
+    /// Alert limit reached for tier
     AlertLimitReached = 4094,
+    /// Search limit reached for tier
     SearchLimitReached = 4095,
 
     // 422 Unprocessable Entity
+    /// Request understood but cannot be processed
     UnprocessableEntity = 4220,
+    /// Pool is not accepting new members
     PoolNotJoinable = 4221,
+    /// Booking cannot be cancelled
     BookingNotCancellable = 4222,
+    /// Payment was declined
     PaymentDeclined = 4223,
+    /// Offer has expired
     OfferExpired = 4224,
+    /// Not enough seats available
     InsufficientSeats = 4225,
 
     // 429 Too Many Requests
+    /// Generic rate limit exceeded
     RateLimited = 4290,
+    /// Search rate limit exceeded
     SearchRateLimited = 4291,
+    /// API rate limit exceeded
     ApiRateLimited = 4292,
 
     // 500 Internal Server Error
+    /// Generic internal server error
     InternalError = 5000,
+    /// Database operation failed
     DatabaseError = 5001,
+    /// Cache operation failed
     CacheError = 5002,
+    /// Cryptographic operation failed
     CryptoError = 5003,
+    /// Serialization/deserialization failed
     SerializationError = 5004,
+    /// I/O operation failed
     IoError = 5005,
 
     // 502 Bad Gateway
+    /// Upstream service error
     UpstreamError = 5020,
+    /// Flight supplier error
     SupplierError = 5021,
+    /// Payment gateway error
     PaymentGatewayError = 5022,
 
     // 503 Service Unavailable
+    /// Service is temporarily unavailable
     ServiceUnavailable = 5030,
+    /// System is in maintenance mode
     MaintenanceMode = 5031,
+    /// Feature is temporarily disabled
     TemporarilyDisabled = 5032,
 
     // 504 Gateway Timeout
+    /// Request timed out
     Timeout = 5040,
+    /// Supplier request timed out
     SupplierTimeout = 5041,
 }
 
 impl ErrorCode {
+    /// Returns the string representation of the error code.
+    ///
+    /// Used for API responses and logging.
     pub fn as_str(&self) -> &'static str {
         match self {
             // 400
@@ -279,6 +352,9 @@ impl ErrorCode {
         }
     }
 
+    /// Returns the HTTP status code for this error code.
+    ///
+    /// Maps error codes to their corresponding HTTP status (400-504).
     pub fn http_status(&self) -> u16 {
         match self {
             // 400
@@ -355,6 +431,9 @@ impl ErrorCode {
         }
     }
 
+    /// Returns the raw u16 value of the error code.
+    ///
+    /// Used for serialization and database storage.
     pub fn as_u16(&self) -> u16 {
         *self as u16
     }
@@ -387,13 +466,21 @@ where
 /// Field validation error (for form validation)
 #[derive(Debug, Clone)]
 pub struct FieldError {
+    /// Name of the field with the error
     pub field: String,
+    /// Error code (e.g., "required", "too_short")
     pub code: String,
+    /// Human-readable error message
     pub message: String,
 }
 
 impl FieldError {
-    pub fn new(field: impl Into<String>, code: impl Into<String>, message: impl Into<String>) -> Self {
+    /// Creates a new field validation error.
+    pub fn new(
+        field: impl Into<String>,
+        code: impl Into<String>,
+        message: impl Into<String>,
+    ) -> Self {
         Self {
             field: field.into(),
             code: code.into(),
@@ -401,20 +488,32 @@ impl FieldError {
         }
     }
 
+    /// Creates a "required field" error.
     pub fn required(field: &str) -> Self {
         Self::new(field, "required", format!("{} is required", field))
     }
 
+    /// Creates an "invalid field" error with a custom message.
     pub fn invalid(field: &str, message: &str) -> Self {
         Self::new(field, "invalid", message)
     }
 
+    /// Creates a "too short" error for minimum length validation.
     pub fn too_short(field: &str, min: usize) -> Self {
-        Self::new(field, "too_short", format!("{} must be at least {} characters", field, min))
+        Self::new(
+            field,
+            "too_short",
+            format!("{} must be at least {} characters", field, min),
+        )
     }
 
+    /// Creates a "too long" error for maximum length validation.
     pub fn too_long(field: &str, max: usize) -> Self {
-        Self::new(field, "too_long", format!("{} must be at most {} characters", field, max))
+        Self::new(
+            field,
+            "too_long",
+            format!("{} must be at most {} characters", field, max),
+        )
     }
 }
 
@@ -427,22 +526,29 @@ impl fmt::Display for FieldError {
 /// Validation error with multiple field errors
 #[derive(Debug)]
 pub struct ValidationError {
+    /// Collection of field-level validation errors
     pub errors: Vec<FieldError>,
 }
 
 impl ValidationError {
+    /// Creates a new empty ValidationError.
     pub fn new() -> Self {
         Self { errors: Vec::new() }
     }
 
+    /// Adds a field error to this validation error.
     pub fn add(&mut self, error: FieldError) {
         self.errors.push(error);
     }
 
+    /// Returns true if there are no validation errors.
     pub fn is_empty(&self) -> bool {
         self.errors.is_empty()
     }
 
+    /// Converts this ValidationError into a Result.
+    ///
+    /// Returns `Ok(value)` if no errors, or `Err(VayaError)` if there are errors.
     pub fn into_result<T>(self, value: T) -> Result<T> {
         if self.is_empty() {
             Ok(value)
@@ -480,8 +586,8 @@ mod tests {
 
     #[test]
     fn test_error_creation() {
-        let err = VayaError::new(ErrorCode::NotFound, "User not found")
-            .with_context("user_id: 123");
+        let err =
+            VayaError::new(ErrorCode::NotFound, "User not found").with_context("user_id: 123");
 
         assert_eq!(err.code, ErrorCode::NotFound);
         assert_eq!(err.http_status(), 404);

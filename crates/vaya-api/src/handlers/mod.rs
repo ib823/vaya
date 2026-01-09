@@ -1,4 +1,4 @@
-//! API Handlers - All 67 REST API endpoint handlers
+//! API Handlers - All 71 REST API endpoint handlers
 //!
 //! Organized by domain:
 //! - auth: Authentication and session management (8 handlers)
@@ -7,11 +7,12 @@
 //! - booking: Booking management (8 handlers)
 //! - pool: Group buying pools (10 handlers)
 //! - alert: Price alerts (6 handlers)
-//! - user: User profile and settings (8 handlers)
+//! - user: User profile and settings (11 handlers)
 //! - traveler: Traveler profiles (5 handlers)
 //! - payment: Payment processing (6 handlers)
-//! - trip: Trip management (4 handlers)
+//! - trip: Trip management (6 handlers)
 //! - notification: Notifications (4 handlers)
+//! - support: Customer support tickets (4 handlers)
 //! - admin: Admin operations (8 handlers)
 
 pub mod admin;
@@ -23,6 +24,7 @@ pub mod oracle;
 pub mod payment;
 pub mod pool;
 pub mod search;
+pub mod support;
 pub mod traveler;
 pub mod trip;
 pub mod user;
@@ -36,9 +38,10 @@ pub use oracle::*;
 pub use payment::*;
 pub use pool::*;
 pub use search::*;
+pub use support::*;
 pub use traveler::*;
 pub use trip::*;
 pub use user::*;
 
 /// Total number of API handlers
-pub const HANDLER_COUNT: usize = 67;
+pub const HANDLER_COUNT: usize = 71;

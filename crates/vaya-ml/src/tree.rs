@@ -316,20 +316,8 @@ mod tests {
 
     #[test]
     fn test_decision_tree() {
-        let x = Matrix::from_vec(vec![
-            vec![1.0],
-            vec![2.0],
-            vec![3.0],
-            vec![4.0],
-            vec![5.0],
-        ]);
-        let y = Matrix::from_vec(vec![
-            vec![1.0],
-            vec![2.0],
-            vec![3.0],
-            vec![4.0],
-            vec![5.0],
-        ]);
+        let x = Matrix::from_vec(vec![vec![1.0], vec![2.0], vec![3.0], vec![4.0], vec![5.0]]);
+        let y = Matrix::from_vec(vec![vec![1.0], vec![2.0], vec![3.0], vec![4.0], vec![5.0]]);
 
         let mut tree = DecisionTree::new(3, 1);
         tree.fit(&x, &y).unwrap();
@@ -340,20 +328,8 @@ mod tests {
 
     #[test]
     fn test_gradient_boosting() {
-        let x = Matrix::from_vec(vec![
-            vec![1.0],
-            vec![2.0],
-            vec![3.0],
-            vec![4.0],
-            vec![5.0],
-        ]);
-        let y = Matrix::from_vec(vec![
-            vec![2.0],
-            vec![4.0],
-            vec![6.0],
-            vec![8.0],
-            vec![10.0],
-        ]);
+        let x = Matrix::from_vec(vec![vec![1.0], vec![2.0], vec![3.0], vec![4.0], vec![5.0]]);
+        let y = Matrix::from_vec(vec![vec![2.0], vec![4.0], vec![6.0], vec![8.0], vec![10.0]]);
 
         let mut gbr = GradientBoostingRegressor::new(10, 0.1, 3);
         gbr.fit(&x, &y).unwrap();

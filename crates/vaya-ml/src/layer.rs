@@ -42,11 +42,7 @@ impl Layer {
     }
 
     /// Create a layer with specific weights and biases
-    pub fn with_weights(
-        weights: Matrix,
-        biases: Matrix,
-        activation: Activation,
-    ) -> MlResult<Self> {
+    pub fn with_weights(weights: Matrix, biases: Matrix, activation: Activation) -> MlResult<Self> {
         if biases.rows() != 1 || biases.cols() != weights.cols() {
             return Err(crate::MlError::DimensionMismatch {
                 expected: (1, weights.cols()),

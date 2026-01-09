@@ -4,18 +4,22 @@ use vaya_api::{ApiError, ApiResult, FieldError, JsonSerialize, Request, Response
 
 /// Register a new user
 pub fn register(req: &Request) -> ApiResult<Response> {
-    let body = req.body_string().ok_or(ApiError::BadRequest("Missing request body".into()))?;
+    let body = req
+        .body_string()
+        .ok_or(ApiError::BadRequest("Missing request body".into()))?;
 
     if body.trim().is_empty() {
         return Err(ApiError::BadRequest("Missing request body".into()));
     }
 
     // Parse registration data (simplified - would use proper JSON parsing)
-    let email = extract_field(&body, "email")
-        .ok_or(ApiError::ValidationError(vec![FieldError::required("email")]))?;
+    let email = extract_field(&body, "email").ok_or(ApiError::ValidationError(vec![
+        FieldError::required("email"),
+    ]))?;
 
-    let password = extract_field(&body, "password")
-        .ok_or(ApiError::ValidationError(vec![FieldError::required("password")]))?;
+    let password = extract_field(&body, "password").ok_or(ApiError::ValidationError(vec![
+        FieldError::required("password"),
+    ]))?;
 
     // Validate email format
     if !is_valid_email(&email) {
@@ -49,17 +53,21 @@ pub fn register(req: &Request) -> ApiResult<Response> {
 
 /// Login
 pub fn login(req: &Request) -> ApiResult<Response> {
-    let body = req.body_string().ok_or(ApiError::BadRequest("Missing request body".into()))?;
+    let body = req
+        .body_string()
+        .ok_or(ApiError::BadRequest("Missing request body".into()))?;
 
     if body.trim().is_empty() {
         return Err(ApiError::BadRequest("Missing request body".into()));
     }
 
-    let email = extract_field(&body, "email")
-        .ok_or(ApiError::ValidationError(vec![FieldError::required("email")]))?;
+    let email = extract_field(&body, "email").ok_or(ApiError::ValidationError(vec![
+        FieldError::required("email"),
+    ]))?;
 
-    let password = extract_field(&body, "password")
-        .ok_or(ApiError::ValidationError(vec![FieldError::required("password")]))?;
+    let password = extract_field(&body, "password").ok_or(ApiError::ValidationError(vec![
+        FieldError::required("password"),
+    ]))?;
 
     // TODO: Verify credentials
     // For now, just check they're not empty
@@ -92,10 +100,14 @@ pub fn logout(req: &Request) -> ApiResult<Response> {
 
 /// Refresh token
 pub fn refresh_token(req: &Request) -> ApiResult<Response> {
-    let body = req.body_string().ok_or(ApiError::BadRequest("Missing request body".into()))?;
+    let body = req
+        .body_string()
+        .ok_or(ApiError::BadRequest("Missing request body".into()))?;
 
-    let refresh_token = extract_field(&body, "refresh_token")
-        .ok_or(ApiError::ValidationError(vec![FieldError::required("refresh_token")]))?;
+    let refresh_token =
+        extract_field(&body, "refresh_token").ok_or(ApiError::ValidationError(vec![
+            FieldError::required("refresh_token"),
+        ]))?;
 
     if refresh_token.is_empty() {
         return Err(ApiError::Unauthorized("Invalid refresh token".into()));
@@ -162,9 +174,8 @@ fn extract_field(body: &str, field: &str) -> Option<String> {
     let rest = rest.trim_start();
 
     // Find the value
-    if rest.starts_with('"') {
+    if let Some(rest) = rest.strip_prefix('"') {
         // String value - find closing quote
-        let rest = &rest[1..];
         // Find unescaped closing quote
         let mut end = 0;
         let chars: Vec<char> = rest.chars().collect();
@@ -185,7 +196,7 @@ fn extract_field(body: &str, field: &str) -> Option<String> {
         }
     } else {
         // Non-string value
-        let end = rest.find(|c: char| c == ',' || c == '}').unwrap_or(rest.len());
+        let end = rest.find([',', '}']).unwrap_or(rest.len());
         Some(rest[..end].trim().to_string())
     }
 }
@@ -268,7 +279,10 @@ mod tests {
     #[test]
     fn test_extract_field() {
         let body = r#"{"email":"test@example.com","password":"secret123"}"#;
-        assert_eq!(extract_field(body, "email"), Some("test@example.com".into()));
+        assert_eq!(
+            extract_field(body, "email"),
+            Some("test@example.com".into())
+        );
         assert_eq!(extract_field(body, "password"), Some("secret123".into()));
         assert_eq!(extract_field(body, "nonexistent"), None);
     }

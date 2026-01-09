@@ -78,7 +78,10 @@ impl Message {
 
     /// Check if this is a control frame
     pub fn is_control(&self) -> bool {
-        matches!(self, Message::Ping(_) | Message::Pong(_) | Message::Close(_))
+        matches!(
+            self,
+            Message::Ping(_) | Message::Pong(_) | Message::Close(_)
+        )
     }
 }
 
@@ -131,9 +134,8 @@ where
 
         match frame.opcode {
             Opcode::Text => {
-                let text = String::from_utf8(frame.payload).map_err(|_| {
-                    NetError::WebSocket("Invalid UTF-8 in text frame".into())
-                })?;
+                let text = String::from_utf8(frame.payload)
+                    .map_err(|_| NetError::WebSocket("Invalid UTF-8 in text frame".into()))?;
                 Ok(Message::Text(text))
             }
             Opcode::Binary => Ok(Message::Binary(frame.payload)),
@@ -314,16 +316,23 @@ struct Frame {
 
 /// Simple base64 encoder
 fn base64_encode(data: &[u8]) -> String {
-    const ALPHABET: &[u8; 64] =
-        b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    const ALPHABET: &[u8; 64] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
     let mut result = String::new();
     let mut i = 0;
 
     while i < data.len() {
         let b0 = data[i] as u32;
-        let b1 = if i + 1 < data.len() { data[i + 1] as u32 } else { 0 };
-        let b2 = if i + 2 < data.len() { data[i + 2] as u32 } else { 0 };
+        let b1 = if i + 1 < data.len() {
+            data[i + 1] as u32
+        } else {
+            0
+        };
+        let b2 = if i + 2 < data.len() {
+            data[i + 2] as u32
+        } else {
+            0
+        };
 
         let triple = (b0 << 16) | (b1 << 8) | b2;
 

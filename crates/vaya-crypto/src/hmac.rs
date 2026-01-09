@@ -1,8 +1,8 @@
 //! HMAC (Hash-based Message Authentication Code) using ring
 
-use ring::hmac;
-use vaya_common::{Result, VayaError, ErrorCode};
 use crate::random::hex_encode;
+use ring::hmac;
+use vaya_common::{ErrorCode, Result, VayaError};
 
 /// HMAC-SHA256 key
 pub struct HmacKey {

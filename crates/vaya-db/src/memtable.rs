@@ -67,7 +67,8 @@ impl InternalKey {
         }
         let user_key_len = data.len() - 9;
         let user_key = data[..user_key_len].to_vec();
-        let inverted_seq = u64::from_be_bytes(data[user_key_len..user_key_len + 8].try_into().ok()?);
+        let inverted_seq =
+            u64::from_be_bytes(data[user_key_len..user_key_len + 8].try_into().ok()?);
         let sequence = u64::MAX - inverted_seq;
         let value_type = match data[user_key_len + 8] {
             0 => ValueType::Delete,

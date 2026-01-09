@@ -168,7 +168,11 @@ pub struct Booking {
 
 impl Booking {
     /// Create a new booking
-    pub fn new(user_id: impl Into<String>, offer: FlightOffer, passengers: Vec<Passenger>) -> BookResult<Self> {
+    pub fn new(
+        user_id: impl Into<String>,
+        offer: FlightOffer,
+        passengers: Vec<Passenger>,
+    ) -> BookResult<Self> {
         let pnr = generate_pnr()?;
         let now = OffsetDateTime::now_utc().unix_timestamp();
 
@@ -211,7 +215,12 @@ impl Booking {
     }
 
     /// Transition to a new status
-    pub fn transition(&mut self, new_status: BookingStatus, reason: &str, actor: &str) -> BookResult<()> {
+    pub fn transition(
+        &mut self,
+        new_status: BookingStatus,
+        reason: &str,
+        actor: &str,
+    ) -> BookResult<()> {
         if !self.status.can_transition_to(new_status) {
             return Err(BookError::InvalidStateTransition {
                 from: self.status.as_str().to_string(),
@@ -272,7 +281,12 @@ impl Booking {
     }
 
     /// Mark as ticketed
-    pub fn mark_ticketed(&mut self, airline_pnr: &str, tickets: Vec<String>, actor: &str) -> BookResult<()> {
+    pub fn mark_ticketed(
+        &mut self,
+        airline_pnr: &str,
+        tickets: Vec<String>,
+        actor: &str,
+    ) -> BookResult<()> {
         self.airline_pnr = Some(airline_pnr.to_string());
         self.ticket_numbers = tickets;
         self.transition(BookingStatus::Ticketed, "Ticketing complete", actor)
@@ -288,7 +302,10 @@ impl Booking {
         }
 
         // If payment was received, initiate refund
-        if self.has_payment() && self.status != BookingStatus::Pending && self.status != BookingStatus::Confirmed {
+        if self.has_payment()
+            && self.status != BookingStatus::Pending
+            && self.status != BookingStatus::Confirmed
+        {
             self.transition(BookingStatus::RefundPending, reason, actor)?;
         } else {
             self.transition(BookingStatus::Cancelled, reason, actor)?;
@@ -311,12 +328,8 @@ impl Booking {
         let now = OffsetDateTime::now_utc().unix_timestamp();
 
         let is_expired = match self.status {
-            BookingStatus::Pending => {
-                self.confirm_deadline.map(|d| now > d).unwrap_or(false)
-            }
-            BookingStatus::Confirmed => {
-                self.payment_deadline.map(|d| now > d).unwrap_or(false)
-            }
+            BookingStatus::Pending => self.confirm_deadline.map(|d| now > d).unwrap_or(false),
+            BookingStatus::Confirmed => self.payment_deadline.map(|d| now > d).unwrap_or(false),
             _ => false,
         };
 
@@ -480,7 +493,9 @@ mod tests {
         assert!(booking.start_ticketing("system").is_ok());
         assert_eq!(booking.status, BookingStatus::Ticketing);
 
-        assert!(booking.mark_ticketed("ABC123", vec!["TKT001".into()], "system").is_ok());
+        assert!(booking
+            .mark_ticketed("ABC123", vec!["TKT001".into()], "system")
+            .is_ok());
         assert_eq!(booking.status, BookingStatus::Ticketed);
         assert!(booking.status.is_terminal());
     }

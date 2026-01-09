@@ -56,7 +56,11 @@ impl Passenger {
         Self {
             id: 0,
             pax_type: PassengerType::Adult,
-            title: if gender == Gender::Male { Title::Mr } else { Title::Ms },
+            title: if gender == Gender::Male {
+                Title::Mr
+            } else {
+                Title::Ms
+            },
             first_name: first_name.into().to_uppercase(),
             last_name: last_name.into().to_uppercase(),
             middle_name: None,
@@ -109,11 +113,15 @@ impl Passenger {
 
         // Name length check (airline systems typically max 30 chars)
         if self.first_name.len() > 30 {
-            return Err(BookError::InvalidPassenger("First name too long (max 30 chars)".into()));
+            return Err(BookError::InvalidPassenger(
+                "First name too long (max 30 chars)".into(),
+            ));
         }
 
         if self.last_name.len() > 30 {
-            return Err(BookError::InvalidPassenger("Last name too long (max 30 chars)".into()));
+            return Err(BookError::InvalidPassenger(
+                "Last name too long (max 30 chars)".into(),
+            ));
         }
 
         // Name characters check (letters, space, hyphen, apostrophe only)
@@ -154,7 +162,7 @@ impl Passenger {
                 }
             }
             PassengerType::Child => {
-                if age < 2 || age >= 12 {
+                if !(2..12).contains(&age) {
                     return Err(BookError::InvalidPassenger(format!(
                         "Child must be 2-11 years old, passenger is {} years",
                         age
@@ -195,7 +203,7 @@ pub enum Title {
     Mrs,
     Ms,
     Miss,
-    Mstr,  // Master (child)
+    Mstr, // Master (child)
     Dr,
     Prof,
 }
@@ -329,7 +337,11 @@ pub struct ContactDetails {
 
 impl ContactDetails {
     /// Create contact with email and phone
-    pub fn new(email: impl Into<String>, phone_country: impl Into<String>, phone: impl Into<String>) -> Self {
+    pub fn new(
+        email: impl Into<String>,
+        phone_country: impl Into<String>,
+        phone: impl Into<String>,
+    ) -> Self {
         Self {
             email: email.into().to_lowercase(),
             phone_country: phone_country.into(),
@@ -474,7 +486,8 @@ impl SeatPreference {
 
 /// Check if name contains only valid characters
 fn is_valid_name(name: &str) -> bool {
-    name.chars().all(|c| c.is_ascii_alphabetic() || c == ' ' || c == '-' || c == '\'')
+    name.chars()
+        .all(|c| c.is_ascii_alphabetic() || c == ' ' || c == '-' || c == '\'')
 }
 
 /// Basic email validation
@@ -503,7 +516,9 @@ fn is_valid_email(email: &str) -> bool {
     }
 
     // Basic character check
-    email.chars().all(|c| c.is_ascii_alphanumeric() || ".-_@+".contains(c))
+    email
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || ".-_@+".contains(c))
 }
 
 /// Basic phone number validation

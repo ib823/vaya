@@ -80,7 +80,7 @@ impl Client {
     /// Create TLS configuration
     fn create_tls_config() -> CollectResult<ClientConfig> {
         // Use webpki-roots or system roots
-        let root_store = RootCertStore::empty();
+        let _root_store = RootCertStore::empty();
 
         // For now, create config that doesn't verify certs (for testing)
         // In production, you'd load proper root certificates
@@ -130,7 +130,11 @@ impl Client {
     }
 
     /// Execute request following redirects
-    fn execute_with_redirects(&self, request: Request, redirect_count: u32) -> CollectResult<Response> {
+    fn execute_with_redirects(
+        &self,
+        request: Request,
+        redirect_count: u32,
+    ) -> CollectResult<Response> {
         if redirect_count > self.config.max_redirects {
             return Err(CollectError::TooManyRedirects);
         }
@@ -166,7 +170,11 @@ impl Client {
             })
         } else {
             // Relative path
-            let base_path = base.path.rfind('/').map(|i| &base.path[..=i]).unwrap_or("/");
+            let base_path = base
+                .path
+                .rfind('/')
+                .map(|i| &base.path[..=i])
+                .unwrap_or("/");
             Ok(Url {
                 scheme: base.scheme,
                 host: base.host.clone(),
@@ -220,30 +228,32 @@ impl Client {
         let request_bytes = request.build();
         tls_stream
             .write_all(&request_bytes)
-            .map_err(|e| CollectError::Io(e))?;
+            .map_err(CollectError::Io)?;
 
         // Read response
         let mut response_data = Vec::new();
         tls_stream
             .read_to_end(&mut response_data)
-            .map_err(|e| CollectError::Io(e))?;
+            .map_err(CollectError::Io)?;
 
         Response::parse(&response_data)
     }
 
     /// Send request without TLS
-    fn send_plain_request(&self, mut stream: TcpStream, request: &Request) -> CollectResult<Response> {
+    fn send_plain_request(
+        &self,
+        mut stream: TcpStream,
+        request: &Request,
+    ) -> CollectResult<Response> {
         // Send request
         let request_bytes = request.build();
-        stream
-            .write_all(&request_bytes)
-            .map_err(|e| CollectError::Io(e))?;
+        stream.write_all(&request_bytes).map_err(CollectError::Io)?;
 
         // Read response
         let mut response_data = Vec::new();
         stream
             .read_to_end(&mut response_data)
-            .map_err(|e| CollectError::Io(e))?;
+            .map_err(CollectError::Io)?;
 
         Response::parse(&response_data)
     }

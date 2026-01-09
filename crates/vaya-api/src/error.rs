@@ -179,7 +179,9 @@ impl ApiError {
                     .map(|e| {
                         format!(
                             r#"{{"field":"{}","code":"{}","message":"{}"}}"#,
-                            e.field, e.code, escape_json(&e.message)
+                            e.field,
+                            e.code,
+                            escape_json(&e.message)
                         )
                     })
                     .collect();
@@ -217,9 +219,7 @@ impl ApiError {
     pub fn is_retriable(&self) -> bool {
         matches!(
             self,
-            ApiError::Internal(_)
-                | ApiError::ServiceUnavailable(_)
-                | ApiError::RateLimited { .. }
+            ApiError::Internal(_) | ApiError::ServiceUnavailable(_) | ApiError::RateLimited { .. }
         )
     }
 }
@@ -283,9 +283,7 @@ impl From<vaya_auth::AuthError> for ApiError {
             vaya_auth::AuthError::InvalidCredentials => {
                 ApiError::Unauthorized("Invalid credentials".into())
             }
-            vaya_auth::AuthError::TokenExpired => {
-                ApiError::Unauthorized("Token expired".into())
-            }
+            vaya_auth::AuthError::TokenExpired => ApiError::Unauthorized("Token expired".into()),
             vaya_auth::AuthError::PermissionDenied => {
                 ApiError::Forbidden("Permission denied".into())
             }
@@ -311,8 +309,14 @@ mod tests {
 
     #[test]
     fn test_error_codes() {
-        assert_eq!(ApiError::BadRequest("test".into()).error_code(), "bad_request");
-        assert_eq!(ApiError::Unauthorized("test".into()).error_code(), "unauthorized");
+        assert_eq!(
+            ApiError::BadRequest("test".into()).error_code(),
+            "bad_request"
+        );
+        assert_eq!(
+            ApiError::Unauthorized("test".into()).error_code(),
+            "unauthorized"
+        );
     }
 
     #[test]

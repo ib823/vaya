@@ -3,7 +3,7 @@
 //! This crate provides flight search, pricing, and booking via GDS providers.
 //! It integrates with VAYA's sovereign infrastructure:
 //!
-//! - Uses `vaya-common` types (IataCode, Price, CurrencyCode, etc.)
+//! - Uses `vaya-common` types (`IataCode`, Price, `CurrencyCode`, etc.)
 //! - Uses `vaya-cache` for response caching
 //! - NO external database dependencies
 //!
@@ -36,17 +36,17 @@
 #![warn(missing_docs)]
 #![warn(clippy::pedantic)]
 
-pub mod error;
-pub mod types;
-pub mod traits;
 pub mod amadeus;
 pub mod cache;
+pub mod error;
+pub mod traits;
+pub mod types;
 
-pub use error::{GdsError, GdsResult};
-pub use types::*;
-pub use traits::GdsProvider;
 pub use amadeus::AmadeusClient;
 pub use cache::GdsCache;
+pub use error::{GdsError, GdsResult};
+pub use traits::GdsProvider;
+pub use types::*;
 
 /// GDS configuration
 #[derive(Debug, Clone)]
@@ -73,8 +73,8 @@ impl Default for GdsConfig {
             amadeus_api_key: String::new(),
             amadeus_api_secret: String::new(),
             amadeus_base_url: "https://test.api.amadeus.com".to_string(),
-            search_cache_ttl_secs: 300,      // 5 minutes
-            pricing_cache_ttl_secs: 60,       // 1 minute
+            search_cache_ttl_secs: 300, // 5 minutes
+            pricing_cache_ttl_secs: 60, // 1 minute
             request_timeout_secs: 30,
             max_retries: 3,
         }
@@ -115,10 +115,14 @@ impl GdsConfig {
     /// Validate configuration
     pub fn validate(&self) -> GdsResult<()> {
         if self.amadeus_api_key.is_empty() {
-            return Err(GdsError::Configuration("Amadeus API key is required".to_string()));
+            return Err(GdsError::Configuration(
+                "Amadeus API key is required".to_string(),
+            ));
         }
         if self.amadeus_api_secret.is_empty() {
-            return Err(GdsError::Configuration("Amadeus API secret is required".to_string()));
+            return Err(GdsError::Configuration(
+                "Amadeus API secret is required".to_string(),
+            ));
         }
         Ok(())
     }

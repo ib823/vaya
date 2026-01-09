@@ -38,7 +38,10 @@ impl Role {
     }
 
     /// Add multiple permissions
-    pub fn with_permissions(mut self, permissions: impl IntoIterator<Item = impl Into<String>>) -> Self {
+    pub fn with_permissions(
+        mut self,
+        permissions: impl IntoIterator<Item = impl Into<String>>,
+    ) -> Self {
         for perm in permissions {
             self.permissions.insert(perm.into());
         }
@@ -158,12 +161,15 @@ impl RbacManager {
     /// Assign a role to a user
     pub fn assign_role(&mut self, user_id: &str, role_name: &str) -> AuthResult<()> {
         if !self.roles.contains_key(role_name) {
-            return Err(AuthError::Internal(format!("Role not found: {}", role_name)));
+            return Err(AuthError::Internal(format!(
+                "Role not found: {}",
+                role_name
+            )));
         }
 
         self.user_roles
             .entry(user_id.to_string())
-            .or_insert_with(HashSet::new)
+            .or_default()
             .insert(role_name.to_string());
 
         Ok(())
@@ -318,8 +324,12 @@ mod tests {
         let mut manager = RbacManager::with_default_roles();
         manager.assign_role("user-123", "user").unwrap();
 
-        assert!(manager.require_permission("user-123", "profile:read").is_ok());
-        assert!(manager.require_permission("user-123", "admin:delete").is_err());
+        assert!(manager
+            .require_permission("user-123", "profile:read")
+            .is_ok());
+        assert!(manager
+            .require_permission("user-123", "admin:delete")
+            .is_err());
     }
 
     #[test]

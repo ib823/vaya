@@ -215,10 +215,7 @@ mod tests {
         let cache: Cache<String, String> = Cache::new(100, 4);
 
         cache.insert("key1".to_string(), "value1".to_string(), None);
-        assert_eq!(
-            cache.get(&"key1".to_string()),
-            Some("value1".to_string())
-        );
+        assert_eq!(cache.get(&"key1".to_string()), Some("value1".to_string()));
         assert_eq!(cache.get(&"key2".to_string()), None);
     }
 

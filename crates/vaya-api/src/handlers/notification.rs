@@ -4,14 +4,20 @@ use crate::{ApiError, ApiResult, Request, Response};
 
 /// GET /notifications - List user's notifications
 pub fn list_notifications_handler(req: &Request) -> ApiResult<Response> {
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     // TODO: Implement notification listing
     Ok(Response::ok().with_body(br#"{"notifications":[],"total":0,"unread_count":0}"#.to_vec()))
 }
 
 /// PUT /notifications/read - Mark notifications as read
 pub fn mark_notifications_read_handler(req: &Request) -> ApiResult<Response> {
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     if req.body.is_empty() {
         return Err(ApiError::bad_request("Missing notification IDs"));
     }
@@ -21,7 +27,10 @@ pub fn mark_notifications_read_handler(req: &Request) -> ApiResult<Response> {
 
 /// PUT /notifications/settings - Update notification settings
 pub fn update_notification_settings_handler(req: &Request) -> ApiResult<Response> {
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     if req.body.is_empty() {
         return Err(ApiError::bad_request("Missing settings"));
     }
@@ -31,8 +40,13 @@ pub fn update_notification_settings_handler(req: &Request) -> ApiResult<Response
 
 /// DELETE /notifications/{id} - Delete notification
 pub fn delete_notification_handler(req: &Request) -> ApiResult<Response> {
-    let _id = req.param("id").ok_or(ApiError::bad_request("Missing notification ID"))?;
-    let _user_id = req.user_id.as_ref().ok_or(ApiError::unauthorized("Authentication required"))?;
+    let _id = req
+        .param("id")
+        .ok_or(ApiError::bad_request("Missing notification ID"))?;
+    let _user_id = req
+        .user_id
+        .as_ref()
+        .ok_or(ApiError::unauthorized("Authentication required"))?;
     // TODO: Implement notification deletion
     Ok(Response::ok().with_body(br#"{"notification_id":"notif_123","deleted":true}"#.to_vec()))
 }

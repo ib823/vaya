@@ -31,11 +31,7 @@ pub struct SearchRequest {
 
 impl SearchRequest {
     /// Create a one-way search
-    pub fn one_way(
-        origin: IataCode,
-        destination: IataCode,
-        date: Date,
-    ) -> Self {
+    pub fn one_way(origin: IataCode, destination: IataCode, date: Date) -> Self {
         Self {
             trip_type: TripType::OneWay,
             origins: vec![origin],
@@ -102,16 +98,19 @@ impl SearchRequest {
 
         // Check destinations
         if self.destinations.is_empty() {
-            return Err(SearchError::InvalidParams("No destination specified".into()));
+            return Err(SearchError::InvalidParams(
+                "No destination specified".into(),
+            ));
         }
 
         // Check same origin and destination
-        if self.origins.len() == 1 && self.destinations.len() == 1 {
-            if self.origins[0].as_str() == self.destinations[0].as_str() {
-                return Err(SearchError::InvalidRoute(
-                    "Origin and destination cannot be the same".into(),
-                ));
-            }
+        if self.origins.len() == 1
+            && self.destinations.len() == 1
+            && self.origins[0].as_str() == self.destinations[0].as_str()
+        {
+            return Err(SearchError::InvalidRoute(
+                "Origin and destination cannot be the same".into(),
+            ));
         }
 
         // Check passengers
@@ -140,7 +139,11 @@ impl SearchRequest {
     /// Generate cache key for this request
     pub fn cache_key(&self) -> String {
         let origins: Vec<&str> = self.origins.iter().map(|a: &IataCode| a.as_str()).collect();
-        let dests: Vec<&str> = self.destinations.iter().map(|a: &IataCode| a.as_str()).collect();
+        let dests: Vec<&str> = self
+            .destinations
+            .iter()
+            .map(|a: &IataCode| a.as_str())
+            .collect();
 
         format!(
             "search:{}:{}:{}:{}:{}:{}:{}",
@@ -259,7 +262,11 @@ impl SearchFilters {
     /// Check if an airline passes the filter
     pub fn passes_airline(&self, airline: &AirlineCode) -> bool {
         // Check exclusion first
-        if self.exclude_airlines.iter().any(|a| a.as_str() == airline.as_str()) {
+        if self
+            .exclude_airlines
+            .iter()
+            .any(|a| a.as_str() == airline.as_str())
+        {
             return false;
         }
 

@@ -9,9 +9,8 @@ use crate::http::Method;
 use crate::{NetError, NetResult, Request, Response};
 
 /// Handler function type
-pub type Handler = Arc<
-    dyn Fn(Request) -> Pin<Box<dyn Future<Output = NetResult<Response>> + Send>> + Send + Sync,
->;
+pub type Handler =
+    Arc<dyn Fn(Request) -> Pin<Box<dyn Future<Output = NetResult<Response>> + Send>> + Send + Sync>;
 
 /// A route entry
 #[derive(Clone)]

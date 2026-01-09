@@ -81,9 +81,9 @@ impl NotificationError {
         matches!(
             self,
             Self::Network(_)
-            | Self::ServiceUnavailable(_)
-            | Self::Timeout
-            | Self::RateLimited { .. }
+                | Self::ServiceUnavailable(_)
+                | Self::Timeout
+                | Self::RateLimited { .. }
         )
     }
 
@@ -103,9 +103,9 @@ impl NotificationError {
         matches!(
             self,
             Self::InvalidRecipient(_)
-            | Self::InvalidPhoneNumber(_)
-            | Self::Bounced { .. }
-            | Self::SpamComplaint { .. }
+                | Self::InvalidPhoneNumber(_)
+                | Self::Bounced { .. }
+                | Self::SpamComplaint { .. }
         )
     }
 
@@ -113,15 +113,15 @@ impl NotificationError {
     #[must_use]
     pub fn http_status(&self) -> u16 {
         match self {
-            Self::Configuration(_) => 500,
-            Self::InvalidRecipient(_) | Self::InvalidPhoneNumber(_) => 400,
+            Self::Configuration(_) | Self::TemplateError(_) => 500,
+            Self::InvalidRecipient(_)
+            | Self::InvalidPhoneNumber(_)
+            | Self::Bounced { .. }
+            | Self::SpamComplaint { .. } => 400,
             Self::TemplateNotFound(_) => 404,
-            Self::TemplateError(_) => 500,
             Self::RateLimited { .. } => 429,
             Self::ServiceUnavailable(_) | Self::Network(_) | Self::Timeout => 503,
-            Self::DeliveryFailed(_) | Self::SmsDeliveryFailed(_) => 502,
-            Self::Bounced { .. } | Self::SpamComplaint { .. } => 400,
-            Self::InvalidResponse(_) => 502,
+            Self::DeliveryFailed(_) | Self::SmsDeliveryFailed(_) | Self::InvalidResponse(_) => 502,
         }
     }
 }
@@ -152,7 +152,10 @@ mod tests {
     fn test_error_retryable() {
         assert!(NotificationError::Timeout.is_retryable());
         assert!(NotificationError::Network("test".to_string()).is_retryable());
-        assert!(NotificationError::RateLimited { retry_after_secs: 60 }.is_retryable());
+        assert!(NotificationError::RateLimited {
+            retry_after_secs: 60
+        }
+        .is_retryable());
 
         assert!(!NotificationError::InvalidRecipient("test".to_string()).is_retryable());
     }
@@ -160,15 +163,30 @@ mod tests {
     #[test]
     fn test_error_permanent() {
         assert!(NotificationError::InvalidRecipient("test".to_string()).is_permanent());
-        assert!(NotificationError::Bounced { email: "test@test.com".to_string() }.is_permanent());
+        assert!(NotificationError::Bounced {
+            email: "test@test.com".to_string()
+        }
+        .is_permanent());
 
         assert!(!NotificationError::Timeout.is_permanent());
     }
 
     #[test]
     fn test_error_http_status() {
-        assert_eq!(NotificationError::InvalidRecipient("test".to_string()).http_status(), 400);
-        assert_eq!(NotificationError::TemplateNotFound("test".to_string()).http_status(), 404);
-        assert_eq!(NotificationError::RateLimited { retry_after_secs: 60 }.http_status(), 429);
+        assert_eq!(
+            NotificationError::InvalidRecipient("test".to_string()).http_status(),
+            400
+        );
+        assert_eq!(
+            NotificationError::TemplateNotFound("test".to_string()).http_status(),
+            404
+        );
+        assert_eq!(
+            NotificationError::RateLimited {
+                retry_after_secs: 60
+            }
+            .http_status(),
+            429
+        );
     }
 }

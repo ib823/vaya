@@ -3,7 +3,6 @@
 use rkyv::{Archive, Deserialize, Serialize};
 
 use crate::schema::Value;
-use crate::{StoreError, StoreResult};
 
 /// Index types
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Archive, Serialize, Deserialize)]

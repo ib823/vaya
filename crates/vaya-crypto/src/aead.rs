@@ -2,10 +2,12 @@
 //!
 //! Provides symmetric encryption with authentication using ring's AES-GCM implementation.
 
-use ring::aead::{self, Aad, BoundKey, Nonce, NonceSequence, SealingKey, OpeningKey, UnboundKey, AES_256_GCM};
+use crate::random::{base64_decode, base64_encode, random_bytes};
+use ring::aead::{
+    Aad, BoundKey, Nonce, NonceSequence, OpeningKey, SealingKey, UnboundKey, AES_256_GCM,
+};
 use ring::error::Unspecified;
-use vaya_common::{Result, VayaError, ErrorCode};
-use crate::random::{random_bytes, base64_encode, base64_decode};
+use vaya_common::{ErrorCode, Result, VayaError};
 
 /// AES-256-GCM key length
 const KEY_LENGTH: usize = 32;
@@ -34,8 +36,14 @@ impl CounterNonce {
         let mut prefix = [0u8; 4];
         prefix.copy_from_slice(&nonce_bytes[..4]);
         let counter = u64::from_be_bytes([
-            nonce_bytes[4], nonce_bytes[5], nonce_bytes[6], nonce_bytes[7],
-            nonce_bytes[8], nonce_bytes[9], nonce_bytes[10], nonce_bytes[11],
+            nonce_bytes[4],
+            nonce_bytes[5],
+            nonce_bytes[6],
+            nonce_bytes[7],
+            nonce_bytes[8],
+            nonce_bytes[9],
+            nonce_bytes[10],
+            nonce_bytes[11],
         ]);
         Self { counter, prefix }
     }
@@ -129,7 +137,12 @@ impl AeadKey {
 
         let plaintext = opening_key
             .open_in_place(Aad::from(aad), &mut in_out)
-            .map_err(|_| VayaError::new(ErrorCode::CryptoError, "Decryption failed - invalid key or corrupted data"))?;
+            .map_err(|_| {
+                VayaError::new(
+                    ErrorCode::CryptoError,
+                    "Decryption failed - invalid key or corrupted data",
+                )
+            })?;
 
         Ok(plaintext.to_vec())
     }

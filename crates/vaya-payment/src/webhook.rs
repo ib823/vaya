@@ -5,7 +5,7 @@ use sha2::Sha256;
 use tracing::{debug, info, warn};
 
 use crate::error::{PaymentError, PaymentResult};
-use crate::types::*;
+use crate::types::{WebhookEvent, WebhookEventType};
 use crate::PaymentConfig;
 
 /// Webhook handler for Stripe events
@@ -18,6 +18,7 @@ pub struct WebhookHandler {
 
 impl WebhookHandler {
     /// Create new webhook handler
+    #[must_use]
     pub fn new(config: &PaymentConfig) -> Self {
         Self {
             signing_secret: config.stripe_webhook_secret.clone(),
@@ -136,9 +137,11 @@ impl WebhookHandler {
 
         let timestamp = json
             .get("created")
-            .and_then(|v| v.as_i64())
-            .map(vaya_common::Timestamp::from_unix)
-            .unwrap_or_else(vaya_common::Timestamp::now);
+            .and_then(serde_json::Value::as_i64)
+            .map_or_else(
+                vaya_common::Timestamp::now,
+                vaya_common::Timestamp::from_unix,
+            );
 
         let data = json.get("data").cloned().unwrap_or_default();
 
@@ -148,16 +151,16 @@ impl WebhookHandler {
             .and_then(|v| v.as_str())
             .map(String::from);
 
-        let refund_id = if matches!(event_type, WebhookEventType::ChargeRefunded | WebhookEventType::RefundUpdated) {
+        let refund_id = if matches!(
+            event_type,
+            WebhookEventType::ChargeRefunded | WebhookEventType::RefundUpdated
+        ) {
             payment_id.clone()
         } else {
             None
         };
 
-        info!(
-            "Parsed webhook event: {} type={:?}",
-            id, event_type
-        );
+        info!("Parsed webhook event: {} type={:?}", id, event_type);
 
         Ok(WebhookEvent {
             id,
@@ -181,8 +184,7 @@ mod tests {
     use super::*;
 
     fn create_test_handler() -> WebhookHandler {
-        let config = PaymentConfig::default()
-            .with_webhook_secret("whsec_test_secret");
+        let config = PaymentConfig::default().with_webhook_secret("whsec_test_secret");
         WebhookHandler::new(&config)
     }
 

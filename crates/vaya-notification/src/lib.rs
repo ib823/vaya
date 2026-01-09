@@ -9,7 +9,7 @@
 //!
 //! # Supported Providers
 //!
-//! - **Email**: SendGrid, Mailgun (via HTTP API)
+//! - **Email**: `SendGrid`, Mailgun (via HTTP API)
 //! - **SMS**: Twilio (via HTTP API)
 //!
 //! # Example
@@ -33,22 +33,22 @@
 #![warn(missing_docs)]
 #![warn(clippy::pedantic)]
 
-pub mod error;
-pub mod types;
 pub mod email;
+pub mod error;
 pub mod sms;
 pub mod templates;
+pub mod types;
 
-pub use error::{NotificationError, NotificationResult};
-pub use types::*;
 pub use email::EmailClient;
+pub use error::{NotificationError, NotificationResult};
 pub use sms::SmsClient;
 pub use templates::TemplateEngine;
+pub use types::*;
 
 /// Notification configuration
 #[derive(Debug, Clone)]
 pub struct NotificationConfig {
-    /// SendGrid API key
+    /// `SendGrid` API key
     pub sendgrid_api_key: String,
     /// Sender email address
     pub from_email: String,
@@ -85,7 +85,7 @@ impl Default for NotificationConfig {
 }
 
 impl NotificationConfig {
-    /// Create config with SendGrid key
+    /// Create config with `SendGrid` key
     pub fn with_sendgrid(api_key: impl Into<String>, from_email: impl Into<String>) -> Self {
         Self {
             sendgrid_api_key: api_key.into(),
@@ -132,10 +132,14 @@ impl NotificationConfig {
     /// Validate email configuration
     pub fn validate_email(&self) -> NotificationResult<()> {
         if self.sendgrid_api_key.is_empty() {
-            return Err(NotificationError::Configuration("SendGrid API key is required".to_string()));
+            return Err(NotificationError::Configuration(
+                "SendGrid API key is required".to_string(),
+            ));
         }
         if self.from_email.is_empty() {
-            return Err(NotificationError::Configuration("From email is required".to_string()));
+            return Err(NotificationError::Configuration(
+                "From email is required".to_string(),
+            ));
         }
         Ok(())
     }
@@ -143,13 +147,19 @@ impl NotificationConfig {
     /// Validate SMS configuration
     pub fn validate_sms(&self) -> NotificationResult<()> {
         if self.twilio_account_sid.is_empty() {
-            return Err(NotificationError::Configuration("Twilio Account SID is required".to_string()));
+            return Err(NotificationError::Configuration(
+                "Twilio Account SID is required".to_string(),
+            ));
         }
         if self.twilio_auth_token.is_empty() {
-            return Err(NotificationError::Configuration("Twilio Auth Token is required".to_string()));
+            return Err(NotificationError::Configuration(
+                "Twilio Auth Token is required".to_string(),
+            ));
         }
         if self.twilio_phone_number.is_empty() {
-            return Err(NotificationError::Configuration("Twilio phone number is required".to_string()));
+            return Err(NotificationError::Configuration(
+                "Twilio phone number is required".to_string(),
+            ));
         }
         Ok(())
     }
@@ -181,8 +191,7 @@ mod tests {
 
     #[test]
     fn test_config_with_twilio() {
-        let config = NotificationConfig::default()
-            .with_twilio("AC123", "auth123", "+60123456789");
+        let config = NotificationConfig::default().with_twilio("AC123", "auth123", "+60123456789");
 
         assert_eq!(config.twilio_account_sid, "AC123");
         assert_eq!(config.twilio_auth_token, "auth123");

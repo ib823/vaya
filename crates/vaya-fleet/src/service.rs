@@ -248,19 +248,25 @@ impl ServiceRegistry {
     }
 
     /// Add endpoint to service
-    pub fn add_endpoint(&mut self, service_name: &str, endpoint: ServiceEndpoint) -> FleetResult<()> {
-        let service = self.services.get_mut(service_name).ok_or_else(|| {
-            FleetError::ServiceNotFound(service_name.to_string())
-        })?;
+    pub fn add_endpoint(
+        &mut self,
+        service_name: &str,
+        endpoint: ServiceEndpoint,
+    ) -> FleetResult<()> {
+        let service = self
+            .services
+            .get_mut(service_name)
+            .ok_or_else(|| FleetError::ServiceNotFound(service_name.to_string()))?;
         service.add_endpoint(endpoint);
         Ok(())
     }
 
     /// Remove endpoint from service
     pub fn remove_endpoint(&mut self, service_name: &str, node_id: &NodeId) -> FleetResult<()> {
-        let service = self.services.get_mut(service_name).ok_or_else(|| {
-            FleetError::ServiceNotFound(service_name.to_string())
-        })?;
+        let service = self
+            .services
+            .get_mut(service_name)
+            .ok_or_else(|| FleetError::ServiceNotFound(service_name.to_string()))?;
         service.remove_endpoint(node_id);
         Ok(())
     }
@@ -272,9 +278,10 @@ impl ServiceRegistry {
         node_id: &NodeId,
         health: ServiceHealth,
     ) -> FleetResult<()> {
-        let service = self.services.get_mut(service_name).ok_or_else(|| {
-            FleetError::ServiceNotFound(service_name.to_string())
-        })?;
+        let service = self
+            .services
+            .get_mut(service_name)
+            .ok_or_else(|| FleetError::ServiceNotFound(service_name.to_string()))?;
 
         for endpoint in &mut service.endpoints {
             if &endpoint.node_id == node_id {
@@ -344,9 +351,10 @@ impl ServiceDiscovery {
 
     /// Discover service endpoint
     pub fn discover(&self, service_name: &str) -> FleetResult<&ServiceEndpoint> {
-        let service = self.registry.get(service_name).ok_or_else(|| {
-            FleetError::ServiceNotFound(service_name.to_string())
-        })?;
+        let service = self
+            .registry
+            .get(service_name)
+            .ok_or_else(|| FleetError::ServiceNotFound(service_name.to_string()))?;
 
         service.next_endpoint().ok_or_else(|| {
             FleetError::ServiceNotFound(format!("{} (no healthy endpoints)", service_name))
@@ -355,20 +363,17 @@ impl ServiceDiscovery {
 
     /// Discover all endpoints for service
     pub fn discover_all(&self, service_name: &str) -> FleetResult<Vec<&ServiceEndpoint>> {
-        let service = self.registry.get(service_name).ok_or_else(|| {
-            FleetError::ServiceNotFound(service_name.to_string())
-        })?;
+        let service = self
+            .registry
+            .get(service_name)
+            .ok_or_else(|| FleetError::ServiceNotFound(service_name.to_string()))?;
 
         Ok(service.healthy_endpoints())
     }
 
     /// Register local service
     pub fn register_local(&mut self, service_name: &str, port: u16) -> FleetResult<()> {
-        let endpoint = ServiceEndpoint::new(
-            self.local_node.clone(),
-            "127.0.0.1",
-            port,
-        );
+        let endpoint = ServiceEndpoint::new(self.local_node.clone(), "127.0.0.1", port);
 
         if let Some(service) = self.registry.get_mut(service_name) {
             service.add_endpoint(endpoint);
@@ -383,7 +388,8 @@ impl ServiceDiscovery {
 
     /// Deregister local service
     pub fn deregister_local(&mut self, service_name: &str) -> FleetResult<()> {
-        self.registry.remove_endpoint(service_name, &self.local_node)
+        self.registry
+            .remove_endpoint(service_name, &self.local_node)
     }
 }
 
@@ -401,7 +407,11 @@ mod tests {
     #[test]
     fn test_service() {
         let mut service = Service::new("api", "1.0.0");
-        service.add_endpoint(ServiceEndpoint::new(NodeId::new("node-1"), "localhost", 8080));
+        service.add_endpoint(ServiceEndpoint::new(
+            NodeId::new("node-1"),
+            "localhost",
+            8080,
+        ));
 
         assert!(service.is_available());
         assert_eq!(service.healthy_endpoints().len(), 1);
@@ -420,10 +430,7 @@ mod tests {
 
     #[test]
     fn test_service_discovery() {
-        let mut discovery = ServiceDiscovery::new(
-            NodeId::new("local"),
-            DiscoveryConfig::default(),
-        );
+        let mut discovery = ServiceDiscovery::new(NodeId::new("local"), DiscoveryConfig::default());
 
         discovery.register_local("api", 8080).unwrap();
 
@@ -439,7 +446,9 @@ mod tests {
         service.add_endpoint(ServiceEndpoint::new(node_id.clone(), "localhost", 8080));
         registry.register(service);
 
-        registry.update_health("api", &node_id, ServiceHealth::Healthy).unwrap();
+        registry
+            .update_health("api", &node_id, ServiceHealth::Healthy)
+            .unwrap();
 
         let service = registry.get("api").unwrap();
         assert_eq!(service.endpoints[0].health, ServiceHealth::Healthy);

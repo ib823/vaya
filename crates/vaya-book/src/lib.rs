@@ -57,9 +57,9 @@ pub struct BookingConfig {
 impl Default for BookingConfig {
     fn default() -> Self {
         Self {
-            confirm_deadline_secs: 900,       // 15 minutes
-            payment_deadline_secs: 86400,     // 24 hours
-            ticketing_deadline_secs: 3600,    // 1 hour
+            confirm_deadline_secs: 900,    // 15 minutes
+            payment_deadline_secs: 86400,  // 24 hours
+            ticketing_deadline_secs: 3600, // 1 hour
             max_passengers: 9,
             min_advance_days: 0,
             max_advance_days: 365,
@@ -157,9 +157,9 @@ pub fn validate_passenger_composition(
 
     // Validate each passenger
     for (i, passenger) in passengers.iter().enumerate() {
-        passenger.validate(departure_date).map_err(|e| {
-            BookError::InvalidPassenger(format!("Passenger {}: {}", i + 1, e))
-        })?;
+        passenger
+            .validate(departure_date)
+            .map_err(|e| BookError::InvalidPassenger(format!("Passenger {}: {}", i + 1, e)))?;
     }
 
     Ok(())
@@ -289,7 +289,8 @@ mod tests {
         let child_discount = 25; // 25% off
         let infant_price = vaya_common::MinorUnits::new(1000); // $10
 
-        let total = calculate_passenger_pricing(&passengers, adult_price, child_discount, infant_price);
+        let total =
+            calculate_passenger_pricing(&passengers, adult_price, child_discount, infant_price);
 
         // 2 adults @ $100 = $200
         // 1 child @ $75 (25% off) = $75

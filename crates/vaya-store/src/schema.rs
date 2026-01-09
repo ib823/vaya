@@ -170,7 +170,10 @@ impl Schema {
 
     /// Get all unique columns
     pub fn unique_columns(&self) -> Vec<&Column> {
-        self.columns.iter().filter(|c| c.unique && !c.primary_key).collect()
+        self.columns
+            .iter()
+            .filter(|c| c.unique && !c.primary_key)
+            .collect()
     }
 
     /// Validate a record against the schema
@@ -449,8 +452,7 @@ impl Record {
             if offset + 4 > bytes.len() {
                 return None;
             }
-            let value_len =
-                u32::from_le_bytes(bytes[offset..offset + 4].try_into().ok()?) as usize;
+            let value_len = u32::from_le_bytes(bytes[offset..offset + 4].try_into().ok()?) as usize;
             offset += 4;
 
             if offset + value_len > bytes.len() {
@@ -585,7 +587,10 @@ mod tests {
             .build();
 
         assert_eq!(record.get("id"), Some(&Value::Int64(1)));
-        assert_eq!(record.get("name"), Some(&Value::String("Alice".to_string())));
+        assert_eq!(
+            record.get("name"),
+            Some(&Value::String("Alice".to_string()))
+        );
         assert_eq!(record.get("active"), Some(&Value::Bool(true)));
     }
 
@@ -600,6 +605,9 @@ mod tests {
         let recovered = Record::from_bytes(&bytes).unwrap();
 
         assert_eq!(recovered.get("id"), Some(&Value::Int64(42)));
-        assert_eq!(recovered.get("name"), Some(&Value::String("Test".to_string())));
+        assert_eq!(
+            recovered.get("name"),
+            Some(&Value::String("Test".to_string()))
+        );
     }
 }

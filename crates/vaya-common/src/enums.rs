@@ -31,6 +31,9 @@ pub enum UserStatus {
 }
 
 impl UserStatus {
+    /// Returns the string representation of the user status.
+    ///
+    /// Used for serialization, API responses, and display purposes.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Anonymous => "anonymous",
@@ -42,10 +45,16 @@ impl UserStatus {
         }
     }
 
+    /// Returns true if the user account is active and can perform actions.
+    ///
+    /// Active statuses: `Registered`, `Premium`
     pub fn is_active(&self) -> bool {
         matches!(self, Self::Registered | Self::Premium)
     }
 
+    /// Returns true if the user is allowed to make bookings.
+    ///
+    /// Only registered and premium users can create bookings.
     pub fn can_book(&self) -> bool {
         matches!(self, Self::Registered | Self::Premium)
     }
@@ -73,6 +82,9 @@ pub enum UserTier {
 }
 
 impl UserTier {
+    /// Returns the string representation of the user tier.
+    ///
+    /// Used for serialization and API responses.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Free => "free",
@@ -141,6 +153,9 @@ pub enum BookingStatus {
 }
 
 impl BookingStatus {
+    /// Returns the string representation of the booking status.
+    ///
+    /// Used for serialization, API responses, and database storage.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Pending => "pending",
@@ -154,6 +169,10 @@ impl BookingStatus {
         }
     }
 
+    /// Returns true if the booking has reached a final state.
+    ///
+    /// Terminal statuses cannot be changed and require no further action.
+    /// Terminal: `Cancelled`, `Refunded`, `Failed`, `Completed`, `NoShow`
     pub fn is_terminal(&self) -> bool {
         matches!(
             self,
@@ -161,10 +180,18 @@ impl BookingStatus {
         )
     }
 
+    /// Returns true if the booking is still in progress.
+    ///
+    /// Active bookings require monitoring and may need user action.
+    /// Active: `Pending`, `Confirmed`, `Ticketed`
     pub fn is_active(&self) -> bool {
         matches!(self, Self::Pending | Self::Confirmed | Self::Ticketed)
     }
 
+    /// Returns true if the booking can be cancelled by the user.
+    ///
+    /// Cancellation is allowed before the flight departs.
+    /// Cancellable: `Pending`, `Confirmed`, `Ticketed`
     pub fn can_cancel(&self) -> bool {
         matches!(self, Self::Pending | Self::Confirmed | Self::Ticketed)
     }
@@ -192,6 +219,9 @@ pub enum TripType {
 }
 
 impl TripType {
+    /// Returns the string representation of the trip type.
+    ///
+    /// Used for API requests and search queries.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::OneWay => "one_way",
@@ -225,6 +255,9 @@ pub enum CabinClass {
 }
 
 impl CabinClass {
+    /// Returns the string representation of the cabin class.
+    ///
+    /// Used for API requests and display purposes.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Economy => "economy",
@@ -234,6 +267,9 @@ impl CabinClass {
         }
     }
 
+    /// Returns the IATA cabin class code.
+    ///
+    /// Standard codes: Y (Economy), W (Premium Economy), C (Business), F (First)
     pub fn code(&self) -> char {
         match self {
             Self::Economy => 'Y',
@@ -266,6 +302,9 @@ pub enum TravelerType {
 }
 
 impl TravelerType {
+    /// Returns the string representation of the traveler type.
+    ///
+    /// Used for API requests and fare calculations.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Adult => "adult",
@@ -274,6 +313,9 @@ impl TravelerType {
         }
     }
 
+    /// Returns the PTC (Passenger Type Code) for fare calculation.
+    ///
+    /// Standard codes: ADT (Adult), CHD (Child), INF (Infant)
     pub fn code(&self) -> &'static str {
         match self {
             Self::Adult => "ADT",
@@ -319,6 +361,9 @@ pub enum PoolStatus {
 }
 
 impl PoolStatus {
+    /// Returns the string representation of the pool status.
+    ///
+    /// Used for API responses and database storage.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Forming => "forming",
@@ -332,10 +377,17 @@ impl PoolStatus {
         }
     }
 
+    /// Returns true if new members can join the pool.
+    ///
+    /// Joinable statuses: `Forming`, `Active`
     pub fn is_joinable(&self) -> bool {
         matches!(self, Self::Forming | Self::Active)
     }
 
+    /// Returns true if the pool has reached a final state.
+    ///
+    /// Terminal pools cannot accept new members or process bids.
+    /// Terminal: `Completed`, `Expired`, `NoBids`, `Cancelled`
     pub fn is_terminal(&self) -> bool {
         matches!(
             self,
@@ -380,6 +432,9 @@ pub enum PaymentStatus {
 }
 
 impl PaymentStatus {
+    /// Returns the string representation of the payment status.
+    ///
+    /// Used for API responses, webhooks, and database storage.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Pending => "pending",
@@ -393,14 +448,25 @@ impl PaymentStatus {
         }
     }
 
+    /// Returns true if the payment was completed successfully.
+    ///
+    /// Only `Completed` status indicates successful payment capture.
     pub fn is_successful(&self) -> bool {
         matches!(self, Self::Completed)
     }
 
+    /// Returns true if the payment has reached a final state.
+    ///
+    /// Terminal payments require no further processing.
+    /// Terminal: `Completed`, `Failed`, `Refunded`, `PartiallyRefunded`, `Disputed`
     pub fn is_terminal(&self) -> bool {
         matches!(
             self,
-            Self::Completed | Self::Failed | Self::Refunded | Self::PartiallyRefunded | Self::Disputed
+            Self::Completed
+                | Self::Failed
+                | Self::Refunded
+                | Self::PartiallyRefunded
+                | Self::Disputed
         )
     }
 }
@@ -433,6 +499,9 @@ pub enum PaymentMethod {
 }
 
 impl PaymentMethod {
+    /// Returns the string representation of the payment method.
+    ///
+    /// Used for API requests and database storage.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Card => "card",
@@ -444,6 +513,9 @@ impl PaymentMethod {
         }
     }
 
+    /// Returns the human-readable display name of the payment method.
+    ///
+    /// Used for UI display to users selecting a payment method.
     pub fn display_name(&self) -> &'static str {
         match self {
             Self::Card => "Credit/Debit Card",
@@ -486,6 +558,9 @@ pub enum AlertStatus {
 }
 
 impl AlertStatus {
+    /// Returns the string representation of the alert status.
+    ///
+    /// Used for API responses and database storage.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Active => "active",
@@ -496,6 +571,9 @@ impl AlertStatus {
         }
     }
 
+    /// Returns true if the alert is actively monitoring prices.
+    ///
+    /// Only `Active` alerts are checked against new price data.
     pub fn is_monitoring(&self) -> bool {
         matches!(self, Self::Active)
     }
@@ -515,42 +593,56 @@ impl fmt::Display for AlertStatus {
 pub struct NotificationChannels(u8);
 
 impl NotificationChannels {
+    /// No notification channels enabled.
     pub const NONE: Self = Self(0);
+    /// Email channel bit flag.
     pub const EMAIL: u8 = 1;
+    /// Push notification channel bit flag.
     pub const PUSH: u8 = 2;
+    /// SMS channel bit flag.
     pub const SMS: u8 = 4;
 
+    /// Creates a new NotificationChannels with no channels enabled.
     pub fn new() -> Self {
         Self(0)
     }
 
+    /// Enables email notifications and returns self for chaining.
     pub fn with_email(mut self) -> Self {
         self.0 |= Self::EMAIL;
         self
     }
 
+    /// Enables push notifications and returns self for chaining.
     pub fn with_push(mut self) -> Self {
         self.0 |= Self::PUSH;
         self
     }
 
+    /// Enables SMS notifications and returns self for chaining.
     pub fn with_sms(mut self) -> Self {
         self.0 |= Self::SMS;
         self
     }
 
+    /// Returns true if email notifications are enabled.
     pub fn has_email(&self) -> bool {
         self.0 & Self::EMAIL != 0
     }
 
+    /// Returns true if push notifications are enabled.
     pub fn has_push(&self) -> bool {
         self.0 & Self::PUSH != 0
     }
 
+    /// Returns true if SMS notifications are enabled.
     pub fn has_sms(&self) -> bool {
         self.0 & Self::SMS != 0
     }
 
+    /// Returns the raw u8 value of the channel flags.
+    ///
+    /// Used for serialization and database storage.
     pub fn as_u8(&self) -> u8 {
         self.0
     }
@@ -576,6 +668,9 @@ pub enum OracleRecommendation {
 }
 
 impl OracleRecommendation {
+    /// Returns the string representation of the recommendation.
+    ///
+    /// Used for API responses and analytics.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::BuyNow => "buy_now",
@@ -584,6 +679,9 @@ impl OracleRecommendation {
         }
     }
 
+    /// Returns the user-facing display message for the recommendation.
+    ///
+    /// Used in UI to communicate the Oracle's advice to users.
     pub fn display_message(&self) -> &'static str {
         match self {
             Self::BuyNow => "Buy Now - Lowest Price Expected",
@@ -619,6 +717,9 @@ pub enum OfferSource {
 }
 
 impl OfferSource {
+    /// Returns the string representation of the offer source.
+    ///
+    /// Used for API responses and analytics tracking.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Kiwi => "kiwi",
@@ -629,6 +730,9 @@ impl OfferSource {
         }
     }
 
+    /// Returns the human-readable display name of the source.
+    ///
+    /// Used in UI to show where a price quote originated.
     pub fn display_name(&self) -> &'static str {
         match self {
             Self::Kiwi => "Kiwi.com",
@@ -639,6 +743,9 @@ impl OfferSource {
         }
     }
 
+    /// Returns true if offers from this source can be booked directly.
+    ///
+    /// Bookable sources: `Kiwi`, `Duffel`, `Direct`
     pub fn is_bookable(&self) -> bool {
         matches!(self, Self::Kiwi | Self::Duffel | Self::Direct)
     }
@@ -669,6 +776,9 @@ pub enum OAuthProvider {
 }
 
 impl OAuthProvider {
+    /// Returns the string representation of the OAuth provider.
+    ///
+    /// Used for API requests and database storage.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Google => "google",
@@ -690,14 +800,21 @@ impl fmt::Display for OAuthProvider {
 #[archive_attr(derive(Debug, PartialEq, Eq, Hash))]
 #[repr(u8)]
 pub enum Gender {
+    /// Gender not specified or unknown
     #[default]
     Unknown = 0,
+    /// Male
     Male = 1,
+    /// Female
     Female = 2,
+    /// Other or non-binary
     Other = 3,
 }
 
 impl Gender {
+    /// Returns the string representation of the gender.
+    ///
+    /// Used for API responses and user profiles.
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Unknown => "unknown",
@@ -707,6 +824,9 @@ impl Gender {
         }
     }
 
+    /// Returns the single-character code for travel documents.
+    ///
+    /// Standard codes: M (Male), F (Female), X (Other/Unspecified), U (Unknown)
     pub fn code(&self) -> char {
         match self {
             Self::Unknown => 'U',
@@ -757,9 +877,7 @@ mod tests {
 
     #[test]
     fn test_notification_channels() {
-        let channels = NotificationChannels::new()
-            .with_email()
-            .with_push();
+        let channels = NotificationChannels::new().with_email().with_push();
 
         assert!(channels.has_email());
         assert!(channels.has_push());

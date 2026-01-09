@@ -1,15 +1,15 @@
-//! GDS Response caching using VayaCache
+//! GDS Response caching using `VayaCache`
 
 use std::time::Duration;
 use vaya_cache::Cache;
 
 use crate::types::FlightOffer;
 
-/// GDS response cache using VayaCache (sharded LRU with TTL)
+/// GDS response cache using `VayaCache` (sharded LRU with TTL)
 pub struct GdsCache {
     /// Flight search results cache
     search_cache: Cache<String, Vec<FlightOffer>>,
-    /// Pricing cache (offer_id -> priced offer)
+    /// Pricing cache (`offer_id` -> priced offer)
     pricing_cache: Cache<String, FlightOffer>,
     /// Default TTL for search results
     search_ttl: Duration,

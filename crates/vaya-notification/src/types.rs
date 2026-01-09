@@ -1,7 +1,7 @@
 //! Notification types
 
-use vaya_common::Timestamp;
 use std::collections::HashMap;
+use vaya_common::Timestamp;
 
 /// Notification status
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -426,8 +426,7 @@ mod tests {
         let email = EmailRequest::new("valid@email.com", "Test");
         assert!(email.validate().is_err()); // No body
 
-        let email = EmailRequest::new("valid@email.com", "Test")
-            .with_template("test_template");
+        let email = EmailRequest::new("valid@email.com", "Test").with_template("test_template");
         assert!(email.validate().is_ok());
     }
 

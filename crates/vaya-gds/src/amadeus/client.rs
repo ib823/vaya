@@ -10,11 +10,19 @@ use vaya_common::{AirlineCode, CurrencyCode, IataCode, MinorUnits, Price, Timest
 use crate::cache::GdsCache;
 use crate::error::{GdsError, GdsResult};
 use crate::traits::{AirportInfo, GdsProvider};
-use crate::types::*;
+use crate::types::{
+    BaggageAllowance, BookingConfirmation, BookingStatus, CabinClass, ContactDetails, FareRules,
+    FlightOffer, FlightPoint, FlightSearchRequest, FlightSegment, Itinerary, PassengerDetails,
+    PriceBreakdown,
+};
 use crate::GdsConfig;
 
 use super::auth::TokenManager;
-use super::response::*;
+use super::response::{
+    AirportSearchResponse, AmadeusError, AmadeusFlightOffer, AmadeusItinerary, AmadeusSegment,
+    ContactRequest, Dictionaries, FlightOffersResponse, FlightOrderRequest, FlightOrderResponse,
+    Phone, TravelerContact, TravelerDocument, TravelerName, TravelerPricing, TravelerRequest,
+};
 
 /// Amadeus GDS client
 pub struct AmadeusClient {
@@ -69,7 +77,8 @@ impl AmadeusClient {
 
     /// Make authenticated GET request
     async fn get<T: serde::de::DeserializeOwned>(&self, url: &str) -> GdsResult<T> {
-        self.request_with_retry(reqwest::Method::GET, url, None::<()>).await
+        self.request_with_retry(reqwest::Method::GET, url, None::<()>)
+            .await
     }
 
     /// Make authenticated POST request
@@ -78,7 +87,8 @@ impl AmadeusClient {
         url: &str,
         body: &B,
     ) -> GdsResult<T> {
-        self.request_with_retry(reqwest::Method::POST, url, Some(body)).await
+        self.request_with_retry(reqwest::Method::POST, url, Some(body))
+            .await
     }
 
     /// Execute request with retry logic
@@ -136,9 +146,10 @@ impl AmadeusClient {
         let status = response.status();
 
         if status.is_success() {
-            let result: T = response.json().await.map_err(|e| {
-                GdsError::InvalidResponse(format!("Failed to parse response: {e}"))
-            })?;
+            let result: T = response
+                .json()
+                .await
+                .map_err(|e| GdsError::InvalidResponse(format!("Failed to parse response: {e}")))?;
             return Ok(result);
         }
 
@@ -208,8 +219,7 @@ impl AmadeusClient {
             .base
             .as_ref()
             .and_then(|b| b.parse::<f64>().ok())
-            .map(|v| (v * 100.0) as i64)
-            .unwrap_or(total_cents);
+            .map_or(total_cents, |v| (v * 100.0) as i64);
 
         let currency = CurrencyCode::new(&amadeus_offer.price.currency);
 
@@ -221,8 +231,7 @@ impl AmadeusClient {
             .validating_airline_codes
             .as_ref()
             .and_then(|codes| codes.first())
-            .map(|code| AirlineCode::new(code))
-            .unwrap_or(AirlineCode::MH);
+            .map_or(AirlineCode::MH, |code| AirlineCode::new(code));
 
         // Extract fare rules from traveler pricing
         let fare_rules = self.extract_fare_rules(&amadeus_offer.traveler_pricings);
@@ -262,18 +271,13 @@ impl AmadeusClient {
         let departure_time = self.parse_iso_datetime(&segment.departure.at);
         let arrival_time = self.parse_iso_datetime(&segment.arrival.at);
 
-        let mut departure = FlightPoint::new(
-            IataCode::new(&segment.departure.iata_code),
-            departure_time,
-        );
+        let mut departure =
+            FlightPoint::new(IataCode::new(&segment.departure.iata_code), departure_time);
         if let Some(ref term) = segment.departure.terminal {
             departure = departure.with_terminal(term.clone());
         }
 
-        let mut arrival = FlightPoint::new(
-            IataCode::new(&segment.arrival.iata_code),
-            arrival_time,
-        );
+        let mut arrival = FlightPoint::new(IataCode::new(&segment.arrival.iata_code), arrival_time);
         if let Some(ref term) = segment.arrival.terminal {
             arrival = arrival.with_terminal(term.clone());
         }
@@ -316,17 +320,19 @@ impl AmadeusClient {
         let day: i64 = date_parts[2].parse().unwrap_or(1);
         let hour: i64 = time_parts[0].parse().unwrap_or(0);
         let minute: i64 = time_parts[1].parse().unwrap_or(0);
-        let second: i64 = time_parts.get(2)
+        let second: i64 = time_parts
+            .get(2)
             .and_then(|s| s.split('+').next())
             .and_then(|s| s.parse().ok())
             .unwrap_or(0);
 
         // Calculate unix timestamp (simplified - not accounting for leap years properly)
-        let days_since_epoch = (year - 1970) * 365 + (year - 1969) / 4 - (year - 1901) / 100 + (year - 1601) / 400;
+        let days_since_epoch =
+            (year - 1970) * 365 + (year - 1969) / 4 - (year - 1901) / 100 + (year - 1601) / 400;
         let month_days = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
         let day_of_year = month_days.get((month - 1) as usize).copied().unwrap_or(0) + day - 1;
         let is_leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
-        let leap_adjustment = if is_leap && month > 2 { 1 } else { 0 };
+        let leap_adjustment = i64::from(is_leap && month > 2);
 
         let total_days = days_since_epoch + day_of_year + leap_adjustment;
         let total_seconds = total_days * 86400 + hour * 3600 + minute * 60 + second;
@@ -372,13 +378,14 @@ impl AmadeusClient {
         let details = pricing.fare_details_by_segment.as_ref()?;
         let detail = details.first()?;
 
-        let baggage = detail.included_checked_bags.as_ref().map(|bags| {
-            BaggageAllowance {
+        let baggage = detail
+            .included_checked_bags
+            .as_ref()
+            .map(|bags| BaggageAllowance {
                 checked_bags: bags.quantity.unwrap_or(1) as u8,
                 weight_kg: bags.weight,
                 carry_on: true,
-            }
-        });
+            });
 
         Some(FareRules {
             refundable: false, // Would need fare rules API
@@ -391,7 +398,7 @@ impl AmadeusClient {
 
     /// Format date as ISO string (YYYY-MM-DD)
     fn format_date(&self, date: &vaya_common::Date) -> String {
-        format!("{}", date)
+        format!("{date}")
     }
 
     /// Build search request body
@@ -531,42 +538,40 @@ impl GdsProvider for AmadeusClient {
         let travelers: Vec<TravelerRequest> = passengers
             .iter()
             .enumerate()
-            .map(|(i, p)| {
-                TravelerRequest {
-                    id: (i + 1).to_string(),
-                    date_of_birth: format!("{}", p.date_of_birth),
-                    gender: p.gender.amadeus_code().to_string(),
-                    name: TravelerName {
-                        first_name: p.first_name.clone(),
-                        last_name: p.last_name.clone(),
-                    },
-                    documents: p.passport_number.as_ref().map(|num| {
-                        vec![TravelerDocument {
-                            document_type: "PASSPORT".to_string(),
-                            birth_place: None,
-                            issuance_location: None,
-                            issuance_date: None,
-                            number: num.clone(),
-                            expiry_date: p
-                                .passport_expiry
-                                .as_ref()
-                                .map(|d| format!("{}", d))
-                                .unwrap_or_default(),
-                            issuance_country: p.nationality.clone().unwrap_or_else(|| "MY".to_string()),
-                            validity_country: None,
-                            nationality: p.nationality.clone().unwrap_or_else(|| "MY".to_string()),
-                            holder: true,
-                        }]
-                    }),
-                    contact: Some(TravelerContact {
-                        email_address: Some(contact.email.clone()),
-                        phones: Some(vec![Phone {
-                            device_type: "MOBILE".to_string(),
-                            country_calling_code: "60".to_string(),
-                            number: contact.phone.clone(),
-                        }]),
-                    }),
-                }
+            .map(|(i, p)| TravelerRequest {
+                id: (i + 1).to_string(),
+                date_of_birth: format!("{}", p.date_of_birth),
+                gender: p.gender.amadeus_code().to_string(),
+                name: TravelerName {
+                    first_name: p.first_name.clone(),
+                    last_name: p.last_name.clone(),
+                },
+                documents: p.passport_number.as_ref().map(|num| {
+                    vec![TravelerDocument {
+                        document_type: "PASSPORT".to_string(),
+                        birth_place: None,
+                        issuance_location: None,
+                        issuance_date: None,
+                        number: num.clone(),
+                        expiry_date: p
+                            .passport_expiry
+                            .as_ref()
+                            .map(|d| format!("{d}"))
+                            .unwrap_or_default(),
+                        issuance_country: p.nationality.clone().unwrap_or_else(|| "MY".to_string()),
+                        validity_country: None,
+                        nationality: p.nationality.clone().unwrap_or_else(|| "MY".to_string()),
+                        holder: true,
+                    }]
+                }),
+                contact: Some(TravelerContact {
+                    email_address: Some(contact.email.clone()),
+                    phones: Some(vec![Phone {
+                        device_type: "MOBILE".to_string(),
+                        country_calling_code: "60".to_string(),
+                        number: contact.phone.clone(),
+                    }]),
+                }),
             })
             .collect();
 
@@ -599,8 +604,7 @@ impl GdsProvider for AmadeusClient {
             .associated_records
             .as_ref()
             .and_then(|records| records.first())
-            .map(|r| r.reference.clone())
-            .unwrap_or_else(|| response.data.id.clone());
+            .map_or_else(|| response.data.id.clone(), |r| r.reference.clone());
 
         let ticketing_deadline = response
             .data
@@ -615,7 +619,10 @@ impl GdsProvider for AmadeusClient {
             status: BookingStatus::Confirmed,
             created_at: Timestamp::now(),
             ticketing_deadline,
-            passengers: passengers.iter().map(|p| p.full_name()).collect(),
+            passengers: passengers
+                .iter()
+                .map(super::super::types::PassengerDetails::full_name)
+                .collect(),
             offer_id: offer_id.to_string(),
         })
     }

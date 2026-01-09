@@ -13,6 +13,7 @@ pub struct TemplateEngine {
 
 impl TemplateEngine {
     /// Create new template engine with default templates
+    #[must_use]
     pub fn new() -> Self {
         let mut hbs = Handlebars::new();
         hbs.set_strict_mode(true);
@@ -76,7 +77,7 @@ impl TemplateEngine {
         // Booking confirmation email (text)
         let _ = hbs.register_template_string(
             "booking_confirmation_text",
-            r#"BOOKING CONFIRMED
+            r"BOOKING CONFIRMED
 
 Dear {{passenger_name}},
 
@@ -95,7 +96,7 @@ Your e-ticket will be sent separately.
 
 ---
 VAYA Flights - Your journey starts here
-Need help? Contact us at support@vaya.my"#,
+Need help? Contact us at support@vaya.my",
         );
 
         // Payment confirmation
@@ -184,7 +185,9 @@ Need help? Contact us at support@vaya.my"#,
     pub fn register(&mut self, name: &str, template: &str) -> NotificationResult<()> {
         self.hbs
             .register_template_string(name, template)
-            .map_err(|e| NotificationError::TemplateError(format!("Failed to register template: {e}")))
+            .map_err(|e| {
+                NotificationError::TemplateError(format!("Failed to register template: {e}"))
+            })
     }
 
     /// Render a template with context
@@ -194,7 +197,9 @@ Need help? Contact us at support@vaya.my"#,
         context: &HashMap<String, serde_json::Value>,
     ) -> NotificationResult<String> {
         if !self.hbs.has_template(template_name) {
-            return Err(NotificationError::TemplateNotFound(template_name.to_string()));
+            return Err(NotificationError::TemplateNotFound(
+                template_name.to_string(),
+            ));
         }
 
         self.hbs
@@ -211,11 +216,7 @@ Need help? Contact us at support@vaya.my"#,
     /// Get list of registered templates
     #[must_use]
     pub fn list_templates(&self) -> Vec<String> {
-        self.hbs
-            .get_templates()
-            .keys()
-            .cloned()
-            .collect()
+        self.hbs.get_templates().keys().cloned().collect()
     }
 }
 
@@ -245,7 +246,10 @@ mod tests {
         context.insert("booking_ref".to_string(), serde_json::json!("VAY123"));
         context.insert("origin".to_string(), serde_json::json!("KUL"));
         context.insert("destination".to_string(), serde_json::json!("NRT"));
-        context.insert("departure_date".to_string(), serde_json::json!("2025-02-15"));
+        context.insert(
+            "departure_date".to_string(),
+            serde_json::json!("2025-02-15"),
+        );
         context.insert("flight_number".to_string(), serde_json::json!("MH88"));
         context.insert("currency".to_string(), serde_json::json!("MYR"));
         context.insert("total_amount".to_string(), serde_json::json!("1,500.00"));

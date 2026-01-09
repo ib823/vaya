@@ -23,7 +23,7 @@
 
 use crate::error::{DbError, DbResult};
 use crate::memtable::{InternalKey, MemTable, ValueType};
-use crate::{MAGIC_BYTES, DB_VERSION};
+use crate::{DB_VERSION, MAGIC_BYTES};
 use lz4_flex::{compress_prepend_size, decompress_size_prepended};
 use std::fs::File;
 use std::io::{BufReader, BufWriter, Read, Seek, SeekFrom, Write};
@@ -131,7 +131,7 @@ impl BloomFilter {
         let k = k.clamp(1, 16); // Reasonable bounds
 
         Self {
-            bits: vec![0; (m + 7) / 8],
+            bits: vec![0; m.div_ceil(8)],
             k,
         }
     }
@@ -415,14 +415,14 @@ impl SsTableReader {
     pub fn open(path: impl AsRef<Path>) -> DbResult<Self> {
         let path = path.as_ref().to_path_buf();
         let file = File::open(&path)?;
-        let file_len = file.metadata()?.len();
+        let _file_len = file.metadata()?.len();
 
         let mut reader = BufReader::new(file);
 
         // Read and verify header
         let mut header = [0u8; 8];
         reader.read_exact(&mut header)?;
-        if &header[0..4] != &MAGIC_BYTES {
+        if header[0..4] != MAGIC_BYTES {
             return Err(DbError::Corruption("Invalid SSTable magic bytes".into()));
         }
         let version = u32::from_le_bytes(header[4..8].try_into().unwrap());
@@ -623,9 +623,7 @@ impl SsTableReader {
             }
         }
 
-        let file_size = std::fs::metadata(&self.path)
-            .map(|m| m.len())
-            .unwrap_or(0);
+        let file_size = std::fs::metadata(&self.path).map(|m| m.len()).unwrap_or(0);
 
         Ok(SsTableMeta {
             id,
@@ -669,7 +667,8 @@ impl SsTableReader {
             offset += key_len;
 
             // Read value length
-            let value_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+            let value_len =
+                u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
             offset += 4;
 
             if offset + value_len > data.len() {

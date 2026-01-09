@@ -50,12 +50,11 @@ impl JsonSerialize for CheckResult {
         match &self.message {
             Some(msg) => format!(
                 r#"{{"name":"{}","status":"{}","message":"{}"}}"#,
-                self.name, self.status, escape_json(msg)
+                self.name,
+                self.status,
+                escape_json(msg)
             ),
-            None => format!(
-                r#"{{"name":"{}","status":"{}"}}"#,
-                self.name, self.status
-            ),
+            None => format!(r#"{{"name":"{}","status":"{}"}}"#, self.name, self.status),
         }
     }
 }

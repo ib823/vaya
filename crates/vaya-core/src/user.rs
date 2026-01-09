@@ -94,7 +94,9 @@ impl RegisterRequest {
     /// Validate registration request
     pub fn validate(&self) -> CoreResult<()> {
         if self.email.is_empty() || !self.email.contains('@') {
-            return Err(CoreError::InvalidUserData("Invalid email address".to_string()));
+            return Err(CoreError::InvalidUserData(
+                "Invalid email address".to_string(),
+            ));
         }
         if self.password.len() < 8 {
             return Err(CoreError::InvalidUserData(
@@ -288,9 +290,7 @@ impl UserService {
         if stored.user.status != UserStatus::Active
             && stored.user.status != UserStatus::PendingVerification
         {
-            return Err(CoreError::NotAuthorized(
-                "Account is suspended".to_string(),
-            ));
+            return Err(CoreError::NotAuthorized("Account is suspended".to_string()));
         }
 
         // Generate tokens
@@ -340,11 +340,7 @@ impl UserService {
     }
 
     /// Update user profile
-    pub async fn update_profile(
-        &self,
-        user_id: &str,
-        updates: ProfileUpdate,
-    ) -> CoreResult<User> {
+    pub async fn update_profile(&self, user_id: &str, updates: ProfileUpdate) -> CoreResult<User> {
         let mut users = self.users.write().unwrap();
         let stored = users
             .get_mut(user_id)

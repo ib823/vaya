@@ -5,7 +5,9 @@ use vaya_api::{ApiError, ApiResult, JsonSerialize, Request, Response};
 /// Search flights
 pub fn search_flights(req: &Request) -> ApiResult<Response> {
     // Parse request body for search criteria
-    let body = req.body_string().ok_or(ApiError::BadRequest("Missing request body".into()))?;
+    let _body = req
+        .body_string()
+        .ok_or(ApiError::BadRequest("Missing request body".into()))?;
 
     // TODO: Parse JSON body and perform search
     // For now, return mock response
@@ -26,7 +28,9 @@ pub fn search_airports(req: &Request) -> ApiResult<Response> {
     let query = req.query("q").cloned().unwrap_or_default();
 
     if query.len() < 2 {
-        return Err(ApiError::BadRequest("Query must be at least 2 characters".into()));
+        return Err(ApiError::BadRequest(
+            "Query must be at least 2 characters".into(),
+        ));
     }
 
     // TODO: Search airports
@@ -42,7 +46,9 @@ pub fn search_airlines(req: &Request) -> ApiResult<Response> {
     let query = req.query("q").cloned().unwrap_or_default();
 
     if query.is_empty() {
-        return Err(ApiError::BadRequest("Query parameter 'q' is required".into()));
+        return Err(ApiError::BadRequest(
+            "Query parameter 'q' is required".into(),
+        ));
     }
 
     // TODO: Search airlines
@@ -91,8 +97,15 @@ impl JsonSerialize for FlightResult {
     fn to_json(&self) -> String {
         format!(
             r#"{{"id":"{}","origin":"{}","destination":"{}","departure":"{}","arrival":"{}","price_cents":{},"currency":"{}","airline":"{}","stops":{}}}"#,
-            self.id, self.origin, self.destination, self.departure, self.arrival,
-            self.price_cents, self.currency, self.airline, self.stops
+            self.id,
+            self.origin,
+            self.destination,
+            self.departure,
+            self.arrival,
+            self.price_cents,
+            self.currency,
+            self.airline,
+            self.stops
         )
     }
 }

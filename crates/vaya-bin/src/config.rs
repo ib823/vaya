@@ -130,13 +130,11 @@ pub struct DatabaseConfig {
 
 impl DatabaseConfig {
     fn from_env() -> Result<Self, ConfigError> {
-        let data_dir = PathBuf::from(
-            env::var("VAYA_DATA_DIR").unwrap_or_else(|_| "./data/db".into()),
-        );
+        let data_dir =
+            PathBuf::from(env::var("VAYA_DATA_DIR").unwrap_or_else(|_| "./data/db".into()));
 
-        let wal_dir = PathBuf::from(
-            env::var("VAYA_WAL_DIR").unwrap_or_else(|_| "./data/wal".into()),
-        );
+        let wal_dir =
+            PathBuf::from(env::var("VAYA_WAL_DIR").unwrap_or_else(|_| "./data/wal".into()));
 
         Ok(Self {
             data_dir,
@@ -489,7 +487,10 @@ fn num_cpus() -> usize {
     #[cfg(target_os = "linux")]
     {
         if let Ok(content) = std::fs::read_to_string("/proc/cpuinfo") {
-            let count = content.lines().filter(|l| l.starts_with("processor")).count();
+            let count = content
+                .lines()
+                .filter(|l| l.starts_with("processor"))
+                .count();
             if count > 0 {
                 return count;
             }

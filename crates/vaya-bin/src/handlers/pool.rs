@@ -8,7 +8,9 @@ pub fn create_pool(req: &Request) -> ApiResult<Response> {
         return Err(ApiError::Unauthorized("Authentication required".into()));
     }
 
-    let _body = req.body_string().ok_or(ApiError::BadRequest("Missing request body".into()))?;
+    let _body = req
+        .body_string()
+        .ok_or(ApiError::BadRequest("Missing request body".into()))?;
 
     // TODO: Parse and create pool
     let pool = PoolResponse {
@@ -113,7 +115,12 @@ impl JsonSerialize for PoolResponse {
     fn to_json(&self) -> String {
         format!(
             r#"{{"id":"{}","status":"{}","members":{},"target_size":{},"current_price_cents":{},"created_at":"{}"}}"#,
-            self.id, self.status, self.members, self.target_size, self.current_price_cents, self.created_at
+            self.id,
+            self.status,
+            self.members,
+            self.target_size,
+            self.current_price_cents,
+            self.created_at
         )
     }
 }

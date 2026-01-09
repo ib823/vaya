@@ -7,7 +7,10 @@ use tracing::{debug, info, warn};
 use vaya_common::{CurrencyCode, MinorUnits, Price, Timestamp};
 
 use crate::error::{PaymentError, PaymentResult};
-use crate::types::*;
+use crate::types::{
+    CardBrand, PaymentIntent, PaymentMethodDetails, PaymentRequest, PaymentStatus, Refund,
+    RefundReason, RefundRequest, RefundStatus,
+};
 use crate::PaymentConfig;
 
 /// Stripe base URL
@@ -31,7 +34,9 @@ impl StripeClient {
         let http_client = reqwest::Client::builder()
             .timeout(Duration::from_secs(config.request_timeout_secs))
             .build()
-            .map_err(|e| PaymentError::Configuration(format!("Failed to create HTTP client: {e}")))?;
+            .map_err(|e| {
+                PaymentError::Configuration(format!("Failed to create HTTP client: {e}"))
+            })?;
 
         Ok(Self {
             http_client,
@@ -62,17 +67,14 @@ impl StripeClient {
         // Add allowed payment methods
         for (i, method) in request.allowed_methods.iter().enumerate() {
             params.push((
-                format!("payment_method_types[{}]", i).leak(),
+                format!("payment_method_types[{i}]").leak(),
                 method.stripe_type().to_string(),
             ));
         }
 
         // Add metadata
         for (key, value) in &request.metadata {
-            params.push((
-                format!("metadata[{}]", key).leak(),
-                value.clone(),
-            ));
+            params.push((format!("metadata[{key}]").leak(), value.clone()));
         }
 
         let idempotency_key = request
@@ -82,7 +84,7 @@ impl StripeClient {
 
         let response: serde_json::Value = self
             .post_with_retry(
-                &format!("{}/payment_intents", STRIPE_API_BASE),
+                &format!("{STRIPE_API_BASE}/payment_intents"),
                 &params,
                 Some(&idempotency_key),
             )
@@ -93,14 +95,14 @@ impl StripeClient {
 
     /// Retrieve a payment intent
     pub async fn get_payment(&self, payment_id: &str) -> PaymentResult<PaymentIntent> {
-        let url = format!("{}/payment_intents/{}", STRIPE_API_BASE, payment_id);
+        let url = format!("{STRIPE_API_BASE}/payment_intents/{payment_id}");
         let response: serde_json::Value = self.get(&url).await?;
         self.parse_payment_intent(&response)
     }
 
     /// Cancel a payment intent
     pub async fn cancel_payment(&self, payment_id: &str) -> PaymentResult<PaymentIntent> {
-        let url = format!("{}/payment_intents/{}/cancel", STRIPE_API_BASE, payment_id);
+        let url = format!("{STRIPE_API_BASE}/payment_intents/{payment_id}/cancel");
         let response: serde_json::Value = self.post_with_retry(&url, &[], None).await?;
         self.parse_payment_intent(&response)
     }
@@ -123,7 +125,7 @@ impl StripeClient {
 
         let response: serde_json::Value = self
             .post_with_retry(
-                &format!("{}/refunds", STRIPE_API_BASE),
+                &format!("{STRIPE_API_BASE}/refunds"),
                 &params,
                 Some(&idempotency_key),
             )
@@ -134,7 +136,7 @@ impl StripeClient {
 
     /// Get refund status
     pub async fn get_refund(&self, refund_id: &str) -> PaymentResult<Refund> {
-        let url = format!("{}/refunds/{}", STRIPE_API_BASE, refund_id);
+        let url = format!("{STRIPE_API_BASE}/refunds/{refund_id}");
         let response: serde_json::Value = self.get(&url).await?;
         self.parse_refund(&response)
     }
@@ -206,7 +208,10 @@ impl StripeClient {
     }
 
     /// Handle HTTP response
-    async fn handle_response(&self, response: reqwest::Response) -> PaymentResult<serde_json::Value> {
+    async fn handle_response(
+        &self,
+        response: reqwest::Response,
+    ) -> PaymentResult<serde_json::Value> {
         let status = response.status();
 
         if status.is_success() {
@@ -224,14 +229,25 @@ impl StripeClient {
         let error = error_json.get("error").cloned().unwrap_or(error_json);
         let error_type = error.get("type").and_then(|v| v.as_str()).unwrap_or("");
         let error_code = error.get("code").and_then(|v| v.as_str()).unwrap_or("");
-        let error_message = error.get("message").and_then(|v| v.as_str()).unwrap_or("Unknown error");
+        let error_message = error
+            .get("message")
+            .and_then(|v| v.as_str())
+            .unwrap_or("Unknown error");
 
         // Map Stripe errors to our error types
         match (status.as_u16(), error_type, error_code) {
-            (401, _, _) => Err(PaymentError::AuthenticationFailed(error_message.to_string())),
-            (429, _, _) => Err(PaymentError::RateLimited { retry_after_secs: 60 }),
+            (401, _, _) => Err(PaymentError::AuthenticationFailed(
+                error_message.to_string(),
+            )),
+            (429, _, _) => Err(PaymentError::RateLimited {
+                retry_after_secs: 60,
+            }),
             (_, "card_error", "card_declined") => Err(PaymentError::CardDeclined {
-                code: error.get("decline_code").and_then(|v| v.as_str()).unwrap_or("generic_decline").to_string(),
+                code: error
+                    .get("decline_code")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("generic_decline")
+                    .to_string(),
                 message: error_message.to_string(),
             }),
             (_, "card_error", "insufficient_funds") => Err(PaymentError::InsufficientFunds),
@@ -248,37 +264,40 @@ impl StripeClient {
                 }
             }
             _ => Err(PaymentError::ServiceUnavailable(format!(
-                "{}: {}",
-                error_type,
-                error_message
+                "{error_type}: {error_message}"
             ))),
         }
     }
 
     /// Parse payment intent from JSON response
     fn parse_payment_intent(&self, json: &serde_json::Value) -> PaymentResult<PaymentIntent> {
-        let id = json.get("id")
+        let id = json
+            .get("id")
             .and_then(|v| v.as_str())
             .ok_or_else(|| PaymentError::InvalidResponse("Missing payment intent ID".to_string()))?
             .to_string();
 
-        let client_secret = json.get("client_secret")
+        let client_secret = json
+            .get("client_secret")
             .and_then(|v| v.as_str())
             .unwrap_or("")
             .to_string();
 
-        let amount_cents = json.get("amount")
-            .and_then(|v| v.as_i64())
+        let amount_cents = json
+            .get("amount")
+            .and_then(serde_json::Value::as_i64)
             .unwrap_or(0);
 
-        let currency_str = json.get("currency")
+        let currency_str = json
+            .get("currency")
             .and_then(|v| v.as_str())
             .unwrap_or("myr");
 
         let currency = CurrencyCode::new(currency_str);
         let amount = Price::new(MinorUnits::new(amount_cents), currency);
 
-        let status_str = json.get("status")
+        let status_str = json
+            .get("status")
             .and_then(|v| v.as_str())
             .unwrap_or("pending");
 
@@ -291,10 +310,10 @@ impl StripeClient {
             _ => PaymentStatus::Failed,
         };
 
-        let created_at = json.get("created")
-            .and_then(|v| v.as_i64())
-            .map(Timestamp::from_unix)
-            .unwrap_or_else(Timestamp::now);
+        let created_at = json
+            .get("created")
+            .and_then(serde_json::Value::as_i64)
+            .map_or_else(Timestamp::now, Timestamp::from_unix);
 
         let booking_ref = json
             .get("metadata")
@@ -335,7 +354,10 @@ impl StripeClient {
     }
 
     /// Parse payment method details
-    fn parse_payment_method(&self, json: Option<&serde_json::Value>) -> Option<PaymentMethodDetails> {
+    fn parse_payment_method(
+        &self,
+        json: Option<&serde_json::Value>,
+    ) -> Option<PaymentMethodDetails> {
         let details = json?;
         let method_type = details.get("type")?.as_str()?;
 
@@ -344,17 +366,33 @@ impl StripeClient {
                 let card = details.get("card")?;
                 Some(PaymentMethodDetails::Card {
                     brand: CardBrand::from_stripe(
-                        card.get("brand").and_then(|v| v.as_str()).unwrap_or("unknown")
+                        card.get("brand")
+                            .and_then(|v| v.as_str())
+                            .unwrap_or("unknown"),
                     ),
-                    last4: card.get("last4").and_then(|v| v.as_str()).unwrap_or("****").to_string(),
-                    exp_month: card.get("exp_month").and_then(|v| v.as_u64()).unwrap_or(1) as u8,
-                    exp_year: card.get("exp_year").and_then(|v| v.as_u64()).unwrap_or(2025) as u16,
+                    last4: card
+                        .get("last4")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("****")
+                        .to_string(),
+                    exp_month: card
+                        .get("exp_month")
+                        .and_then(serde_json::Value::as_u64)
+                        .unwrap_or(1) as u8,
+                    exp_year: card
+                        .get("exp_year")
+                        .and_then(serde_json::Value::as_u64)
+                        .unwrap_or(2025) as u16,
                 })
             }
             "fpx" => {
                 let fpx = details.get("fpx")?;
                 Some(PaymentMethodDetails::Fpx {
-                    bank: fpx.get("bank").and_then(|v| v.as_str()).unwrap_or("unknown").to_string(),
+                    bank: fpx
+                        .get("bank")
+                        .and_then(|v| v.as_str())
+                        .unwrap_or("unknown")
+                        .to_string(),
                 })
             }
             "grabpay" => Some(PaymentMethodDetails::GrabPay),
@@ -366,28 +404,33 @@ impl StripeClient {
 
     /// Parse refund from JSON response
     fn parse_refund(&self, json: &serde_json::Value) -> PaymentResult<Refund> {
-        let id = json.get("id")
+        let id = json
+            .get("id")
             .and_then(|v| v.as_str())
             .ok_or_else(|| PaymentError::InvalidResponse("Missing refund ID".to_string()))?
             .to_string();
 
-        let payment_id = json.get("payment_intent")
+        let payment_id = json
+            .get("payment_intent")
             .and_then(|v| v.as_str())
             .unwrap_or("")
             .to_string();
 
-        let amount_cents = json.get("amount")
-            .and_then(|v| v.as_i64())
+        let amount_cents = json
+            .get("amount")
+            .and_then(serde_json::Value::as_i64)
             .unwrap_or(0);
 
-        let currency_str = json.get("currency")
+        let currency_str = json
+            .get("currency")
             .and_then(|v| v.as_str())
             .unwrap_or("myr");
 
         let currency = CurrencyCode::new(currency_str);
         let amount = Price::new(MinorUnits::new(amount_cents), currency);
 
-        let status_str = json.get("status")
+        let status_str = json
+            .get("status")
             .and_then(|v| v.as_str())
             .unwrap_or("pending");
 
@@ -398,12 +441,13 @@ impl StripeClient {
             _ => RefundStatus::Pending,
         };
 
-        let created_at = json.get("created")
-            .and_then(|v| v.as_i64())
-            .map(Timestamp::from_unix)
-            .unwrap_or_else(Timestamp::now);
+        let created_at = json
+            .get("created")
+            .and_then(serde_json::Value::as_i64)
+            .map_or_else(Timestamp::now, Timestamp::from_unix);
 
-        let reason_str = json.get("reason")
+        let reason_str = json
+            .get("reason")
             .and_then(|v| v.as_str())
             .unwrap_or("requested_by_customer");
 

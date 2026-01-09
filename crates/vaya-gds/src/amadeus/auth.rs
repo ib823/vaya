@@ -1,4 +1,4 @@
-//! Amadeus OAuth2 token management
+//! Amadeus `OAuth2` token management
 
 use parking_lot::RwLock;
 use serde::Deserialize;
@@ -8,7 +8,7 @@ use tracing::{debug, warn};
 use crate::error::{GdsError, GdsResult};
 use crate::GdsConfig;
 
-/// OAuth2 token response from Amadeus
+/// `OAuth2` token response from Amadeus
 #[derive(Debug, Deserialize)]
 pub struct TokenResponse {
     /// Access token
@@ -39,7 +39,7 @@ impl CachedToken {
     }
 }
 
-/// Token manager for Amadeus OAuth2 authentication
+/// Token manager for Amadeus `OAuth2` authentication
 pub struct TokenManager {
     /// HTTP client
     http_client: reqwest::Client,

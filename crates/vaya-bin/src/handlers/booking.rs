@@ -9,7 +9,9 @@ pub fn create_booking(req: &Request) -> ApiResult<Response> {
         return Err(ApiError::Unauthorized("Authentication required".into()));
     }
 
-    let _body = req.body_string().ok_or(ApiError::BadRequest("Missing request body".into()))?;
+    let _body = req
+        .body_string()
+        .ok_or(ApiError::BadRequest("Missing request body".into()))?;
 
     // TODO: Parse and create booking
     let booking = BookingResponse {
@@ -66,7 +68,10 @@ pub fn get_booking(req: &Request) -> ApiResult<Response> {
 
     // TODO: Fetch booking from database
     // For now, return not found as placeholder
-    Err(ApiError::NotFound(format!("Booking {} not found", booking_id)))
+    Err(ApiError::NotFound(format!(
+        "Booking {} not found",
+        booking_id
+    )))
 }
 
 /// Confirm a booking
@@ -80,7 +85,10 @@ pub fn confirm_booking(req: &Request) -> ApiResult<Response> {
         .ok_or(ApiError::BadRequest("Missing booking ID".into()))?;
 
     // TODO: Confirm booking
-    Err(ApiError::NotFound(format!("Booking {} not found", booking_id)))
+    Err(ApiError::NotFound(format!(
+        "Booking {} not found",
+        booking_id
+    )))
 }
 
 /// Cancel a booking
@@ -94,7 +102,10 @@ pub fn cancel_booking(req: &Request) -> ApiResult<Response> {
         .ok_or(ApiError::BadRequest("Missing booking ID".into()))?;
 
     // TODO: Cancel booking
-    Err(ApiError::NotFound(format!("Booking {} not found", booking_id)))
+    Err(ApiError::NotFound(format!(
+        "Booking {} not found",
+        booking_id
+    )))
 }
 
 /// Booking response

@@ -54,9 +54,9 @@ impl Default for PoolConfig {
         Self {
             default_min_members: 5,
             default_max_members: 50,
-            default_join_deadline_secs: 7 * 24 * 3600,    // 7 days
+            default_join_deadline_secs: 7 * 24 * 3600, // 7 days
             default_contribution_deadline_secs: 10 * 24 * 3600, // 10 days
-            price_lock_duration_secs: 24 * 3600,          // 24 hours
+            price_lock_duration_secs: 24 * 3600,       // 24 hours
             max_spots_per_member: 10,
         }
     }
@@ -94,11 +94,7 @@ impl PoolConfig {
 }
 
 /// Validate pool member count
-pub fn validate_member_count(
-    current: u32,
-    min: u32,
-    max: u32,
-) -> PoolResult<()> {
+pub fn validate_member_count(current: u32, min: u32, max: u32) -> PoolResult<()> {
     if current > max {
         return Err(PoolError::MemberLimitReached);
     }
@@ -179,8 +175,8 @@ impl PoolSummary {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use vaya_common::{CurrencyCode, IataCode, MinorUnits};
     use time::Date;
+    use vaya_common::{CurrencyCode, IataCode, MinorUnits};
 
     fn create_test_pool() -> Pool {
         let route = PoolRoute::one_way(
@@ -188,10 +184,8 @@ mod tests {
             IataCode::BKK,
             Date::from_calendar_date(2025, time::Month::June, 15).unwrap(),
         );
-        let pricing = TieredPricing::with_standard_tiers(
-            MinorUnits::new(10000),
-            CurrencyCode::SGD,
-        ).unwrap();
+        let pricing =
+            TieredPricing::with_standard_tiers(MinorUnits::new(10000), CurrencyCode::SGD).unwrap();
 
         Pool::new("Test Pool", route, pricing, "organizer", 1).unwrap()
     }
@@ -240,7 +234,7 @@ mod tests {
         assert_eq!(calculate_progress(5, 10), 50);
         assert_eq!(calculate_progress(10, 10), 100);
         assert_eq!(calculate_progress(15, 10), 100); // Capped at 100
-        assert_eq!(calculate_progress(5, 0), 100);   // Edge case
+        assert_eq!(calculate_progress(5, 0), 100); // Edge case
     }
 
     #[test]

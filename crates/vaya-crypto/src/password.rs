@@ -3,10 +3,10 @@
 //! This module provides secure password hashing following OWASP recommendations.
 //! Uses PBKDF2 with HMAC-SHA256, 100,000 iterations (configurable), and 16-byte salt.
 
+use crate::random::{base64_decode, base64_encode, random_bytes};
 use ring::pbkdf2;
 use std::num::NonZeroU32;
-use vaya_common::{Result, VayaError, ErrorCode};
-use crate::random::{random_bytes, base64_encode, base64_decode};
+use vaya_common::{ErrorCode, Result, VayaError};
 
 /// Default number of PBKDF2 iterations (OWASP 2024 recommendation)
 pub const DEFAULT_ITERATIONS: u32 = 100_000;
@@ -59,9 +59,8 @@ impl PasswordHash {
         let mut hash = [0u8; HASH_LENGTH];
         pbkdf2::derive(
             pbkdf2::PBKDF2_HMAC_SHA256,
-            NonZeroU32::new(iterations).ok_or_else(|| {
-                VayaError::new(ErrorCode::CryptoError, "Invalid iteration count")
-            })?,
+            NonZeroU32::new(iterations)
+                .ok_or_else(|| VayaError::new(ErrorCode::CryptoError, "Invalid iteration count"))?,
             &salt,
             password.as_bytes(),
             &mut hash,
@@ -105,16 +104,16 @@ impl PasswordHash {
     pub fn decode(encoded: &str) -> Result<Self> {
         let parts: Vec<&str> = encoded.split('$').collect();
 
-        if parts.len() != 5 || parts[0] != "" || parts[1] != "pbkdf2-sha256" {
+        if parts.len() != 5 || !parts[0].is_empty() || parts[1] != "pbkdf2-sha256" {
             return Err(VayaError::new(
                 ErrorCode::CryptoError,
                 "Invalid password hash format",
             ));
         }
 
-        let iterations: u32 = parts[2].parse().map_err(|_| {
-            VayaError::new(ErrorCode::CryptoError, "Invalid iteration count")
-        })?;
+        let iterations: u32 = parts[2]
+            .parse()
+            .map_err(|_| VayaError::new(ErrorCode::CryptoError, "Invalid iteration count"))?;
 
         let salt_vec = base64_decode(parts[3])?;
         if salt_vec.len() != SALT_LENGTH {

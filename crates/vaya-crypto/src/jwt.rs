@@ -3,9 +3,9 @@
 //! Minimal, secure JWT implementation for authentication tokens.
 //! Uses HMAC-SHA256 (HS256) for signing.
 
+use crate::random::{base64_decode, base64_encode};
 use ring::hmac;
-use vaya_common::{Result, VayaError, ErrorCode, Timestamp};
-use crate::random::{base64_encode, base64_decode};
+use vaya_common::{ErrorCode, Result, Timestamp, VayaError};
 
 /// JWT signing key
 pub struct JwtKey {
@@ -53,7 +53,10 @@ impl JwtKey {
     pub fn verify(&self, token: &str) -> Result<JwtClaims> {
         let parts: Vec<&str> = token.split('.').collect();
         if parts.len() != 3 {
-            return Err(VayaError::new(ErrorCode::InvalidToken, "Invalid JWT format"));
+            return Err(VayaError::new(
+                ErrorCode::InvalidToken,
+                "Invalid JWT format",
+            ));
         }
 
         let header = parts[0];
@@ -231,7 +234,10 @@ impl JwtClaims {
     fn from_json(json: &str) -> Result<Self> {
         let json = json.trim();
         if !json.starts_with('{') || !json.ends_with('}') {
-            return Err(VayaError::new(ErrorCode::InvalidToken, "Invalid JSON format"));
+            return Err(VayaError::new(
+                ErrorCode::InvalidToken,
+                "Invalid JSON format",
+            ));
         }
 
         let inner = &json[1..json.len() - 1];
@@ -270,7 +276,10 @@ impl JwtClaims {
         }
 
         if claims.sub.is_empty() {
-            return Err(VayaError::new(ErrorCode::InvalidToken, "Missing 'sub' claim"));
+            return Err(VayaError::new(
+                ErrorCode::InvalidToken,
+                "Missing 'sub' claim",
+            ));
         }
 
         Ok(claims)
@@ -332,9 +341,9 @@ fn split_json_fields(s: &str) -> Vec<&str> {
 
 fn parse_json_field(s: &str) -> Result<(&str, &str)> {
     let s = s.trim();
-    let colon_pos = s.find(':').ok_or_else(|| {
-        VayaError::new(ErrorCode::InvalidToken, "Invalid JSON field format")
-    })?;
+    let colon_pos = s
+        .find(':')
+        .ok_or_else(|| VayaError::new(ErrorCode::InvalidToken, "Invalid JSON field format"))?;
 
     let key = s[..colon_pos].trim();
     let value = s[colon_pos + 1..].trim();
@@ -348,7 +357,10 @@ fn parse_json_field(s: &str) -> Result<(&str, &str)> {
 fn parse_json_string(s: &str) -> Result<String> {
     let s = s.trim();
     if !s.starts_with('"') || !s.ends_with('"') {
-        return Err(VayaError::new(ErrorCode::InvalidToken, "Invalid JSON string"));
+        return Err(VayaError::new(
+            ErrorCode::InvalidToken,
+            "Invalid JSON string",
+        ));
     }
 
     let inner = &s[1..s.len() - 1];
@@ -409,8 +421,7 @@ mod tests {
     #[test]
     fn test_jwt_expired() {
         let key = JwtKey::generate().unwrap();
-        let claims = JwtClaims::new("user123")
-            .expires_at(0); // Expired in 1970
+        let claims = JwtClaims::new("user123").expires_at(0); // Expired in 1970
 
         let token = key.sign(&claims).unwrap();
         let result = key.verify(&token);

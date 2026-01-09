@@ -125,7 +125,10 @@ pub struct MinMaxScaler {
 impl MinMaxScaler {
     /// Create a new min-max scaler
     pub fn new() -> Self {
-        Self { min: None, max: None }
+        Self {
+            min: None,
+            max: None,
+        }
     }
 
     /// Fit the scaler to the data
@@ -212,11 +215,7 @@ mod tests {
 
     #[test]
     fn test_standard_scaler() {
-        let data = Matrix::from_vec(vec![
-            vec![1.0, 100.0],
-            vec![2.0, 200.0],
-            vec![3.0, 300.0],
-        ]);
+        let data = Matrix::from_vec(vec![vec![1.0, 100.0], vec![2.0, 200.0], vec![3.0, 300.0]]);
 
         let mut scaler = StandardScaler::new();
         let scaled = scaler.fit_transform(&data);
@@ -234,11 +233,7 @@ mod tests {
 
     #[test]
     fn test_minmax_scaler() {
-        let data = Matrix::from_vec(vec![
-            vec![1.0, 100.0],
-            vec![2.0, 200.0],
-            vec![3.0, 300.0],
-        ]);
+        let data = Matrix::from_vec(vec![vec![1.0, 100.0], vec![2.0, 200.0], vec![3.0, 300.0]]);
 
         let mut scaler = MinMaxScaler::new();
         let scaled = scaler.fit_transform(&data);
